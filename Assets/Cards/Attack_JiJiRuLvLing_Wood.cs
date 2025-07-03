@@ -1,7 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-[CreateAssetMenu(fileName = "Attack_JiJiRuLvLing_Wood", menuName = "Cards/Attack/«æ«æ¦p«ß¥O(¤ì)")]
+[CreateAssetMenu(fileName = "Attack_JiJiRuLvLing_Wood", menuName = "Cards/Attack/ï¿½ï¿½ï¿½pï¿½ß¥O(ï¿½ï¿½)")]
 public class Attack_JiJiRuLvLing_Wood : AttackCardBase
 {
     public int baseDamage = 6;
@@ -22,6 +22,6 @@ public class Attack_JiJiRuLvLing_Wood : AttackCardBase
                 adj.AddElement(ElementType.Wood);
             }
         }
-        player.UseEnergy(cost);
+        
     }
 }

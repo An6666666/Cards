@@ -2,17 +2,17 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-#region §ðÀ»µP1-4¡G¦­´Á³]­p
+#region ï¿½ï¿½ï¿½ï¿½ï¿½P1-4ï¿½Gï¿½ï¿½ï¿½ï¿½ï¿½]ï¿½p
 
 /// <summary>
-/// «æ«æ¦p«ß¥O
+/// ï¿½ï¿½ï¿½pï¿½ß¥O
 /// </summary>
-[CreateAssetMenu(fileName = "Attack_JiJiRuLvLing", menuName = "Cards/Attack/«æ«æ¦p«ß¥O")]
+[CreateAssetMenu(fileName = "Attack_JiJiRuLvLing", menuName = "Cards/Attack/ï¿½ï¿½ï¿½pï¿½ß¥O")]
 public class Attack_JiJiRuLvLing : AttackCardBase
 {
-    [Header("°òÂ¦¶Ë®`")]
+    [Header("ï¿½ï¿½Â¦ï¿½Ë®`")]
     public int baseDamage = 6;
-    [Header("¹ïÃz¨«¥Ø¼ÐªºÃB¥~¯u¹ê¶Ë®`")]
+    [Header("ï¿½ï¿½ï¿½zï¿½ï¿½ï¿½Ø¼Ðªï¿½ï¿½Bï¿½~ï¿½uï¿½ï¿½Ë®`")]
     public int extraTrueDamage = 3;
     private void OnEnable()
     {
@@ -22,18 +22,18 @@ public class Attack_JiJiRuLvLing : AttackCardBase
     public override void ExecuteEffect(Player player, Enemy enemy)
     {
         Debug.Log($"ExecuteEffect called with cost={cost}");
-        // 1. ÀË¬d¼Ä¤H¬O§_³B©óÃz¨«ª¬ºA(¦¹¥Ü½dª½±µ¥Î enemy.hasBerserk ¤§Ãþ)
-        //   (µø±¡ªp¦Û¤v¦b Enemy.cs ¥[bool hasBerserk)
+        // 1. ï¿½Ë¬dï¿½Ä¤Hï¿½Oï¿½_ï¿½Bï¿½ï¿½ï¿½zï¿½ï¿½ï¿½ï¿½ï¿½A(ï¿½ï¿½ï¿½Ü½dï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ enemy.hasBerserk ï¿½ï¿½ï¿½ï¿½)
+        //   (ï¿½ï¿½ï¿½ï¿½ï¿½pï¿½Û¤vï¿½b Enemy.cs ï¿½[bool hasBerserk)
         int totalDamage = baseDamage;
 
         if (enemy.hasBerserk)
         {
-            // ÃB¥~¯u¹ê¶Ë®`
-            // ¯u¹ê¶Ë®`¥i¦Ò¼{ª½±µ¦© enemy.currentHP¡A©ÎÂ¶¹Lblock
+            // ï¿½Bï¿½~ï¿½uï¿½ï¿½Ë®`
+            // ï¿½uï¿½ï¿½Ë®`ï¿½iï¿½Ò¼{ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ enemy.currentHPï¿½Aï¿½ï¿½Â¶ï¿½Lblock
             enemy.TakeTrueDamage(extraTrueDamage);
         }
 
-        // 2. ´¶³q¶Ë®` (®M¥Îª±®a§ðÀ»¥[¦¨)
+        // 2. ï¿½ï¿½ï¿½qï¿½Ë®` (ï¿½Mï¿½Îªï¿½ï¿½aï¿½ï¿½ï¿½ï¿½ï¿½[ï¿½ï¿½)
         int dmg = player.CalculateAttackDamage(totalDamage);
         enemy.TakeDamage(dmg);
 
@@ -41,13 +41,13 @@ public class Attack_JiJiRuLvLing : AttackCardBase
 }
 
 /// <summary>
-/// ¤Ñ»@ (AOE §ðÀ», ­Y¦³³±®ð©Î¹p¹qµ¥¤¸¯À³õ´º¥i¥[¦¨)
+/// ï¿½Ñ»@ (AOE ï¿½ï¿½ï¿½ï¿½, ï¿½Yï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Î¹pï¿½qï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½iï¿½[ï¿½ï¿½)
 /// </summary>
-[CreateAssetMenu(fileName = "Attack_TianFa", menuName = "Cards/Attack/¤Ñ»@")]
+[CreateAssetMenu(fileName = "Attack_TianFa", menuName = "Cards/Attack/ï¿½Ñ»@")]
 public class Attack_TianFa : CardBase
 {
-    public int aoeDamage = 5;       // ¹ï¥þÅé¼Ä¤H°òÂ¦¶Ë®`
-    public int elementBonus = 2;    // ­Y³õ¤W¦³³±®ð/¹p¹q®Éªº¥[¦¨
+    public int aoeDamage = 5;       // ï¿½ï¿½ï¿½ï¿½ï¿½Ä¤Hï¿½ï¿½Â¦ï¿½Ë®`
+    public int elementBonus = 2;    // ï¿½Yï¿½ï¿½ï¿½Wï¿½ï¿½ï¿½ï¿½ï¿½ï¿½/ï¿½pï¿½qï¿½Éªï¿½ï¿½[ï¿½ï¿½
 
     private void OnEnable()
     {
@@ -56,12 +56,12 @@ public class Attack_TianFa : CardBase
 
     public override void ExecuteEffect(Player player, Enemy enemy)
     {
-        // ¥»¥Ü½d¥u¦³³æ¤@ Enemy¡A¦ý­Y¦³¦h¼Ä¤H¥i§ï¦¨:
+        // ï¿½ï¿½ï¿½Ü½dï¿½uï¿½ï¿½ï¿½ï¿½@ Enemyï¿½Aï¿½ï¿½ï¿½Yï¿½ï¿½ï¿½hï¿½Ä¤Hï¿½iï¿½ï¦¨:
         // foreach(Enemy e in battleManager.enemyList) e.TakeDamage(aoeDamage)
         int totalDamage = aoeDamage;
 
-        // °²³]§Ú­Ì¦b GameManager ©Î BattleManager ¦³ isYinQiPresent / isThunderPresent ¤§Ãþªºbool
-        bool isYinQiOrThunder = false; // §A¥i§ï¦¨¹ê»ÚÀË¬d
+        // ï¿½ï¿½ï¿½]ï¿½Ú­Ì¦b GameManager ï¿½ï¿½ BattleManager ï¿½ï¿½ isYinQiPresent / isThunderPresent ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½bool
+        bool isYinQiOrThunder = false; // ï¿½Aï¿½iï¿½ï¦¨ï¿½ï¿½ï¿½ï¿½Ë¬d
         if (isYinQiOrThunder)
         {
             totalDamage += elementBonus;
@@ -73,13 +73,13 @@ public class Attack_TianFa : CardBase
 }
 
 /// <summary>
-/// ÅX¨¸ (§C¶O¯}¼W¯q)
+/// ï¿½Xï¿½ï¿½ (ï¿½Cï¿½Oï¿½}ï¿½Wï¿½q)
 /// </summary>
-[CreateAssetMenu(fileName = "Attack_QuXie", menuName = "Cards/Attack/ÅX¨¸")]
+[CreateAssetMenu(fileName = "Attack_QuXie", menuName = "Cards/Attack/ï¿½Xï¿½ï¿½")]
 public class Attack_QuXie : CardBase
 {
     public int damage = 4;
-    public int dispelCount = 1; // ¥iÅX´²¼Ä¤H¼W¯q¼h¼Æ
+    public int dispelCount = 1; // ï¿½iï¿½Xï¿½ï¿½ï¿½Ä¤Hï¿½Wï¿½qï¿½hï¿½ï¿½
 
     private void OnEnable()
     {
@@ -90,15 +90,15 @@ public class Attack_QuXie : CardBase
     {
         int dmg = player.CalculateAttackDamage(damage);
         enemy.TakeDamage(dmg);
-        // ¨Ì»Ý¨D¡A²¾°£¼Ä¤Hªº¼W¯qbuff
+        // ï¿½Ì»Ý¨Dï¿½Aï¿½ï¿½ï¿½ï¿½ï¿½Ä¤Hï¿½ï¿½ï¿½Wï¿½qbuff
         enemy.DispelBuff(dispelCount);
     }
 }
 
 /// <summary>
-/// ¯u°V (­Y¥»¦^¦X¨Ï¥Î¹L¨¾¿mµP, «h+ÃB¥~¶Ë®`)
+/// ï¿½uï¿½V (ï¿½Yï¿½ï¿½ï¿½^ï¿½Xï¿½Ï¥Î¹Lï¿½ï¿½ï¿½mï¿½P, ï¿½h+ï¿½Bï¿½~ï¿½Ë®`)
 /// </summary>
-[CreateAssetMenu(fileName = "Attack_ZhenXun", menuName = "Cards/Attack/¯u°V")]
+[CreateAssetMenu(fileName = "Attack_ZhenXun", menuName = "Cards/Attack/ï¿½uï¿½V")]
 public class Attack_ZhenXun : CardBase
 {
     public int baseDamage = 10;
@@ -111,9 +111,9 @@ public class Attack_ZhenXun : CardBase
 
     public override void ExecuteEffect(Player player, Enemy enemy)
     {
-        // °²³] Player ¦³­Ó bool usedDefenseThisTurn °µ¬ö¿ý
-        // ©Î check block>0 ¤]¥i¥H
-        bool usedDefense = (player.block > 0); // Â²¤Æ¥Î: ­Y¦³block, ªí¥Ü¥Î¹L¨¾¿m
+        // ï¿½ï¿½ï¿½] Player ï¿½ï¿½ï¿½ï¿½ bool usedDefenseThisTurn ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+        // ï¿½ï¿½ check block>0 ï¿½]ï¿½iï¿½H
+        bool usedDefense = (player.block > 0); // Â²ï¿½Æ¥ï¿½: ï¿½Yï¿½ï¿½block, ï¿½ï¿½ï¿½Ü¥Î¹Lï¿½ï¿½ï¿½m
         int totalDamage = baseDamage;
         if (usedDefense)
         {
@@ -127,12 +127,12 @@ public class Attack_ZhenXun : CardBase
 
 #endregion
 
-#region §ðÀ»µP5-10¡G·s¼W³]­p
+#region ï¿½ï¿½ï¿½ï¿½ï¿½P5-10ï¿½Gï¿½sï¿½Wï¿½]ï¿½p
 
 /// <summary>
-/// ÆF¥©¬ï¨ë
+/// ï¿½Fï¿½ï¿½ï¿½ï¿½ï¿½
 /// </summary>
-[CreateAssetMenu(fileName = "Attack_LingQiaoChuanCi", menuName = "Cards/Attack/ÆF¥©¬ï¨ë")]
+[CreateAssetMenu(fileName = "Attack_LingQiaoChuanCi", menuName = "Cards/Attack/ï¿½Fï¿½ï¿½ï¿½ï¿½ï¿½")]
 public class Attack_LingQiaoChuanCi : CardBase
 {
     public int baseDamage = 6;
@@ -145,7 +145,7 @@ public class Attack_LingQiaoChuanCi : CardBase
 
     public override void ExecuteEffect(Player player, Enemy enemy)
     {
-        // ÀË¬d¥»¦^¦X¬O§_±óµP
+        // ï¿½Ë¬dï¿½ï¿½ï¿½^ï¿½Xï¿½Oï¿½_ï¿½ï¿½P
         bool hasDiscarded = player.hasDiscardedThisTurn;
         int totalDamage = baseDamage;
         if (hasDiscarded)
@@ -158,9 +158,9 @@ public class Attack_LingQiaoChuanCi : CardBase
 }
 
 /// <summary>
-/// ¿UºÉ±Ù (¥i±ó1±iµP¦A¥´¤@¦¸)
+/// ï¿½Uï¿½É±ï¿½ (ï¿½iï¿½ï¿½1ï¿½iï¿½Pï¿½Aï¿½ï¿½ï¿½@ï¿½ï¿½)
 /// </summary>
-[CreateAssetMenu(fileName = "Attack_RanJinZhan", menuName = "Cards/Attack/¿UºÉ±Ù")]
+[CreateAssetMenu(fileName = "Attack_RanJinZhan", menuName = "Cards/Attack/ï¿½Uï¿½É±ï¿½")]
 public class Attack_RanJinZhan : CardBase
 {
     public int damage = 5;
@@ -175,7 +175,7 @@ public class Attack_RanJinZhan : CardBase
         int dmg1 = player.CalculateAttackDamage(damage);
         enemy.TakeDamage(dmg1);
 
-        // ±ó 1 ±iµP -> ­Y¦¨¥\¡A¦A¦¸§ðÀ»
+        // ï¿½ï¿½ 1 ï¿½iï¿½P -> ï¿½Yï¿½ï¿½ï¿½\ï¿½Aï¿½Aï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
         bool hasDiscard = player.DiscardOneCard();
         if (hasDiscard)
         {
@@ -186,9 +186,9 @@ public class Attack_RanJinZhan : CardBase
 }
 
 /// <summary>
-/// ¸H¥Ò½ÄÀ» (¯}°£¼Ä¤è³¡¤À¨¾¿m)
+/// ï¿½Hï¿½Ò½ï¿½ï¿½ï¿½ (ï¿½}ï¿½ï¿½ï¿½Ä¤è³¡ï¿½ï¿½ï¿½ï¿½ï¿½m)
 /// </summary>
-[CreateAssetMenu(fileName = "Attack_SuiJiaChongJi", menuName = "Cards/Attack/¸H¥Ò½ÄÀ»")]
+[CreateAssetMenu(fileName = "Attack_SuiJiaChongJi", menuName = "Cards/Attack/ï¿½Hï¿½Ò½ï¿½ï¿½ï¿½")]
 public class Attack_SuiJiaChongJi : CardBase
 {
     public int damage = 8;
@@ -201,18 +201,18 @@ public class Attack_SuiJiaChongJi : CardBase
 
     public override void ExecuteEffect(Player player, Enemy enemy)
     {
-        // ¥ý¯}°£¼Ä¤è block
+        // ï¿½ï¿½ï¿½}ï¿½ï¿½ï¿½Ä¤ï¿½ block
         enemy.ReduceBlock(reduceBlock);
-        // ¦A³y¦¨¶Ë®`
+        // ï¿½Aï¿½yï¿½ï¿½ï¿½Ë®`
         int dmg = player.CalculateAttackDamage(damage);
         enemy.TakeDamage(dmg);
     }
 }
 
 /// <summary>
-/// ¬ÞÀ» (­Y¥»¦^¦X®æ¾× >= N , ÃB¥~¶Ë®`)
+/// ï¿½ï¿½ï¿½ï¿½ (ï¿½Yï¿½ï¿½ï¿½^ï¿½Xï¿½ï¿½ï¿½ >= N , ï¿½Bï¿½~ï¿½Ë®`)
 /// </summary>
-[CreateAssetMenu(fileName = "Attack_DunJi", menuName = "Cards/Attack/¬ÞÀ»")]
+[CreateAssetMenu(fileName = "Attack_DunJi", menuName = "Cards/Attack/ï¿½ï¿½ï¿½ï¿½")]
 public class Attack_DunJi : CardBase
 {
     public int baseDamage = 4;
@@ -237,13 +237,13 @@ public class Attack_DunJi : CardBase
 }
 
 /// <summary>
-/// ¶Ã¬y¤â¸Ì¼C (±óµP¦¸¼Æ¶V¦h, ¶Ë®`¶V°ª)
+/// ï¿½Ã¬yï¿½ï¿½Ì¼C (ï¿½ï¿½Pï¿½ï¿½ï¿½Æ¶Vï¿½h, ï¿½Ë®`ï¿½Vï¿½ï¿½)
 /// </summary>
-[CreateAssetMenu(fileName = "Attack_LuanLiuShuriken", menuName = "Cards/Attack/¶Ã¬y¤â¸Ì¼C")]
+[CreateAssetMenu(fileName = "Attack_LuanLiuShuriken", menuName = "Cards/Attack/ï¿½Ã¬yï¿½ï¿½Ì¼C")]
 public class Attack_LuanLiuShuriken : CardBase
 {
     public int baseDamagePerDiscard = 2;
-    public int baseDamageIfNoDiscard = 2; // ­YµL±óµP¬ö¿ý, µ¹­Ó«O©³¶Ë®`
+    public int baseDamageIfNoDiscard = 2; // ï¿½Yï¿½Lï¿½ï¿½Pï¿½ï¿½ï¿½ï¿½, ï¿½ï¿½ï¿½Ó«Oï¿½ï¿½ï¿½Ë®`
 
     private void OnEnable()
     {
@@ -252,21 +252,21 @@ public class Attack_LuanLiuShuriken : CardBase
 
     public override void ExecuteEffect(Player player, Enemy enemy)
     {
-        // ­Y¥»¦^¦X±óµP¹L´X±i? ¦¹¥Ü½d¥u°O¿ý hasDiscardedThisTurn (bool)
-        // ­Y·Q§ó²Ó, ¥i¥H¦b Player ¸Ì¬ö¿ý discardCountThisTurn (int)
+        // ï¿½Yï¿½ï¿½ï¿½^ï¿½Xï¿½ï¿½Pï¿½Lï¿½Xï¿½i? ï¿½ï¿½ï¿½Ü½dï¿½uï¿½Oï¿½ï¿½ hasDiscardedThisTurn (bool)
+        // ï¿½Yï¿½Qï¿½ï¿½ï¿½, ï¿½iï¿½Hï¿½b Player ï¿½Ì¬ï¿½ï¿½ï¿½ discardCountThisTurn (int)
         bool hasDiscarded = player.hasDiscardedThisTurn;
-        int discardCount = player.discardCountThisTurn; // °²³]§A¦b Player ¤¤°µ¤F¦¹ÅÜ¼Æ
+        int discardCount = player.discardCountThisTurn; // ï¿½ï¿½ï¿½]ï¿½Aï¿½b Player ï¿½ï¿½ï¿½ï¿½ï¿½Fï¿½ï¿½ï¿½Ü¼ï¿½
         if (discardCount < 0) discardCount = 0;
 
         int totalDamage = 0;
         if (!hasDiscarded)
         {
-            // µL±óµP±¡ªp
+            // ï¿½Lï¿½ï¿½Pï¿½ï¿½ï¿½p
             totalDamage = baseDamageIfNoDiscard;
         }
         else
         {
-            // ¦³±óµP, ¨Ì±óµP¼Æ­pºâ
+            // ï¿½ï¿½ï¿½ï¿½P, ï¿½Ì±ï¿½Pï¿½Æ­pï¿½ï¿½
             totalDamage = discardCount * baseDamagePerDiscard;
             if (totalDamage <= 0) totalDamage = baseDamageIfNoDiscard;
         }
@@ -277,9 +277,9 @@ public class Attack_LuanLiuShuriken : CardBase
 }
 
 /// <summary>
-/// ÄF³N¬ðÅ§ (©â1±ó1, ­Y±ó±¼ªº¬O§Þ¯àµP«h°l¥[¶Ë®`)
+/// ï¿½Fï¿½Nï¿½ï¿½Å§ (ï¿½ï¿½1ï¿½ï¿½1, ï¿½Yï¿½ó±¼ªï¿½ï¿½Oï¿½Þ¯ï¿½Pï¿½hï¿½lï¿½[ï¿½Ë®`)
 /// </summary>
-[CreateAssetMenu(fileName = "Attack_PianShuTuXi", menuName = "Cards/Attack/ÄF³N¬ðÅ§")]
+[CreateAssetMenu(fileName = "Attack_PianShuTuXi", menuName = "Cards/Attack/ï¿½Fï¿½Nï¿½ï¿½Å§")]
 public class Attack_PianShuTuXi : CardBase
 {
     public int baseDamage = 9;
@@ -292,13 +292,13 @@ public class Attack_PianShuTuXi : CardBase
 
     public override void ExecuteEffect(Player player, Enemy enemy)
     {
-        // ³y¦¨°òÂ¦¶Ë®`
+        // ï¿½yï¿½ï¿½ï¿½ï¿½Â¦ï¿½Ë®`
         int dmg = player.CalculateAttackDamage(baseDamage);
         enemy.TakeDamage(dmg);
 
-        // ©â1±i
+        // ï¿½ï¿½1ï¿½i
         player.DrawCards(1);
-        // ±ó1±i(¦¹³BÂ²¤Æ, ª½±µ±ó³Ì«á¤@±i)
+        // ï¿½ï¿½1ï¿½i(ï¿½ï¿½ï¿½BÂ²ï¿½ï¿½, ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ì«ï¿½@ï¿½i)
         CardBase lastCard = null;
         if (player.hand.Count > 0)
         {
@@ -306,17 +306,16 @@ public class Attack_PianShuTuXi : CardBase
             player.hand.RemoveAt(player.hand.Count - 1);
             player.discardPile.Add(lastCard);
             player.hasDiscardedThisTurn = true;
-            player.discardCountThisTurn++; // »Ý½T«O¦³¦¹¬ö¿ý
+            player.discardCountThisTurn++; // ï¿½Ý½Tï¿½Oï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
         }
 
-        // ­Y±ó±¼ªºµP¬O§Þ¯àµP, «h¹ï¼Ä¤H¦A³y¦¨ bonusDamage
+        // ï¿½Yï¿½ó±¼ªï¿½ï¿½Pï¿½Oï¿½Þ¯ï¿½P, ï¿½hï¿½ï¿½Ä¤Hï¿½Aï¿½yï¿½ï¿½ bonusDamage
         if (lastCard != null && lastCard.cardType == CardType.Skill)
         {
             int bonus = player.CalculateAttackDamage(bonusDamage);
             enemy.TakeDamage(bonus);
         }
 
-        player.UseEnergy(cost);
     }
 }
 

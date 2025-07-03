@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-[CreateAssetMenu(fileName = "Attack_JiJiRuLvLing_Fire", menuName = "Cards/Attack/«æ«æ¦p«ß¥O(¤õ)")]
+[CreateAssetMenu(fileName = "Attack_JiJiRuLvLing_Fire", menuName = "Cards/Attack/ï¿½ï¿½ï¿½pï¿½ß¥O(ï¿½ï¿½)")]
 public class Attack_JiJiRuLvLing_Fire : AttackCardBase
 {
     public int baseDamage = 6;
@@ -13,11 +13,11 @@ public class Attack_JiJiRuLvLing_Fire : AttackCardBase
     {
         int dmg = enemy.ApplyElementalAttack(ElementType.Fire, baseDamage, player);
         enemy.TakeDamage(dmg);
-        player.UseEnergy(cost);
+        
     }
 }
 
-[CreateAssetMenu(fileName = "Attack_JiJiRuLvLing_Thunder", menuName = "Cards/Attack/«æ«æ¦p«ß¥O(¹p)")]
+[CreateAssetMenu(fileName = "Attack_JiJiRuLvLing_Thunder", menuName = "Cards/Attack/ï¿½ï¿½ï¿½pï¿½ß¥O(ï¿½p)")]
 public class Attack_JiJiRuLvLing_Thunder : AttackCardBase
 {
     public int baseDamage = 6;
@@ -28,11 +28,11 @@ public class Attack_JiJiRuLvLing_Thunder : AttackCardBase
     {
         int dmg = enemy.ApplyElementalAttack(ElementType.Thunder, baseDamage, player);
         enemy.TakeDamage(dmg);
-        player.UseEnergy(cost);
+        
     }
 }
 
-[CreateAssetMenu(fileName = "Attack_JiJiRuLvLing_Ice", menuName = "Cards/Attack/«æ«æ¦p«ß¥O(¦B)")]
+[CreateAssetMenu(fileName = "Attack_JiJiRuLvLing_Ice", menuName = "Cards/Attack/ï¿½ï¿½ï¿½pï¿½ß¥O(ï¿½B)")]
 public class Attack_JiJiRuLvLing_Ice : AttackCardBase
 {
     public int baseDamage = 6;
@@ -55,7 +55,7 @@ public class Attack_JiJiRuLvLing_Ice : AttackCardBase
                 }
             }
         }
-        player.UseEnergy(cost);
+        
     }
 }
 

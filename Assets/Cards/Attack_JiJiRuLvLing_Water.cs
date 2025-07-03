@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-[CreateAssetMenu(fileName = "Attack_JiJiRuLvLing_Water", menuName = "Cards/Attack/«æ«æ¦p«ß¥O(¤ô)")]
+[CreateAssetMenu(fileName = "Attack_JiJiRuLvLing_Water", menuName = "Cards/Attack/ï¿½ï¿½ï¿½pï¿½ß¥O(ï¿½ï¿½)")]
 public class Attack_JiJiRuLvLing_Water : AttackCardBase
 {
     public int baseDamage = 6;
@@ -23,6 +23,6 @@ public class Attack_JiJiRuLvLing_Water : AttackCardBase
                 adj.AddElement(ElementType.Water);
             }
         }
-        player.UseEnergy(cost);
+        
     }
 }
