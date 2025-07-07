@@ -3,16 +3,16 @@ using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
-/// ºÞ²z©Ò¦³ BoardTile¡A¨Ã´£¨Ñ¬d¸ß¥\¯à
+/// ï¿½Þ²zï¿½Ò¦ï¿½ BoardTileï¿½Aï¿½Ã´ï¿½ï¿½Ñ¬dï¿½ß¥\ï¿½ï¿½
 /// </summary>
 public class Board : MonoBehaviour
 {
-    // §â©Ò¦³ Tile ¥Î (x,y) °µ¯Á¤Þ
+    // ï¿½ï¿½Ò¦ï¿½ Tile ï¿½ï¿½ (x,y) ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
     private Dictionary<Vector2Int, BoardTile> tileDict = new Dictionary<Vector2Int, BoardTile>();
-
+  
     private void Awake()
     {
-        // ¦Û°Ê¦¬¶°¤lª«¥ó¤¤ªº BoardTile
+        // ï¿½Û°Ê¦ï¿½ï¿½ï¿½ï¿½lï¿½ï¿½ï¿½ó¤¤ªï¿½ BoardTile
         BoardTile[] tiles = GetComponentsInChildren<BoardTile>();
         foreach (var t in tiles)
         {
@@ -21,7 +21,7 @@ public class Board : MonoBehaviour
     }
 
     /// <summary>
-    /// ¨Ì®y¼Ð¨ú¦^ BoardTile¡F­YµL¦^¶Ç null
+    /// ï¿½Ì®yï¿½Ð¨ï¿½ï¿½^ BoardTileï¿½Fï¿½Yï¿½Lï¿½^ï¿½ï¿½ null
     /// </summary>
     public BoardTile GetTileAt(Vector2Int pos)
     {
@@ -30,7 +30,7 @@ public class Board : MonoBehaviour
     }
 
     /// <summary>
-    /// §â©Ò¦³ Tile ªº°ª«G»P¥iÂIÀ»Ãö³¬
+    /// ï¿½ï¿½Ò¦ï¿½ Tile ï¿½ï¿½ï¿½ï¿½ï¿½Gï¿½Pï¿½iï¿½Iï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
     /// </summary>
     public void ResetAllTilesSelectable()
     {
@@ -40,7 +40,7 @@ public class Board : MonoBehaviour
         }
     }
 
-    // ¨ú±o¾Fªñ¥|®æ
+    // ï¿½ï¿½ï¿½oï¿½Fï¿½ï¿½|ï¿½ï¿½
     public List<BoardTile> GetAdjacentTiles(Vector2Int pos)
     {
         List<BoardTile> result = new List<BoardTile>();
