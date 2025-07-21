@@ -304,29 +304,36 @@ public class Player : MonoBehaviour
     /// ���ʦܫ��w��l(�Y��2D����)
     /// </summary>
     public void MoveToPosition(Vector2Int targetGridPos)
-{
-    // 1. 更新邏輯座標
-    position = targetGridPos;
-
-    // 2. 取得整個棋盤的管理器
-    Board board = FindObjectOfType<Board>();
-    if (board == null)
     {
-        Debug.LogWarning("Board not found!");
-        return;
-    }
+        /// 1. 取得棋盤管理器
+        Board board = FindObjectOfType<Board>();
+        if (board == null)
+        {
+            Debug.LogWarning("Board not found!");
+            return;
+        }
 
-    // 3. 拿到這個格子的 BoardTile
-    BoardTile tile = board.GetTileAt(targetGridPos);
-    if (tile == null)
-    {
-        Debug.LogWarning($"No tile at {targetGridPos}");
-        return;
-    }
+        // 2. 檢查是否有敵人佔據該格
+        if (board.IsTileOccupied(targetGridPos))
+        {
+            Debug.Log("Cannot move: tile occupied by enemy.");
+            return;
+        }
 
-    // 4. 將玩家的世界座標設成該格子的 transform.position
-    transform.position = tile.transform.position;
-}
+        // 3. 更新邏輯座標
+        position = targetGridPos;
+
+        // 4. 拿到這個格子的 BoardTile
+        BoardTile tile = board.GetTileAt(targetGridPos);
+        if (tile == null)
+        {
+            Debug.LogWarning($"No tile at {targetGridPos}");
+            return;
+        }
+
+        // 5. 將玩家的世界座標設成該格子的 transform.position
+        transform.position = tile.transform.position;
+    }
 
 
     /// <summary>
@@ -334,6 +341,13 @@ public class Player : MonoBehaviour
     /// </summary>
     public void TeleportToPosition(Vector2Int targetPos)
     {
+        Board board = FindObjectOfType<Board>();
+        if (board != null && board.IsTileOccupied(targetPos))
+        {
+            Debug.Log("Cannot teleport: tile occupied by enemy.");
+            return;
+        }
+
         position = targetPos;
         transform.position = new Vector3(targetPos.x, targetPos.y, 0f);
     }

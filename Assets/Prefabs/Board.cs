@@ -27,14 +27,25 @@ public class Board : MonoBehaviour
         foreach(var kv in tileDict) kv.Value.SetSelectable(false);
     }
 
+    // 檢查指定格子是否有敵人佔據
+    public bool IsTileOccupied(Vector2Int pos)
+    {
+        Enemy[] enemies = FindObjectsOfType<Enemy>();
+        foreach(var e in enemies)
+        {
+            if (e.gridPosition == pos) return true;
+        }
+        return false;
+    }
+    
     public List<BoardTile> GetAdjacentTiles(Vector2Int pos) // 取得相鄰格子
     {
         List<BoardTile> result = new List<BoardTile>();
-        Vector2Int[] offs = { new Vector2Int(2,0), new Vector2Int(-2,0), new Vector2Int(-1,-2), new Vector2Int(1,-2), new Vector2Int(-1,2), new Vector2Int(1,2) };
-        foreach(var o in offs)
+        Vector2Int[] offs = { new Vector2Int(2, 0), new Vector2Int(-2, 0), new Vector2Int(-1, -2), new Vector2Int(1, -2), new Vector2Int(-1, 2), new Vector2Int(1, 2) };
+        foreach (var o in offs)
         {
-            var t = GetTileAt(pos+o);
-            if(t!=null) result.Add(t);
+            var t = GetTileAt(pos + o);
+            if (t != null) result.Add(t);
         }
         return result;
     }
