@@ -11,8 +11,7 @@ public class BattleManager : MonoBehaviour               // 戰鬥流程管理�
     public GameObject cardPrefab;                         // 卡牌的 Prefab，用於生成卡牌 UI
 
     // 定義回合狀態枚舉
-    private enum TurnState { PlayerTurn, EnemyTurn, Victory, Defeat }
-    private TurnState currentState;                       // 目前的回合狀態
+    private BattleStateMachine stateMachine = new BattleStateMachine();
 
     public Transform handPanel;                           // Inspector 中指定的手牌區域
     public Transform deckPile;                            // Inspector 中指定的牌庫區域
@@ -34,34 +33,21 @@ public class BattleManager : MonoBehaviour               // 戰鬥流程管理�
 
     void Start()
     {
-        // 一開始啟動玩家回合
-        StartPlayerTurn();
-        currentState = TurnState.PlayerTurn;              // 設為玩家回合狀態
-
-        // 如果有敵人，執行敵人回合開始效果（燃燒、凍結等）
-        if (enemy != null)
-            enemy.ProcessTurnStart();
+       stateMachine.ChangeState(new PlayerTurnState(this));
     }
 
     void Update()
     {
-        // 如果是玩家回合，按下空白鍵可以結束回合
-        if (currentState == TurnState.PlayerTurn && Input.GetKeyDown(KeyCode.Space))
+       stateMachine.Update();
+
+        if (enemy != null && enemy.currentHP <= 0 && !(stateMachine.Current is VictoryState))
         {
-            EndPlayerTurn();
+            stateMachine.ChangeState(new VictoryState(this));
         }
 
-        // 檢查敵人生命，若歿且尚未進入勝利狀態，進入勝利
-        if (enemy != null && enemy.currentHP <= 0 && currentState != TurnState.Victory)
+        if (player.currentHP <= 0 && !(stateMachine.Current is DefeatState))
         {
-            currentState = TurnState.Victory;
-            Debug.Log("Victory!");
-        }
-        // 檢查玩家生命，若歿且尚未進入失敗狀態，進入失敗
-        if (player.currentHP <= 0 && currentState != TurnState.Defeat)
-        {
-            currentState = TurnState.Defeat;
-            Debug.Log("Defeat...");
+            stateMachine.ChangeState(new DefeatState(this));
         }
     }
 
@@ -72,11 +58,9 @@ public class BattleManager : MonoBehaviour               // 戰鬥流程管理�
     {
         DiscardAllHand();                                 // 棄掉所有手牌
 
-        if (currentState == TurnState.PlayerTurn)
-        {
-            player.EndTurn();                             // 玩家回合結算 (遺物、Buff 等)
-            StartCoroutine(EnemyTurn());                  // 開始敵人回合流程
-        }
+        player.EndTurn();
+        GameEvents.RaiseTurnEnded();
+        stateMachine.ChangeState(new EnemyTurnState(this));
     }
 
     /// <summary>
@@ -108,10 +92,9 @@ public class BattleManager : MonoBehaviour               // 戰鬥流程管理�
     /// <summary>
     /// 敵人回合流程：開始效果 → 行動 → 結束後回到玩家回合
     /// </summary>
-    IEnumerator EnemyTurn()
+     public IEnumerator EnemyTurnCoroutine()
     {
-        currentState = TurnState.EnemyTurn;                // 設為敵人回合
-
+        
         if (enemy != null)
             enemy.ProcessTurnStart();                     // 敵人回合開始效果
 
@@ -127,8 +110,7 @@ public class BattleManager : MonoBehaviour               // 戰鬥流程管理�
         if (enemy != null) enemy.block = 0;
 
         // 回到玩家回合
-        currentState = TurnState.PlayerTurn;
-        StartPlayerTurn();                                 // 啟動玩家回合
+        stateMachine.ChangeState(new PlayerTurnState(this));
         Debug.Log("Player Turn");
     }
 
@@ -137,7 +119,7 @@ public class BattleManager : MonoBehaviour               // 戰鬥流程管理�
     /// </summary>
     public void PlayCard(CardBase cardData)
     {
-        if (currentState != TurnState.PlayerTurn) return;  // 只允許玩家回合使用
+         if (!(stateMachine.Current is PlayerTurnState)) return;
 
         // 計算最終費用 (包含 Buff 修改)
         int finalCost = cardData.cost;
@@ -175,8 +157,9 @@ public class BattleManager : MonoBehaviour               // 戰鬥流程管理�
             player.discardPile.Add(cardData);
         }
 
-        player.UseEnergy(finalCost);                      // 扣除能量
-        RefreshHandUI();                                   // 更新手牌 UI
+        player.UseEnergy(finalCost);
+        GameEvents.RaiseCardPlayed(cardData);
+        RefreshHandUI();
     }
 
     /// <summary>
@@ -184,6 +167,10 @@ public class BattleManager : MonoBehaviour               // 戰鬥流程管理�
     /// </summary>
     public void UseMovementCard(CardBase movementCard)
     {
+         if (!(stateMachine.Current is PlayerTurnState))
+        {
+            return;
+        }
         if (player.energy < movementCard.cost)             // 能量檢查
         {
             Debug.Log("Not enough energy for movement");

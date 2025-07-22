@@ -154,12 +154,10 @@ public class Enemy : MonoBehaviour              // 敵人角色，繼承自 Mono
         elementTags.Remove(e);
     }
 
-    public int ApplyElementalAttack(ElementType e, int baseDamage, Player player)  // 處理元素反應並回傳最終傷害
+    public int ApplyElementalAttack(ElementType e, int baseDamage, Player player)
     {
-        int dmg = baseDamage;                     // 初始傷害
-        // (此處省略詳細元素反應邏輯，可參考先前示範)
-        // 觸發加成與更新標籤後，回傳 dmg
-        return dmg;
+        var strat = ElementalStrategyProvider.Get(e);
+        return strat.CalculateDamage(player, this, baseDamage);
     }
 
     public void ProcessTurnStart()
