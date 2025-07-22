@@ -9,6 +9,13 @@ public class Enemy : MonoBehaviour              // 敵人角色，繼承自 Mono
     public int currentHP;                          // 當前生命值
     public int block = 0;                          // 格擋值，用於抵消傷害
 
+    public int burningTurns = 0;
+
+    public int frozenTurns = 0;
+
+    public bool thunderstrike = false;
+    public bool superconduct = false;
+
     public bool hasBerserk = false;                // 是否處於狂暴狀態
     public EnemyBuffs buffs = new EnemyBuffs();    // 敵人 Buff 結構
     public Vector2Int gridPosition;                // 在格子地圖中的座標
@@ -24,11 +31,6 @@ public class Enemy : MonoBehaviour              // 敵人角色，繼承自 Mono
     public bool isBoss = false;                    // 是否為首領級敵人
 
     private HashSet<ElementType> elementTags = new HashSet<ElementType>();  // 元素標籤
-
-    public int burningTurns = 0;                   // 燃燒持續回合數
-    public int frozenTurns = 0;                    // 冰凍持續回合數
-    public bool thunderstrike = false;             // 是否觸發雷擊效果
-    public bool superconduct = false;               // 是否觸發超導效果
 
         // 移動到指定格子
     public void MoveToPosition(Vector2Int targetGridPos)
@@ -161,28 +163,27 @@ public class Enemy : MonoBehaviour              // 敵人角色，繼承自 Mono
     }
 
     public void ProcessTurnStart()
-{
-    // 1. 燃燒效果（如果有）
-    if (burningTurns > 0)
     {
-        TakeDamage(2);
-        burningTurns--;
-        if (burningTurns == 0)
+        foreach (var tag in elementTags)
         {
-            RemoveElementTag(ElementType.Fire);
-            RemoveElementTag(ElementType.Wood);
+            var strat = ElementalStrategyProvider.Get(tag);
+
+            // 如果該策略有持續效果的介面實作
+            if (strat is IStartOfTurnEffect effect)
+            {
+                effect.OnStartOfTurn(this);  // 執行持續效果
+            }
+        }
+
+        // 成長陷阱效果照舊
+        Board board = FindObjectOfType<Board>();
+        if (board != null)
+        {
+            var tile = board.GetTileAt(gridPosition);
+            tile?.TriggerGrowthTrap(this);
         }
     }
 
-    // 2. 成長陷阱效果（每回合都要檢查）
-    Board board = FindObjectOfType<Board>();
-    if (board != null)
-    {
-        BoardTile tile = board.GetTileAt(gridPosition);
-        if (tile != null)
-            tile.TriggerGrowthTrap(this);
-    }
-}
 
 
     public void EnemyAction(Player player)        // 敵人執行動作
