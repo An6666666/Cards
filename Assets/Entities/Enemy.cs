@@ -13,6 +13,14 @@ public class Enemy : MonoBehaviour              // 敵人角色，繼承自 Mono
     public EnemyBuffs buffs = new EnemyBuffs();    // 敵人 Buff 結構
     public Vector2Int gridPosition;                // 在格子地圖中的座標
 
+     [Header("攻擊範圍偏移")]
+    public List<Vector2Int> attackRangeOffsets = new List<Vector2Int>
+    {
+        new Vector2Int(-2,0), new Vector2Int(2,0),
+        new Vector2Int(-1,-2), new Vector2Int(1,-2),
+        new Vector2Int(-1,2), new Vector2Int(1,2)
+    };
+
     public bool isBoss = false;                    // 是否為首領級敵人
 
     private HashSet<ElementType> elementTags = new HashSet<ElementType>();  // 元素標籤
@@ -22,6 +30,52 @@ public class Enemy : MonoBehaviour              // 敵人角色，繼承自 Mono
     public bool thunderstrike = false;             // 是否觸發雷擊效果
     public bool superconduct = false;               // 是否觸發超導效果
 
+        // 移動到指定格子
+    public void MoveToPosition(Vector2Int targetGridPos)
+    {
+        Board board = FindObjectOfType<Board>();
+        if (board == null) return;
+        BoardTile tile = board.GetTileAt(targetGridPos);
+        if (tile == null) return;
+        if (board.IsTileOccupied(targetGridPos)) return;
+        Player p = FindObjectOfType<Player>();
+        if (p != null && p.position == targetGridPos) return;
+
+        gridPosition = targetGridPos;
+        transform.position = tile.transform.position;
+    }
+
+    private bool IsPlayerInRange(Player player)
+    {
+        foreach (var off in attackRangeOffsets)
+        {
+            if (gridPosition + off == player.position) return true;
+        }
+        return false;
+    }
+
+    private void MoveOneStepTowards(Player player)
+    {
+        Board board = FindObjectOfType<Board>();
+        if (board == null) return;
+        var adjs = board.GetAdjacentTiles(gridPosition);
+        Vector2Int bestPos = gridPosition;
+        float bestDist = Vector2Int.Distance(gridPosition, player.position);
+        foreach (var t in adjs)
+        {
+            Vector2Int pos = t.gridPosition;
+            if (board.IsTileOccupied(pos)) continue;
+            if (player.position == pos) continue;
+            float d = Vector2Int.Distance(pos, player.position);
+            if (d < bestDist)
+            {
+                bestDist = d;
+                bestPos = pos;
+            }
+        }
+        if (bestPos != gridPosition)
+            MoveToPosition(bestPos);
+    }
     private void Awake()                           // Awake 在物件建立時呼叫
     {
         currentHP = maxHP;                         // 同步當前生命值為最大值
@@ -145,9 +199,16 @@ public class Enemy : MonoBehaviour              // 敵人角色，繼承自 Mono
             buffs.stun--;
             return;
         }
-        int atkValue = 10;                        // 基礎攻擊
-        if (hasBerserk) atkValue += 5;           // 狂暴狀態加攻擊
-        player.TakeDamage(atkValue);             // 對玩家造成傷害
+        if (IsPlayerInRange(player))
+        {
+            int atkValue = 10;                    // 基礎攻擊
+            if (hasBerserk) atkValue += 5;       // 狂暴狀態加攻擊
+            player.TakeDamage(atkValue);         // 對玩家造成傷害
+        }
+        else
+        {
+            MoveOneStepTowards(player);           // 移動一格接近玩家
+        }
     }
 
     void Die()                                    // 死亡處理

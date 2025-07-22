@@ -246,15 +246,16 @@ public class BattleManager : MonoBehaviour               // 戰鬥流程管理�
     /// <summary>
     /// 玩家點擊格子時觸發：執行移動、扣能量、棄牌、重置
     /// </summary>
-    public void OnTileClicked(BoardTile tile)
+    public bool OnTileClicked(BoardTile tile)
     {
-        if (!isSelectingMovementTile) return;            // 非移動階段忽略
-        if (board.IsTileOccupied(tile.gridPosition)) {
+        if (!isSelectingMovementTile) return false;
+        if (board.IsTileOccupied(tile.gridPosition))
+        {
             Debug.Log("Cannot move: tile occupied by enemy.");
             CancelMovementSelection();
-            return;
+            return false;
         }
-        
+
         currentMovementCard.ExecuteOnPosition(player, tile.gridPosition);  // 執行移動卡效果
 
         int finalCost = currentMovementCard.cost + player.buffs.movementCostModify;
@@ -271,7 +272,8 @@ public class BattleManager : MonoBehaviour               // 戰鬥流程管理�
         isSelectingMovementTile = false;                  // 重置狀態
         currentMovementCard = null;
         board.ResetAllTilesSelectable();                  // 清除所有高亮
-        RefreshHandUI();                                   // 更新 UI
+        RefreshHandUI();
+        return true;                                   // 更新 UI
     }
 
     /// <summary>
@@ -338,10 +340,10 @@ public class BattleManager : MonoBehaviour               // 戰鬥流程管理�
     /// <summary>
     /// 當場上有敵人被點擊時執行攻擊
     /// </summary>
-    public void OnEnemyClicked(Enemy e)
+    public bool OnEnemyClicked(Enemy e)
     {
-        if (!isSelectingAttackTarget) return;            // 非攻擊階段忽略
-        if (!highlightedEnemies.Contains(e)) return;     // 範圍外的敵人忽略
+        if (!isSelectingAttackTarget) return false;            // 非攻擊階段忽略
+        if (!highlightedEnemies.Contains(e)) return false;     // 範圍外的敵人忽略
 
         currentAttackCard.ExecuteEffect(player, e);       // 執行攻擊卡效果
 
@@ -354,7 +356,8 @@ public class BattleManager : MonoBehaviour               // 戰鬥流程管理�
         player.UseEnergy(finalCost);                      // 扣除能量
 
         EndAttackSelect();                                // 結束攻擊選擇
-        RefreshHandUI();                                   // 更新 UI
+        RefreshHandUI();
+        return true;                              // 更新 UI
     }
 
     /// <summary>

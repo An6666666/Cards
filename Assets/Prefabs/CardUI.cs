@@ -95,8 +95,7 @@ public class CardUI: MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHan
                     Enemy e = hit.collider.GetComponent<Enemy>();
                     if (e != null)
                     {
-                        bm.OnEnemyClicked(e);
-                        used = true;
+                         used = bm.OnEnemyClicked(e);
                     }
                 }
                 if (!used)
@@ -111,8 +110,7 @@ public class CardUI: MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHan
                     BoardTile tile = hit.collider.GetComponent<BoardTile>();
                     if (tile != null)
                     {
-                        bm.OnTileClicked(tile);
-                        used = true;
+                        used = bm.OnTileClicked(tile);
                     }
                 }
                 if (!used)
