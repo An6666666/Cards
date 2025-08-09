@@ -18,10 +18,10 @@ MonoBehaviour:
   cardImage: {fileID: 21300000, guid: f397038082753b54b80165a14dd8ed8a, type: 3}
   cardType: 0
   rangeOffsets:
-  - {x: -4, y: 0}
-  - {x: 4, y: 0}
-  - {x: -2, y: -4}
-  - {x: 2, y: -4}
-  - {x: -2, y: 4}
-  - {x: 2, y: 4}
+  - {x: -2, y: 0}
+  - {x: 2, y: 0}
+  - {x: -1, y: -2}
+  - {x: 1, y: -2}
+  - {x: -1, y: 2}
+  - {x: 1, y: 2}
   baseDamage: 6

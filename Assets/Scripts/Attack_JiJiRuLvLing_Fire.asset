@@ -9,7 +9,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8498ebdfcfa11e5468d94b88a30aa13d, type: 3}
+  m_Script: {fileID: 11500000, guid: fe3a5d6a0a7d96a46ad16a347428730f, type: 3}
   m_Name: Attack_JiJiRuLvLing_Fire
   m_EditorClassIdentifier: 
   cardName: "\u706B"
@@ -18,10 +18,10 @@ MonoBehaviour:
   cardImage: {fileID: 21300000, guid: f397038082753b54b80165a14dd8ed8a, type: 3}
   cardType: 0
   rangeOffsets:
-  - {x: -4, y: 0}
-  - {x: 4, y: 0}
-  - {x: -2, y: -4}
-  - {x: 2, y: -4}
-  - {x: -2, y: 4}
-  - {x: 2, y: 4}
+  - {x: -2, y: 0}
+  - {x: 2, y: 0}
+  - {x: -1, y: -2}
+  - {x: 1, y: -2}
+  - {x: -1, y: 2}
+  - {x: 1, y: 2}
   baseDamage: 6

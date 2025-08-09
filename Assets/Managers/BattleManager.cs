@@ -10,6 +10,10 @@ public class BattleManager : MonoBehaviour               // 戰鬥流程管理�
     public List<Enemy> enemies = new List<Enemy>();       // 場景中敵人角色列表
     public GameObject cardPrefab;                         // 卡牌的 Prefab，用於生成卡牌 UI
 
+    [Header("Initial Setup")]
+    public Enemy enemyPrefab;                              // 用於生成敵人的 Prefab
+    public int initialEnemyCount = 1;                      // 開場敵人數量
+    public Vector2Int playerStartPos = Vector2Int.zero;    // 玩家起始格子
     // 定義回合狀態枚舉
     private BattleStateMachine stateMachine = new BattleStateMachine();
 
@@ -36,8 +40,43 @@ public class BattleManager : MonoBehaviour               // 戰鬥流程管理�
 
     void Start()
     {
+        SetupPlayer();
+        SpawnInitialEnemies();
         enemies = new List<Enemy>(FindObjectsOfType<Enemy>());  // 收集場上的敵人
         stateMachine.ChangeState(new PlayerTurnState(this));
+    }
+    
+    // 移動玩家到指定起始格子
+    private void SetupPlayer()
+    {
+        if (player == null || board == null) return;
+        BoardTile tile = board.GetTileAt(playerStartPos);
+        if (tile != null)
+        {
+            player.MoveToPosition(playerStartPos);
+        }
+    }
+
+    // 依設定隨機生成敵人
+    private void SpawnInitialEnemies()
+    {
+        if (enemyPrefab == null || board == null) return;
+
+        List<Vector2Int> positions = board.GetAllPositions();
+        positions.Remove(playerStartPos); // 避免與玩家重疊
+
+        for (int i = 0; i < initialEnemyCount && positions.Count > 0; i++)
+        {
+            int idx = Random.Range(0, positions.Count);
+            Vector2Int pos = positions[idx];
+            positions.RemoveAt(idx);
+
+            BoardTile tile = board.GetTileAt(pos);
+            if (tile == null) continue;
+
+            Enemy e = Instantiate(enemyPrefab, tile.transform.position, Quaternion.identity);
+            e.gridPosition = pos;
+        }
     }
 
     void Update()
