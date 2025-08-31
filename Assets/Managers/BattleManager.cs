@@ -22,6 +22,13 @@ public class BattleManager : MonoBehaviour               // 戰鬥流程管理�
     public Transform discardPile;                         // Inspector 中指定的棄牌堆區域
     public Board board;                                   // Inspector 中指定的棋盤管理器
 
+    [Header("Rewards")]
+    public List<CardBase> allCardPool = new List<CardBase>();
+    private int defeatedEnemyCount = 0;
+    public RewardUI rewardUIPrefab;
+    private RewardUI rewardUIInstance;
+    private bool battleStarted = false;                     // 是否已開始戰鬥，避免開場即觸發勝利
+
     // 是否正在選擇移動目標的旗標
     private bool isSelectingMovementTile = false;
     // 儲存當前正在使用的移動卡
@@ -30,7 +37,7 @@ public class BattleManager : MonoBehaviour               // 戰鬥流程管理�
     // 是否正在選擇攻擊目標的旗標
     private bool isSelectingAttackTarget = false;
 
-     // 是否正在選擇起始位置的旗標
+    // 是否正在選擇起始位置的旗標
     private bool isSelectingStartTile = false;
 
     // 儲存當前正在使用的攻擊卡
@@ -44,7 +51,7 @@ public class BattleManager : MonoBehaviour               // 戰鬥流程管理�
 
     void Start()
     {
-         StartCoroutine(GameStartRoutine());
+        StartCoroutine(GameStartRoutine());
     }
 
     private IEnumerator GameStartRoutine()
@@ -55,6 +62,7 @@ public class BattleManager : MonoBehaviour               // 戰鬥流程管理�
         SpawnInitialEnemies();
         enemies = new List<Enemy>(FindObjectsOfType<Enemy>());  // 收集場上的敵人
         stateMachine.ChangeState(new PlayerTurnState(this));
+        battleStarted = true;                                  // 完成初始設定後才開始判定勝利
     }
 
     private IEnumerator SelectPlayerStartTile()
@@ -121,9 +129,11 @@ public class BattleManager : MonoBehaviour               // 戰鬥流程管理�
 
     void Update()
     {
-       stateMachine.Update();
+        stateMachine.Update();
 
-       // 移除已被摧毀的敵人
+        if (!battleStarted) return;                          // 尚未開始戰鬥時不檢查勝負
+
+        // 移除已被摧毀的敵人
         enemies.RemoveAll(e => e == null);
 
         // 全部敵人死亡則進入勝利狀態
@@ -182,9 +192,9 @@ public class BattleManager : MonoBehaviour               // 戰鬥流程管理�
     /// <summary>
     /// 敵人回合流程：開始效果 → 行動 → 結束後回到玩家回合
     /// </summary>
-     public IEnumerator EnemyTurnCoroutine()
+    public IEnumerator EnemyTurnCoroutine()
     {
-        
+
         foreach (var e in enemies)
         {
             if (e != null)
@@ -217,7 +227,7 @@ public class BattleManager : MonoBehaviour               // 戰鬥流程管理�
     /// </summary>
     public void PlayCard(CardBase cardData)
     {
-         if (!(stateMachine.Current is PlayerTurnState)) return;
+        if (!(stateMachine.Current is PlayerTurnState)) return;
 
         // 計算最終費用 (包含 Buff 修改)
         int finalCost = cardData.cost;
@@ -265,7 +275,7 @@ public class BattleManager : MonoBehaviour               // 戰鬥流程管理�
     /// </summary>
     public void UseMovementCard(CardBase movementCard)
     {
-         if (!(stateMachine.Current is PlayerTurnState))
+        if (!(stateMachine.Current is PlayerTurnState))
         {
             return;
         }
@@ -340,7 +350,7 @@ public class BattleManager : MonoBehaviour               // 戰鬥流程管理�
     /// </summary>
     public bool OnTileClicked(BoardTile tile)
     {
-         if (isSelectingStartTile)
+        if (isSelectingStartTile)
         {
             playerStartPos = tile.gridPosition;
             isSelectingStartTile = false;
@@ -498,5 +508,34 @@ public class BattleManager : MonoBehaviour               // 戰鬥流程管理�
                 }
             }
         }
+    }
+    public void OnEnemyDefeated(Enemy e)
+    {
+        defeatedEnemyCount++;
+    }
+
+    public void ShowVictoryRewards()
+    {
+        int goldReward = defeatedEnemyCount * 3;
+        player.AddGold(goldReward);
+        var cardChoices = GetRandomCards(allCardPool, 3);
+        Canvas canvas = handPanel != null ? handPanel.GetComponentInParent<Canvas>() : FindObjectOfType<Canvas>();
+        if (rewardUIInstance == null)
+            rewardUIInstance = Instantiate(rewardUIPrefab, canvas.transform);
+        rewardUIInstance.Show(this, goldReward, cardChoices);
+    }
+
+    public List<CardBase> GetRandomCards(List<CardBase> pool, int count)
+    {
+        List<CardBase> result = new List<CardBase>();
+        if (pool == null) return result;
+        List<CardBase> temp = new List<CardBase>(pool);
+        for (int i = 0; i < count && temp.Count > 0; i++)
+        {
+            int idx = Random.Range(0, temp.Count);
+            result.Add(temp[idx]);
+            temp.RemoveAt(idx);
+        }
+        return result;
     }
 }

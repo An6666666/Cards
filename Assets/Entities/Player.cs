@@ -9,6 +9,7 @@ public class Player : MonoBehaviour
     public int currentHP;
     public int energy = 5;
     public int block = 0;
+    public int gold = 0;
 
     [Header("�d�P�޲z")]
     public List<CardBase> deck = new List<CardBase>();
@@ -169,6 +170,11 @@ public class Player : MonoBehaviour
     {
         currentHP -= dmg;
         if (currentHP <= 0) currentHP = 0;
+    }
+
+    public void AddGold(int amount)
+    {
+        gold += amount;
     }
 
     /// <summary>

@@ -214,6 +214,11 @@ public class Enemy : MonoBehaviour              // 敵人角色，繼承自 Mono
     void Die()                                    // 死亡處理
     {
         Debug.Log(enemyName + " died!");
+         BattleManager bm = FindObjectOfType<BattleManager>();
+        if (bm != null)
+        {
+            bm.OnEnemyDefeated(this);
+        }
         Destroy(gameObject);                     // 刪除自身
     }
 }

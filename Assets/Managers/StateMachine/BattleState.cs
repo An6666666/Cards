@@ -44,7 +44,7 @@ public class VictoryState : BattleState
     public VictoryState(BattleManager m) : base(m) { }
     public override void Enter()
     {
-        Debug.Log("Victory!");
+        manager.ShowVictoryRewards();
     }
 }
 
