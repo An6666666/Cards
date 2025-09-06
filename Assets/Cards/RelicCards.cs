@@ -111,7 +111,7 @@ public class Relic_KuMuShuQian : CardBase
         // ��UI�ݪ��a "�n���n��1�i�P"?
         // �o��²��
         bool wantDiscard = true;
-        if (wantDiscard && player.hand.Count > 0)
+        if (wantDiscard && player.Hand.Count > 0)
         {
             player.DiscardOneCard();
             // ���ʥd�O��-1
@@ -143,10 +143,10 @@ public class Relic_PoMoXiao : CardBase
             player.DrawCards(1);
             // ��1 (²�Ƭ���̫�@�i)
             CardBase last = null;
-            if (player.hand.Count > 0)
+           if (player.Hand.Count > 0)
             {
-                last = player.hand[player.hand.Count - 1];
-                player.hand.RemoveAt(player.hand.Count - 1);
+                last = player.Hand[player.Hand.Count - 1];
+                player.Hand.RemoveAt(player.Hand.Count - 1);
                 player.discardPile.Add(last);
                 player.hasDiscardedThisTurn = true;
                 player.discardCountThisTurn++;

@@ -184,8 +184,8 @@ public class BattleManager : MonoBehaviour               // 戰鬥流程管理�
     /// </summary>
     private void DiscardAllHand()
     {
-        player.discardPile.AddRange(player.hand);          // 全部移入棄牌堆
-        player.hand.Clear();                               // 清空手牌
+        player.discardPile.AddRange(player.Hand);          // 全部移入棄牌堆
+        player.Hand.Clear();                               // 清空手牌
         RefreshHandUI();                                   // 更新 UI 顯示
     }
 
@@ -259,9 +259,9 @@ public class BattleManager : MonoBehaviour               // 戰鬥流程管理�
         }
 
         // 若手牌中仍含此卡，則移至棄牌堆
-        if (player.hand.Contains(cardData))
+        if (player.Hand.Contains(cardData))
         {
-            player.hand.Remove(cardData);
+            player.Hand.Remove(cardData);
             player.discardPile.Add(cardData);
         }
 
@@ -376,9 +376,9 @@ public class BattleManager : MonoBehaviour               // 戰鬥流程管理�
         player.UseEnergy(finalCost);                      // 扣除能量
 
         // 棄掉已使用的移動卡
-        if (player.hand.Contains(currentMovementCard))
+        if (player.Hand.Contains(currentMovementCard))
         {
-            player.hand.Remove(currentMovementCard);
+            player.Hand.Remove(currentMovementCard);
             player.discardPile.Add(currentMovementCard);
         }
 
@@ -414,7 +414,7 @@ public class BattleManager : MonoBehaviour               // 戰鬥流程管理�
             Destroy(child.gameObject);
 
         // 依手牌資料重新生成卡牌 UI
-        foreach (var cardData in player.hand)
+        foreach (var cardData in player.Hand)
         {
             GameObject cardObj = Instantiate(cardPrefab, handPanel);
             CardUI cardUI = cardObj.GetComponent<CardUI>();
@@ -464,7 +464,7 @@ public class BattleManager : MonoBehaviour               // 戰鬥流程管理�
         currentAttackCard.ExecuteEffect(player, e);       // 執行攻擊卡效果
 
         // 棄掉已使用的攻擊卡
-        player.hand.Remove(currentAttackCard);
+        player.Hand.Remove(currentAttackCard);
         player.discardPile.Add(currentAttackCard);
 
         int finalCost = currentAttackCard.cost + player.buffs.nextAttackCostModify;

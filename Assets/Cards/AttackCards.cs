@@ -300,10 +300,10 @@ public class Attack_PianShuTuXi : CardBase
         player.DrawCards(1);
         // ��1�i(���B²��, ������̫�@�i)
         CardBase lastCard = null;
-        if (player.hand.Count > 0)
+        if (player.Hand.Count > 0)
         {
-            lastCard = player.hand[player.hand.Count - 1];
-            player.hand.RemoveAt(player.hand.Count - 1);
+            lastCard = player.Hand[player.Hand.Count - 1];
+            player.Hand.RemoveAt(player.Hand.Count - 1);
             player.discardPile.Add(lastCard);
             player.hasDiscardedThisTurn = true;
             player.discardCountThisTurn++; // �ݽT�O��������

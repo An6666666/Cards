@@ -13,7 +13,7 @@ public class Player : MonoBehaviour
 
     [Header("�d�P�޲z")]
     public List<CardBase> deck = new List<CardBase>();
-    public List<CardBase> hand = new List<CardBase>();
+    private List<CardBase> hand = new List<CardBase>();
     public List<CardBase> discardPile = new List<CardBase>();
     public List<CardBase> relics = new List<CardBase>();  // �����쪺��
 
@@ -27,6 +27,8 @@ public class Player : MonoBehaviour
 
     // Buff���c
     public PlayerBuffs buffs = new PlayerBuffs();
+
+    public List<CardBase> Hand => hand;
 
     private void Awake()
     {

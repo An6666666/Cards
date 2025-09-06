@@ -14,6 +14,7 @@ public class HealthBarUI : MonoBehaviour
 
     void Update()
     {
+        float percent = 1f;
         // 1) 跟著角色位置
         //Transform t = null;
         //if (player != null) t = player.transform;
@@ -27,12 +28,32 @@ public class HealthBarUI : MonoBehaviour
         // }
 
         // 2) 更新血量比例
-        if (player.currentHP < 0)
+        // 只處理 enemy
+        if (enemy != null)
         {
-            Destroy(this.gameObject);
+            if (enemy.currentHP <= 0)
+            {
+                Destroy(gameObject);
+                return;
+            }
+            percent = (float)enemy.currentHP / enemy.maxHP;
         }
-        float _percent = ((float)player.currentHP / (float)player.maxHP);
-        hp_fill.transform.localScale = new Vector3(_percent, hp_fill.transform.localScale.y, hp_fill.transform.localScale.z);
-        
+        // 或只處理 player
+        else if (player != null)
+        {
+            if (player.currentHP <= 0)
+            {
+                Destroy(gameObject);
+                return;
+            }
+            percent = (float)player.currentHP / player.maxHP;
+        }
+
+        // 更新血量縮放
+        if (hp_fill != null)
+        {
+            Vector3 s = hp_fill.transform.localScale;
+            hp_fill.transform.localScale = new Vector3(percent, s.y, s.z);
+        }
     }
 }
