@@ -17,7 +17,7 @@ MonoBehaviour:
   description: "- \u5C0D\u55AE\u9AD4\u6575\u4EBA\u9020\u6210 6 \u9EDE\u50B7\u5BB3\u3002\n-
     \u82E5\u76EE\u6A19\u70BA\u300C\u7206\u8D70\u72C0\u614B\u300D(\u4F8B\u5982\u9B54\u9B3C\u3001\u62B1\u58C1\u9B3C\u7B49)\u6642\uFF0C\u984D\u5916\u9020\u6210
     3 \u9EDE\u771F\u5BE6\u50B7\u5BB3\uFF08\u7121\u8996\u9632\u79A6\uFF09\u3002"
-  cardImage: {fileID: 21300000, guid: f397038082753b54b80165a14dd8ed8a, type: 3}
+  cardImage: {fileID: 10905, guid: 0000000000000000f000000000000000, type: 0}
   cardType: 0
   rangeOffsets:
   - {x: -2, y: 0}
