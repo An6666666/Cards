@@ -18,5 +18,7 @@ public class Attack_JiJiRuLvLing_Fire : AttackCardBase
         
          if (fireEffectPrefab != null)
             GameObject.Instantiate(fireEffectPrefab, enemy.transform.position, Quaternion.identity);
+
+        AudioManager.Instance.PlayAttackSFX(ElementType.Fire);
     }
 }

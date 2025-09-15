@@ -27,5 +27,7 @@ public class Attack_JiJiRuLvLing_Wood : AttackCardBase        // 木屬性版本
 
         if (woodEffectPrefab != null)
             GameObject.Instantiate(woodEffectPrefab, enemy.transform.position, Quaternion.identity);
+
+        AudioManager.Instance.PlayAttackSFX(ElementType.Wood);
     }
 }

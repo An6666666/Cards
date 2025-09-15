@@ -18,5 +18,7 @@ public class Attack_JiJiRuLvLing_Thunder : AttackCardBase
         
         if (thunderEffectPrefab != null)
             GameObject.Instantiate(thunderEffectPrefab, enemy.transform.position, Quaternion.identity);
+
+        AudioManager.Instance.PlayAttackSFX(ElementType.Thunder);
     }
 }

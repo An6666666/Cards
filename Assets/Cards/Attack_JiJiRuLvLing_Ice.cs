@@ -31,5 +31,7 @@ public class Attack_JiJiRuLvLing_Ice : AttackCardBase
          if (iceEffectPrefab != null)
             GameObject.Instantiate(iceEffectPrefab, enemy.transform.position, Quaternion.identity);
 
+        AudioManager.Instance.PlayAttackSFX(ElementType.Ice);
+
     }
 }

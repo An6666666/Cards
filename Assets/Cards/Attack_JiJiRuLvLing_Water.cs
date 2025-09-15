@@ -29,5 +29,7 @@ public class Attack_JiJiRuLvLing_Water : AttackCardBase       // 定義一張水
         if (waterEffectPrefab != null)
             GameObject.Instantiate(waterEffectPrefab, enemy.transform.position, Quaternion.identity);
 
+        AudioManager.Instance.PlayAttackSFX(ElementType.Water);
+
     }
 }
