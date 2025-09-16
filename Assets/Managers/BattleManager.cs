@@ -179,7 +179,7 @@ public class BattleManager : MonoBehaviour               // 戰鬥流程管理�
             if (e != null)
                 e.ProcessTurnStart();                     // 敵人回合開始效果
         }
-        int drawCount = 5 + player.buffs.nextTurnDrawChange;  // 計算抽牌數量
+        int drawCount = player.baseHandCardCount + player.buffs.nextTurnDrawChange;  // 依玩家設定計算抽牌數量
         drawCount = Mathf.Max(0, drawCount);               // 確保不為負
         player.buffs.nextTurnDrawChange = 0;               // 重置下回合抽牌變更
 

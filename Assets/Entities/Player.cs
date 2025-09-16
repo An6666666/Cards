@@ -13,10 +13,15 @@ public class Player : MonoBehaviour
     public int block = 0;
     public int gold = 0;
 
+    [Header("手牌設定")]
+    [Tooltip("每回合起始抽牌數量，會在 Inspector 中顯示，可直接調整。")]
+    public int baseHandCardCount = 5;
+
     [Header("�d�P�޲z")]
     public List<CardBase> deck = new List<CardBase>();
     private List<CardBase> hand = new List<CardBase>();
-    public List<CardBase> discardPile = new List<CardBase>();
+    [System.NonSerialized] public List<CardBase> discardPile = new List<CardBase>();
+
     public List<CardBase> relics = new List<CardBase>();  // �����쪺��
 
     [Header("�^�X������")]
@@ -50,7 +55,8 @@ public class Player : MonoBehaviour
         hasDiscardedThisTurn = false;
         discardCountThisTurn = 0;
         attackUsedThisTurn = 0;
-        DrawCards(5); // �Ҧp��5�i
+         int initialDrawCount = Mathf.Max(0, baseHandCardCount);
+        DrawCards(initialDrawCount); // 依設定的基礎手牌數量抽牌
         BattleManager bm = FindObjectOfType<BattleManager>();
         bm.RefreshHandUI();
 
