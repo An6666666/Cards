@@ -53,7 +53,7 @@ public class FireStrategy : DefaultElementalStrategy, IStartOfTurnEffect // 火�
                 foreach (var en in GameObject.FindObjectsOfType<Enemy>()) // 迴圈遍歷場景中所有 Enemy
                 {                                                // foreach 區塊開始
                     if (en == defender) continue;                // 跳過本體（不處理自己）
-                    if (Vector2Int.Distance(en.gridPosition, defender.gridPosition) <= 1.1f) // 若距離小於等於 1.1（視為相鄰）
+                    if (Vector2Int.Distance(en.gridPosition, defender.gridPosition) <= 2.3f) // 若距離小於等於 2.3（視為相鄰）
                     {                                            // if 區塊開始
                         en.TakeDamage(Mathf.CeilToInt(baseDamage * 0.5f)); // 相鄰敵人受到 0.5 倍基礎傷害
                         en.AddElementTag(keep);                  // 附加火元素標記到相鄰敵人
@@ -137,7 +137,7 @@ public class ThunderStrategy : DefaultElementalStrategy          // 雷元素策
                 foreach (var en in GameObject.FindObjectsOfType<Enemy>()) // 迭代所有敵人
                 {                                                // foreach 區塊開始
                     if (en == defender) continue;                // 跳過自己
-                    if (Vector2Int.Distance(en.gridPosition, defender.gridPosition) <= 1.1f) // 相鄰判定
+                    if (Vector2Int.Distance(en.gridPosition, defender.gridPosition) <= 2.3f) // 相鄰判定
                     {                                            // if 區塊開始
                         en.TakeDamage(Mathf.CeilToInt(baseDamage * 0.5f)); // 相鄰扣 0.5 倍
                         en.AddElementTag(keep);                  // 相鄰附著雷元素
@@ -152,7 +152,7 @@ public class ThunderStrategy : DefaultElementalStrategy          // 雷元素策
             foreach (var en in GameObject.FindObjectsOfType<Enemy>()) // 檢查所有敵人
             {                                                    // foreach 區塊開始
                 if (en == defender) continue;                    // 跳過自己
-                bool adjacent = Vector2Int.Distance(en.gridPosition, defender.gridPosition) <= 1.1f; // 是否相鄰
+                bool adjacent = Vector2Int.Distance(en.gridPosition, defender.gridPosition) <= 2.3f; // 是否相鄰
                 bool valid = false;                              // 是否有效導電對象
                 if (adjacent && en.HasElement(ElementType.Water)) valid = true; // 相鄰且身上有水 ⇒ 有效
                 if (!valid)                                      // 若還無效，檢查地板是否有水

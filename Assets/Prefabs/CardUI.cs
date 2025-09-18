@@ -1,11 +1,9 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
 
 [RequireComponent(typeof(CanvasGroup))]
-public class CardUI : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler
+public class CardUI : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler, IPointerEnterHandler, IPointerExitHandler
 {
     [Header("UI 參考")]
     public Text cardNameText;
@@ -27,16 +25,39 @@ public class CardUI : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHa
 
     private float originalAlpha = 1f;
 
+    [Header("滑鼠懸停效果")]
+    [SerializeField, Tooltip("滑鼠懸停時卡片向上移動的距離（UI 座標單位）")]
+    private float hoverMoveDistance = 20f;
+    [SerializeField, Tooltip("滑鼠懸停時的發光顏色")]
+    private Color hoverGlowColor = new Color(1f, 1f, 1f, 0.6f);
+
+    [SerializeField, Tooltip("滑鼠懸停時發光外框的粗細（像素）")]
+    private float hoverGlowPadding = 16f;
+
+    private Vector2 originalAnchoredPosition;
+    private bool isDragging;
+    private bool isHovering;
+
+    private Outline hoverGlowOutline;
+    private Color originalGlowColor;
+    private Vector2 originalGlowDistance;
+    private bool originalGlowEnabled;
+    private bool originalGlowUseGraphicAlpha;
+
+
     private void Awake()
     {
         rectTransform = GetComponent<RectTransform>();
         canvas = FindObjectOfType<Canvas>();
         canvasGroup = GetComponent<CanvasGroup>();
+        originalAnchoredPosition = rectTransform.anchoredPosition;
 
         if (canvasGroup != null)
         {
             originalAlpha = canvasGroup.alpha;
         }
+
+        SetupHoverGlow();
     }
 
     /// <summary>
@@ -71,6 +92,10 @@ public class CardUI : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHa
     #region 拖曳事件
     public void OnBeginDrag(PointerEventData eventData)
     {
+        isDragging = true;
+        ResetHoverPosition();
+        DisableHoverGlow();
+
         originalParent = transform.parent;
         transform.SetParent(FindObjectOfType<Canvas>().transform);
 
@@ -99,6 +124,8 @@ public class CardUI : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHa
 
     public void OnEndDrag(PointerEventData eventData)
     {
+        isDragging = false;
+
         SetCardAlpha(originalAlpha);
 
         BattleManager bm = FindObjectOfType<BattleManager>();
@@ -154,6 +181,31 @@ public class CardUI : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHa
     }
     #endregion
 
+    public void OnPointerEnter(PointerEventData eventData)
+    {
+        if (isDragging)
+        {
+            return;
+        }
+
+        originalAnchoredPosition = rectTransform.anchoredPosition;
+        rectTransform.anchoredPosition = originalAnchoredPosition + Vector2.up * hoverMoveDistance;
+        isHovering = true;
+
+        EnableHoverGlow();
+    }
+
+    public void OnPointerExit(PointerEventData eventData)
+    {
+        if (isDragging)
+        {
+            return;
+        }
+
+        ResetHoverPosition();
+        DisableHoverGlow();
+    }
+
     // 攻擊牌：若拖到 Enemy 上會觸發使用；否則還原到手牌
     // （此備註對應上方 OnEndDrag 的行為說明）
 
@@ -190,6 +242,10 @@ public class CardUI : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHa
         SetCardAlpha(originalAlpha);
         transform.SetParent(originalParent);
         rectTransform.anchoredPosition = Vector2.zero;
+        originalAnchoredPosition = rectTransform.anchoredPosition;
+        isDragging = false;
+        isHovering = false;
+        DisableHoverGlow();
     }
 
     /// <summary>
@@ -234,11 +290,76 @@ public class CardUI : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHa
         // 後續會由 BattleManager 決定是否移除手牌、更新 UI 等
     }
 
-     private void SetCardAlpha(float alpha)
+    private void SetCardAlpha(float alpha)
     {
         if (canvasGroup != null)
         {
             canvasGroup.alpha = alpha;
         }
+    }
+    
+    private void ResetHoverPosition()
+    {
+        if (!isHovering)
+        {
+            return;
+        }
+
+        rectTransform.anchoredPosition = originalAnchoredPosition;
+        isHovering = false;
+    }
+
+    private void EnableHoverGlow()
+    {
+        if (hoverGlowOutline == null)
+        {
+            return;
+        }
+
+        hoverGlowOutline.useGraphicAlpha = false;
+        hoverGlowOutline.effectColor = hoverGlowColor;
+        hoverGlowOutline.effectDistance = Vector2.one * hoverGlowPadding;
+        hoverGlowOutline.enabled = true;
+    }
+
+    private void DisableHoverGlow()
+    {
+        if (hoverGlowOutline == null)
+        {
+            return;
+        }
+
+        hoverGlowOutline.effectColor = originalGlowColor;
+        hoverGlowOutline.effectDistance = originalGlowDistance;
+        hoverGlowOutline.useGraphicAlpha = originalGlowUseGraphicAlpha;
+        hoverGlowOutline.enabled = originalGlowEnabled;
+    }
+
+    private void SetupHoverGlow()
+    {
+        if (cardBackground == null)
+        {
+            return;
+        }
+
+        hoverGlowOutline = cardBackground.GetComponent<Outline>();
+        if (hoverGlowOutline == null)
+        {
+            hoverGlowOutline = cardBackground.gameObject.AddComponent<Outline>();
+            hoverGlowOutline.effectColor = new Color(hoverGlowColor.r, hoverGlowColor.g, hoverGlowColor.b, 0f);
+            hoverGlowOutline.effectDistance = Vector2.zero;
+            hoverGlowOutline.useGraphicAlpha = false;
+        }
+
+        originalGlowColor = hoverGlowOutline.effectColor;
+        originalGlowDistance = hoverGlowOutline.effectDistance;
+        originalGlowEnabled = hoverGlowOutline.enabled;
+        originalGlowUseGraphicAlpha = hoverGlowOutline.useGraphicAlpha;
+
+        if (!originalGlowEnabled)
+        {
+            hoverGlowOutline.enabled = false;
+        }
+
     }
 }
