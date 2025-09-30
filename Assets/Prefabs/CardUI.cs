@@ -40,7 +40,6 @@ public class CardUI : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHa
     private bool isHovering;
     private int originalSiblingIndex;
     private Transform placeholder;
-    private LayoutElement placeholderLayoutElement;
 
     [Header("DOTween 設定")]
     [SerializeField]
@@ -189,7 +188,6 @@ public class CardUI : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHa
         if (canvasGroup != null) canvasGroup.blocksRaycasts = true;
 
         isDragging = false;
-        FadeCardAlpha(originalAlpha);
 
         Camera targetCamera = mainCamera != null ? mainCamera : Camera.main;
         Vector2 worldPos = targetCamera != null
@@ -208,6 +206,7 @@ public class CardUI : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHa
 
         if (used)
         {
+            FadeCardAlpha(originalAlpha, instant: true);
             if (layoutElement != null) layoutElement.ignoreLayout = false;
             DestroyPlaceholder();
             Destroy(gameObject);
@@ -439,7 +438,7 @@ public class CardUI : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHa
         placeholder.SetSiblingIndex(originalSiblingIndex);
         placeholder.localScale = Vector3.one;
 
-        placeholderLayoutElement = placeholderObject.AddComponent<LayoutElement>();
+        var placeholderLayoutElement = placeholderObject.AddComponent<LayoutElement>();
 
         if (layoutElement != null)
         {
@@ -466,6 +465,5 @@ public class CardUI : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHa
             Destroy(placeholder.gameObject);
 
         placeholder = null;
-        placeholderLayoutElement = null;
     }
 }
