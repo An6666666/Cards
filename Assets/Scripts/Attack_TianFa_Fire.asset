@@ -12,13 +12,31 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5a45d74b8395cb04cb3dd4cbe76dab7a, type: 3}
   m_Name: Attack_TianFa_Fire
   m_EditorClassIdentifier: 
-  cardName: 
-  cost: 0
+  cardName: "\u5929\u7F70\u706B"
+  cost: 2
   description: 
   cardImage: {fileID: 0}
   cardType: 0
-  rangeOffsets: []
-  baseDamage: 6
-  effectRadius: 2.5
+  rangeOffsets:
+  - {x: -2, y: 0}
+  - {x: 2, y: 0}
+  - {x: -1, y: -2}
+  - {x: 1, y: -2}
+  - {x: -1, y: 2}
+  - {x: 1, y: 2}
+  - {x: 0, y: 4}
+  - {x: 0, y: -4}
+  - {x: 4, y: 0}
+  - {x: -4, y: 0}
+  - {x: 2, y: 4}
+  - {x: 2, y: -4}
+  - {x: -2, y: 4}
+  - {x: -2, y: -4}
+  - {x: 3, y: 2}
+  - {x: 3, y: -2}
+  - {x: -3, y: -2}
+  - {x: -3, y: 2}
+  baseDamage: 5
+  effectRadius: 4.47
   hitEffectPrefab: {fileID: 0}
   elementType: 0
