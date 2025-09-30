@@ -57,7 +57,7 @@ public class BattleManager : MonoBehaviour               // 戰鬥流程管理�
     // 被高亮的格子列表，用於移動選擇階段
     private List<BoardTile> highlightedTiles = new List<BoardTile>();
 
-     public float cardUseDelay = 1f;               // 玩家回合開始後，延遲幾秒才能操作卡牌
+     public float cardUseDelay = 0.01f;               // 玩家回合開始後，延遲幾秒才能操作卡牌
     private bool _cardInteractionLocked = false;  // 全域鎖定旗標
     public bool IsCardInteractionLocked => _cardInteractionLocked;
     

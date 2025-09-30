@@ -39,6 +39,8 @@ public class CardUI : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHa
     private bool isDragging;
     private bool isHovering;
     private int originalSiblingIndex;
+    private Transform placeholder;
+    private LayoutElement placeholderLayoutElement;
 
     [Header("DOTween 設定")]
     [SerializeField]
@@ -73,8 +75,8 @@ public class CardUI : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHa
     private void OnDisable()
     {
         if (positionTween != null) { positionTween.Kill(); positionTween = null; }
-        if (hoverGlowTween != null){ hoverGlowTween.Kill(); hoverGlowTween = null; }
-        if (alphaTween != null)    { alphaTween.Kill();    alphaTween = null; }
+        if (hoverGlowTween != null) { hoverGlowTween.Kill(); hoverGlowTween = null; }
+        if (alphaTween != null) { alphaTween.Kill(); alphaTween = null; }
     }
 
     private void Awake()
@@ -154,6 +156,9 @@ public class CardUI : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHa
         originalSiblingIndex = transform.GetSiblingIndex();
         originalAnchoredPosition = rectTransform.anchoredPosition;
 
+        CreatePlaceholder();
+
+
         if (layoutElement != null) layoutElement.ignoreLayout = true; // 暫時脫離 Layout
 
         if (canvasRoot != null) transform.SetParent(canvasRoot, true);
@@ -204,6 +209,7 @@ public class CardUI : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHa
         if (used)
         {
             if (layoutElement != null) layoutElement.ignoreLayout = false;
+            DestroyPlaceholder();
             Destroy(gameObject);
         }
         else
@@ -258,11 +264,24 @@ public class CardUI : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHa
     {
         FadeCardAlpha(originalAlpha);
 
-        if (originalParent != null)
+        if (placeholder != null)
+        {
+            var targetParent = placeholder.parent != null ? placeholder.parent : originalParent;
+            if (targetParent != null)
+            {
+                transform.SetParent(targetParent, true);
+                transform.SetSiblingIndex(placeholder.GetSiblingIndex());
+            }
+            DestroyPlaceholder();
+        }
+        else if (originalParent != null)
         {
             transform.SetParent(originalParent, true);
             transform.SetSiblingIndex(originalSiblingIndex);
         }
+
+        originalParent = transform.parent;
+        originalSiblingIndex = transform.GetSiblingIndex();
 
         Vector2 targetPosition = originalAnchoredPosition;
 
@@ -301,8 +320,8 @@ public class CardUI : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHa
     private void OnDestroy()
     {
         if (positionTween != null) { positionTween.Kill(); positionTween = null; }
-        if (alphaTween != null)    { alphaTween.Kill();    alphaTween = null; }
-        if (hoverGlowTween != null){ hoverGlowTween.Kill();hoverGlowTween = null; }
+        if (alphaTween != null) { alphaTween.Kill(); alphaTween = null; }
+        if (hoverGlowTween != null) { hoverGlowTween.Kill(); hoverGlowTween = null; }
     }
 
     private void ResetHoverPosition(bool instant = false)
@@ -361,7 +380,7 @@ public class CardUI : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHa
     {
         positionTween?.Kill(); positionTween = null;
         hoverGlowTween?.Kill(); hoverGlowTween = null;
-        alphaTween?.Kill();     alphaTween = null;
+        alphaTween?.Kill(); alphaTween = null;
 
         if (canvasGroup != null)
         {
@@ -374,6 +393,8 @@ public class CardUI : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHa
         if (newHandParent != null) originalParent = newHandParent;
         if (originalParent != null) transform.SetParent(originalParent, true);
         if (layoutElement != null) layoutElement.ignoreLayout = false;
+
+        DestroyPlaceholder();
 
         rectTransform.anchoredPosition = Vector2.zero;
         originalAnchoredPosition = Vector2.zero;
@@ -406,5 +427,45 @@ public class CardUI : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHa
         }
         battleManager.CancelMovementSelection();
         return false;
+    }
+    
+     private void CreatePlaceholder()
+    {
+        if (placeholder != null || originalParent == null) return;
+
+        var placeholderObject = new GameObject($"{name}_Placeholder", typeof(RectTransform));
+        placeholder = placeholderObject.transform;
+        placeholder.SetParent(originalParent, false);
+        placeholder.SetSiblingIndex(originalSiblingIndex);
+        placeholder.localScale = Vector3.one;
+
+        placeholderLayoutElement = placeholderObject.AddComponent<LayoutElement>();
+
+        if (layoutElement != null)
+        {
+            placeholderLayoutElement.preferredWidth = layoutElement.preferredWidth;
+            placeholderLayoutElement.preferredHeight = layoutElement.preferredHeight;
+            placeholderLayoutElement.minWidth = layoutElement.minWidth;
+            placeholderLayoutElement.minHeight = layoutElement.minHeight;
+            placeholderLayoutElement.flexibleWidth = layoutElement.flexibleWidth;
+            placeholderLayoutElement.flexibleHeight = layoutElement.flexibleHeight;
+        }
+        else if (rectTransform != null)
+        {
+            var rect = rectTransform.rect;
+            placeholderLayoutElement.preferredWidth = rect.width;
+            placeholderLayoutElement.preferredHeight = rect.height;
+        }
+    }
+
+    private void DestroyPlaceholder()
+    {
+        if (placeholder == null) return;
+
+        if (placeholder.gameObject != null)
+            Destroy(placeholder.gameObject);
+
+        placeholder = null;
+        placeholderLayoutElement = null;
     }
 }
