@@ -146,11 +146,19 @@ MonoBehaviour:
   hoverGlowImage: {fileID: 4058666933160878638}
   hoverGlowColor: {r: 0.16078427, g: 0.972549, b: 0.9641703, a: 0.9019608}
   hoverMoveDuration: 0.2
+  drawAnimationDuration: 0.5
+  drawStartScale: 0.5
+  drawAnimationEase: 9
   returnMoveDuration: 0.2
   hoverMoveEase: 6
   returnMoveEase: 7
   fadeDuration: 0.15
   hoverGlowFadeDuration: 0.2
+  rewardHoverScale: 1.05
+  rewardHoverDuration: 0.15
+  rewardReturnDuration: 0.15
+  rewardHoverEase: 6
+  rewardReturnEase: 7
   layoutElement: {fileID: 5396741223268239126}
   interactable: 1
 --- !u!61 &3988704918984983897

@@ -54,6 +54,16 @@ public class CardUI : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHa
     [SerializeField]
     private float hoverMoveDuration = 0.2f;
 
+    [Header("抽牌動畫")]
+    [SerializeField, Tooltip("抽牌時從牌庫移動到手牌所花費的時間")]
+    private float drawAnimationDuration = 0.35f;
+
+    [SerializeField, Tooltip("抽牌時卡片的起始縮放倍數（相對於原始大小）")]
+    private float drawStartScale = 0.5f;
+
+    [SerializeField, Tooltip("抽牌移動與縮放所使用的緩動曲線")]
+    private Ease drawAnimationEase = Ease.OutCubic;
+
     [SerializeField]
     private float returnMoveDuration = 0.2f;
 
@@ -470,11 +480,108 @@ public class CardUI : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHa
 
         DestroyPlaceholder();
 
+        if (rectTransform != null)
+            rectTransform.localScale = originalLocalScale;
+
         rectTransform.anchoredPosition = Vector2.zero;
         originalAnchoredPosition = Vector2.zero;
     }
 
     public void SetInteractable(bool value) => interactable = value;
+
+     public void PlayDrawAnimation(RectTransform deckOrigin, float? durationOverride = null, float? startScaleOverride = null, Ease? easeOverride = null)
+    {
+        if (rectTransform == null)
+            rectTransform = GetComponent<RectTransform>();
+
+        if (rectTransform == null)
+            return;
+
+        if (canvas == null)
+            canvas = GetComponentInParent<Canvas>();
+
+        float duration = durationOverride ?? drawAnimationDuration;
+        float startScale = startScaleOverride ?? drawStartScale;
+        Ease ease = easeOverride ?? drawAnimationEase;
+
+        Vector2 targetAnchoredPosition = rectTransform.anchoredPosition;
+        Vector3 targetScale = originalLocalScale;
+        Vector2 startingAnchoredPosition = targetAnchoredPosition;
+
+        bool temporarilyIgnoredLayout = false;
+        bool layoutRestored = false;
+
+        if (layoutElement != null && !layoutElement.ignoreLayout)
+        {
+            layoutElement.ignoreLayout = true;
+            temporarilyIgnoredLayout = true;
+        }
+
+        if (deckOrigin != null && rectTransform.parent is RectTransform parentRect)
+        {
+            Vector3 deckWorldCenter = deckOrigin.TransformPoint(deckOrigin.rect.center);
+            Camera camera = null;
+
+            if (canvas != null && canvas.renderMode != RenderMode.ScreenSpaceOverlay)
+                camera = canvas.worldCamera;
+
+            if (RectTransformUtility.ScreenPointToLocalPointInRectangle(
+                    parentRect,
+                    RectTransformUtility.WorldToScreenPoint(camera, deckWorldCenter),
+                    camera,
+                    out Vector2 localPoint))
+            {
+                startingAnchoredPosition = localPoint;
+            }
+        }
+
+        rectTransform.anchoredPosition = startingAnchoredPosition;
+        rectTransform.localScale = targetScale * startScale;
+
+         void RestoreLayoutIfNeeded()
+        {
+            if (layoutRestored)
+                return;
+
+            layoutRestored = true;
+
+            rectTransform.anchoredPosition = targetAnchoredPosition;
+            rectTransform.localScale = targetScale;
+
+            if (temporarilyIgnoredLayout)
+            {
+                layoutElement.ignoreLayout = false;
+
+                if (rectTransform.parent is RectTransform parentRect)
+                    LayoutRebuilder.MarkLayoutForRebuild(parentRect);
+            }
+        }
+
+        positionTween?.Kill();
+        scaleTween?.Kill();
+
+        positionTween = rectTransform
+            .DOAnchorPos(targetAnchoredPosition, duration)
+            .SetEase(ease)
+            .SetUpdate(true)
+            .SetLink(gameObject, LinkBehaviour.KillOnDisable)
+            .OnKill(() =>
+            {
+                positionTween = null;
+                RestoreLayoutIfNeeded();
+            });
+
+        scaleTween = rectTransform
+            .DOScale(targetScale, duration)
+            .SetEase(ease)
+            .SetUpdate(true)
+            .SetLink(gameObject, LinkBehaviour.KillOnDisable)
+            .OnKill(() =>
+            {
+                scaleTween = null;
+                RestoreLayoutIfNeeded();
+            });
+    }
 
     private bool HandleAttackDrop(Collider2D hit)
     {

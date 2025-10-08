@@ -57,8 +57,6 @@ public class Player : MonoBehaviour
         attackUsedThisTurn = 0;
          int initialDrawCount = Mathf.Max(0, baseHandCardCount);
         DrawCards(initialDrawCount); // 依設定的基礎手牌數量抽牌
-        BattleManager bm = FindObjectOfType<BattleManager>();
-        bm.RefreshHandUI();
 
         // �^�X�}�lbuff�B�z (�p movementCostModify�k�s, damageTakenRatio���m��)
         buffs.OnTurnStartReset();
@@ -209,7 +207,7 @@ public class Player : MonoBehaviour
             deck.RemoveAt(0);
             hand.Add(top);
         }
-        FindObjectOfType<BattleManager>()?.RefreshHandUI();
+        FindObjectOfType<BattleManager>()?.RefreshHandUI(true);
     }
 
     public void DrawNewHand(int count)

@@ -60,7 +60,7 @@ public class BattleManager : MonoBehaviour               // 戰鬥流程管理�
     // 被高亮的格子列表，用於移動選擇階段
     private List<BoardTile> highlightedTiles = new List<BoardTile>();
 
-    public float cardUseDelay = 0f;               // 玩家回合開始後，延遲幾秒才能操作卡牌
+    public float cardUseDelay = 2f;               // 玩家回合開始後，延遲幾秒才能操作卡牌
     private bool _cardInteractionLocked = false;  // 全域鎖定旗標
     public bool IsCardInteractionLocked => _cardInteractionLocked;
     
@@ -216,7 +216,7 @@ public class BattleManager : MonoBehaviour               // 戰鬥流程管理�
         // 重新抽牌 / 保證移動卡 / 刷新 UI（保留）
         player.DrawNewHand(drawCount);
         EnsureMovementCardInHand();
-        RefreshHandUI(); // ★ 這裡會生成新的 CardUI
+        RefreshHandUI(true); // ★ 這裡會生成新的 CardUI
 
         // ★ 立刻把「鎖定狀態」套到目前場上所有卡（包含剛生成的）
         ApplyInteractableToAllCards(false);
@@ -569,7 +569,7 @@ public class BattleManager : MonoBehaviour               // 戰鬥流程管理�
     /// <summary>
     /// 更新手牌、牌庫、棄牌堆的 UI 顯示
     /// </summary>
-    public void RefreshHandUI()
+    public void RefreshHandUI(bool playDrawAnimation = false)
     {
         UpdateEnergyUI();
         // 牌庫 / 棄牌數量（有 UI 就保留，沒有就可刪）
@@ -590,11 +590,15 @@ public class BattleManager : MonoBehaviour               // 戰鬥流程管理�
             Destroy(handPanel.GetChild(i).gameObject);
         }
 
+        List<CardUI> createdCards = new List<CardUI>();
+
         // 依手牌資料重新生成卡牌 UI
         foreach (var cardData in player.Hand)
         {
             GameObject cardObj = Instantiate(cardPrefab, handPanel);
             var cardUI = cardObj.GetComponent<CardUI>();
+            if (cardUI == null) continue;
+
             cardUI.SetupCard(cardData);
 
             // ★ 關鍵：新卡一生成就依旗標套用互動狀態（延遲期間要鎖住）
@@ -602,6 +606,17 @@ public class BattleManager : MonoBehaviour               // 戰鬥流程管理�
 
             // （選配但推薦）把位置/狀態歸零交給 Layout，避免殘留
             cardUI.ForceResetToHand(handPanel);
+            createdCards.Add(cardUI);
+        }
+
+        if (handPanel is RectTransform handRect)
+            LayoutRebuilder.ForceRebuildLayoutImmediate(handRect);
+
+        if (playDrawAnimation)
+        {
+            RectTransform deckRect = deckPile as RectTransform;
+            for (int i = 0; i < createdCards.Count; i++)
+                createdCards[i].PlayDrawAnimation(deckRect);
         }
     }
 
