@@ -14,16 +14,6 @@ public class Attack_JiJiRuLvLing_Wood : AttackCardBase        // 木屬性版本
     {
         int dmg = enemy.ApplyElementalAttack(ElementType.Wood, baseDamage, player);  // 計算木屬性傷害
         enemy.TakeDamage(dmg);                                        // 使敵人承受計算後傷害
-        Board board = GameObject.FindObjectOfType<Board>();          // 尋找Board物件
-        if (board)                                                  // 若存在Board
-        {
-            BoardTile t = board.GetTileAt(enemy.gridPosition);    // 取得敵人格子
-            if (t != null) t.AddElement(ElementType.Wood);         // 添加木元素
-            foreach (var adj in board.GetAdjacentTiles(enemy.gridPosition))  // 遍歷相鄰格
-            {
-                adj.AddElement(ElementType.Wood);                  // 添加木元素
-            }
-        }
 
         if (woodEffectPrefab != null)
             GameObject.Instantiate(woodEffectPrefab, enemy.transform.position, Quaternion.identity);

@@ -117,8 +117,24 @@ public class WaterStrategy : DefaultElementalStrategy            // 水元素策
             defender.AddElementTag(ElementType.Water);           // 加上水標記
         }                                                        // else 區塊結束
 
+        ApplyElementToTiles(defender, ElementType.Water);        // 將水元素標記擴散到格子
+
         return dmg;                                              // 回傳最終傷害
     }                                                            // 方法區塊結束
+
+    private void ApplyElementToTiles(Enemy defender, ElementType element) // 協助方法：在格子上附著元素
+    {
+        Board board = GameObject.FindObjectOfType<Board>();      // 尋找場上的棋盤
+        if (board == null) return;                               // 若沒有棋盤則不處理
+
+        BoardTile current = board.GetTileAt(defender.gridPosition); // 取得敵人所在格子
+        if (current != null) current.AddElement(element);        // 在該格子加入元素標籤
+
+        foreach (var adj in board.GetAdjacentTiles(defender.gridPosition)) // 迭代相鄰格子
+        {
+            adj.AddElement(element);                             // 相鄰格子也加入相同元素標籤
+        }
+    }
 }                                                                // 類別區塊結束
 
 public class ThunderStrategy : DefaultElementalStrategy          // 雷元素策略：多種連鎖、傳導反應
@@ -306,6 +322,8 @@ public class WoodStrategy : DefaultElementalStrategy             // 木元素策
             defender.AddElementTag(ElementType.Wood);            // 單純附著木
         }                                                        // else 區塊結束
 
+        ApplyElementToTiles(defender, ElementType.Wood);         // 將木元素標記擴散到格子
+
         if (defender.thunderstrike)                              // 若雷擊狀態存在
         {                                                        // if 區塊開始
             dmg *= 2;                                            // 傷害加倍
@@ -314,6 +332,20 @@ public class WoodStrategy : DefaultElementalStrategy             // 木元素策
 
         return dmg;                                              // 回傳傷害
     }                                                            // 方法區塊結束
+
+     private void ApplyElementToTiles(Enemy defender, ElementType element) // 協助方法：在格子上附著元素
+    {
+        Board board = GameObject.FindObjectOfType<Board>();      // 尋找場上的棋盤
+        if (board == null) return;                               // 若沒有棋盤則不處理
+
+        BoardTile current = board.GetTileAt(defender.gridPosition); // 取得敵人所在格子
+        if (current != null) current.AddElement(element);        // 在該格子加入元素標籤
+
+        foreach (var adj in board.GetAdjacentTiles(defender.gridPosition)) // 迭代相鄰格子
+        {
+            adj.AddElement(element);                             // 相鄰格子也加入相同元素標籤
+        }
+    }
 }                                                                // 類別區塊結束
 
 public static class ElementalStrategyProvider                    // 提供對應元素策略的靜態工廠/查詢類

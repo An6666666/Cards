@@ -9,6 +9,7 @@ public class BoardTile : MonoBehaviour
 {
     public Vector2Int gridPosition;              // 必填：該格在地圖的座標
     [SerializeField] private GameObject highlightObject; // 指向高亮用的子物件
+    [SerializeField] private GameObject growthTrapIcon;  // 指向荊棘圖示的子物件
 
     // 元素標籤紀錄
     private HashSet<ElementType> elements = new HashSet<ElementType>();
@@ -57,6 +58,8 @@ public class BoardTile : MonoBehaviour
         {
             growthTrap = true;
         }
+
+        UpdateGrowthTrapVisual();
     }
 
     public void RemoveElement(ElementType e)
@@ -66,10 +69,25 @@ public class BoardTile : MonoBehaviour
         {
             growthTrap = false;
         }
+
+        UpdateGrowthTrapVisual();
     }
 
     public bool HasElement(ElementType e)
     {
         return elements.Contains(e);
+    }
+
+     private void OnEnable()
+    {
+        UpdateGrowthTrapVisual();
+    }
+
+    private void UpdateGrowthTrapVisual()
+    {
+        if (growthTrapIcon)
+        {
+            growthTrapIcon.SetActive(growthTrap);
+        }
     }
 }
