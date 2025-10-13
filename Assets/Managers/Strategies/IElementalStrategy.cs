@@ -126,15 +126,17 @@ public class ThunderStrategy : DefaultElementalStrategy          // 雷元素策
     public override int CalculateDamage(Player attacker, Enemy defender, int baseDamage) // 覆寫雷元素傷害計算
     {                                                            // 方法區塊開始
         int dmg = baseDamage;                                    // 基礎傷害
+        Board board = GameObject.FindObjectOfType<Board>();      // 快取場上的棋盤
+        Enemy[] allEnemies = GameObject.FindObjectsOfType<Enemy>(); // 快取所有敵人，避免重複搜尋
 
         if (defender.HasElement(ElementType.Fire))               // 雷 + 火：擴散到周圍（與火類似，但元素交換不同）
         {                                                        // if 區塊開始
             ElementType keep = ElementType.Thunder;              // 保留雷
             ElementType remove = ElementType.Fire;               // 移除火
-            Board board = GameObject.FindObjectOfType<Board>();  // 找 Board
+            
             if (board != null)                                   // 若找到
             {                                                    // if 區塊開始
-                foreach (var en in GameObject.FindObjectsOfType<Enemy>()) // 迭代所有敵人
+                foreach (var en in allEnemies)                   // 迭代所有敵人
                 {                                                // foreach 區塊開始
                     if (en == defender) continue;                // 跳過自己
                     if (Vector2Int.Distance(en.gridPosition, defender.gridPosition) <= 2.3f) // 相鄰判定
@@ -149,26 +151,61 @@ public class ThunderStrategy : DefaultElementalStrategy          // 雷元素策
         }                                                        // if 區塊結束
         else if (defender.HasElement(ElementType.Water))         // 雷 + 水：導電擴散，會看相鄰或處於水格
         {                                                        // else if 區塊開始
-            foreach (var en in GameObject.FindObjectsOfType<Enemy>()) // 檢查所有敵人
-            {                                                    // foreach 區塊開始
-                if (en == defender) continue;                    // 跳過自己
-                bool adjacent = Vector2Int.Distance(en.gridPosition, defender.gridPosition) <= 2.3f; // 是否相鄰
-                bool valid = false;                              // 是否有效導電對象
-                if (adjacent && en.HasElement(ElementType.Water)) valid = true; // 相鄰且身上有水 ⇒ 有效
-                if (!valid)                                      // 若還無效，檢查地板是否有水
-                {                                                // if 區塊開始
-                    Board board = GameObject.FindObjectOfType<Board>(); // 找 Board
-                    if (board != null)                           // 找到才判斷
-                    {                                            // if 區塊開始
-                        BoardTile tile = board.GetTileAt(en.gridPosition); // 取得該敵人在的格子
-                        if (tile != null && tile.HasElement(ElementType.Water)) valid = true; // 格子有水 ⇒ 有效
-                    }                                            // if 區塊結束
-                }                                                // if 區塊結束
-                if (valid)                                       // 若有效導電
-                {                                                // if 區塊開始
-                    en.TakeDamage(baseDamage);                   // 給與完整基礎傷害（非 0.5 倍）
-                }                                                // if 區塊結束
-            }                                                    // foreach 區塊結束
+            if (board != null)                                   // 需要棋盤資訊才能追蹤水元素連鎖
+            {                                                    // if 區塊開始
+                var enemyByPos = new Dictionary<Vector2Int, Enemy>(); // 建立座標到敵人的映射
+                foreach (var en in allEnemies)                   // 迭代所有敵人
+                {                                                // foreach 區塊開始
+                    if (!enemyByPos.ContainsKey(en.gridPosition)) // 避免重複加入同座標
+                        enemyByPos[en.gridPosition] = en;        // 建立映射
+                }                                                // foreach 區塊結束
+
+                Queue<Vector2Int> pending = new Queue<Vector2Int>(); // 佇列：待處理的格子座標
+                HashSet<Vector2Int> visited = new HashSet<Vector2Int>(); // 紀錄已處理過的格子
+                HashSet<Enemy> chainTargets = new HashSet<Enemy>(); // 需要承受連鎖傷害的敵人
+
+                pending.Enqueue(defender.gridPosition);          // 以被攻擊者所在格子為起點
+                visited.Add(defender.gridPosition);              // 標記起點已拜訪
+
+                while (pending.Count > 0)                        // BFS 掃描所有相連水元素格子
+                {                                                // while 區塊開始
+                    Vector2Int current = pending.Dequeue();      // 取出目前處理的格子
+                    var neighbors = board.GetAdjacentTiles(current); // 取得相鄰格子
+                    foreach (var tile in neighbors)              // 檢查每個鄰居
+                    {                                            // foreach 區塊開始
+                        Vector2Int pos = tile.gridPosition;      // 鄰居座標
+                        if (visited.Contains(pos)) continue;     // 已處理則跳過
+
+                        enemyByPos.TryGetValue(pos, out Enemy occupant); // 試著找到該格子的敵人
+                        bool tileHasWater = tile.HasElement(ElementType.Water); // 格子是否有水標籤
+                        bool enemyHasWater = occupant != null && occupant.HasElement(ElementType.Water); // 敵人是否有水標籤
+
+                        if (!tileHasWater && !enemyHasWater)     // 若格子與敵人都沒有水標籤
+                            continue;                            // 不進入連鎖
+
+                        visited.Add(pos);                        // 標記為已拜訪
+                        pending.Enqueue(pos);                    // 加入待處理佇列，繼續擴散
+
+                        if (occupant != null && occupant != defender) // 只對其他敵人造成傷害
+                            chainTargets.Add(occupant);          // 加入連鎖傷害目標
+                    }                                            // foreach 區塊結束
+                }                                                // while 區塊結束
+
+                foreach (var target in chainTargets)             // 對所有連鎖目標造成傷害
+                {                                                // foreach 區塊開始
+                    target.TakeDamage(baseDamage);               // 造成等同基礎值的傷害
+                }                                                // foreach 區塊結束
+            }                                                    // if 區塊結束
+            else                                                 // 若場上無棋盤資訊
+            {                                                    // else 區塊開始
+                foreach (var en in allEnemies)                   // 退回舊邏輯：僅處理相鄰且帶水的敵人
+                {                                                // foreach 區塊開始
+                    if (en == defender) continue;                // 跳過自己
+                    bool adjacent = Vector2Int.Distance(en.gridPosition, defender.gridPosition) <= 2.3f; // 是否相鄰
+                    if (adjacent && en.HasElement(ElementType.Water)) // 僅當敵人身上有水標籤
+                        en.TakeDamage(baseDamage);               // 造成基礎傷害
+                }                                                // foreach 區塊結束
+            }                                                    // else 區塊結束
             defender.AddElementTag(ElementType.Thunder);         // 本體附著雷
         }                                                        // else if 區塊結束
         else if (defender.HasElement(ElementType.Wood))          // 雷 + 木：觸發雷擊 double 狀態
