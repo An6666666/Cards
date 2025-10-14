@@ -90,17 +90,18 @@ public class BoardTile : MonoBehaviour
 
     private void UpdateElementIcons()
     {
-        bool shouldHideForTrap = growthTrap;
+        bool hasWater = HasElement(ElementType.Water);
+        bool hasWood = HasElement(ElementType.Wood);
 
         if (waterElementIcon)
         {
-            bool showWater = elements.Contains(ElementType.Water) && !shouldHideForTrap;
-            waterElementIcon.SetActive(showWater);
+            // 水圖示完全依照棋盤格是否含有水屬性標籤
+            waterElementIcon.SetActive(hasWater);
         }
 
         if (woodElementIcon)
         {
-            bool showWood = elements.Contains(ElementType.Wood) && !shouldHideForTrap;
+            bool showWood = hasWood && !growthTrap;
             woodElementIcon.SetActive(showWood);
         }
     }
@@ -108,6 +109,7 @@ public class BoardTile : MonoBehaviour
     private void OnEnable()
     {
         UpdateGrowthTrapVisual();
+        UpdateElementIcons();
     }
 
     private void UpdateGrowthTrapVisual()
