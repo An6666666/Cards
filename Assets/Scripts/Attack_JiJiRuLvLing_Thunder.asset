@@ -15,7 +15,7 @@ MonoBehaviour:
   cardName: "\u96F7"
   cost: 1
   description: 
-  cardImage: {fileID: 21300000, guid: cf1359151601f03429a7cc65fe48bb08, type: 3}
+  cardImage: {fileID: 21300000, guid: ddcd2bcf5c380574099215ec1f3a1eb7, type: 3}
   cardType: 0
   rangeOffsets:
   - {x: -2, y: 0}

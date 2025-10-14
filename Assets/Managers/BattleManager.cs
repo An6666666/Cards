@@ -576,7 +576,7 @@ public class BattleManager : MonoBehaviour               // 戰鬥流程管理�
         if (deckPile)
         {
             var t = deckPile.GetComponentInChildren<UnityEngine.UI.Text>();
-            if (t) t.text = $"牌庫區: {player.deck.Count}";
+            if (t) t.text = $" {player.deck.Count}";
         }
         if (discardPile)
         {
