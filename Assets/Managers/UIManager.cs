@@ -1,92 +1,208 @@
 using UnityEngine;
+using UnityEngine.UI;
 
 public class UIManager : MonoBehaviour
 {
     [Header("Panels")]
-    [SerializeField] private GameObject rulePanel;      // 規則面板
-    [SerializeField] private GameObject settingsPanel;  // 設定面板
+    [SerializeField] private GameObject rulePanel;
+    [SerializeField] private GameObject settingsPanel;  
+    [SerializeField] private GameObject deckPanel;
+    [SerializeField] private GameObject discardPanel;
 
-    [Header("UI Group (要往上推的部分)")]
-    [SerializeField] private RectTransform uiGroup;     // 棄牌區 + 結束回合的容器
+    [Header("Buttons")]
+    [SerializeField] private Button settingsButton;   // 打開 Settings
+    [SerializeField] private Button ruleButton;       // 打開 Rule
+    [SerializeField] private Button switchDeckDiscardButton; // 切換 Counter
 
-    [Header("Move Settings")]
-    [SerializeField] private float moveUpDistance = 150f; // 往上推的距離
-    [SerializeField] private float moveSpeed = 5f;        // 移動速度
+    [Header("Counters (顯示/切換用)")]
+    [SerializeField] private Button deckCounterButton;    // 點擊打開 Deck Panel
+    [SerializeField] private Button discardCounterButton; // 點擊打開 Discard Panel
 
-    private Vector2 originalPos;   // UIGroup 原始位置
-    private Vector2 targetPos;     // 目標位置
-    private bool ruleOpen = false;
-    private bool settingsOpen = false;
+    [Header("Rule Page")]
+    [SerializeField] private Image ruleImage;
+    [SerializeField] private Sprite[] rulePages;
+    [SerializeField] private Button ruleNextButton;
+    [SerializeField] private Button rulePrevButton;
+    [SerializeField] private Button ruleCloseButton;
 
-    private void Start()
+    private int currentRulePage = 0;
+    private bool showingDeck = true;  // 紀錄當前顯示的 Counter
+
+    private void Awake()
     {
-        if (uiGroup != null)
-            originalPos = uiGroup.anchoredPosition;
+        // 一開始關閉所有面板
+        if (rulePanel) rulePanel.SetActive(false);
+        if (settingsPanel) settingsPanel.SetActive(false);
+        if (deckPanel) deckPanel.SetActive(false);
+        if (discardPanel) discardPanel.SetActive(false);
 
-        // 一開始先隱藏
-        if (rulePanel != null) rulePanel.SetActive(false);
-        if (settingsPanel != null) settingsPanel.SetActive(false);
+        // 初始化 Rule
+        if (ruleImage != null && rulePages != null && rulePages.Length > 0)
+        {
+            currentRulePage = 0;
+            ruleImage.sprite = rulePages[currentRulePage];
+        }
+
+        // 綁定按鈕事件
+        WireUpButtons();
+
+        // 預設顯示 Deck Counter
+        UpdateCounterUI();
     }
 
-    private void Update()
+    private void WireUpButtons()
     {
-        if (uiGroup != null)
+        if (settingsButton != null)
         {
-            uiGroup.anchoredPosition = Vector2.Lerp(
-                uiGroup.anchoredPosition,
-                targetPos,
-                Time.deltaTime * moveSpeed
-            );
+            settingsButton.onClick.RemoveAllListeners();
+            settingsButton.onClick.AddListener(OpenSettingsPanel);
+        }
+
+        if (ruleButton != null)
+        {
+            ruleButton.onClick.RemoveAllListeners();
+            ruleButton.onClick.AddListener(OpenRulePanel);
+        }
+
+        if (switchDeckDiscardButton != null)
+        {
+            switchDeckDiscardButton.onClick.RemoveAllListeners();
+            switchDeckDiscardButton.onClick.AddListener(SwitchDeckDiscard);
+        }
+
+        if (deckCounterButton != null)
+        {
+            deckCounterButton.onClick.RemoveAllListeners();
+            deckCounterButton.onClick.AddListener(OnDeckCounterClicked);
+        }
+
+        if (discardCounterButton != null)
+        {
+            discardCounterButton.onClick.RemoveAllListeners();
+            discardCounterButton.onClick.AddListener(OnDiscardCounterClicked);
+        }
+
+        if (ruleNextButton != null)
+        {
+            ruleNextButton.onClick.RemoveAllListeners();
+            ruleNextButton.onClick.AddListener(NextRulePage);
+        }
+
+        if (rulePrevButton != null)
+        {
+            rulePrevButton.onClick.RemoveAllListeners();
+            rulePrevButton.onClick.AddListener(PrevRulePage);
+        }
+
+        if (ruleCloseButton != null)
+        {
+            ruleCloseButton.onClick.RemoveAllListeners();
+            ruleCloseButton.onClick.AddListener(CloseRulePanel);
         }
     }
 
-    /// <summary>
-    /// 切換規則面板
-    /// </summary>
-    public void ToggleRulePanel()
+    // ========================
+    // Settings
+    // ========================
+    public void OpenSettingsPanel()
     {
-        ruleOpen = !ruleOpen;
-        settingsOpen = false; // 確保同時間只有一個面板開
-        rulePanel.SetActive(ruleOpen);
-        settingsPanel.SetActive(false);
+        if (settingsPanel) settingsPanel.SetActive(true);
 
-        UpdateUIGroupTarget();
+        // 打開設定時關閉其他
+        if (rulePanel) rulePanel.SetActive(false);
+        if (deckPanel) deckPanel.SetActive(false);
+        if (discardPanel) discardPanel.SetActive(false);
     }
 
-    /// <summary>
-    /// 切換設定面板
-    /// </summary>
-    public void ToggleSettingsPanel()
+    public void CloseSettingsPanel()
     {
-        settingsOpen = !settingsOpen;
-        ruleOpen = false; // 確保同時間只有一個面板開
-        settingsPanel.SetActive(settingsOpen);
-        rulePanel.SetActive(false);
-
-        UpdateUIGroupTarget();
+        if (settingsPanel) settingsPanel.SetActive(false);
     }
 
-    /// <summary>
-    /// 點擊 Panel 本身關閉
-    /// </summary>
-    public void ClosePanels()
+    // ========================
+    // Rule
+    // ========================
+    public void OpenRulePanel()
     {
-        ruleOpen = false;
-        settingsOpen = false;
-        rulePanel.SetActive(false);
-        settingsPanel.SetActive(false);
-
-        UpdateUIGroupTarget();
+        if (rulePanel) rulePanel.SetActive(true);
     }
 
-    /// <summary>
-    /// 更新 UIGroup 的目標位置
-    /// </summary>
-    private void UpdateUIGroupTarget()
+    public void CloseRulePanel()
     {
-        if (ruleOpen)
-            targetPos = originalPos + new Vector2(0, moveUpDistance);
-        else
-            targetPos = originalPos;
+        if (rulePanel) rulePanel.SetActive(false);
+    }
+
+    public void NextRulePage()
+    {
+        if (rulePages == null || rulePages.Length == 0) return;
+        currentRulePage = (currentRulePage + 1) % rulePages.Length;
+        if (ruleImage) ruleImage.sprite = rulePages[currentRulePage];
+    }
+
+    public void PrevRulePage()
+    {
+        if (rulePages == null || rulePages.Length == 0) return;
+        currentRulePage = (currentRulePage - 1 + rulePages.Length) % rulePages.Length;
+        if (ruleImage) ruleImage.sprite = rulePages[currentRulePage];
+    }
+
+    // ========================
+    // Deck / Discard
+    // ========================
+    public void SwitchDeckDiscard()
+{
+    if (deckCounterButton == null || discardCounterButton == null) return;
+
+    // 狀態反轉
+    showingDeck = !showingDeck;
+
+    // 切換顯示
+    deckCounterButton.gameObject.SetActive(showingDeck);
+    discardCounterButton.gameObject.SetActive(!showingDeck);
+
+    // 切換時順便關掉兩個 Panel，避免殘留
+    if (deckPanel) deckPanel.SetActive(false);
+    if (discardPanel) discardPanel.SetActive(false);
+}
+
+
+    private void UpdateCounterUI()
+    {
+        if (deckCounterButton != null)
+            deckCounterButton.gameObject.SetActive(showingDeck);
+
+        if (discardCounterButton != null)
+            discardCounterButton.gameObject.SetActive(!showingDeck);
+    }
+
+    public void OnDeckCounterClicked()
+    {
+        if (deckPanel) deckPanel.SetActive(true);
+    }
+
+    public void CloseDeckPanel()
+    {
+        if (deckPanel) deckPanel.SetActive(false);
+    }
+
+    public void OnDiscardCounterClicked()
+    {
+        if (discardPanel) discardPanel.SetActive(true);
+    }
+
+    public void CloseDiscardPanel()
+    {
+        if (discardPanel) discardPanel.SetActive(false);
+    }
+
+    // ========================
+    // 關閉全部
+    // ========================
+    public void CloseAllPanels()
+    {
+        if (rulePanel) rulePanel.SetActive(false);
+        if (settingsPanel) settingsPanel.SetActive(false);
+        if (deckPanel) deckPanel.SetActive(false);
+        if (discardPanel) discardPanel.SetActive(false);
     }
 }

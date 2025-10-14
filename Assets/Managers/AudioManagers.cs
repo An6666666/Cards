@@ -69,4 +69,16 @@ public class AudioManager : MonoBehaviour
                 break;
         }
     }
+
+    //調整背景音量大小
+        public void SetBGMVolume(float value)
+    {
+        if (BGMSource != null) BGMSource.volume = value;
+    }
+
+    public void SetSFXVolume(float value)
+    {
+        if (SFXSource != null) SFXSource.volume = value;
+    }
+
 }
