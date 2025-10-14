@@ -576,12 +576,12 @@ public class BattleManager : MonoBehaviour               // 戰鬥流程管理�
         if (deckPile)
         {
             var t = deckPile.GetComponentInChildren<UnityEngine.UI.Text>();
-            if (t) t.text = $" {player.deck.Count}";
+            if (t) t.text = $"{player.deck.Count}";
         }
         if (discardPile)
         {
             var t2 = discardPile.GetComponentInChildren<UnityEngine.UI.Text>();
-            if (t2) t2.text = $"棄牌區: {player.discardPile.Count}";
+            if (t2) t2.text = $"{player.discardPile.Count}";
         }
 
         // 清空原本的手牌 UI（用反向 for 比 foreach 更安全）

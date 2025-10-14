@@ -10,11 +10,19 @@ public class BoardTile : MonoBehaviour
     public Vector2Int gridPosition;              // 必填：該格在地圖的座標
     [SerializeField] private GameObject highlightObject; // 指向高亮用的子物件
     [SerializeField] private GameObject growthTrapIcon;  // 指向荊棘圖示的子物件
+    [SerializeField] private GameObject waterElementIcon; // 水屬性圖示
+    [SerializeField] private GameObject woodElementIcon;  // 木屬性圖示
 
     // 元素標籤紀錄
     private HashSet<ElementType> elements = new HashSet<ElementType>();
     public bool growthTrap = false; // 水+木產生的陷阱
     // 讓 BattleManager 呼叫
+
+     private void Awake()
+    {
+        UpdateElementIcons();
+    }
+
 
     public void TriggerGrowthTrap(Enemy enemy)
     {
@@ -60,6 +68,7 @@ public class BoardTile : MonoBehaviour
         }
 
         UpdateGrowthTrapVisual();
+        UpdateElementIcons();
     }
 
     public void RemoveElement(ElementType e)
@@ -71,6 +80,7 @@ public class BoardTile : MonoBehaviour
         }
 
         UpdateGrowthTrapVisual();
+        UpdateElementIcons();
     }
 
     public bool HasElement(ElementType e)
@@ -78,7 +88,24 @@ public class BoardTile : MonoBehaviour
         return elements.Contains(e);
     }
 
-     private void OnEnable()
+    private void UpdateElementIcons()
+    {
+        bool shouldHideForTrap = growthTrap;
+
+        if (waterElementIcon)
+        {
+            bool showWater = elements.Contains(ElementType.Water) && !shouldHideForTrap;
+            waterElementIcon.SetActive(showWater);
+        }
+
+        if (woodElementIcon)
+        {
+            bool showWood = elements.Contains(ElementType.Wood) && !shouldHideForTrap;
+            woodElementIcon.SetActive(showWood);
+        }
+    }
+
+    private void OnEnable()
     {
         UpdateGrowthTrapVisual();
     }
