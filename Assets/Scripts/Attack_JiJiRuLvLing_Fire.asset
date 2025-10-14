@@ -25,4 +25,4 @@ MonoBehaviour:
   - {x: -1, y: 2}
   - {x: 1, y: 2}
   baseDamage: 6
-  fireEffectPrefab: {fileID: 9122207030747356995, guid: c87e1ba5cfd7df84dababaa348de2a14, type: 3}
+  fireEffectPrefab: {fileID: 1989029431062447326, guid: c87e1ba5cfd7df84dababaa348de2a14, type: 3}
