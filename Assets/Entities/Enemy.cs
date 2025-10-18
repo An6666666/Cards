@@ -36,6 +36,10 @@ public class Enemy : MonoBehaviour              // 敵人角色，繼承自 Mono
     [SerializeField] private Transform spriteRoot;            // 僅包含貼圖的顯示節點
 
     private Coroutine shakeRoutine;                 // 受擊抖動協程參考
+    private Vector3 spriteDefaultLocalPosition;     // 記錄初始在父物件下的位置
+    private Vector3 spriteDefaultLocalScale;        // 記錄初始縮放
+    private bool spriteDefaultsInitialized = false; // 是否已取得初始值
+
 
     [Header("受擊抖動設定")]
     [SerializeField] private float shakeDuration = 0.1f;      // 抖動持續時間
@@ -106,11 +110,35 @@ public class Enemy : MonoBehaviour              // 敵人角色，繼承自 Mono
         bm.OnEnemyClicked(this);                   // 通知 BattleManager 有敵人被點擊
     }
 
+    private Transform GetSpriteRoot()
+    {
+        return spriteRoot ? spriteRoot : transform;
+    }
+
+    private void EnsureSpriteDefaults()
+    {
+        if (spriteDefaultsInitialized) return;
+        Transform root = GetSpriteRoot();
+        spriteDefaultLocalPosition = root.localPosition;
+        spriteDefaultLocalScale = root.localScale;
+        spriteDefaultsInitialized = true;
+    }
+
+    private void ResetSpriteVisual()
+    {
+        EnsureSpriteDefaults();
+        Transform root = GetSpriteRoot();
+        root.localPosition = spriteDefaultLocalPosition;
+        root.localScale = spriteDefaultLocalScale;
+    }
+
     private IEnumerator HitShake()                 // 受擊抖動效果
     {
-       Transform root = spriteRoot ? spriteRoot : transform; // 若未指定則退回自身
-        Vector3 originalPos = root.localPosition;
-        Vector3 originalScale = root.localScale;
+        EnsureSpriteDefaults();
+        Transform root = GetSpriteRoot();
+        Vector3 originalPos = spriteDefaultLocalPosition;
+        Vector3 originalScale = spriteDefaultLocalScale;
+
         float elapsed = 0f;
         Vector3 targetScale = originalScale * scaleMultiplier;
         root.localScale = targetScale;
@@ -123,13 +151,21 @@ public class Enemy : MonoBehaviour              // 敵人角色，繼承自 Mono
             elapsed += Time.deltaTime;
             yield return null;
         }
-        root.localPosition = originalPos;
-        root.localScale = originalScale;
+        ResetSpriteVisual();
+
     }
 
     public virtual void TakeDamage(int dmg)                // 受到傷害 (考慮格擋)
     {
-        if (shakeRoutine != null) StopCoroutine(shakeRoutine);
+        if (shakeRoutine != null)
+        {
+            StopCoroutine(shakeRoutine);
+            ResetSpriteVisual();
+        }
+        else
+        {
+            EnsureSpriteDefaults();
+        }
         shakeRoutine = StartCoroutine(HitShake());
         int remain = dmg - block;                 // 計算剩餘傷害
         if (remain > 0)
@@ -150,7 +186,15 @@ public class Enemy : MonoBehaviour              // 敵人角色，繼承自 Mono
 
     public virtual void TakeTrueDamage(int dmg)           // 真實傷害 (無視格擋)
     {
-         if (shakeRoutine != null) StopCoroutine(shakeRoutine);
+        if (shakeRoutine != null)
+        {
+            StopCoroutine(shakeRoutine);
+            ResetSpriteVisual();
+        }
+        else
+        {
+            EnsureSpriteDefaults();
+        }
         shakeRoutine = StartCoroutine(HitShake());
         currentHP -= dmg;                         // 直接扣除生命
         if (currentHP <= 0)
