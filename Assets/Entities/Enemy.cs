@@ -8,6 +8,7 @@ public class Enemy : MonoBehaviour              // 敵人角色，繼承自 Mono
     public int maxHP = 30;                         // 最大生命值
     public int currentHP;                          // 當前生命值
     public int block = 0;                          // 格擋值，用於抵消傷害
+    public virtual bool ShouldResetBlockEachTurn => true; // 預設每回合重置格擋
 
     public int burningTurns = 0;
 

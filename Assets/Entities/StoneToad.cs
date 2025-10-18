@@ -3,6 +3,8 @@ using UnityEngine;                // 引入 Unity API（MonoBehaviour、Serializ
 
 public class StoneToad : Enemy      // 繼承自自訂的 Enemy 基底類別（提供回合、傷害、移動等共用邏輯）
 {
+    public override bool ShouldResetBlockEachTurn => false; // 石蟾蜍的護甲會持續累積
+
     [Header("Stone Toad Settings")] // 在 Inspector 顯示一個分組標題
     [SerializeField] private int armorGainPerHit = 4;            // 每次被擊中時增加的護甲（block）量
     [SerializeField] private int preferredDistanceInSteps = 2;   // 希望與玩家保持的步數距離（以 BFS 步數衡量）

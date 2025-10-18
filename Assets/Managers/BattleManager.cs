@@ -384,7 +384,7 @@ public class BattleManager : MonoBehaviour               // 戰鬥流程管理�
         player.block = 0;
         foreach (var e in enemies)
         {
-            if (e != null) e.block = 0;
+            if (e != null && e.ShouldResetBlockEachTurn) e.block = 0;
         }
 
         // 回到玩家回合
