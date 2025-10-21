@@ -18402,9 +18402,11 @@ MonoBehaviour:
   cardPrefab: {fileID: 4596475076482105628, guid: 100c1a32f1664694b821ff0756181848, type: 3}
   enemySpawnConfigs:
   - enemyPrefab: {fileID: 4204690724760053818, guid: 87fab54ae39d11f449187455258a17cc, type: 3}
-    count: 1
+    count: 0
   - enemyPrefab: {fileID: 3762648908618512516, guid: cbb7c20ed40c0294daca78f7a8548c50, type: 3}
     count: 0
+  - enemyPrefab: {fileID: 8258485525033336925, guid: b1fbe62463006294b80e46474639e1f9, type: 3}
+    count: 10
   playerStartPos: {x: 0, y: 0}
   handPanel: {fileID: 5627973}
   deckPile: {fileID: 1721566109}

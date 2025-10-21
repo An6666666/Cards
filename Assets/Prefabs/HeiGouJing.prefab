@@ -240,6 +240,7 @@ MonoBehaviour:
   spriteRoot: {fileID: 0}
   sortingOrderBase: 0
   sortingOrderMultiplier: 100
+  sortingOffsetExclusions: []
   shakeDuration: 0.1
   shakeMagnitude: 0.1
   scaleMultiplier: 1.1

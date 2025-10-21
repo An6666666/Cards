@@ -78,12 +78,12 @@ public class Enemy : MonoBehaviour              // 敵人角色，繼承自 Mono
         CaptureSpriteDefaults();
     }
 
-     private void CacheSortingComponents()
+    private void CacheSortingComponents()
     {
-        sortingGroup = GetComponentInChildren<SortingGroup>();
+        sortingGroup = GetComponentInChildren<SortingGroup>(true);
         sortingGroupBaseOrder = sortingGroup != null ? sortingGroup.sortingOrder : 0;
 
-        cachedSpriteRenderers = GetComponentsInChildren<SpriteRenderer>();
+        cachedSpriteRenderers = GetComponentsInChildren<SpriteRenderer>(true);
         if (cachedSpriteRenderers != null && cachedSpriteRenderers.Length > 0)
         {
             cachedSpriteBaseOrders = new int[cachedSpriteRenderers.Length];
@@ -99,8 +99,70 @@ public class Enemy : MonoBehaviour              // 敵人角色，繼承自 Mono
         }
     }
 
+    private bool IsRendererOwnedByThis(SpriteRenderer renderer)
+    {
+        return renderer != null && renderer.transform != null && (renderer.transform == transform || renderer.transform.IsChildOf(transform));
+    }
+
+    private bool IsSortingGroupOwnedByThis(SortingGroup group)
+    {
+        if (group == null)
+        {
+            return false;
+        }
+
+        Transform groupTransform = group.transform;
+        return groupTransform == transform || groupTransform.IsChildOf(transform);
+    }
+
+    private void EnsureSortingComponents()
+    {
+        bool needsRefresh =
+            cachedSpriteRenderers == null ||
+            cachedSpriteBaseOrders == null ||
+            cachedSpriteRenderers.Length == 0 ||
+            cachedSpriteBaseOrders.Length != cachedSpriteRenderers.Length;
+
+        if (!needsRefresh)
+        {
+            for (int i = 0; i < cachedSpriteRenderers.Length; i++)
+            {
+                SpriteRenderer renderer = cachedSpriteRenderers[i];
+                if (renderer == null || !IsRendererOwnedByThis(renderer))
+                {
+                    needsRefresh = true;
+                    break;
+                }
+            }
+        }
+
+        if (!needsRefresh && sortingGroup != null && !IsSortingGroupOwnedByThis(sortingGroup))
+        {
+            needsRefresh = true;
+        }
+
+        if (needsRefresh)
+        {
+            CacheSortingComponents();
+        }
+        else
+        {
+            if (sortingGroup == null)
+            {
+                sortingGroup = GetComponentInChildren<SortingGroup>(true);
+            }
+
+            if (sortingGroup != null)
+            {
+                sortingGroupBaseOrder = sortingGroup.sortingOrder;
+            }
+        }
+    }
+
     private void UpdateSpriteSortingOrder()
     {
+        EnsureSortingComponents();
+
         int order = sortingOrderBase + Mathf.RoundToInt(-transform.position.y * sortingOrderMultiplier);
 
         if (sortingGroup != null)
@@ -108,31 +170,38 @@ public class Enemy : MonoBehaviour              // 敵人角色，繼承自 Mono
             sortingGroup.sortingOrder = sortingGroupBaseOrder + order;
         }
 
-        if (cachedSpriteRenderers == null || cachedSpriteRenderers.Length == 0)
+        if (cachedSpriteRenderers != null)
         {
-            CacheSortingComponents();
-        }
-
-        for (int i = 0; i < cachedSpriteRenderers.Length; i++)
-        {
-            SpriteRenderer renderer = cachedSpriteRenderers[i];
-            if (renderer != null)
+            for (int i = 0; i < cachedSpriteRenderers.Length; i++)
             {
-                int baseOrder = (cachedSpriteBaseOrders != null && i < cachedSpriteBaseOrders.Length)
-                    ? cachedSpriteBaseOrders[i]
-                    : 0;
-                renderer.sortingOrder = baseOrder + order;
+                SpriteRenderer renderer = cachedSpriteRenderers[i];
+                if (renderer != null)
+                {
+                    int baseOrder = (cachedSpriteBaseOrders != null && i < cachedSpriteBaseOrders.Length)
+                        ? cachedSpriteBaseOrders[i]
+                        : 0;
+                    renderer.sortingOrder = baseOrder + order;
+                }
             }
         }
+
+        lastAppliedOrderOffset = order;
+        hasLastAppliedOrder = true;
+        lastWorldPosition = transform.position;
+        hasLastWorldPosition = true;
     }
 
     private void LateUpdate()
     {
-        if (transform.hasChanged)
+        Vector3 currentPosition = transform.position;
+        bool positionChanged = !hasLastWorldPosition || (currentPosition - lastWorldPosition).sqrMagnitude > 0.0001f;
+
+        if (transform.hasChanged || positionChanged || !hasLastAppliedOrder)
         {
             UpdateSpriteSortingOrder();
-            transform.hasChanged = false;
         }
+
+        transform.hasChanged = false;
     }
 
     protected virtual bool IsPlayerInRange(Player player)
@@ -188,6 +257,7 @@ public class Enemy : MonoBehaviour              // 敵人角色，繼承自 Mono
     public void SetHighlight(bool on)               // 控制高亮顯示
     {
         if (highlightFx) highlightFx.SetActive(on);
+        UpdateSpriteSortingOrder();
     }
 
     private void OnMouseDown()                     // 滑鼠點擊時呼叫
