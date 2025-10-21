@@ -9,8 +9,8 @@ public class StoneToad : Enemy      // 繼承自自訂的 Enemy 基底類別（�
     [SerializeField] private int armorGainPerHit = 4;            // 每次被擊中時增加的護甲（block）量
     [SerializeField] private int preferredDistanceInSteps = 2;   // 希望與玩家保持的步數距離（以 BFS 步數衡量）
     [SerializeField] private int maxMovementSteps = 2;           // 單回合最多可移動步數
-    [SerializeField] private int baseAttackDamage = 1;           // 基礎攻擊傷害（未包含護甲轉傷）
     [SerializeField] private int armorCap = 999;                 // 護甲上限（避免無限制累積）
+    private const int DefaultBaseAttackDamage = 1;               // 石蟾蜍預設的基礎攻擊
     private Vector2Int? previousGridPosition = null;             // 記錄上一次成功移動的格子，用於避免立即折返
     protected override void Awake()  // 物件初始化（覆寫 Enemy.Awake）
     {
@@ -20,6 +20,11 @@ public class StoneToad : Enemy      // 繼承自自訂的 Enemy 基底類別（�
         ClampArmor();                // 啟動時做一次護甲上限檢查
     }
 
+    private void Reset()
+    {
+        BaseAttackDamage = DefaultBaseAttackDamage; // 新增腳本時提供專屬預設值
+    }
+    
 #if UNITY_EDITOR
     private void OnValidate()        // 在編輯器中變更序列化欄位時自動呼叫（不會在執行時呼叫）
     {
@@ -37,11 +42,6 @@ public class StoneToad : Enemy      // 繼承自自訂的 Enemy 基底類別（�
     {
         base.TakeTrueDamage(dmg);               // 先走基底真傷流程
         GainArmorFromHit();                     // 仍然觸發被動：被打就增加護甲（真傷也會加）
-    }
-
-    protected override int GetBaseAttackDamage() // 取得基礎攻擊傷害（給基底計算時使用）
-    {
-        return baseAttackDamage;                // 回傳本類別的基礎傷害
     }
 
     protected override int CalculateAttackDamage() // 計算最終攻擊傷害（可被基底呼叫）
