@@ -1,6 +1,7 @@
 using System.Collections;                          // 引用非泛型集合命名空間
 using System.Collections.Generic;                 // 引用泛型集合命名空間
 using UnityEngine;                                 // 引用 Unity 核心功能
+using UnityEngine.Rendering;                      // 使用 SortingGroup 控制圖層排序
 
 public class Enemy : MonoBehaviour              // 敵人角色，繼承自 MonoBehaviour
 {
@@ -43,6 +44,17 @@ public class Enemy : MonoBehaviour              // 敵人角色，繼承自 Mono
     private Vector3 spriteDefaultLocalScale;        // 記錄初始縮放
     private bool spriteDefaultsInitialized = false; // 是否已取得初始值
 
+    [Header("圖層排序設定")]
+    [SerializeField] private int sortingOrderBase = 0;             // 基礎排序值
+    [SerializeField] private float sortingOrderMultiplier = 100f;  // 依 Y 值放大的倍率
+    private SpriteRenderer[] cachedSpriteRenderers;                // 緩存所有子節點 SpriteRenderer
+    private int[] cachedSpriteBaseOrders;                          // 記錄初始排序值，保留相對順序
+    private SortingGroup sortingGroup;                             // 可能存在的 SortingGroup
+    private int sortingGroupBaseOrder;                             // 記錄 SortingGroup 初始排序
+    private Vector3 lastWorldPosition;                             // 上一次套用排序時的世界座標
+    private bool hasLastWorldPosition;                             // 是否已記錄最後的世界座標
+    private int lastAppliedOrderOffset;                            // 上一次套用的排序位移量
+    private bool hasLastAppliedOrder;                              // 是否已套用過排序位移
 
     [Header("受擊抖動設定")]
     [SerializeField] private float shakeDuration = 0.1f;      // 抖動持續時間
@@ -62,7 +74,65 @@ public class Enemy : MonoBehaviour              // 敵人角色，繼承自 Mono
 
         gridPosition = targetGridPos;
         transform.position = tile.transform.position;
+        UpdateSpriteSortingOrder();
         CaptureSpriteDefaults();
+    }
+
+     private void CacheSortingComponents()
+    {
+        sortingGroup = GetComponentInChildren<SortingGroup>();
+        sortingGroupBaseOrder = sortingGroup != null ? sortingGroup.sortingOrder : 0;
+
+        cachedSpriteRenderers = GetComponentsInChildren<SpriteRenderer>();
+        if (cachedSpriteRenderers != null && cachedSpriteRenderers.Length > 0)
+        {
+            cachedSpriteBaseOrders = new int[cachedSpriteRenderers.Length];
+            for (int i = 0; i < cachedSpriteRenderers.Length; i++)
+            {
+                SpriteRenderer renderer = cachedSpriteRenderers[i];
+                cachedSpriteBaseOrders[i] = renderer != null ? renderer.sortingOrder : 0;
+            }
+        }
+        else
+        {
+            cachedSpriteBaseOrders = new int[0];
+        }
+    }
+
+    private void UpdateSpriteSortingOrder()
+    {
+        int order = sortingOrderBase + Mathf.RoundToInt(-transform.position.y * sortingOrderMultiplier);
+
+        if (sortingGroup != null)
+        {
+            sortingGroup.sortingOrder = sortingGroupBaseOrder + order;
+        }
+
+        if (cachedSpriteRenderers == null || cachedSpriteRenderers.Length == 0)
+        {
+            CacheSortingComponents();
+        }
+
+        for (int i = 0; i < cachedSpriteRenderers.Length; i++)
+        {
+            SpriteRenderer renderer = cachedSpriteRenderers[i];
+            if (renderer != null)
+            {
+                int baseOrder = (cachedSpriteBaseOrders != null && i < cachedSpriteBaseOrders.Length)
+                    ? cachedSpriteBaseOrders[i]
+                    : 0;
+                renderer.sortingOrder = baseOrder + order;
+            }
+        }
+    }
+
+    private void LateUpdate()
+    {
+        if (transform.hasChanged)
+        {
+            UpdateSpriteSortingOrder();
+            transform.hasChanged = false;
+        }
     }
 
     protected virtual bool IsPlayerInRange(Player player)
@@ -99,6 +169,18 @@ public class Enemy : MonoBehaviour              // 敵人角色，繼承自 Mono
     protected virtual void Awake()                  // Awake 在物件建立時呼叫
     {
         currentHP = maxHP;                         // 同步當前生命值為最大值
+
+        CacheSortingComponents();                  // 緩存渲染相關組件
+        UpdateSpriteSortingOrder();                // 依據位置更新排序
+    }
+
+    private void OnEnable()
+    {
+        if (cachedSpriteRenderers == null || cachedSpriteRenderers.Length == 0)
+        {
+            CacheSortingComponents();
+        }
+        UpdateSpriteSortingOrder();
     }
 
     [SerializeField] private GameObject highlightFx;  // 高亮特效物件

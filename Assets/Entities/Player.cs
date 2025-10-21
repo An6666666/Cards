@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 public class Player : MonoBehaviour
 {
-    [Header("�ݩ�")]
+    [Header("基本屬性")]
     public int maxHP = 50;
     public int currentHP;
     public int maxEnergy = 4;
@@ -17,24 +17,25 @@ public class Player : MonoBehaviour
     [Tooltip("每回合起始抽牌數量，會在 Inspector 中顯示，可直接調整。")]
     public int baseHandCardCount = 5;
 
-    [Header("�d�P�޲z")]
-    public List<CardBase> deck = new List<CardBase>();
-    private List<CardBase> hand = new List<CardBase>();
-    [System.NonSerialized] public List<CardBase> discardPile = new List<CardBase>();
+    [Header("牌堆管理")]
+    public List<CardBase> deck = new List<CardBase>();      // 牌庫
+    private List<CardBase> hand = new List<CardBase>();     // 手牌（私有，請透過 Hand 取用）
+    [System.NonSerialized] public List<CardBase> discardPile = new List<CardBase>(); // 棄牌堆（不序列化）
 
-    public List<CardBase> relics = new List<CardBase>();  // �����쪺��
+    public List<CardBase> relics = new List<CardBase>();  // 遺物 / 聖物清單
 
-    [Header("�^�X������")]
-    public bool hasDiscardedThisTurn = false;  // �O�_��L�P
-    public int discardCountThisTurn = 0;       // ��P��
-    public int attackUsedThisTurn = 0;         // ���^�X�ϥΪ������P��
+    [Header("回合統計")]
+    public bool hasDiscardedThisTurn = false;  // 本回合是否曾經棄牌
+    public int discardCountThisTurn = 0;       // 本回合累計棄了幾張
+    public int attackUsedThisTurn = 0;         // 本回合使用攻擊卡次數
 
-    // ²���������a��m(�Y��2D����a��)
+    // 棋盤座標（若使用 2D 格子）
     public Vector2Int position = new Vector2Int(0, 0);
 
-    // Buff���c
+    // Buff 狀態
     public PlayerBuffs buffs = new PlayerBuffs();
 
+    // 只讀外部介面：取得手牌清單
     public List<CardBase> Hand => hand;
 
     private void Awake()
@@ -47,22 +48,24 @@ public class Player : MonoBehaviour
     }
 
     /// <summary>
-    /// �^�X�}�l�ɽե�
+    /// 回合開始時的處理
     /// </summary>
     public void StartTurn()
     {
-        block = 0;  // ���C���ݨD�A�Y�OSLAY THE SPIRE����A�^�X�����|�M��block
+        block = 0;  // 清空格擋（若要沿用 Slay the Spire，可在此重置 block）
         // 每回合開始時回滿能量
         energy = maxEnergy;
         hasDiscardedThisTurn = false;
         discardCountThisTurn = 0;
         attackUsedThisTurn = 0;
-         int initialDrawCount = Mathf.Max(0, baseHandCardCount);
+
+        int initialDrawCount = Mathf.Max(0, baseHandCardCount);
         DrawCards(initialDrawCount); // 依設定的基礎手牌數量抽牌
 
-        // �^�X�}�lbuff�B�z (�p movementCostModify�k�s, damageTakenRatio���m��)
+        // 回合開始的 Buff 重置（例如 movementCostModify 歸零、damageTakenRatio 邏輯等）
         buffs.OnTurnStartReset();
-        // �Y���� "�\�����" => OnTurnStart
+
+        // 若有具有「回合開始觸發」的遺物，逐一觸發
         foreach (CardBase r in relics)
         {
             if (r is Relic_KuMuShuQian kk)
@@ -73,11 +76,11 @@ public class Player : MonoBehaviour
     }
 
     /// <summary>
-    /// �^�X�����ɡ]�b BattleManager �̩I�s�^
+    /// 回合結束時的處理（一般由 BattleManager 觸發）
     /// </summary>
     public void EndTurn()
     {
-        // �Y�ϥί}�]­ => OnEndTurn
+        // 遺物的「回合結束」觸發
         foreach (CardBase r in relics)
         {
             if (r is Relic_PoMoXiao pmx)
@@ -86,7 +89,7 @@ public class Player : MonoBehaviour
             }
         }
 
-        // ���]�u½�c���d�v�ݭn�b�^�X�����H����2 => 
+        // 若需要在回合結束時隨機棄牌（由 Buff 指示），此處執行
         if (buffs.needRandomDiscardAtEnd > 0)
         {
             int n = buffs.needRandomDiscardAtEnd;
@@ -107,24 +110,23 @@ public class Player : MonoBehaviour
             }
         }
 
-        // �^�X�����A�N damageTakenRatio ��_1.0f �άݧA�]�p
-        // buff���������B�z
+        // 回合結束的 Buff 重置（例如將 damageTakenRatio 歸回 1.0f 等）
         buffs.OnTurnEndReset();
     }
 
     /// <summary>
-    /// ����q
+    /// 消耗能量
     /// </summary>
     public void UseEnergy(int cost)
     {
         Debug.Log($"UseEnergy: deducting {cost} energy. Energy before={energy}");
-        // �Ybuff.nextAttackCostModify��buff.movementCostModify���v�T�A���b PlayCard �ɳB�z
+        // 有關 nextAttackCostModify / movementCostModify 的影響已在 PlayCard 計算
         energy -= cost;
         if (energy < 0) energy = 0;
     }
 
     /// <summary>
-    /// �̷�buff�p��̲ק����ˮ`�A�î��Ӥ@���ʥ[��
+    /// 計算攻擊傷害（套用 buff 的加成，並清空一次性加傷）
     /// </summary>
     public int CalculateAttackDamage(int baseDamage)
     {
@@ -135,12 +137,12 @@ public class Player : MonoBehaviour
     }
 
     /// <summary>
-    /// �W�[���
+    /// 增加格擋值
     /// </summary>
     public void AddBlock(int amount)
     {
         block += amount;
-        // Ĳ�o�Y�ǿ��ˬd(�p���q��)
+        // 觸發可能關注加格擋的遺物（例如反擊、能量、抽牌等）
         foreach (CardBase r in relics)
         {
             if (r is Relic_ZiDianJiao z)
@@ -151,7 +153,7 @@ public class Player : MonoBehaviour
     }
 
     /// <summary>
-    /// ����(�Ҽ{buff: damageTakenRatio)
+    /// 承受傷害（考慮 buff：damageTakenRatio、近戰減傷等）
     /// </summary>
     public void TakeDamage(int dmg)
     {
@@ -168,7 +170,7 @@ public class Player : MonoBehaviour
             if (currentHP <= 0)
             {
                 currentHP = 0;
-                // Player Die
+                // TODO: Player Die 的後續處理
             }
         }
         else
@@ -178,7 +180,7 @@ public class Player : MonoBehaviour
     }
 
     /// <summary>
-    /// ��������(�L��block) - ���۴ݩίS���]�p
+    /// 直接扣血（不計格擋）— 用於某些特例
     /// </summary>
     public void TakeDamageDirect(int dmg)
     {
@@ -192,7 +194,7 @@ public class Player : MonoBehaviour
     }
 
     /// <summary>
-    /// �� n �i�P
+    /// 抽 n 張牌
     /// </summary>
     public void DrawCards(int n)
     {
@@ -200,9 +202,9 @@ public class Player : MonoBehaviour
         {
             if (deck.Count == 0)
             {
-                // �P�w�� => ���լ~�P
+                // 牌庫為空 → 將棄牌堆洗回牌庫
                 ReshuffleDiscardIntoDeck();
-                // �Y�٬O�S�d => break
+                // 若仍沒有牌 → 結束抽牌
                 if (deck.Count == 0) break;
             }
             CardBase top = deck[0];
@@ -212,6 +214,9 @@ public class Player : MonoBehaviour
         FindObjectOfType<BattleManager>()?.RefreshHandUI(true);
     }
 
+    /// <summary>
+    /// 抽指定數量的新手牌（不強制刷新 UI；交由外部流程控制）
+    /// </summary>
     public void DrawNewHand(int count)
     {
         for (int i = 0; i < count; i++)
@@ -239,16 +244,21 @@ public class Player : MonoBehaviour
         }
     }
 
-
+    /// <summary>
+    /// 將棄牌堆洗回牌庫並洗牌
+    /// </summary>
     public void ReshuffleDiscardIntoDeck()
     {
-        // �X��
+        // 併回
         deck.AddRange(discardPile);
         discardPile.Clear();
-        // �~�P
+        // 洗牌
         ShuffleDeck();
     }
 
+    /// <summary>
+    /// 費雪耶茲洗牌
+    /// </summary>
     public void ShuffleDeck()
     {
         System.Random rnd = new System.Random();
@@ -261,6 +271,9 @@ public class Player : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// 從手牌移除一張「可被棄掉」的卡（可隨機 / 從尾端），並回傳該卡
+    /// </summary>
     private bool TryRemoveDiscardableCardFromHand(BattleManager manager, bool randomIndex, out CardBase removedCard)
     {
         removedCard = null;
@@ -308,7 +321,7 @@ public class Player : MonoBehaviour
     }
 
     /// <summary>
-    /// �� n �i�P (²�ƳB�z: �q��P�̫�X�i���)
+    /// 棄 n 張牌（依序處理：優先移除可棄的手牌；過程中更新計數與觸發遺物）
     /// </summary>
     public void DiscardCards(int n)
     {
@@ -317,7 +330,7 @@ public class Player : MonoBehaviour
         int actualDiscarded = 0;
         for (int i = 0; i < n; i++)
         {
-             if (TryRemoveDiscardableCardFromHand(manager, false, out CardBase c))
+            if (TryRemoveDiscardableCardFromHand(manager, false, out CardBase c))
             {
                 discardPile.Add(c);
                 actualDiscarded++;
@@ -332,7 +345,7 @@ public class Player : MonoBehaviour
             hasDiscardedThisTurn = true;
             discardCountThisTurn += actualDiscarded;
 
-            // ���j��²Ĳ�o
+            // 觸發與棄牌相關的遺物
             foreach (CardBase r in relics)
             {
                 if (r is Relic_LunHuiZhuJian zhujian)
@@ -344,7 +357,7 @@ public class Player : MonoBehaviour
     }
 
     /// <summary>
-    /// ��1�i�P (���U�ɱٵ��ϥ�)
+    /// 棄 1 張牌（常用於即時消耗）
     /// </summary>
     public bool DiscardOneCard()
     {
@@ -356,7 +369,7 @@ public class Player : MonoBehaviour
         hasDiscardedThisTurn = true;
         discardCountThisTurn++;
 
-        // Ĳ�o���j��²
+        // 觸發與棄牌相關的遺物
         foreach (CardBase r in relics)
         {
             if (r is Relic_LunHuiZhuJian zhujian)
@@ -369,8 +382,7 @@ public class Player : MonoBehaviour
     }
 
     /// <summary>
-    /// �ˬd�O�_�p�e��P(���j���@�޵���)
-    /// ���ܽd������ hasDiscardedThisTurn ������
+    /// 查詢本回合是否有棄牌（供其他效果判斷）
     /// </summary>
     public bool CheckDiscardPlan()
     {
@@ -378,11 +390,11 @@ public class Player : MonoBehaviour
     }
 
     /// <summary>
-    /// ���ʦܫ��w��l(�Y��2D����)
+    /// 以棋盤格為目標移動（若有 2D 棋盤）
     /// </summary>
     public void MoveToPosition(Vector2Int targetGridPos)
     {
-        /// 1. 取得棋盤管理器
+        // 1. 取得棋盤管理器
         Board board = FindObjectOfType<Board>();
         if (board == null)
         {
@@ -412,9 +424,8 @@ public class Player : MonoBehaviour
         transform.position = tile.transform.position;
     }
 
-
     /// <summary>
-    /// ���� (�Y�a���o�i��)
+    /// 瞬移（無視路徑檢查，但仍可檢查目標是否被佔據）
     /// </summary>
     public void TeleportToPosition(Vector2Int targetPos)
     {
@@ -431,54 +442,47 @@ public class Player : MonoBehaviour
 }
 
 /// <summary>
-/// ���a���W��Buff�P�^�X���A
+/// 玩家身上的 Buff 與回合邏輯
 /// </summary>
 [System.Serializable]
 public class PlayerBuffs
 {
-    public float damageTakenRatio = 1.0f;   // ���˭��v(�����i =0.5)
-    public int nextAttackPlus = 0;         // �U�������B�~�ˮ`
-    public int nextDamageTakenUp = 0;      // �ĤH�U������+X (�]�i��b Enemy ��)
-    public int nextAttackCostModify = 0;   // �U�������d�O�μW��
-    public int movementCostModify = 0;     // ���^�X�Ҧ����ʵP�O�μW��
-    public int nextTurnDrawChange = 0;     // �U�^�X��P�W��
-    public int needRandomDiscardAtEnd = 0; // �^�X�����H����P
-    public int meleeDamageReduce = 0;      // ��Զˮ`�T�w���
-    public int weak = 0;                   // ��z�^�X��
-    public int stun = 0;                   // �w�t�^�X(�L�k���)
-    public int nextTurnAllAttackPlus = 0;  // �U�^�X�Ҧ�����+X
+    public float damageTakenRatio = 1.0f;   // 承傷比例（例如易傷 = 1.5、減傷 = 0.5）
+    public int nextAttackPlus = 0;          // 下一次攻擊額外加成
+    public int nextDamageTakenUp = 0;       // 下一次承傷 +X（也可能用在 Enemy 身上）
+    public int nextAttackCostModify = 0;    // 下一張攻擊卡費用修正
+    public int movementCostModify = 0;      // 移動卡費用修正
+    public int nextTurnDrawChange = 0;      // 下回合抽牌數量增減
+    public int needRandomDiscardAtEnd = 0;  // 回合結束時需要隨機棄牌的張數
+    public int meleeDamageReduce = 0;       // 近戰傷害固定減免
+    public int weak = 0;                    // 虛弱回合數
+    public int stun = 0;                    // 暈眩回合數（無法行動）
+    public int nextTurnAllAttackPlus = 0;   // 下回合所有攻擊 +X
 
     /// <summary>
-    /// �^�X�}�l���m�έp��
+    /// 回合開始時的重置與遞減
     /// </summary>
     public void OnTurnStartReset()
     {
-        // �Ҧp�W�@�^�X���� nextTurnAllAttackPlus �i�b�o�^�X�ͮ�
-        // damageTakenRatio�^�k1.0f? �����p
-        // �o�̶ȥܽd
-        if (stun > 0) stun--;
+        // 例如：回合開始前，將「下回合全攻 +X」在這時生效完後再視需要重置
+        // damageTakenRatio 是否需要在此回復為 1.0f，依你的設計調整
 
-        // ��z�]����
-        if (weak > 0) weak--;
+        if (stun > 0) stun--;   // 暈眩回合數往下扣
+        if (weak > 0) weak--;   // 虛弱回合數往下扣
 
-        // nextAttackPlus �u�w��"�U�@��"����, �Ϋ�i�k0
-        // �p�G�A�n�^�X�}�l�N�k0, �]�i
-
-        // movementCostModify �i�k0
+        // 將「本回合內」的費用修正歸零
         movementCostModify = 0;
-        // nextAttackCostModify �k0
         nextAttackCostModify = 0;
     }
 
     /// <summary>
-    /// �^�X�����B�z
+    /// 回合結束時的重置
     /// </summary>
     public void OnTurnEndReset()
     {
-        // damageTakenRatio �Y�u�b���^�X�ͮġA�^�X�����n���m
+        // 回復承傷比例為 1.0f（若只在本回合有效）
         damageTakenRatio = 1.0f;
-        // nextAttackPlus �]�i�M�s (�Y�u�ͮĤ@��)
-        // needRandomDiscardAtEnd �b�~���B�z���k0
+        // nextAttackPlus 依你的流程決定是否在此清除（此程式在 CalculateAttackDamage 時已清 0）
+        // needRandomDiscardAtEnd 已在 EndTurn 中用掉，這裡不動即可
     }
 }
-
