@@ -217,7 +217,8 @@ public class BattleManager : MonoBehaviour               // 戰鬥流程管理�
         UpdateEnergyUI();
 
         // 敵人回合開始效果（保留）
-        foreach (var e in enemies)
+        var enemiesAtTurnStart = new List<Enemy>(enemies);
+        foreach (var e in enemiesAtTurnStart)
         {
             if (e != null)
                 e.ProcessTurnStart();
@@ -365,14 +366,16 @@ public class BattleManager : MonoBehaviour               // 戰鬥流程管理�
     public IEnumerator EnemyTurnCoroutine()
     {
 
-        foreach (var e in enemies)
+        var enemiesAtEnemyTurnStart = new List<Enemy>(enemies);
+        foreach (var e in enemiesAtEnemyTurnStart)
         {
             if (e != null)
                 e.ProcessTurnStart();                     // 敵人回合開始效果
         }
         yield return new WaitForSeconds(1f);               // 等待 1 秒
 
-        foreach (var e in enemies)
+        var enemiesTakingActions = new List<Enemy>(enemies);
+        foreach (var e in enemiesTakingActions)
         {
             if (e != null)
                 e.EnemyAction(player);                    // 敵人執行攻擊或行動
@@ -382,7 +385,8 @@ public class BattleManager : MonoBehaviour               // 戰鬥流程管理�
 
         // 清除本回合所有格擋 (Slay the Spire 流程)
         player.block = 0;
-        foreach (var e in enemies)
+        var enemiesAtTurnEnd = new List<Enemy>(enemies);
+        foreach (var e in enemiesAtTurnEnd)
         {
             if (e != null && e.ShouldResetBlockEachTurn) e.block = 0;
         }

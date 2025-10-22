@@ -317,6 +317,38 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 7603518278215076845}
     m_Modifications:
+    - target: {fileID: 1203048832907362848, guid: aa327d458a92acc48ba8ff8e60ec1976, type: 3}
+      propertyPath: m_SortingLayer
+      value: 4
+      objectReference: {fileID: 0}
+    - target: {fileID: 1203048832907362848, guid: aa327d458a92acc48ba8ff8e60ec1976, type: 3}
+      propertyPath: m_SortingOrder
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1203048832907362848, guid: aa327d458a92acc48ba8ff8e60ec1976, type: 3}
+      propertyPath: m_SortingLayerID
+      value: 253976321
+      objectReference: {fileID: 0}
+    - target: {fileID: 5326906986136368407, guid: aa327d458a92acc48ba8ff8e60ec1976, type: 3}
+      propertyPath: m_SortingLayer
+      value: 4
+      objectReference: {fileID: 0}
+    - target: {fileID: 5326906986136368407, guid: aa327d458a92acc48ba8ff8e60ec1976, type: 3}
+      propertyPath: m_SortingLayerID
+      value: 253976321
+      objectReference: {fileID: 0}
+    - target: {fileID: 5615431001870913509, guid: aa327d458a92acc48ba8ff8e60ec1976, type: 3}
+      propertyPath: m_SortingLayer
+      value: 4
+      objectReference: {fileID: 0}
+    - target: {fileID: 5615431001870913509, guid: aa327d458a92acc48ba8ff8e60ec1976, type: 3}
+      propertyPath: m_SortingOrder
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 5615431001870913509, guid: aa327d458a92acc48ba8ff8e60ec1976, type: 3}
+      propertyPath: m_SortingLayerID
+      value: 253976321
+      objectReference: {fileID: 0}
     - target: {fileID: 5856414769113194564, guid: aa327d458a92acc48ba8ff8e60ec1976, type: 3}
       propertyPath: m_Name
       value: Bottom
