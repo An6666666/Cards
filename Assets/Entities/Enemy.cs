@@ -46,6 +46,9 @@ public class Enemy : MonoBehaviour              // 敵人角色，繼承自 Mono
     private Vector3 spriteDefaultLocalScale;        // 記錄初始縮放
     private bool spriteDefaultsInitialized = false; // 是否已取得初始值
 
+    private Animator spriteAnimator;                 // 本體動畫控制器
+    private Animator highlightAnimator;              // 高亮動畫控制器
+
     [Header("圖層排序設定")]
     [SerializeField] private int sortingOrderBase = 0;             // 基礎排序值
     [SerializeField] private float sortingOrderMultiplier = 100f;  // 依 Y 值放大的倍率
@@ -115,6 +118,48 @@ public class Enemy : MonoBehaviour              // 敵人角色，繼承自 Mono
             cachedSpriteRenderers = Array.Empty<SpriteRenderer>();
             cachedSpriteBaseOrders = Array.Empty<int>();
         }
+    }
+
+    private void EnsureAnimators()
+    {
+        if (spriteAnimator == null)
+        {
+            Transform root = spriteRoot ? spriteRoot : transform;
+            spriteAnimator = root.GetComponent<Animator>();
+            if (spriteAnimator == null)
+            {
+                spriteAnimator = root.GetComponentInChildren<Animator>(true);
+            }
+        }
+
+        if (highlightAnimator == null && highlightFx != null)
+        {
+            highlightAnimator = highlightFx.GetComponent<Animator>();
+            if (highlightAnimator == null)
+            {
+                highlightAnimator = highlightFx.GetComponentInChildren<Animator>(true);
+            }
+        }
+    }
+
+    private void SyncHighlightAnimation()
+    {
+        EnsureAnimators();
+        if (spriteAnimator == null || highlightAnimator == null)
+        {
+            return;
+        }
+
+        AnimatorStateInfo bodyState = spriteAnimator.GetCurrentAnimatorStateInfo(0);
+        float normalizedTime = Mathf.Repeat(bodyState.normalizedTime, 1f);
+
+        highlightAnimator.Update(0f);
+        AnimatorStateInfo highlightState = highlightAnimator.GetCurrentAnimatorStateInfo(0);
+        int targetStateHash = highlightState.shortNameHash;
+
+        highlightAnimator.Play(targetStateHash, 0, normalizedTime);
+        highlightAnimator.Update(0f);
+        highlightAnimator.speed = spriteAnimator.speed;
     }
 
     private bool IsRendererOwnedByThis(SpriteRenderer renderer)
@@ -259,6 +304,7 @@ public class Enemy : MonoBehaviour              // 敵人角色，繼承自 Mono
 
         CacheSortingComponents();                  // 緩存渲染相關組件
         UpdateSpriteSortingOrder();                // 依據位置更新排序
+        EnsureAnimators();
     }
 
     private void OnEnable()
@@ -274,7 +320,14 @@ public class Enemy : MonoBehaviour              // 敵人角色，繼承自 Mono
 
     public void SetHighlight(bool on)               // 控制高亮顯示
     {
-        if (highlightFx) highlightFx.SetActive(on);
+        if (highlightFx)
+        {
+            highlightFx.SetActive(on);
+            if (on)
+            {
+                SyncHighlightAnimation();
+            }
+        }
         UpdateSpriteSortingOrder();
     }
 
