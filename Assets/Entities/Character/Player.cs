@@ -63,7 +63,7 @@ public class Player : MonoBehaviour
         DrawCards(initialDrawCount); // 依設定的基礎手牌數量抽牌
 
         // 回合開始的 Buff 重置（例如 movementCostModify 歸零、damageTakenRatio 邏輯等）
-        buffs.OnTurnStartReset();
+        buffs.OnTurnStartReset(this);
 
         // 若有具有「回合開始觸發」的遺物，逐一觸發
         foreach (CardBase r in relics)
@@ -111,7 +111,7 @@ public class Player : MonoBehaviour
         }
 
         // 回合結束的 Buff 重置（例如將 damageTakenRatio 歸回 1.0f 等）
-        buffs.OnTurnEndReset();
+        buffs.OnTurnEndReset(this);
     }
 
     /// <summary>
@@ -157,7 +157,13 @@ public class Player : MonoBehaviour
     /// </summary>
     public void TakeDamage(int dmg)
     {
-        int reduced = dmg - buffs.meleeDamageReduce;
+        int incoming = dmg;
+        if (buffs.weak > 0)
+        {
+            incoming += 2;
+        }
+
+        int reduced = incoming - buffs.meleeDamageReduce;
         if (reduced < 0) reduced = 0;
         float realDmgF = reduced * buffs.damageTakenRatio;
         int realDmg = Mathf.CeilToInt(realDmgF);
@@ -184,8 +190,51 @@ public class Player : MonoBehaviour
     /// </summary>
     public void TakeDamageDirect(int dmg)
     {
-        currentHP -= dmg;
+        int incoming = dmg;
+        if (buffs.weak > 0)
+        {
+            incoming += 2;
+        }
+
+        currentHP -= incoming;
         if (currentHP <= 0) currentHP = 0;
+    }
+
+    /// <summary>
+    /// 由持續性效果造成的傷害，可被格擋值抵銷
+    /// </summary>
+    /// <param name="dmg">持續性效果欲造成的傷害</param>
+    public void TakeStatusDamage(int dmg)
+    {
+        if (dmg <= 0)
+        {
+            return;
+        }
+
+        int remaining = dmg;
+
+        if (block > 0)
+        {
+            if (block >= remaining)
+            {
+                block -= remaining;
+                remaining = 0;
+            }
+            else
+            {
+                remaining -= block;
+                block = 0;
+            }
+        }
+
+        if (remaining > 0)
+        {
+            currentHP -= remaining;
+            if (currentHP < 0)
+            {
+                currentHP = 0;
+            }
+        }
     }
 
     public void AddGold(int amount)
@@ -394,6 +443,12 @@ public class Player : MonoBehaviour
     /// </summary>
     public void MoveToPosition(Vector2Int targetGridPos)
     {
+        if (!buffs.CanMove())
+        {
+            Debug.Log("Cannot move: movement is currently restricted.");
+            return;
+        }
+
         // 1. 取得棋盤管理器
         Board board = FindObjectOfType<Board>();
         if (board == null)
@@ -429,6 +484,12 @@ public class Player : MonoBehaviour
     /// </summary>
     public void TeleportToPosition(Vector2Int targetPos)
     {
+        if (!buffs.CanMove())
+        {
+            Debug.Log("Cannot teleport: movement is currently restricted.");
+            return;
+        }
+
         Board board = FindObjectOfType<Board>();
         if (board != null && board.IsTileOccupied(targetPos))
         {
@@ -456,33 +517,44 @@ public class PlayerBuffs
     public int needRandomDiscardAtEnd = 0;  // 回合結束時需要隨機棄牌的張數
     public int meleeDamageReduce = 0;       // 近戰傷害固定減免
     public int weak = 0;                    // 虛弱回合數
-    public int stun = 0;                    // 暈眩回合數（無法行動）
+    public int stun = 0;                    // 暈眩回合數（無法行動)
+    public int bleed = 0;                   // 流血回合數
+    public int imprison = 0;                // 禁錮回合數（無法移動）
     public int nextTurnAllAttackPlus = 0;   // 下回合所有攻擊 +X
 
     /// <summary>
     /// 回合開始時的重置與遞減
     /// </summary>
-    public void OnTurnStartReset()
+    public void OnTurnStartReset(Player owner)
     {
-        // 例如：回合開始前，將「下回合全攻 +X」在這時生效完後再視需要重置
-        // damageTakenRatio 是否需要在此回復為 1.0f，依你的設計調整
-
-        if (stun > 0) stun--;   // 暈眩回合數往下扣
-        if (weak > 0) weak--;   // 虛弱回合數往下扣
-
         // 將「本回合內」的費用修正歸零
         movementCostModify = 0;
         nextAttackCostModify = 0;
     }
 
     /// <summary>
-    /// 回合結束時的重置
+    /// 回合結束時的重置（含流血扣血）
     /// </summary>
-    public void OnTurnEndReset()
+    public void OnTurnEndReset(Player owner)
     {
         // 回復承傷比例為 1.0f（若只在本回合有效）
         damageTakenRatio = 1.0f;
         // nextAttackPlus 依你的流程決定是否在此清除（此程式在 CalculateAttackDamage 時已清 0）
         // needRandomDiscardAtEnd 已在 EndTurn 中用掉，這裡不動即可
+
+         if (owner != null && bleed > 0)
+        {
+            owner.TakeStatusDamage(3);
+        }
+
+        if (stun > 0) stun--;
+        if (weak > 0) weak--;
+        if (imprison > 0) imprison--;
+        if (bleed > 0) bleed--;
+    }
+
+    public bool CanMove()
+    {
+        return imprison <= 0 && stun <= 0;
     }
 }

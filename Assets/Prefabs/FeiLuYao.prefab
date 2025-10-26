@@ -158,7 +158,7 @@ SpriteRenderer:
   m_SortingLayerID: 632128979
   m_SortingLayer: 3
   m_SortingOrder: 0
-  m_Sprite: {fileID: 21300000, guid: 53896e72cd9f5b74c91598d06fbffcdf, type: 3}
+  m_Sprite: {fileID: 21300000, guid: d5434bee0df660a49af66331c8b8e390, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -193,10 +193,10 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 7603518278215076845}
-  - component: {fileID: 8258485525033336925}
   - component: {fileID: 2788274960646075252}
+  - component: {fileID: 4591814044274373110}
   m_Layer: 0
-  m_Name: HeiGouJing
+  m_Name: FeiLuYao
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -221,50 +221,6 @@ Transform:
   - {fileID: 7981473600152872055}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &8258485525033336925
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8127814944662599423}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a00de0efb02ad2640a48c73330facabe, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  enemyName: HeiGouJing
-  maxHP: 10
-  currentHP: 0
-  block: 0
-  burningTurns: 0
-  frozenTurns: 0
-  thunderstrike: 0
-  superconduct: 0
-  hasBerserk: 0
-  buffs:
-    stun: 0
-  gridPosition: {x: 0, y: 0}
-  baseAttackDamage: 10
-  attackRangeOffsets:
-  - {x: -2, y: 0}
-  - {x: 2, y: 0}
-  - {x: -1, y: -2}
-  - {x: 1, y: -2}
-  - {x: -1, y: 2}
-  - {x: 1, y: 2}
-  isBoss: 0
-  spriteRoot: {fileID: 8275633406451967337}
-  sortingOrderBase: 0
-  sortingOrderMultiplier: 100
-  shakeDuration: 0.1
-  shakeMagnitude: 0.1
-  scaleMultiplier: 1.1
-  highlightFx: {fileID: 765307179903137180}
-  cloneSettings:
-    count: 2
-    maxHP: 1
-    baseAttackDamage: 10
 --- !u!61 &2788274960646075252
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -310,6 +266,49 @@ BoxCollider2D:
   serializedVersion: 2
   m_Size: {x: 81.4544, y: 34.68307}
   m_EdgeRadius: 0
+--- !u!114 &4591814044274373110
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8127814944662599423}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f51ed908f382b5a4294251fb84e9de38, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  enemyName: Slime
+  maxHP: 40
+  currentHP: 0
+  block: 0
+  burningTurns: 0
+  frozenTurns: 0
+  thunderstrike: 0
+  superconduct: 0
+  hasBerserk: 0
+  buffs:
+    stun: 0
+  gridPosition: {x: 0, y: 0}
+  baseAttackDamage: 1
+  attackRangeOffsets:
+  - {x: -2, y: 0}
+  - {x: 2, y: 0}
+  - {x: -1, y: -2}
+  - {x: 1, y: -2}
+  - {x: -1, y: 2}
+  - {x: 1, y: 2}
+  isBoss: 0
+  spriteRoot: {fileID: 8275633406451967337}
+  sortingOrderBase: 0
+  sortingOrderMultiplier: 100
+  shakeDuration: 0.1
+  shakeMagnitude: 0.1
+  scaleMultiplier: 1.1
+  highlightFx: {fileID: 0}
+  weakDuration: 2
+  bleedDuration: 2
+  imprisonDuration: 1
 --- !u!1001 &1817239499420612326
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -325,7 +324,7 @@ PrefabInstance:
     - target: {fileID: 7321942260871352390, guid: 5eb938b8b8628764cad6aaa8a1e732ea, type: 3}
       propertyPath: enemy
       value: 
-      objectReference: {fileID: 8258485525033336925}
+      objectReference: {fileID: 4591814044274373110}
     - target: {fileID: 8030096394536815716, guid: 5eb938b8b8628764cad6aaa8a1e732ea, type: 3}
       propertyPath: m_Size.x
       value: 0.16
@@ -368,7 +367,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8645717498181915281, guid: 5eb938b8b8628764cad6aaa8a1e732ea, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 30
+      value: 27.9
       objectReference: {fileID: 0}
     - target: {fileID: 8645717498181915281, guid: 5eb938b8b8628764cad6aaa8a1e732ea, type: 3}
       propertyPath: m_LocalPosition.z
@@ -511,7 +510,7 @@ PrefabInstance:
     - target: {fileID: 7759427499528777740, guid: aa327d458a92acc48ba8ff8e60ec1976, type: 3}
       propertyPath: enemy
       value: 
-      objectReference: {fileID: 8258485525033336925}
+      objectReference: {fileID: 4591814044274373110}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
