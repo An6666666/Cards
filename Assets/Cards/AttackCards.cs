@@ -2,37 +2,15 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-#region �����P1-4�G�����]�p
+#region P1-P4:基礎攻擊卡
 
 /// <summary>
-/// �X�� (�C�O�}�W�q)
+/// 振迅（若本回合有防禦/有格擋，則追加傷害）
 /// </summary>
-[CreateAssetMenu(fileName = "Attack_QuXie", menuName = "Cards/Attack/�X��")]
-public class Attack_QuXie : CardBase
-{
-    public int damage = 4;
-    public int dispelCount = 1; // �i�X���ĤH�W�q�h��
-
-    private void OnEnable()
-    {
-        cardType = CardType.Attack;
-    }
-
-    public override void ExecuteEffect(Player player, Enemy enemy)
-    {
-        int dmg = player.CalculateAttackDamage(damage);
-        enemy.TakeDamage(dmg);
-        // �̻ݨD�A�����ĤH���W�qbuff
-        enemy.DispelBuff(dispelCount);
-    }
-}
-
-/// <summary>
-/// �u�V (�Y���^�X�ϥιL���m�P, �h+�B�~�ˮ`)
-/// </summary>
-[CreateAssetMenu(fileName = "Attack_ZhenXun", menuName = "Cards/Attack/�u�V")]
+[CreateAssetMenu(fileName = "Attack_ZhenXun", menuName = "Cards/Attack/振迅")]
 public class Attack_ZhenXun : CardBase
 {
+    [Header("數值設定")]
     public int baseDamage = 10;
     public int bonusDamage = 4;
 
@@ -43,9 +21,8 @@ public class Attack_ZhenXun : CardBase
 
     public override void ExecuteEffect(Player player, Enemy enemy)
     {
-        // ���] Player ���� bool usedDefenseThisTurn ������
-        // �� check block>0 �]�i�H
-        bool usedDefense = (player.block > 0); // ²�ƥ�: �Y��block, ���ܥιL���m
+        // 判定玩家本回合是否使用過防禦（此處以 block>0 作為簡化判斷）
+        bool usedDefense = (player.block > 0);
         int totalDamage = baseDamage;
         if (usedDefense)
         {
@@ -59,14 +36,15 @@ public class Attack_ZhenXun : CardBase
 
 #endregion
 
-#region �����P5-10�G�s�W�]�p
+#region P5-P10:進階攻擊卡
 
 /// <summary>
-/// �F�����
+/// 靈巧穿刺（若本回合有棄牌，額外加傷）
 /// </summary>
-[CreateAssetMenu(fileName = "Attack_LingQiaoChuanCi", menuName = "Cards/Attack/�F�����")]
+[CreateAssetMenu(fileName = "Attack_LingQiaoChuanCi", menuName = "Cards/Attack/靈巧穿刺")]
 public class Attack_LingQiaoChuanCi : CardBase
 {
+    [Header("數值設定")]
     public int baseDamage = 6;
     public int bonusDamageIfDiscard = 3;
 
@@ -77,7 +55,7 @@ public class Attack_LingQiaoChuanCi : CardBase
 
     public override void ExecuteEffect(Player player, Enemy enemy)
     {
-        // �ˬd���^�X�O�_��P
+        // 檢查本回合是否發生過棄牌
         bool hasDiscarded = player.hasDiscardedThisTurn;
         int totalDamage = baseDamage;
         if (hasDiscarded)
@@ -90,11 +68,12 @@ public class Attack_LingQiaoChuanCi : CardBase
 }
 
 /// <summary>
-/// �U�ɱ� (�i��1�i�P�A���@��)
+/// 燃勁斬（先造成一次傷害；若能成功棄 1 張牌，再追加一次同等傷害）
 /// </summary>
-[CreateAssetMenu(fileName = "Attack_RanJinZhan", menuName = "Cards/Attack/�U�ɱ�")]
+[CreateAssetMenu(fileName = "Attack_RanJinZhan", menuName = "Cards/Attack/燃勁斬")]
 public class Attack_RanJinZhan : CardBase
 {
+    [Header("數值設定")]
     public int damage = 5;
 
     private void OnEnable()
@@ -107,7 +86,7 @@ public class Attack_RanJinZhan : CardBase
         int dmg1 = player.CalculateAttackDamage(damage);
         enemy.TakeDamage(dmg1);
 
-        // �� 1 �i�P -> �Y���\�A�A������
+        // 嘗試棄 1 張牌；成功則再打一次
         bool hasDiscard = player.DiscardOneCard();
         if (hasDiscard)
         {
@@ -118,12 +97,14 @@ public class Attack_RanJinZhan : CardBase
 }
 
 /// <summary>
-/// �H�ҽ��� (�}���Ĥ賡�����m)
+/// 碎甲衝擊（先削減目標格擋，再造成傷害）
 /// </summary>
-[CreateAssetMenu(fileName = "Attack_SuiJiaChongJi", menuName = "Cards/Attack/�H�ҽ���")]
+[CreateAssetMenu(fileName = "Attack_SuiJiaChongJi", menuName = "Cards/Attack/碎甲衝擊")]
 public class Attack_SuiJiaChongJi : CardBase
 {
+    [Header("數值設定")]
     public int damage = 8;
+    [Tooltip("先削減目標的 Block 數值")]
     public int reduceBlock = 5;
 
     private void OnEnable()
@@ -133,20 +114,21 @@ public class Attack_SuiJiaChongJi : CardBase
 
     public override void ExecuteEffect(Player player, Enemy enemy)
     {
-        // ���}���Ĥ� block
+        // 先降低目標的格擋
         enemy.ReduceBlock(reduceBlock);
-        // �A�y���ˮ`
+        // 再進行傷害結算
         int dmg = player.CalculateAttackDamage(damage);
         enemy.TakeDamage(dmg);
     }
 }
 
 /// <summary>
-/// ���� (�Y���^�X��� >= N , �B�~�ˮ`)
+/// 盾擊（若目前 Block ≥ 門檻，則額外加傷）
 /// </summary>
-[CreateAssetMenu(fileName = "Attack_DunJi", menuName = "Cards/Attack/����")]
+[CreateAssetMenu(fileName = "Attack_DunJi", menuName = "Cards/Attack/盾擊")]
 public class Attack_DunJi : CardBase
 {
+    [Header("數值設定")]
     public int baseDamage = 4;
     public int blockThreshold = 6;
     public int bonusDamage = 4;
@@ -169,13 +151,15 @@ public class Attack_DunJi : CardBase
 }
 
 /// <summary>
-/// �ìy��̼C (��P���ƶV�h, �ˮ`�V��)
+/// 亂流手裡劍（若無棄牌 → 固定傷害；若有棄牌 → 依棄牌數×每次傷害）
 /// </summary>
-[CreateAssetMenu(fileName = "Attack_LuanLiuShuriken", menuName = "Cards/Attack/�ìy��̼C")]
+[CreateAssetMenu(fileName = "Attack_LuanLiuShuriken", menuName = "Cards/Attack/亂流手裡劍")]
 public class Attack_LuanLiuShuriken : CardBase
 {
+    [Header("數值設定")]
     public int baseDamagePerDiscard = 2;
-    public int baseDamageIfNoDiscard = 2; // �Y�L��P����, ���ӫO���ˮ`
+    [Tooltip("當回合沒有任何棄牌時造成的基礎傷害")]
+    public int baseDamageIfNoDiscard = 2;
 
     private void OnEnable()
     {
@@ -184,21 +168,20 @@ public class Attack_LuanLiuShuriken : CardBase
 
     public override void ExecuteEffect(Player player, Enemy enemy)
     {
-        // �Y���^�X��P�L�X�i? ���ܽd�u�O�� hasDiscardedThisTurn (bool)
-        // �Y�Q���, �i�H�b Player �̬��� discardCountThisTurn (int)
+        // hasDiscardedThisTurn：是否有棄牌行為；discardCountThisTurn：本回合棄牌次數
         bool hasDiscarded = player.hasDiscardedThisTurn;
-        int discardCount = player.discardCountThisTurn; // ���]�A�b Player �����F���ܼ�
+        int discardCount = player.discardCountThisTurn;
         if (discardCount < 0) discardCount = 0;
 
         int totalDamage = 0;
         if (!hasDiscarded)
         {
-            // �L��P���p
+            // 無棄牌 → 固定傷害
             totalDamage = baseDamageIfNoDiscard;
         }
         else
         {
-            // ����P, �̱�P�ƭp��
+            // 有棄牌 → 次數 × 每次傷害（若計算結果 ≤0，退回固定傷害）
             totalDamage = discardCount * baseDamagePerDiscard;
             if (totalDamage <= 0) totalDamage = baseDamageIfNoDiscard;
         }
@@ -209,11 +192,12 @@ public class Attack_LuanLiuShuriken : CardBase
 }
 
 /// <summary>
-/// �F�N��ŧ (��1��1, �Y�󱼪��O�ޯ�P�h�l�[�ˮ`)
+/// 騙術突襲（造成傷害 → 抽 1 棄 1；若棄掉的是技能牌，則對同一目標追加傷害）
 /// </summary>
-[CreateAssetMenu(fileName = "Attack_PianShuTuXi", menuName = "Cards/Attack/�F�N��ŧ")]
+[CreateAssetMenu(fileName = "Attack_PianShuTuXi", menuName = "Cards/Attack/騙術突襲")]
 public class Attack_PianShuTuXi : CardBase
 {
+    [Header("數值設定")]
     public int baseDamage = 9;
     public int bonusDamage = 3;
 
@@ -224,13 +208,14 @@ public class Attack_PianShuTuXi : CardBase
 
     public override void ExecuteEffect(Player player, Enemy enemy)
     {
-        // �y����¦�ˮ`
+        // 先造成一次傷害
         int dmg = player.CalculateAttackDamage(baseDamage);
         enemy.TakeDamage(dmg);
 
-        // ��1�i
+        // 抽 1
         player.DrawCards(1);
-        // ��1�i(���B²��, ������̫�@�i)
+
+        // 棄 1（盡量避開「保證位移」類的移動牌）
         CardBase lastCard = null;
         if (player.Hand.Count > 0)
         {
@@ -240,27 +225,25 @@ public class Attack_PianShuTuXi : CardBase
                 CardBase candidate = player.Hand[i];
                 if (manager != null && manager.IsGuaranteedMovementCard(candidate))
                 {
-                    continue;
+                    continue; // 跳過不應被丟棄的保底移動牌
                 }
 
                 lastCard = candidate;
                 player.Hand.RemoveAt(i);
                 player.discardPile.Add(lastCard);
                 player.hasDiscardedThisTurn = true;
-                player.discardCountThisTurn++; // �ݽT�O��������
+                player.discardCountThisTurn++; // 記錄本回合的棄牌次數
                 break;
             }
         }
 
-        // �Y�󱼪��P�O�ޯ�P, �h��ĤH�A�y�� bonusDamage
+        // 若棄掉的是技能牌 → 對同一目標追加傷害
         if (lastCard != null && lastCard.cardType == CardType.Skill)
         {
             int bonus = player.CalculateAttackDamage(bonusDamage);
             enemy.TakeDamage(bonus);
         }
-
     }
 }
 
 #endregion
-
