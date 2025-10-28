@@ -5174,7 +5174,7 @@ MonoBehaviour:
   cardPrefab: {fileID: 4596475076482105628, guid: 100c1a32f1664694b821ff0756181848, type: 3}
   enemySpawnConfigs:
   - enemyPrefab: {fileID: 4204690724760053818, guid: 87fab54ae39d11f449187455258a17cc, type: 3}
-    count: 10
+    count: 1
   - enemyPrefab: {fileID: 8258485525033336925, guid: b1fbe62463006294b80e46474639e1f9, type: 3}
     count: 0
   - enemyPrefab: {fileID: 4591814044274373110, guid: e0d91408b43bec24ab02b0d2932a3dfc, type: 3}
@@ -6476,8 +6476,11 @@ MonoBehaviour:
   gold: 0
   baseHandCardCount: 4
   deck:
-  - {fileID: 11400000, guid: 4fd70894f3d5cb54388922c21a1e3c60, type: 2}
-  - {fileID: 11400000, guid: 9b35b87c81d6f2147a95c1bca48d0f77, type: 2}
+  - {fileID: 11400000, guid: 8cbf485628d29c0459cc448460d860de, type: 2}
+  - {fileID: 11400000, guid: 62fb5fa886ad39a41909086eb7d62a45, type: 2}
+  - {fileID: 11400000, guid: e3f43fceea53134408af5dce9c774ef5, type: 2}
+  - {fileID: 11400000, guid: ad52ff7b27f9eb44c9be0de1eaf276e7, type: 2}
+  - {fileID: 11400000, guid: 4d64db89bd736564b87cf6a239f1c3d3, type: 2}
   relics: []
   hasDiscardedThisTurn: 0
   discardCountThisTurn: 0
