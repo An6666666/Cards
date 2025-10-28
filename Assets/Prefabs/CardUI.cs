@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
 using DG.Tweening;
+using System.Collections;
 
 [RequireComponent(typeof(CanvasGroup))]
 public class CardUI : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler, IPointerEnterHandler, IPointerExitHandler
@@ -232,44 +233,50 @@ public class CardUI : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHa
     }
 
     public void OnEndDrag(PointerEventData eventData)
+{
+    if (!interactable || !allowDragging) return;
+    if (canvasGroup != null) canvasGroup.blocksRaycasts = true;
+
+    isDragging = false;
+
+    if (battleManager == null)
+        battleManager = FindObjectOfType<BattleManager>();
+
+    Camera targetCamera = mainCamera != null ? mainCamera : Camera.main;
+    Vector2 worldPos = targetCamera != null
+        ? targetCamera.ScreenToWorldPoint(eventData.position)
+        : eventData.position;
+
+    Collider2D hit = Physics2D.OverlapPoint(worldPos);
+    bool used = false;
+
+    if (battleManager != null && cardData != null)
     {
-        if (!interactable || !allowDragging) return;
-        if (canvasGroup != null) canvasGroup.blocksRaycasts = true;
-
-        isDragging = false;
-
-        if (battleManager == null)
-            battleManager = FindObjectOfType<BattleManager>();
-
-        Camera targetCamera = mainCamera != null ? mainCamera : Camera.main;
-        Vector2 worldPos = targetCamera != null
-            ? targetCamera.ScreenToWorldPoint(eventData.position)
-            : eventData.position;
-        Collider2D hit = Physics2D.OverlapPoint(worldPos);
-        bool used = false;
-
-        if (battleManager != null && cardData != null)
-        {
-            if (cardData.cardType == CardType.Attack)
-                used = HandleAttackDrop(hit);
-            else if (cardData.cardType == CardType.Movement)
-                used = HandleMovementDrop(hit);
-            else if (cardData.cardType == CardType.Skill)
-                used = HandleSkillDrop(hit);
-        }
-
-        if (used)
-        {
-            FadeCardAlpha(originalAlpha, instant: true);
-            if (layoutElement != null) layoutElement.ignoreLayout = false;
-            DestroyPlaceholder();
-            Destroy(gameObject);
-        }
-        else
-        {
-            ReturnToHand();
-        }
+        if (cardData.cardType == CardType.Attack)
+            used = HandleAttackDrop(hit);
+        else if (cardData.cardType == CardType.Movement)
+            used = HandleMovementDrop(hit);
+        else if (cardData.cardType == CardType.Skill)
+            used = HandleSkillDrop(hit);
     }
+
+    if (used)
+    {
+        // 成功使用：等一幀刷新 Deck/Discard，再銷毀這張卡的 UI
+        StartCoroutine(ConsumeAndRefreshThenDestroy());
+
+        FadeCardAlpha(originalAlpha, instant: true);
+        if (layoutElement != null) layoutElement.ignoreLayout = false;
+        DestroyPlaceholder();
+        return; // 重要：避免繼續往下執行
+    }
+    else
+    {
+        // 失敗或未命中：卡片回到手牌原位
+        ReturnToHand();
+    }
+}
+
     #endregion
 
     public void OnPointerEnter(PointerEventData eventData)
@@ -702,19 +709,25 @@ public class CardUI : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHa
     }
 
     private bool HandleAttackDrop(Collider2D hit)
+{
+    if (hit != null)
     {
-        if (hit != null)
+        // 從父鏈抓 Enemy：就算命中子節點 Collider 也能找到
+        var enemy = hit.GetComponentInParent<Enemy>();
+        if (enemy != null)
         {
-            Enemy enemy;
-            if (hit.TryGetComponent(out enemy))
-            {
-                if (battleManager.OnEnemyClicked(enemy))
-                    return true;
-            }
+            if (battleManager.OnEnemyClicked(enemy))
+                return true;
         }
-        battleManager.EndAttackSelect();
-        return false;
+        else
+        {
+            Debug.LogWarning($"[CardUI] Attack drop hit {hit.name} but no Enemy found in parents.");
+        }
     }
+    battleManager.EndAttackSelect();
+    return false;
+}
+
 
     private bool HandleMovementDrop(Collider2D hit)
     {
@@ -793,5 +806,41 @@ public class CardUI : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHa
             Destroy(placeholder.gameObject);
 
         placeholder = null;
+    }
+    // 等到「下一個 frame」再刷新，保證 Player.deck / discardPile 已更新完畢
+    // CardUI.cs 內，覆蓋原本的 RefreshDeckDiscardPanelsNextFrame()
+    private IEnumerator RefreshDeckDiscardPanelsNextFrame()
+{
+    Debug.Log("[CardUI] RefreshDeckDiscardPanelsNextFrame start");
+
+    // 等一幀，讓出牌邏輯完成（手牌→棄牌）
+    yield return null;
+
+    // 穩定抓 Player（最多重試 10 幀）
+    Player playerRef = null;
+    for (int i = 0; i < 10 && playerRef == null; i++)
+    {
+        if (battleManager == null) battleManager = FindObjectOfType<BattleManager>();
+        if (battleManager != null) playerRef = battleManager.player;
+        if (playerRef == null) playerRef = FindObjectOfType<Player>();
+        if (playerRef == null) yield return null;
+    }
+
+    Debug.Log("[CardUI] Bus refresh. views=" + DeckUIBus.ViewCount + ", player=" + (playerRef ? "OK" : "NULL"));
+    DeckUIBus.RefreshAll(playerRef);
+}
+
+
+
+        private IEnumerator ConsumeAndRefreshThenDestroy()
+    {
+        // 先等一幀，讓手牌→棄牌的資料更新完成
+        yield return null;
+
+        // 呼叫刷新流程（走匯流排）
+        yield return RefreshDeckDiscardPanelsNextFrame();
+
+        // 刷新後再銷毀這張 UI 卡片
+        Destroy(gameObject);
     }
 }
