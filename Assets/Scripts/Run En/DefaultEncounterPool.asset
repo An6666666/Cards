@@ -15,3 +15,7 @@ MonoBehaviour:
   encounters:
   - {fileID: 11400000, guid: f04356927be3c8b4985b6aae08aa2269, type: 2}
   - {fileID: 11400000, guid: b09652e01d4761b42bd7445664ac0381, type: 2}
+  - {fileID: 11400000, guid: b09652e01d4761b42bd7445664ac0381, type: 2}
+  - {fileID: 11400000, guid: b09652e01d4761b42bd7445664ac0381, type: 2}
+  - {fileID: 11400000, guid: b09652e01d4761b42bd7445664ac0381, type: 2}
+  - {fileID: 11400000, guid: b09652e01d4761b42bd7445664ac0381, type: 2}

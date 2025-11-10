@@ -120,6 +120,9 @@ public class RunManager : MonoBehaviour
     public MapNodeData ActiveNode => activeNode;                      // 對外讀正在處理的節點
     public bool RunCompleted => runCompleted;                         // 對外讀這次 run 是否完成
 
+    public event Action<IReadOnlyList<IReadOnlyList<MapNodeData>>> MapGenerated; // 生成新地圖時通知 UI
+    public event Action MapStateChanged;                              // 地圖狀態（完成/可選節點）變動時通知
+
     private void Awake()
     {
         // 確保只有一個 RunManager，重複的就刪掉
@@ -213,6 +216,9 @@ public class RunManager : MonoBehaviour
         currentNode = null;     // 還沒選起始節點
         activeNode = null;      // 還沒進入任何節點
         runCompleted = false;   // 新的 run 當然還沒通關
+
+        MapGenerated?.Invoke(mapFloors);
+        MapStateChanged?.Invoke();
     }
 
     // 給 UI 用：現在有哪些節點可以選
@@ -250,6 +256,7 @@ public class RunManager : MonoBehaviour
 
         activeNode = node;     // 標記現在正在這個節點
         LoadSceneForNode(node); // 依節點類型載入場景
+        MapStateChanged?.Invoke();
         return true;
     }
 
@@ -279,6 +286,8 @@ public class RunManager : MonoBehaviour
         {
             runCompleted = true;    // 如果這個是 Boss，那 run 結束
         }
+
+        MapStateChanged?.Invoke();
     }
 
     // 被戰鬥場景呼叫：打輸了
@@ -300,6 +309,7 @@ public class RunManager : MonoBehaviour
 
         activeNode = null;      // 不再有正在進行的節點
         LoadRunScene();         // 載入地圖場景
+        MapStateChanged?.Invoke();
     }
 
     // 把玩家目前狀態記起來，之後回到地圖時可以還原
