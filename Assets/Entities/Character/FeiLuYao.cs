@@ -78,13 +78,13 @@ public class FeiLuYao : Enemy
         switch (choice)
         {
             case DebuffType.Weak:
-                player.buffs.weak = weakDuration;
+                player.buffs.ApplyWeakFromEnemy(weakDuration);
                 break;
             case DebuffType.Bleed:
-                player.buffs.bleed = bleedDuration;
+                player.buffs.ApplyBleedFromEnemy(bleedDuration);
                 break;
             case DebuffType.Imprison:
-                player.buffs.imprison = imprisonDuration;
+                player.buffs.ApplyImprisonFromEnemy(imprisonDuration);
                 break;
         }
     }

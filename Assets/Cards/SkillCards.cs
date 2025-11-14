@@ -44,8 +44,9 @@ public class Skill_LingHunZhenDang : CardBase
     {
         // ��o1��q (��q�W���ݦۦ�޲z)
         player.energy += 1;
-        // �O���a��z 1 �^�X => player.buffs.weak = 1;
-        player.buffs.weak += 1;
+        // �O���a��z 1 �^�X => 改以方法增加玩家自身造成的虛弱層數
+        player.buffs.IncreaseWeakFromPlayer(1);
+
 
         // ����W�I�[�p�q�ĪG => �i��� BattleManager �� GameManager ����
         // GameManager.instance.isThunderPresent = true; (�̧A�]�p)

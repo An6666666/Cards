@@ -248,6 +248,32 @@ public class Player : MonoBehaviour
     }
 
     /// <summary>
+    /// 清除玩家身上的所有負面效果。
+    /// </summary>
+    public void RemoveAllNegativeEffects()
+    {
+        if (buffs == null)
+        {
+            return;
+        }
+
+        buffs.RemoveAllNegativeEffects(this);
+    }
+
+    /// <summary>
+    /// 僅移除由妖怪造成的負面效果。
+    /// </summary>
+    public void RemoveEnemyNegativeEffects()
+    {
+        if (buffs == null)
+        {
+            return;
+        }
+
+        buffs.RemoveEnemyNegativeEffects(this);
+    }
+    
+    /// <summary>
     /// 抽 n 張牌
     /// </summary>
     public void DrawCards(int n)
@@ -544,6 +570,11 @@ public class PlayerBuffs
     public int nextTurnAllAttackPlus = 0;   // 下回合所有攻擊 +X
     public bool drawBlockedThisTurn = false; // 本回合剩餘時間內禁止抽牌
 
+    // 追蹤負面效果來源（目前僅用於敵人/玩家的負面效果區分）
+    [SerializeField, HideInInspector] private int weakFromEnemies = 0;
+    [SerializeField, HideInInspector] private int bleedFromEnemies = 0;
+    [SerializeField, HideInInspector] private int imprisonFromEnemies = 0;
+
     /// <summary>
     /// 回合開始時的重置與遞減
     /// </summary>
@@ -570,14 +601,121 @@ public class PlayerBuffs
             owner.TakeStatusDamage(3);
         }
 
-        if (weak > 0) weak--;
-        if (imprison > 0) imprison--;
-        if (bleed > 0) bleed--;
+         if (weak > 0)
+        {
+            weak--;
+            if (weakFromEnemies > 0)
+            {
+                weakFromEnemies--;
+                if (weakFromEnemies > weak)
+                {
+                    weakFromEnemies = weak;
+                }
+            }
+        }
+
+        if (imprison > 0)
+        {
+            imprison--;
+            if (imprisonFromEnemies > 0)
+            {
+                imprisonFromEnemies--;
+                if (imprisonFromEnemies > imprison)
+                {
+                    imprisonFromEnemies = imprison;
+                }
+            }
+        }
+
+        if (bleed > 0)
+        {
+            bleed--;
+            if (bleedFromEnemies > 0)
+            {
+                bleedFromEnemies--;
+                if (bleedFromEnemies > bleed)
+                {
+                    bleedFromEnemies = bleed;
+                }
+            }
+        }
         drawBlockedThisTurn = false;
     }
 
     public bool CanMove()
     {
         return imprison <= 0;
+    }
+
+    /// <summary>
+    /// 解除玩家身上的負面效果。
+    /// </summary>
+    public void RemoveAllNegativeEffects(Player owner)
+    {
+        damageTakenRatio = Mathf.Min(damageTakenRatio, 1.0f);
+        nextDamageTakenUp = 0;
+        weak = 0;
+        weakFromEnemies = 0;
+        bleed = 0;
+        bleedFromEnemies = 0;
+        imprison = 0;
+        imprisonFromEnemies = 0;
+        needRandomDiscardAtEnd = 0;
+        drawBlockedThisTurn = false;
+    }
+    
+    /// <summary>
+    /// 只解除由敵人造成的負面效果。
+    /// </summary>
+    public void RemoveEnemyNegativeEffects(Player owner)
+    {
+        if (weakFromEnemies > 0)
+        {
+            weak = Mathf.Max(0, weak - weakFromEnemies);
+            weakFromEnemies = 0;
+        }
+
+        if (bleedFromEnemies > 0)
+        {
+            bleed = Mathf.Max(0, bleed - bleedFromEnemies);
+            bleedFromEnemies = 0;
+        }
+
+        if (imprisonFromEnemies > 0)
+        {
+            imprison = Mathf.Max(0, imprison - imprisonFromEnemies);
+            imprisonFromEnemies = 0;
+        }
+    }
+
+    public void ApplyWeakFromEnemy(int duration)
+    {
+        duration = Mathf.Max(0, duration);
+        weak = Mathf.Max(weak, duration);
+        weakFromEnemies = Mathf.Max(weakFromEnemies, Mathf.Min(duration, weak));
+    }
+
+    public void IncreaseWeakFromPlayer(int amount)
+    {
+        if (amount <= 0)
+        {
+            return;
+        }
+
+        weak = Mathf.Max(0, weak + amount);
+    }
+
+    public void ApplyBleedFromEnemy(int duration)
+    {
+        duration = Mathf.Max(0, duration);
+        bleed = Mathf.Max(bleed, duration);
+        bleedFromEnemies = Mathf.Max(bleedFromEnemies, Mathf.Min(duration, bleed));
+    }
+
+    public void ApplyImprisonFromEnemy(int duration)
+    {
+        duration = Mathf.Max(0, duration);
+        imprison = Mathf.Max(imprison, duration);
+        imprisonFromEnemies = Mathf.Max(imprisonFromEnemies, Mathf.Min(duration, imprison));
     }
 }
