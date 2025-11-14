@@ -252,6 +252,12 @@ public class Player : MonoBehaviour
     /// </summary>
     public void DrawCards(int n)
     {
+        if (buffs != null && buffs.drawBlockedThisTurn)
+        {
+            Debug.Log("DrawCards skipped: drawing is blocked for the rest of this turn.");
+            return;
+        }
+        
         for (int i = 0; i < n; i++)
         {
             if (deck.Count == 0)
@@ -273,6 +279,12 @@ public class Player : MonoBehaviour
     /// </summary>
     public void DrawNewHand(int count)
     {
+        if (buffs != null && buffs.drawBlockedThisTurn)
+        {
+            Debug.Log("DrawNewHand skipped: drawing is blocked for the rest of this turn.");
+            return;
+        }
+
         for (int i = 0; i < count; i++)
         {
             if (deck.Count == 0)
@@ -530,6 +542,7 @@ public class PlayerBuffs
     public int bleed = 0;                   // 流血回合數
     public int imprison = 0;                // 禁錮回合數（含原暈眩效果，無法行動 / 移動）
     public int nextTurnAllAttackPlus = 0;   // 下回合所有攻擊 +X
+    public bool drawBlockedThisTurn = false; // 本回合剩餘時間內禁止抽牌
 
     /// <summary>
     /// 回合開始時的重置與遞減
@@ -539,6 +552,7 @@ public class PlayerBuffs
         // 將「本回合內」的費用修正歸零
         movementCostModify = 0;
         nextAttackCostModify = 0;
+        drawBlockedThisTurn = false;
     }
 
     /// <summary>
@@ -551,7 +565,7 @@ public class PlayerBuffs
         // nextAttackPlus 依你的流程決定是否在此清除（此程式在 CalculateAttackDamage 時已清 0）
         // needRandomDiscardAtEnd 已在 EndTurn 中用掉，這裡不動即可
 
-         if (owner != null && bleed > 0)
+        if (owner != null && bleed > 0)
         {
             owner.TakeStatusDamage(3);
         }
@@ -559,6 +573,7 @@ public class PlayerBuffs
         if (weak > 0) weak--;
         if (imprison > 0) imprison--;
         if (bleed > 0) bleed--;
+        drawBlockedThisTurn = false;
     }
 
     public bool CanMove()

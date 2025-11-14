@@ -3,10 +3,10 @@ using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
-/// §ğÀ»¥d°ò©³¡A¥[¤J¥i¦Û­q½d³ò³]©w
+/// æ”»æ“Šå¡åŸºåº•ï¼šä»¥ã€Œåç§»åº§æ¨™ã€å®šç¾©æ”»æ“Šç¯„åœçš„æŠ½è±¡å¡ç‰‡ã€‚
 /// </summary>
 public abstract class AttackCardBase : CardBase
 {
-    [Header("§ğÀ»½d³ò°¾²¾ªí")]
+    [Header("æ”»æ“Šç¯„åœåç§»è¡¨")]
     public List<Vector2Int> rangeOffsets = new List<Vector2Int>();
 }

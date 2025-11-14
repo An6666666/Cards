@@ -3,12 +3,11 @@ using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
-/// ²¾°Ê (0¶O, ²¾°Ê1®æ, ¤É¯Å«á¥iÀò±o¤Ö¶qÅ@¬Ş)
+/// ã€ç§»å‹•å¡ï¼šç§»å‹•ä¸€æ ¼ï¼ˆ0 è²»ï¼‰ã€‘
 /// </summary>
-[CreateAssetMenu(fileName = "Move_YiDong", menuName = "Cards/Movement/²¾°Ê")]
+[CreateAssetMenu(fileName = "Move_YiDong", menuName = "Cards/Movement/ç§»å‹•")]
 public class Move_YiDong : MovementCardBase
 {
-    public int blockIfUpgraded = 1; // °²³]¤É¯Å«áµ¹1Å@¬Ş
 
     private void OnEnable()
     {
@@ -22,11 +21,8 @@ public class Move_YiDong : MovementCardBase
 
     public override void ExecuteOnPosition(Player player, Vector2Int targetGridPos)
     {
-        // ¹ê»Ú²¾°Êª±®a¨ì targetGridPos(¥u®t1®æ)
-        // ³o¸Ì¥u°µ¥Ü½d:
+        // === å¯¦éš›ç§»å‹•ç©å®¶åˆ° targetGridPosï¼ˆèˆ‡åŸæª”ä¸€è‡´ï¼šä¸åœ¨æ­¤åšè·é›¢æˆ–é˜»æ“‹åˆ¤å®šï¼‰ ===
         player.MoveToPosition(targetGridPos);
 
-        // ¦pªG¦¹¥d¤w¤É¯Å, µ¹ÂIÅ@¬Ş => ¬Ù²¤ª¬ºA§PÂ_, §A¥i¦bCard¸ê®Æ¥[­Óbool isUpgraded
-        // if(isUpgraded) player.AddBlock(blockIfUpgraded);
     }
 }

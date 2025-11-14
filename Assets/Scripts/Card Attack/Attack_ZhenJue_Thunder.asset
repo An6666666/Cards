@@ -9,14 +9,14 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8f5f67d7f9fe01e439e243353d77d7ff, type: 3}
-  m_Name: Move_YiDong
+  m_Script: {fileID: 11500000, guid: bd5c873adc7e97d4ca44894307b7313b, type: 3}
+  m_Name: Attack_ZhenJue_Thunder
   m_EditorClassIdentifier: 
-  cardName: "\u79FB\u52D5"
-  cost: 0
+  cardName: "\u771F\u8A23\u96F7"
+  cost: 2
   description: 
-  cardImage: {fileID: 21300000, guid: d27f463e5bace1b4fbf2f56c60b54168, type: 3}
-  cardType: 2
+  cardImage: {fileID: 21300000, guid: e07e09b0aa02da84fb383101231e2a73, type: 3}
+  cardType: 0
   rangeOffsets:
   - {x: -2, y: 0}
   - {x: 2, y: 0}
@@ -24,3 +24,7 @@ MonoBehaviour:
   - {x: 1, y: -2}
   - {x: -1, y: 2}
   - {x: 1, y: 2}
+  baseDamage: 10
+  bonusDamageWithArmor: 4
+  hitEffectPrefab: {fileID: 7817183967626856756, guid: e9a051f2c2db3154ebd288d46878136b, type: 3}
+  elementType: 2

@@ -51,165 +51,142 @@ public class Skill_LingHunZhenDang : CardBase
         // GameManager.instance.isThunderPresent = true; (�̧A�]�p)
 
     }
-}
 
-/// <summary>
-/// ���{ (�ϳ���ĤH�L�k���1�^�X, �U�^�X��P-1)
-/// </summary>
-[CreateAssetMenu(fileName = "Skill_ShenLin", menuName = "Cards/Skill/���{")]
-public class Skill_ShenLin : CardBase
-{
-    private void OnEnable()
+    /// <summary>
+    /// ���� (���^�X�ڤ���˴�b, �Y�h�H�Ҧ��i�@�Υ���)
+    /// </summary>
+    [CreateAssetMenu(fileName = "Skill_ShenJiang", menuName = "Cards/Skill/����")]
+    public class Skill_ShenJiang : CardBase
     {
-        cardType = CardType.Skill;
-    }
-
-    public override void ExecuteEffect(Player player, Enemy enemy)
-    {
-        // �ϼĤH�L�k���
-        enemy.buffs.stun = 1; // 1�^�X
-
-        // �U�^�X��P -1
-        player.buffs.nextTurnDrawChange -= 1;
-
-    }
-}
-
-/// <summary>
-/// ���� (���^�X�ڤ���˴�b, �Y�h�H�Ҧ��i�@�Υ���)
-/// </summary>
-[CreateAssetMenu(fileName = "Skill_ShenJiang", menuName = "Cards/Skill/����")]
-public class Skill_ShenJiang : CardBase
-{
-    private void OnEnable()
-    {
-        cardType = CardType.Skill;
-    }
-
-    public override void ExecuteEffect(Player player, Enemy enemy)
-    {
-        // ���^�X���˴�b
-        player.buffs.damageTakenRatio = 0.5f; // �����a���^�X�u��50%�ˮ`
-        // �U�^�X�i���m
-    }
-}
-
-#endregion
-
-#region �ޯ�P6-10�G�s�W�]�p
-
-/// <summary>
-/// �����N�� (��2�i, ��2�i)
-/// </summary>
-[CreateAssetMenu(fileName = "Skill_BuMieYiZhi", menuName = "Cards/Skill/�����N��")]
-public class Skill_BuMieYiZhi : CardBase
-{
-    private void OnEnable()
-    {
-        cardType = CardType.Skill;
-    }
-
-    public override void ExecuteEffect(Player player, Enemy enemy)
-    {
-        // ��2
-        player.DrawCards(2);
-        // ��2
-        player.DiscardCards(2);
-    }
-}
-
-/// <summary>
-/// �j���@�� (��¦���m, �Y��P���p�e��P/�Τw��P, �h�B�~���m)
-/// </summary>
-[CreateAssetMenu(fileName = "Skill_QiangHuaHuDun", menuName = "Cards/Skill/�j���@��")]
-public class Skill_QiangHuaHuDun : CardBase
-{
-    public int baseBlock = 7;
-    public int bonusBlock = 3;
-
-    private void OnEnable()
-    {
-        cardType = CardType.Skill;
-    }
-
-    public override void ExecuteEffect(Player player, Enemy enemy)
-    {
-        bool isPlanToDiscard = player.CheckDiscardPlan();
-        int totalBlock = baseBlock;
-        if (isPlanToDiscard)
+        private void OnEnable()
         {
-            totalBlock += bonusBlock;
+            cardType = CardType.Skill;
         }
-        player.AddBlock(totalBlock);
-    }
-}
 
-/// <summary>
-/// ���Ĥ��� (0�O�G��1�i�P, �U1�i�����d�O��-1)
-/// </summary>
-[CreateAssetMenu(fileName = "Skill_YouDiZhiCe", menuName = "Cards/Skill/���Ĥ���")]
-public class Skill_YouDiZhiCe : CardBase
-{
-    private void OnEnable()
-    {
-        cardType = CardType.Skill;
-    }
-
-    public override void ExecuteEffect(Player player, Enemy enemy)
-    {
-        // ��1�i�P
-        bool success = player.DiscardOneCard();
-        if (success)
+        public override void ExecuteEffect(Player player, Enemy enemy)
         {
-            // �ϤU1�i�����d cost-1 => ��Player���� nextAttackCostModify = -1
-            player.buffs.nextAttackCostModify -= 1;
+            // ���^�X���˴�b
+            player.buffs.damageTakenRatio = 0.5f; // �����a���^�X�u��50%�ˮ`
+                                                  // �U�^�X�i���m
         }
     }
+
+    #endregion
+
+    #region �ޯ�P6-10�G�s�W�]�p
+
+    /// <summary>
+    /// �����N�� (��2�i, ��2�i)
+    /// </summary>
+    [CreateAssetMenu(fileName = "Skill_BuMieYiZhi", menuName = "Cards/Skill/�����N��")]
+    public class Skill_BuMieYiZhi : CardBase
+    {
+        private void OnEnable()
+        {
+            cardType = CardType.Skill;
+        }
+
+        public override void ExecuteEffect(Player player, Enemy enemy)
+        {
+            // ��2
+            player.DrawCards(2);
+            // ��2
+            player.DiscardCards(2);
+        }
+    }
+
+    /// <summary>
+    /// �j���@�� (��¦���m, �Y��P���p�e��P/�Τw��P, �h�B�~���m)
+    /// </summary>
+    [CreateAssetMenu(fileName = "Skill_QiangHuaHuDun", menuName = "Cards/Skill/�j���@��")]
+    public class Skill_QiangHuaHuDun : CardBase
+    {
+        public int baseBlock = 7;
+        public int bonusBlock = 3;
+
+        private void OnEnable()
+        {
+            cardType = CardType.Skill;
+        }
+
+        public override void ExecuteEffect(Player player, Enemy enemy)
+        {
+            bool isPlanToDiscard = player.CheckDiscardPlan();
+            int totalBlock = baseBlock;
+            if (isPlanToDiscard)
+            {
+                totalBlock += bonusBlock;
+            }
+            player.AddBlock(totalBlock);
+        }
+    }
+
+    /// <summary>
+    /// ���Ĥ��� (0�O�G��1�i�P, �U1�i�����d�O��-1)
+    /// </summary>
+    [CreateAssetMenu(fileName = "Skill_YouDiZhiCe", menuName = "Cards/Skill/���Ĥ���")]
+    public class Skill_YouDiZhiCe : CardBase
+    {
+        private void OnEnable()
+        {
+            cardType = CardType.Skill;
+        }
+
+        public override void ExecuteEffect(Player player, Enemy enemy)
+        {
+            // ��1�i�P
+            bool success = player.DiscardOneCard();
+            if (success)
+            {
+                // �ϤU1�i�����d cost-1 => ��Player���� nextAttackCostModify = -1
+                player.buffs.nextAttackCostModify -= 1;
+            }
+        }
+    }
+
+    /// <summary>
+    /// ½�c���d (��3, �^�X�����H����2)
+    /// </summary>
+    [CreateAssetMenu(fileName = "Skill_FanXiangDaoGui", menuName = "Cards/Skill/½�c���d")]
+    public class Skill_FanXiangDaoGui : CardBase
+    {
+        private void OnEnable()
+        {
+            cardType = CardType.Skill;
+        }
+
+        public override void ExecuteEffect(Player player, Enemy enemy)
+        {
+            // ��3
+            player.DrawCards(3);
+
+            // �b BattleManager �� Player �ݪ� "EndTurn" ���ˬd:
+            // if(���^�X�ιL½�c���d) => �H����2
+            // �o�̶ȰO���@��flag
+            player.buffs.needRandomDiscardAtEnd = 2; // �^�X�����H����2
+        }
+    }
+
+    /// <summary>
+    /// �������m (���B���m, ���U�^�X��P-1)
+    /// </summary>
+    [CreateAssetMenu(fileName = "Skill_CheDiFangYu", menuName = "Cards/Skill/�������m")]
+    public class Skill_CheDiFangYu : CardBase
+    {
+        public int blockValue = 12;
+
+        private void OnEnable()
+        {
+            cardType = CardType.Skill;
+        }
+
+        public override void ExecuteEffect(Player player, Enemy enemy)
+        {
+            player.AddBlock(blockValue);
+            // �U�^�X��P -1
+            player.buffs.nextTurnDrawChange -= 1;
+        }
+    }
 }
-
-/// <summary>
-/// ½�c���d (��3, �^�X�����H����2)
-/// </summary>
-[CreateAssetMenu(fileName = "Skill_FanXiangDaoGui", menuName = "Cards/Skill/½�c���d")]
-public class Skill_FanXiangDaoGui : CardBase
-{
-    private void OnEnable()
-    {
-        cardType = CardType.Skill;
-    }
-
-    public override void ExecuteEffect(Player player, Enemy enemy)
-    {
-        // ��3
-        player.DrawCards(3);
-
-        // �b BattleManager �� Player �ݪ� "EndTurn" ���ˬd:
-        // if(���^�X�ιL½�c���d) => �H����2
-        // �o�̶ȰO���@��flag
-        player.buffs.needRandomDiscardAtEnd = 2; // �^�X�����H����2
-    }
-}
-
-/// <summary>
-/// �������m (���B���m, ���U�^�X��P-1)
-/// </summary>
-[CreateAssetMenu(fileName = "Skill_CheDiFangYu", menuName = "Cards/Skill/�������m")]
-public class Skill_CheDiFangYu : CardBase
-{
-    public int blockValue = 12;
-
-    private void OnEnable()
-    {
-        cardType = CardType.Skill;
-    }
-
-    public override void ExecuteEffect(Player player, Enemy enemy)
-    {
-        player.AddBlock(blockValue);
-        // �U�^�X��P -1
-        player.buffs.nextTurnDrawChange -= 1;
-    }
-}
-
 #endregion
 
