@@ -3,6 +3,7 @@ using System.Collections;                          // 引用非泛型集合命�
 using System.Collections.Generic;                 // 引用泛型集合命名空間
 using UnityEngine;                                 // 引用 Unity 核心功能
 using UnityEngine.Rendering;                      // 使用 SortingGroup 控制圖層排序
+using TMPro;
 
 public class Enemy : MonoBehaviour              // 敵人角色，繼承自 MonoBehaviour
 {
@@ -63,6 +64,35 @@ public class Enemy : MonoBehaviour              // 敵人角色，繼承自 Mono
     [SerializeField] private float shakeDuration = 0.1f;      // 抖動持續時間
     [SerializeField] private float shakeMagnitude = 0.1f;     // 初始抖動幅度
     [SerializeField] private float scaleMultiplier = 1.1f;    // 放大倍率
+
+        // ====== 攻擊意圖：世界空間小圖示（非 UI / 非 Canvas） ======
+    [Header("Intent (Sprite Icon)")]
+    [Tooltip("這隻敵人是否可以移動，用來決定意圖要顯示 Move 還是 Idle")]
+    public bool canMove = true;
+
+    [Tooltip("下一回合預計要做的行動（邏輯用）")]
+    public EnemyIntent nextIntent = new EnemyIntent();
+
+    [Tooltip("掛在敵人身上的 SpriteRenderer，用來顯示意圖小圖")]
+    public SpriteRenderer intentIconRenderer;
+
+    [Tooltip("意圖圖示相對於敵人中心的位置偏移")]
+    public Vector3 intentWorldOffset = new Vector3(0f, 2f, 0f);
+
+    [Header("Intent Icon Sprites")]
+    public Sprite intentAttackSprite;
+    public Sprite intentMoveSprite;
+    public Sprite intentIdleSprite;
+    public Sprite intentDefendSprite;
+
+        [Header("Intent Value (Attack Number)")]
+    [Tooltip("顯示攻擊數值用的 TextMeshPro (世界空間文字)")]
+    public TMP_Text intentValueText;
+
+    [Tooltip("數字文字相對於圖示的位置偏移")]
+    public Vector3 intentValueOffset = new Vector3(0.8f, 0.1f, 0f);  // 可之後再調
+
+
 
     // 移動到指定格子
     public void MoveToPosition(Vector2Int targetGridPos)
@@ -263,6 +293,18 @@ public class Enemy : MonoBehaviour              // 敵人角色，繼承自 Mono
         }
 
         transform.hasChanged = false;
+        // 讓意圖小圖跟著敵人位置
+        if (intentIconRenderer != null)
+        {
+            intentIconRenderer.transform.position = transform.position + intentWorldOffset;
+        }
+        // ★ 攻擊數字也跟著圖示移動
+        if (intentValueText != null)
+        {
+            intentValueText.transform.position =
+                (intentIconRenderer != null ? intentIconRenderer.transform.position : transform.position)
+                + intentValueOffset;
+        }
     }
 
     protected virtual bool IsPlayerInRange(Player player)
@@ -522,6 +564,101 @@ public class Enemy : MonoBehaviour              // 敵人角色，繼承自 Mono
         if (hasBerserk) atkValue += 5;       // 狂暴狀態加攻擊
         return atkValue;
     }
+
+        // 決定下一回合的意圖（只算邏輯＋更新小圖）
+    public void DecideNextIntent(Player player)
+    {
+        if (player == null)
+        {
+            UpdateIntentIcon();
+            return;
+        }
+
+        // 被控制（冰凍、暈眩） → Idle
+        if (frozenTurns > 0 || buffs.stun > 0)
+        {
+            nextIntent.type = EnemyIntentType.Idle;
+            nextIntent.value = 0;
+            UpdateIntentIcon();
+            return;
+        }
+
+        // 如果在攻擊範圍 → 預告攻擊
+        if (IsPlayerInRange(player))
+        {
+            nextIntent.type = EnemyIntentType.Attack;
+            nextIntent.value = CalculateAttackDamage();
+            UpdateIntentIcon();
+            return;
+        }
+
+        // 不在攻擊範圍 → 可移動就 Move，不能移動就 Idle
+        if (canMove)
+        {
+            nextIntent.type = EnemyIntentType.Move;
+            nextIntent.value = 0;
+        }
+        else
+        {
+            nextIntent.type = EnemyIntentType.Idle;
+            nextIntent.value = 0;
+        }
+
+        UpdateIntentIcon();
+    }
+
+    // 根據 nextIntent 更新上面的小圖 Sprite + 位置
+    private void UpdateIntentIcon()
+    {
+        if (intentIconRenderer == null)
+            return;
+
+        // 選擇要用的圖
+        Sprite icon = null;
+        switch (nextIntent.type)
+        {
+            case EnemyIntentType.Attack:
+                icon = intentAttackSprite;
+                break;
+            case EnemyIntentType.Move:
+                icon = intentMoveSprite;
+                break;
+            case EnemyIntentType.Defend:
+                icon = intentDefendSprite;
+                break;
+            default:
+                icon = intentIdleSprite;
+                break;
+        }
+
+        intentIconRenderer.sprite = icon;
+        intentIconRenderer.enabled = (icon != null);
+        // 位置跟著敵人 + 偏移
+        intentIconRenderer.transform.position = transform.position + intentWorldOffset;
+
+        // === 處理攻擊數字 ===
+        if (intentValueText != null)
+        {
+            // 只有「攻擊」狀態而且傷害 > 0 才顯示數字
+            if (nextIntent.type == EnemyIntentType.Attack && nextIntent.value > 0)
+            {
+                intentValueText.gameObject.SetActive(true);
+                intentValueText.text = nextIntent.value.ToString();
+
+                // 位置：跟圖示或跟敵人，再加偏移
+                Vector3 basePos = transform.position;
+                if (intentIconRenderer != null)
+                    basePos = intentIconRenderer.transform.position;
+
+                intentValueText.transform.position = basePos + intentValueOffset;
+            }
+            else
+            {
+                intentValueText.gameObject.SetActive(false);
+            }
+        }
+    }
+
 
     public virtual void EnemyAction(Player player)        // 敵人執行動作
     {

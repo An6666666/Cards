@@ -283,6 +283,15 @@ public class BattleManager : MonoBehaviour               // 戰鬥流程管理�
 
         // ★ 延遲幾秒後再解鎖
         StartCoroutine(EnableCardsAfterDelay(cardUseDelay));
+
+        // ★ 新增：更新敵人攻擊意圖（世界空間小圖示）
+        foreach (var e in enemies)
+        {
+            if (e != null)
+            {
+                e.DecideNextIntent(player);
+            }
+        }
     }
 
     private void ApplyInteractableToAllCards(bool value)
@@ -304,6 +313,7 @@ public class BattleManager : MonoBehaviour               // 戰鬥流程管理�
         if (endTurnButton != null)
             endTurnButton.interactable = value;
     }
+
     private Move_YiDong GetGuaranteedMovementCardInstance()
     {
         if (guaranteedMovementCardInstance == null)
@@ -409,7 +419,7 @@ public class BattleManager : MonoBehaviour               // 戰鬥流程管理�
     /// </summary>
     public IEnumerator EnemyTurnCoroutine()
     {
-        
+
         processingEnemyTurnStart = true;
 
         var enemiesAtEnemyTurnStart = new List<Enemy>(enemies);
@@ -827,6 +837,7 @@ public class BattleManager : MonoBehaviour               // 戰鬥流程管理�
             }
         }
     }
+
     public void OnEnemyDefeated(Enemy e)
     {
         defeatedEnemyCount++;

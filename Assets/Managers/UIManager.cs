@@ -7,18 +7,18 @@ public class UIManager : MonoBehaviour
 {
     [Header("Panels")]
     [SerializeField] private GameObject rulePanel;
-    [SerializeField] private GameObject settingsPanel;  
+    [SerializeField] private GameObject settingsPanel;
     [SerializeField] private GameObject deckPanel;
     [SerializeField] private GameObject discardPanel;
 
     [Header("Buttons")]
-    [SerializeField] private Button settingsButton;   // 打開 Settings
-    [SerializeField] private Button ruleButton;       // 打開 Rule
-    [SerializeField] private Button switchDeckDiscardButton; // 切換 Counter
+    [SerializeField] private Button settingsButton;           // 打開 Settings
+    [SerializeField] private Button ruleButton;               // 打開 Rule
+    [SerializeField] private Button switchDeckDiscardButton;  // 切換 Counter
 
     [Header("Counters (顯示/切換用)")]
-    [SerializeField] private Button deckCounterButton;    // 點擊打開 Deck Panel
-    [SerializeField] private Button discardCounterButton; // 點擊打開 Discard Panel
+    [SerializeField] private Button deckCounterButton;        // 點擊打開 Deck Panel
+    [SerializeField] private Button discardCounterButton;     // 點擊打開 Discard Panel
 
     [Header("Rule Page")]
     [SerializeField] private Image ruleImage;
@@ -47,26 +47,42 @@ public class UIManager : MonoBehaviour
 
         WireUpButtons();
         UpdateCounterUI();
+
+        // 確保一開始四個面板都在 Canvas 的最下方（會被畫在最上層）
+        EnsurePanelsOnTopLayer();
+        MovePanelsToCanvasRoot(); 
     }
+
+    private void MovePanelsToCanvasRoot()
+{
+    var canvas = GetComponentInParent<Canvas>();
+    if (canvas == null) return;
+
+    Transform root = canvas.transform;
+    if (rulePanel)     rulePanel.transform.SetParent(root, false);
+    if (settingsPanel) settingsPanel.transform.SetParent(root, false);
+    if (deckPanel)     deckPanel.transform.SetParent(root, false);
+    if (discardPanel)  discardPanel.transform.SetParent(root, false);
+}
 
     private void WireUpButtons()
     {
         if (settingsButton != null)
         {
             settingsButton.onClick.RemoveAllListeners();
-            settingsButton.onClick.AddListener(OpenSettingsPanel); // 不再呼叫 PressBounce
+            settingsButton.onClick.AddListener(OpenSettingsPanel);
         }
 
         if (ruleButton != null)
         {
             ruleButton.onClick.RemoveAllListeners();
-            ruleButton.onClick.AddListener(OpenRulePanel); // 不再呼叫 PressBounce
+            ruleButton.onClick.AddListener(OpenRulePanel);
         }
 
         if (switchDeckDiscardButton != null)
         {
             switchDeckDiscardButton.onClick.RemoveAllListeners();
-            switchDeckDiscardButton.onClick.AddListener(SwitchDeckDiscard); // 不再呼叫 PressBounce
+            switchDeckDiscardButton.onClick.AddListener(SwitchDeckDiscard);
         }
 
         if (deckCounterButton != null)
@@ -100,17 +116,46 @@ public class UIManager : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// 把四個面板都推到 Canvas 子物件列表的最後面（畫在最上層）
+    /// </summary>
+    private void EnsurePanelsOnTopLayer()
+    {
+        if (rulePanel) rulePanel.transform.SetAsLastSibling();
+        if (settingsPanel) settingsPanel.transform.SetAsLastSibling();
+        if (deckPanel) deckPanel.transform.SetAsLastSibling();
+        if (discardPanel) discardPanel.transform.SetAsLastSibling();
+    }
+
+    /// <summary>
+    /// 顯示指定面板：關閉其它面板 + 把它移到最上層
+    /// </summary>
+    private void ShowPanelOnTop(GameObject panel)
+    {
+        if (panel == null) return;
+
+        // 1. 先關閉其它面板（避免重疊）
+        if (panel != rulePanel && rulePanel) UIFxController.Instance?.HidePanel(rulePanel);
+        if (panel != settingsPanel && settingsPanel) UIFxController.Instance?.HidePanel(settingsPanel);
+        if (panel != deckPanel && deckPanel) UIFxController.Instance?.HidePanel(deckPanel);
+        if (panel != discardPanel && discardPanel) UIFxController.Instance?.HidePanel(discardPanel);
+
+        // 2. 把這個面板拉到兄弟節點的最後 → 在同一個 Canvas 裡會畫在最上面
+        panel.transform.SetAsLastSibling();
+
+        // 3. 顯示這個面板（滑入＋淡入）
+        UIFxController.Instance?.ShowPanel(panel);
+    }
+
     // ========================
     // Settings
     // ========================
     public void OpenSettingsPanel()
     {
-        if (settingsPanel) UIFxController.Instance?.ShowPanel(settingsPanel);
-
-        // 打開設定時關閉其他
-        if (rulePanel) UIFxController.Instance?.HidePanel(rulePanel);
-        if (deckPanel) UIFxController.Instance?.HidePanel(deckPanel);
-        if (discardPanel) UIFxController.Instance?.HidePanel(discardPanel);
+        if (settingsPanel)
+        {
+            ShowPanelOnTop(settingsPanel);
+        }
     }
 
     public void CloseSettingsPanel()
@@ -123,7 +168,10 @@ public class UIManager : MonoBehaviour
     // ========================
     public void OpenRulePanel()
     {
-        if (rulePanel) UIFxController.Instance?.ShowPanel(rulePanel);
+        if (rulePanel)
+        {
+            ShowPanelOnTop(rulePanel);
+        }
     }
 
     public void CloseRulePanel()
@@ -160,7 +208,7 @@ public class UIManager : MonoBehaviour
         else
             UIFxController.Instance?.FadeSwapButtons(discardCounterButton, deckCounterButton);
 
-        // 切換時關掉兩個 Panel
+        // 切換時關掉兩個 Panel（維持你原本的習慣）
         if (deckPanel) UIFxController.Instance?.HidePanel(deckPanel);
         if (discardPanel) UIFxController.Instance?.HidePanel(discardPanel);
     }
@@ -178,7 +226,10 @@ public class UIManager : MonoBehaviour
 
     public void OnDeckCounterClicked()
     {
-        if (deckPanel) UIFxController.Instance?.ShowPanel(deckPanel);
+        if (deckPanel)
+        {
+            ShowPanelOnTop(deckPanel);
+        }
     }
 
     public void CloseDeckPanel()
@@ -188,7 +239,10 @@ public class UIManager : MonoBehaviour
 
     public void OnDiscardCounterClicked()
     {
-        if (discardPanel) UIFxController.Instance?.ShowPanel(discardPanel);
+        if (discardPanel)
+        {
+            ShowPanelOnTop(discardPanel);
+        }
     }
 
     public void CloseDiscardPanel()
