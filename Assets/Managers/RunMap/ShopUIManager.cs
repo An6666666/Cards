@@ -1,0 +1,481 @@
+using System.Collections.Generic;     // 引用集合類別，用於 List<T> 等
+using System.Linq;                    // 引用 LINQ，用於快速搜尋與篩選
+using UnityEngine;                    // Unity 基本函式庫
+using UnityEngine.SceneManagement;    // 用於切換場景
+using UnityEngine.UI;                 // 用於 UI 元件操作
+
+// 負責管理商店畫面的主要 UI 控制邏輯
+public class ShopUIManager : MonoBehaviour
+{
+    [Header("Fallback Data")]
+    [SerializeField] private ShopInventoryDefinition fallbackInventory;  // 備用商店物件（當目前節點無商店資料時使用）
+
+    [Header("UI References")] // 商店介面中要綁定的 UI 元件
+    [SerializeField] private Text shopTitleText;            // 商店標題
+    [SerializeField] private Text goldText;                 // 顯示玩家金幣數量
+    [SerializeField] private Text messageText;              // 顯示提示文字
+    [SerializeField] private Text removalCostText;          // 顯示移除卡片的花費
+    [SerializeField] private GameObject cardOfferTemplate;
+    [SerializeField] private GameObject cardPrefab;         // 卡片 UI 預製物
+    [SerializeField] private Transform cardListParent;      // 卡片列表的父物件
+    [SerializeField] private Transform relicListParent;     // 遺物列表的父物件
+    [SerializeField] private Transform removalListParent;   // 移除卡片列表的父物件
+    [SerializeField] private GameObject removalEntryTemplate;       // 移除項目模板
+    [SerializeField] private Button refreshRemovalButton;   // 重新整理移除清單按鈕
+    [SerializeField] private Button returnButton;           // 返回按鈕
+
+    private RunManager runManager;   // 遊戲進程管理器
+    private Player player;           // 玩家物件
+    private ShopInventoryDefinition inventory; // 商店資料來源
+
+    private readonly List<CardBase> availableCards = new(); // 可購買卡片清單
+    private readonly List<CardBase> availableRelics = new(); // 可購買遺物清單
+
+    private const int BaseCardPrice = 50;   // 卡片基本價格
+    private const int BaseRelicPrice = 120; // 遺物基本價格
+
+    private void Awake()
+    {
+        runManager = RunManager.Instance;  // 取得全域執行管理器
+
+        CacheSceneReferences();  // 嘗試在場景中尋找尚未綁定的 UI 元件
+        BindButtons();           // 綁定 UI 按鈕事件
+        HideTemplates();         // 隱藏模板（避免直接顯示）
+    }
+
+    private void Start()
+    {
+        InitializePlayer();    // 初始化玩家（確保存在）
+        LoadInventory();       // 載入商店物件清單
+        UpdateShopTitle();     // 更新商店標題
+        RefreshGoldDisplay();  // 顯示金幣數量
+        RebuildOffers();       // 生成卡片與遺物販售清單
+        BuildRemovalList();    // 生成移除卡片清單
+    }
+
+    private void InitializePlayer()
+    {
+        player = FindObjectOfType<Player>(); // 尋找場上玩家
+        if (player == null)
+        {
+            var playerGO = new GameObject("Player"); // 若沒有則建立一個玩家物件
+            player = playerGO.AddComponent<Player>();
+        }
+
+        if (runManager != null)
+        {
+            runManager.RegisterPlayer(player); // 註冊玩家到 RunManager
+        }
+    }
+
+    private void LoadInventory()
+    {
+        inventory = runManager?.ActiveNode?.ShopInventory; // 優先使用當前節點的商店資料
+        if (inventory == null)
+            inventory = runManager?.DefaultShopInventory;  // 否則使用預設商店
+        if (inventory == null)
+            inventory = fallbackInventory;                 // 最後使用備援資料
+    }
+
+    private void RebuildOffers()
+    {
+        ClearChildren(cardListParent);  // 清空卡片區
+        ClearChildren(relicListParent); // 清空遺物區
+
+        availableCards.Clear();  // 清除舊清單
+        availableRelics.Clear();
+
+        if (inventory != null)
+        {
+            if (inventory.PurchasableCards != null)
+                availableCards.AddRange(inventory.PurchasableCards.Where(c => c != null)); // 加入有效卡片
+            if (inventory.PurchasableRelics != null)
+                availableRelics.AddRange(inventory.PurchasableRelics.Where(r => r != null)); // 加入有效遺物
+        }
+
+        // 為每張卡片建立購買項目
+        foreach (var card in availableCards)
+        {
+            int price = GetCardPrice(card);
+            CreateCardOffer(card, price);
+        }
+
+        // 為每個遺物建立購買項目
+        foreach (var relic in availableRelics)
+        {
+            int price = GetRelicPrice(relic);
+            CreateOfferEntry(removalEntryTemplate, relicListParent, relic.cardName, price, relic.description, () => PurchaseRelic(relic, price));        }
+    }
+
+    private void BuildRemovalList()
+    {
+        ClearChildren(removalListParent);  // 清空移除區
+
+        if (player == null || player.deck == null || inventory == null)
+            return;
+
+        int removalCost = inventory.CardRemovalCost;  // 取得移除卡片費用
+        if (removalCostText != null)
+            removalCostText.text = $"移除一張卡片需要 {removalCost} 金幣";
+
+        // 為玩家每張卡建立移除按鈕
+        for (int i = 0; i < player.deck.Count; i++)
+        {
+            int index = i;
+            CardBase card = player.deck[index];
+            if (card == null)
+                continue;
+
+            string title = $"移除 {card.cardName}";
+            string description = string.IsNullOrEmpty(card.description) ? "" : card.description;
+            CreateOfferEntry(removalEntryTemplate, removalListParent, title, removalCost, description, () => RemoveCardAt(index, removalCost));
+        }
+    }
+
+    // 生成卡片購買項目
+    private void CreateCardOffer(CardBase card, int price)
+    {
+        if (card == null || cardListParent == null)
+            return;
+
+        GameObject entry = null;
+        GameObject cardGO = null;
+        Button button = null;
+
+        if (cardOfferTemplate != null)
+        {
+            entry = Instantiate(cardOfferTemplate, cardListParent);
+            entry.name = card.cardName;
+            entry.SetActive(true);
+
+            Transform cardContainer = FindCardContainer(entry.transform);
+
+            if (cardPrefab != null)
+            {
+                cardGO = Instantiate(cardPrefab, cardContainer != null ? cardContainer : entry.transform);
+                ResetTransform(cardGO.transform);
+            }
+
+            ApplyOfferTexts(entry, card.cardName, price, card.description);
+
+            button = entry.GetComponent<Button>() ?? entry.GetComponentInChildren<Button>(true);
+        }
+        else if (cardPrefab != null)
+        {
+            cardGO = Instantiate(cardPrefab, cardListParent);
+            cardGO.name = card.cardName;
+            cardGO.SetActive(true);
+
+            button = cardGO.GetComponent<Button>() ?? cardGO.GetComponentInChildren<Button>(true);
+            if (button == null)
+                button = cardGO.AddComponent<Button>();
+        }
+
+        var cardUI = cardGO?.GetComponent<CardUI>();
+        if (cardUI != null)
+        {
+            cardUI.SetupCard(card);
+            cardUI.SetDisplayContext(CardUI.DisplayContext.Reward);
+        }
+
+        if (button == null && cardGO != null)
+            button = cardGO.GetComponent<Button>() ?? cardGO.GetComponentInChildren<Button>(true);
+
+        if (button == null)
+            return;
+
+        button.onClick.RemoveAllListeners();
+        button.onClick.AddListener(() => PurchaseCard(card, price));
+
+    }
+
+    // 執行購買卡片
+    private void PurchaseCard(CardBase card, int price)
+    {
+        if (!TrySpendGold(price))
+            return;
+
+        player.deck.Add(Instantiate(card));       // 加入玩家卡組
+        availableCards.Remove(card);              // 從商店移除
+        ShowMessage($"購買 {card.cardName} 成功！");
+        RefreshGoldDisplay();                     // 更新金幣
+        RebuildOffers();                          // 重新生成清單
+        SyncRunState();                           // 同步遊戲狀態
+    }
+
+    // 購買遺物
+    private void PurchaseRelic(CardBase relic, int price)
+    {
+        if (!TrySpendGold(price))
+            return;
+
+        player.relics.Add(Instantiate(relic));
+        availableRelics.Remove(relic);
+        ShowMessage($"購買 {relic.cardName} 成功！");
+        RefreshGoldDisplay();
+        RebuildOffers();
+        SyncRunState();
+    }
+
+    // 移除指定索引的卡
+    private void RemoveCardAt(int index, int cost)
+    {
+        if (player == null || player.deck == null || index < 0 || index >= player.deck.Count)
+            return;
+
+        if (!TrySpendGold(cost))
+            return;
+
+        var removed = player.deck[index];
+        player.deck.RemoveAt(index);
+        ShowMessage(removed != null ? $"已移除 {removed.cardName}" : "已移除卡片");
+        RefreshGoldDisplay();
+        BuildRemovalList();
+        SyncRunState();
+    }
+
+    // 嘗試扣除金幣
+    private bool TrySpendGold(int price)
+    {
+        if (player == null)
+            return false;
+
+        if (player.gold < price)
+        {
+            ShowMessage("金幣不足");
+            return false;
+        }
+
+        player.gold -= price;
+        return true;
+    }
+
+    // 更新金幣顯示
+    private void RefreshGoldDisplay()
+    {
+        if (goldText != null && player != null)
+        {
+            goldText.text = $"金幣：{player.gold}";
+        }
+    }
+
+    // 顯示提示文字
+    private void ShowMessage(string text)
+    {
+        if (messageText != null)
+            messageText.text = text;
+    }
+
+    // 離開商店
+    private void ExitShop()
+    {
+        SyncRunState();
+        if (runManager != null)
+        {
+            runManager.CompleteActiveNodeWithoutBattle();  // 標記該節點完成
+            runManager.ReturnToRunSceneFromBattle();       // 返回地圖畫面
+        }
+        else
+        {
+            SceneManager.LoadScene("RunScene");
+        }
+    }
+
+    private void SyncRunState()
+    {
+        if (runManager != null)
+        {
+            runManager.SyncPlayerRunState();  // 將玩家資料同步回當前進程
+        }
+    }
+
+    // 清除子物件
+    private void ClearChildren(Transform parent)
+    {
+        if (parent == null)
+            return;
+
+        for (int i = parent.childCount - 1; i >= 0; i--)
+        {
+            var child = parent.GetChild(i);
+            if (removalCostText != null && child == removalCostText.transform)
+                continue;
+
+            Destroy(child.gameObject);
+        }
+    }
+
+    // 以模板建立一個商品項目（卡片、遺物、移除卡）
+    private void CreateOfferEntry(GameObject template, Transform parent, string title, int price, string description, UnityEngine.Events.UnityAction onClick)
+    {
+        if (template == null || parent == null)
+            return;
+
+        var entry = Instantiate(template, parent);
+        entry.name = title;
+        entry.SetActive(true);
+
+        var button = entry.GetComponent<Button>() ?? entry.GetComponentInChildren<Button>(true);
+        if (button != null)
+        {
+            button.onClick.RemoveAllListeners();
+            if (onClick != null)
+                button.onClick.AddListener(onClick);
+        }
+
+        ApplyOfferTexts(entry, title, price, description); // 設定文字內容
+    }
+
+    // 設定項目文字內容（名稱、價格、描述）
+    private void ApplyOfferTexts(GameObject entry, string title, int price, string description)
+    {
+        var texts = entry.GetComponentsInChildren<Text>(true);
+        Text titleText = null;
+        Text priceText = null;
+        Text descriptionText = null;
+
+        // 根據名稱關鍵字尋找 UI 元件
+        foreach (var text in texts)
+        {
+            string lowerName = text.name.ToLowerInvariant();
+            if (titleText == null && (lowerName.Contains("title") || lowerName.Contains("name")))
+                titleText = text;
+            else if (priceText == null && lowerName.Contains("price"))
+                priceText = text;
+            else if (descriptionText == null && (lowerName.Contains("description") || lowerName.Contains("desc")))
+                descriptionText = text;
+        }
+
+        // 寫入對應文字
+        if (titleText != null)
+            titleText.text = titleText == priceText ? $"{title} - {price} 金幣" : title;
+        if (priceText != null && priceText != titleText)
+            priceText.text = $"{price} 金幣";
+        if (descriptionText != null)
+        {
+            descriptionText.gameObject.SetActive(!string.IsNullOrWhiteSpace(description));
+            descriptionText.text = description;
+        }
+    }
+
+    // 自動尋找場景中未綁定的 UI 元件
+    private void CacheSceneReferences()
+    {
+        if (goldText == null)
+            goldText = FindTextByName("Gold");
+        if (messageText == null)
+            messageText = FindTextByName("Message");
+        if (removalCostText == null)
+            removalCostText = FindTextByName("RemovalCost");
+        if (cardListParent == null)
+            cardListParent = FindContainerByName("CardList");
+        if (relicListParent == null)
+            relicListParent = FindContainerByName("RelicList");
+        if (removalListParent == null)
+            removalListParent = FindContainerByName("RemovalList");
+    }
+
+    // 綁定 UI 按鈕事件
+    private void BindButtons()
+    {
+        if (refreshRemovalButton != null)
+        {
+            refreshRemovalButton.onClick.RemoveAllListeners();
+            refreshRemovalButton.onClick.AddListener(BuildRemovalList); // 點擊刷新移除清單
+        }
+
+        if (returnButton != null)
+        {
+            returnButton.onClick.RemoveAllListeners();
+            returnButton.onClick.AddListener(ExitShop); // 點擊返回地圖
+        }
+    }
+
+    // 隱藏模板（避免預設顯示）
+    private void HideTemplates()
+    {  
+        if (removalEntryTemplate != null)
+            removalEntryTemplate.SetActive(false);
+        if (cardOfferTemplate != null)
+            cardOfferTemplate.SetActive(false);
+    }
+
+    // 更新商店標題
+    private void UpdateShopTitle()
+    {
+        if (shopTitleText == null)
+            return;
+
+        if (runManager?.ActiveNode != null)
+            shopTitleText.text = $"商店 - {runManager.ActiveNode.NodeId}";
+    }
+
+    // 根據名稱尋找 Text 元件
+    private Text FindTextByName(string partialName)
+    {
+        var texts = GetComponentsInChildren<Text>(true);
+        return texts.FirstOrDefault(t => t.name.ToLowerInvariant().Contains(partialName.ToLowerInvariant()));
+    }
+
+    // 根據名稱尋找容器 Transform
+    private Transform FindContainerByName(string partialName)
+    {
+        var transforms = GetComponentsInChildren<Transform>(true);
+        return transforms.FirstOrDefault(t => t != transform && t.name.ToLowerInvariant().Contains(partialName.ToLowerInvariant()));
+    }
+
+    private Transform FindCardContainer(Transform root)
+    {
+        if (root == null)
+            return null;
+
+        var transforms = root.GetComponentsInChildren<Transform>(true);
+        foreach (var t in transforms)
+        {
+            if (t == root)
+                continue;
+
+            string lower = t.name.ToLowerInvariant();
+            if (lower.Contains("cardcontainer") || lower.Contains("cardholder") || lower.Contains("cardroot") || lower.Contains("card"))
+                return t;
+        }
+
+        return null;
+    }
+
+    private void ResetTransform(Transform t)
+    {
+        if (t == null)
+            return;
+
+        t.localPosition = Vector3.zero;
+        t.localRotation = Quaternion.identity;
+        t.localScale = Vector3.one;
+
+        var rect = t as RectTransform;
+        if (rect != null)
+        {
+            rect.anchorMin = new Vector2(0.5f, 0.5f);
+            rect.anchorMax = new Vector2(0.5f, 0.5f);
+            rect.anchoredPosition = Vector2.zero;
+        }
+    }
+
+    // 計算卡片價格（基於卡片 cost）
+    private int GetCardPrice(CardBase card)
+    {
+        if (card == null)
+            return BaseCardPrice;
+
+        return Mathf.Max(BaseCardPrice, card.cost * 25);
+    }
+
+    // 計算遺物價格（基於 cost）
+    private int GetRelicPrice(CardBase relic)
+    {
+        if (relic == null)
+            return BaseRelicPrice;
+
+        return Mathf.Max(BaseRelicPrice, 100 + relic.cost * 10);
+    }
+}

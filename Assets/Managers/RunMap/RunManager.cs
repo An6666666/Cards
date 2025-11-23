@@ -120,7 +120,8 @@ public class RunManager : MonoBehaviour
     public MapNodeData CurrentNode => currentNode;                    // 對外讀目前節點
     public MapNodeData ActiveNode => activeNode;                      // 對外讀正在處理的節點
     public bool RunCompleted => runCompleted;                         // 對外讀這次 run 是否完成
-
+    public ShopInventoryDefinition DefaultShopInventory => defaultShopInventory; // 對外讀預設商店清單
+    
     public event Action<IReadOnlyList<IReadOnlyList<MapNodeData>>> MapGenerated; // 生成新地圖時通知 UI
     public event Action MapStateChanged;                              // 地圖狀態（完成/可選節點）變動時通知
 
@@ -291,6 +292,17 @@ public class RunManager : MonoBehaviour
             runCompleted = true;    // 如果這個是 Boss，那 run 結束
         }
 
+        MapStateChanged?.Invoke();
+    }
+
+    // 商店 / 事件等非戰鬥節點完成時呼叫：標記節點已完成並更新目前位置
+    public void CompleteActiveNodeWithoutBattle()
+    {
+        if (activeNode == null)
+            return;
+
+        activeNode.MarkCompleted();
+        currentNode = activeNode;
         MapStateChanged?.Invoke();
     }
 

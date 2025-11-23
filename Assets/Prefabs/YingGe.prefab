@@ -290,7 +290,7 @@ MonoBehaviour:
   shakeMagnitude: 0.1
   scaleMultiplier: 1.1
   highlightFx: {fileID: 9166670946117661}
-  startingMaxHP: 100
+  startingMaxHP: 1
   startingBaseAttack: 15
   armorPerTurn: 4
   miasmaDamage: 5
@@ -298,7 +298,7 @@ MonoBehaviour:
   stoneFeatherDamage: 15
   stoneFeatherCooldown: 4
   stonePrefab: {fileID: 5009010696390418974, guid: ef95fb2219afd6e4193794239db46df1, type: 3}
-  stoneHealth: 100
+  stoneHealth: 1
   stoneRespawnWaitTurns: 2
 --- !u!1001 &5541819428935891966
 PrefabInstance:
