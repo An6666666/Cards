@@ -16,6 +16,8 @@ public abstract class CardBase : ScriptableObject
     [Tooltip("若勾選，使用後將此卡移出戰鬥 (消耗)")]
     public bool exhaustOnUse = false; // 使用後是否移出戰鬥
 
+    [Header("商店設定")]
+    [Tooltip("設定此卡在商店中的售價；若為 0 或更小，則以預設公式計算")] public int shopPrice = 0;
 
 
     [Header("分類")]

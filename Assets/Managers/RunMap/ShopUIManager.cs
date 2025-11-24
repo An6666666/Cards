@@ -142,13 +142,15 @@ public class ShopUIManager : MonoBehaviour
         GameObject cardGO = null;
         Button button = null;
 
+        Transform cardContainer = null;
+
         if (cardOfferTemplate != null)
         {
             entry = Instantiate(cardOfferTemplate, cardListParent);
             entry.name = card.cardName;
             entry.SetActive(true);
 
-            Transform cardContainer = FindCardContainer(entry.transform);
+            cardContainer = FindCardContainer(entry.transform);
 
             if (cardPrefab != null)
             {
@@ -156,7 +158,8 @@ public class ShopUIManager : MonoBehaviour
                 ResetTransform(cardGO.transform);
             }
 
-            ApplyOfferTexts(entry, card.cardName, price, card.description);
+            ApplyOfferTexts(entry, card.cardName, price, card.description, cardGO != null ? cardGO.transform : cardContainer);
+
 
             button = entry.GetComponent<Button>() ?? entry.GetComponentInChildren<Button>(true);
         }
@@ -327,35 +330,91 @@ public class ShopUIManager : MonoBehaviour
     }
 
     // 設定項目文字內容（名稱、價格、描述）
-    private void ApplyOfferTexts(GameObject entry, string title, int price, string description)
+    private void ApplyOfferTexts(GameObject entry, string title, int price, string description, Transform excludeRoot = null)
     {
-        var texts = entry.GetComponentsInChildren<Text>(true);
-        Text titleText = null;
-        Text priceText = null;
-        Text descriptionText = null;
+        ApplyOfferTexts(FilterTexts(entry.GetComponentsInChildren<Text>(true), excludeRoot), title, price, description, t => t.name, t => t.gameObject, t => t.text, (t, value) => t.text = value);
 
-        // 根據名稱關鍵字尋找 UI 元件
-        foreach (var text in texts)
+#if TMP_PRESENT || TMPRO_PRESENT || UNITY_TEXTMESHPRO
+        ApplyOfferTexts(FilterTexts(entry.GetComponentsInChildren<TMPro.TMP_Text>(true), excludeRoot), title, price, description, t => t.name, t => t.gameObject, t => t.text, (t, value) => t.text = value);
+#endif
+    }
+
+    private void ApplyOfferTexts<TText>(IEnumerable<TText> texts, string title, int price, string description, System.Func<TText, string> nameSelector, System.Func<TText, GameObject> goSelector, System.Func<TText, string> textGetter, System.Action<TText, string> textSetter) where TText : Component
+    {
+        var textList = texts?.Where(t => t != null).ToList();
+        if (textList == null || textList.Count == 0)
+            return;
+
+        TText titleText = default;
+        TText priceText = default;
+        TText descriptionText = default;
+
+        foreach (var text in textList)
         {
-            string lowerName = text.name.ToLowerInvariant();
-            if (titleText == null && (lowerName.Contains("title") || lowerName.Contains("name")))
+            string lowerName = nameSelector(text).ToLowerInvariant();
+            if (EqualityComparer<TText>.Default.Equals(titleText, default) && (lowerName.Contains("title") || lowerName.Contains("name")))
                 titleText = text;
-            else if (priceText == null && lowerName.Contains("price"))
+            else if (EqualityComparer<TText>.Default.Equals(priceText, default) && (lowerName.Contains("price") || lowerName.Contains("cost")))
                 priceText = text;
-            else if (descriptionText == null && (lowerName.Contains("description") || lowerName.Contains("desc")))
+            else if (EqualityComparer<TText>.Default.Equals(descriptionText, default) && (lowerName.Contains("description") || lowerName.Contains("desc")))
                 descriptionText = text;
         }
 
-        // 寫入對應文字
-        if (titleText != null)
-            titleText.text = titleText == priceText ? $"{title} - {price} 金幣" : title;
-        if (priceText != null && priceText != titleText)
-            priceText.text = $"{price} 金幣";
-        if (descriptionText != null)
+        if (EqualityComparer<TText>.Default.Equals(priceText, default))
         {
-            descriptionText.gameObject.SetActive(!string.IsNullOrWhiteSpace(description));
-            descriptionText.text = description;
+            priceText = textList.FirstOrDefault(t =>
+            {
+                var content = textGetter(t);
+                if (string.IsNullOrEmpty(content))
+                    return false;
+
+                string lowerContent = content.ToLowerInvariant();
+                return lowerContent.Contains("price") || lowerContent.Contains("cost") || lowerContent.Contains("gold") || lowerContent.Contains("金") || lowerContent.Contains("價");
+            });
         }
+
+        if (EqualityComparer<TText>.Default.Equals(priceText, default))
+            priceText = textList.FirstOrDefault(t => !EqualityComparer<TText>.Default.Equals(t, titleText));
+
+        if (!EqualityComparer<TText>.Default.Equals(titleText, default))
+            textSetter(titleText, EqualityComparer<TText>.Default.Equals(titleText, priceText) ? $"{title} - {price} 金幣" : title);
+
+        if (!EqualityComparer<TText>.Default.Equals(priceText, default) && !EqualityComparer<TText>.Default.Equals(priceText, titleText))
+            textSetter(priceText, $"{price} 金幣");
+
+        if (!EqualityComparer<TText>.Default.Equals(descriptionText, default))
+        {
+            goSelector(descriptionText).SetActive(!string.IsNullOrWhiteSpace(description));
+            textSetter(descriptionText, description);
+        }
+
+        if (EqualityComparer<TText>.Default.Equals(priceText, default) && !EqualityComparer<TText>.Default.Equals(titleText, default))
+            textSetter(titleText, $"{title} - {price} 金幣");
+    }
+
+    private IEnumerable<TText> FilterTexts<TText>(IEnumerable<TText> texts, Transform cardContainer) where TText : Component
+    {
+        if (cardContainer == null)
+            return texts;
+
+        return texts.Where(t => t != null && !IsUnderContainer(t.transform, cardContainer));
+    }
+
+    private bool IsUnderContainer(Transform target, Transform container)
+    {
+        if (target == null || container == null)
+            return false;
+
+        var current = target;
+        while (current != null)
+        {
+            if (current == container)
+                return true;
+
+            current = current.parent;
+        }
+
+        return false;
     }
 
     // 自動尋找場景中未綁定的 UI 元件
@@ -466,6 +525,9 @@ public class ShopUIManager : MonoBehaviour
     {
         if (card == null)
             return BaseCardPrice;
+        
+        if (card.shopPrice > 0)
+            return card.shopPrice;
 
         return Mathf.Max(BaseCardPrice, card.cost * 25);
     }
@@ -475,6 +537,9 @@ public class ShopUIManager : MonoBehaviour
     {
         if (relic == null)
             return BaseRelicPrice;
+
+        if (relic.shopPrice > 0)
+            return relic.shopPrice;
 
         return Mathf.Max(BaseRelicPrice, 100 + relic.cost * 10);
     }
