@@ -30,7 +30,7 @@ public class ShopUIManager : MonoBehaviour
 
     private readonly List<CardBase> availableCards = new(); // 可購買卡片清單
     private readonly List<CardBase> availableRelics = new(); // 可購買遺物清單
-
+    private bool offersGenerated; // 確保單次商店造訪僅生成一次商品
     private const int BaseCardPrice = 50;   // 卡片基本價格
     private const int BaseRelicPrice = 120; // 遺物基本價格
 
@@ -82,15 +82,10 @@ public class ShopUIManager : MonoBehaviour
         ClearChildren(cardListParent);  // 清空卡片區
         ClearChildren(relicListParent); // 清空遺物區
 
-        availableCards.Clear();  // 清除舊清單
-        availableRelics.Clear();
-
-        if (inventory != null)
+        // 第一次進來或重新載入時，依設定的數量隨機挑選商店商品
+        if (!offersGenerated)
         {
-            if (inventory.PurchasableCards != null)
-                availableCards.AddRange(inventory.PurchasableCards.Where(c => c != null)); // 加入有效卡片
-            if (inventory.PurchasableRelics != null)
-                availableRelics.AddRange(inventory.PurchasableRelics.Where(r => r != null)); // 加入有效遺物
+            GenerateOffersFromInventory();
         }
 
         // 為每張卡片建立購買項目
@@ -104,7 +99,8 @@ public class ShopUIManager : MonoBehaviour
         foreach (var relic in availableRelics)
         {
             int price = GetRelicPrice(relic);
-            CreateOfferEntry(removalEntryTemplate, relicListParent, relic.cardName, price, relic.description, () => PurchaseRelic(relic, price));        }
+            CreateOfferEntry(removalEntryTemplate, relicListParent, relic.cardName, price, relic.description, () => PurchaseRelic(relic, price));
+        }
     }
 
     private void BuildRemovalList()
@@ -542,5 +538,38 @@ public class ShopUIManager : MonoBehaviour
             return relic.shopPrice;
 
         return Mathf.Max(BaseRelicPrice, 100 + relic.cost * 10);
+    }
+
+    // 依商店設定的數量，從可購買清單中隨機挑選卡片與遺物
+    private void GenerateOffersFromInventory()
+    {
+        availableCards.Clear();
+        availableRelics.Clear();
+
+        offersGenerated = false;
+
+        if (inventory == null)
+            return;
+
+        AddRandomSelections(inventory.PurchasableCards, inventory.CardOfferCount, availableCards);
+        AddRandomSelections(inventory.PurchasableRelics, inventory.RelicOfferCount, availableRelics);
+
+        offersGenerated = true;
+    }
+
+    private void AddRandomSelections(IReadOnlyList<CardBase> source, int desiredCount, List<CardBase> target)
+    {
+        var pool = source?.Where(c => c != null).ToList();
+        if (pool == null || pool.Count == 0)
+            return;
+
+        int count = desiredCount <= 0 ? pool.Count : Mathf.Min(desiredCount, pool.Count);
+
+        for (int i = 0; i < count; i++)
+        {
+            int index = Random.Range(0, pool.Count);
+            target.Add(pool[index]);
+            pool.RemoveAt(index);
+        }
     }
 }

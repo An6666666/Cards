@@ -12,6 +12,7 @@ public class EncounterPool : ScriptableObject    // 定義一個戰鬥組合池�
     public IReadOnlyList<RunEncounterDefinition> Encounters => encounters;
 
     // 從池子裡面隨機拿一個戰鬥組合
+
     public RunEncounterDefinition GetRandomEncounter()
     {
         // 如果清單是空的或根本沒設定，直接回傳 null，代表目前沒有戰鬥可用
