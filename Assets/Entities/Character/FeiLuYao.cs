@@ -19,7 +19,7 @@ public class FeiLuYao : Enemy
     {
         enemyName = "飛顱妖";
         maxHP = 40;
-        BaseAttackDamage = 0;
+        BaseAttackDamage = 0;   // 沒有普通攻擊
         base.Awake();
     }
 
@@ -87,5 +87,47 @@ public class FeiLuYao : Enemy
                 player.buffs.ApplyImprisonFromEnemy(imprisonDuration);
                 break;
         }
+    }
+
+    // ⭐ 飛顱妖專用意圖：主要行動永遠是放 debuff 技能
+    public override void DecideNextIntent(Player player)
+    {
+        if (player == null)
+        {
+            nextIntent.type = EnemyIntentType.Idle;
+            nextIntent.value = 0;
+            UpdateIntentIcon();
+            return;
+        }
+
+        // 被冰凍 / 暈眩 → Idle
+        if (frozenTurns > 0 || buffs.stun > 0)
+        {
+            nextIntent.type = EnemyIntentType.Idle;
+            nextIntent.value = 0;
+            UpdateIntentIcon();
+            return;
+        }
+
+        // 檢查目前玩家是否還有可以上的 debuff
+        bool hasDebuffAvailable =
+            player.buffs.weak <= 0 ||
+            player.buffs.bleed <= 0 ||
+            player.buffs.imprison <= 0;
+
+        if (hasDebuffAvailable)
+        {
+            // 可以上 debuff → 顯示技能意圖
+            nextIntent.type = EnemyIntentType.Skill;
+            nextIntent.value = 0;   // 先不顯示數字
+        }
+        else
+        {
+            // 全部 debuff 都在身上了，就當成發呆
+            nextIntent.type = EnemyIntentType.Idle;
+            nextIntent.value = 0;
+        }
+
+        UpdateIntentIcon();
     }
 }
