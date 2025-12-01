@@ -50,6 +50,8 @@ public class YingGe : Enemy
 
     private Vector2Int storedGridBeforeHide;      // Boss 在隱藏前原本站的格子位置（之後要回來用）
 
+    public bool IsAwaitingRespawn => awaitingRespawn; // 外部可讀：目前是否在等待復活
+
     // Unity 生命週期：Awake，這裡做基本初始化
     protected override void Awake()
     {

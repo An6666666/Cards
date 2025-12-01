@@ -154,7 +154,7 @@ MonoBehaviour:
   returnMoveEase: 7
   fadeDuration: 0.15
   hoverGlowFadeDuration: 0.2
-  rewardHoverScale: 1.05
+  rewardHoverScale: 1.2
   rewardHoverDuration: 0.15
   rewardReturnDuration: 0.15
   rewardHoverEase: 6

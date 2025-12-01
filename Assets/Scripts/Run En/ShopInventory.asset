@@ -13,14 +13,32 @@ MonoBehaviour:
   m_Name: ShopInventory
   m_EditorClassIdentifier: 
   purchasableCards:
+  - {fileID: 11400000, guid: 4b17aca886ce6ff488b11e95c1291b15, type: 2}
+  - {fileID: 11400000, guid: fa7d2466b0cbae34487de46fbf1a86da, type: 2}
+  - {fileID: 11400000, guid: 7f7d6b20d27c4ee488fd366efed5fce3, type: 2}
+  - {fileID: 11400000, guid: 9d0d809868f7c4c4c8e38ffad7b36899, type: 2}
+  - {fileID: 11400000, guid: f64b7419d3d824a42a133bb4a9651876, type: 2}
   - {fileID: 11400000, guid: 11d3cc5377d2ef3459a4b4380becefff, type: 2}
-  - {fileID: 11400000, guid: 11d3cc5377d2ef3459a4b4380becefff, type: 2}
-  - {fileID: 11400000, guid: 11d3cc5377d2ef3459a4b4380becefff, type: 2}
-  - {fileID: 11400000, guid: 11d3cc5377d2ef3459a4b4380becefff, type: 2}
-  - {fileID: 11400000, guid: 11d3cc5377d2ef3459a4b4380becefff, type: 2}
-  - {fileID: 11400000, guid: 11d3cc5377d2ef3459a4b4380becefff, type: 2}
-  - {fileID: 11400000, guid: 11d3cc5377d2ef3459a4b4380becefff, type: 2}
+  - {fileID: 11400000, guid: 9a5a37cfe6c1216448cd26bb8d654d24, type: 2}
+  - {fileID: 11400000, guid: a58c41531431ead4ebb45b0f3f038cbc, type: 2}
+  - {fileID: 11400000, guid: 4fd70894f3d5cb54388922c21a1e3c60, type: 2}
+  - {fileID: 11400000, guid: 9aaf3c9fe05acb3468a4b7d995117dd5, type: 2}
+  - {fileID: 11400000, guid: 8cbf485628d29c0459cc448460d860de, type: 2}
+  - {fileID: 11400000, guid: 4d64db89bd736564b87cf6a239f1c3d3, type: 2}
+  - {fileID: 11400000, guid: ad52ff7b27f9eb44c9be0de1eaf276e7, type: 2}
+  - {fileID: 11400000, guid: 62fb5fa886ad39a41909086eb7d62a45, type: 2}
+  - {fileID: 11400000, guid: e3f43fceea53134408af5dce9c774ef5, type: 2}
+  - {fileID: 11400000, guid: feba486c5bd8d53448c1a549d4e83245, type: 2}
+  - {fileID: 11400000, guid: be5ac3e72ed43204385448b0880494ae, type: 2}
+  - {fileID: 11400000, guid: fe3d1d20386028d4c99ac6c885f1b27e, type: 2}
+  - {fileID: 11400000, guid: 9b35b87c81d6f2147a95c1bca48d0f77, type: 2}
+  - {fileID: 11400000, guid: 6eadd55c1ec341341a4ff6210583bfe0, type: 2}
+  - {fileID: 11400000, guid: e434476cf2d87324293de76e2dfcd00c, type: 2}
+  - {fileID: 11400000, guid: 7e5c92169c1be294c96c31c5c0ee7785, type: 2}
+  - {fileID: 11400000, guid: 1f89fc7fedee8f448aaca880364f9290, type: 2}
+  - {fileID: 11400000, guid: 0f6835f2302109647a1d992613f60640, type: 2}
+  - {fileID: 11400000, guid: 1e7fb32b8c725cb499b8dfc2fa0ec402, type: 2}
   purchasableRelics: []
-  cardOfferCount: 7
+  cardOfferCount: 9
   relicOfferCount: 1
   cardRemovalCost: 25

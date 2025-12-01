@@ -34,7 +34,14 @@ public class HealthBarUI : MonoBehaviour
         // 只處理 enemy
         if (enemy != null)
         {
-            if (enemy.currentHP <= 0)
+            bool shouldDestroy = enemy.currentHP <= 0;
+            // YingGe 假死等待復活時不要銷毀血條，避免復活後消失
+            if (enemy is YingGe yingGe && yingGe.IsAwaitingRespawn)
+            {
+                shouldDestroy = false;
+            }
+
+            if (shouldDestroy)
             {
                 Destroy(gameObject);
                 return;
