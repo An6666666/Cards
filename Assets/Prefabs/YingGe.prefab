@@ -195,7 +195,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: -0.029999949, y: 5.98, z: 0}
-  m_LocalScale: {x: 0.18375951, y: 0.19943736, z: 0.30173066}
+  m_LocalScale: {x: 1, y: 1, z: 0.30173066}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 6210590311880108054}
@@ -496,6 +496,8 @@ MonoBehaviour:
   - {x: 1, y: 2}
   isBoss: 1
   spriteRoot: {fileID: 7030380687885745100}
+  useAppearAnimation: 0
+  deathDestroyDelay: 0.6
   sortingOrderBase: 0
   sortingOrderMultiplier: 100
   shakeDuration: 0.1
