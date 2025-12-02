@@ -6618,15 +6618,17 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   player: {fileID: 1848671827}
+  board: {fileID: 985692098}
   cardPrefab: {fileID: 4596475076482105628, guid: 100c1a32f1664694b821ff0756181848, type: 3}
-  enemySpawnConfigs: []
-  playerStartPos: {x: 0, y: 0}
   handPanel: {fileID: 5627973}
   deckPile: {fileID: 1721566109}
   discardPile: {fileID: 38439982}
   energyText: {fileID: 1881360557}
   endTurnButton: {fileID: 2116894243}
-  board: {fileID: 985692098}
+  enemySpawnConfigs:
+  - enemyPrefab: {fileID: 4204690724760053818, guid: 87fab54ae39d11f449187455258a17cc, type: 3}
+    count: 1
+  playerStartPos: {x: 0, y: 0}
   guaranteedMovementCard: {fileID: 11400000, guid: 105c7f2659020eb478d2fc42c9d7276e, type: 2}
   allCardPool:
   - {fileID: 11400000, guid: 11d3cc5377d2ef3459a4b4380becefff, type: 2}
