@@ -41,4 +41,4 @@ MonoBehaviour:
   purchasableRelics: []
   cardOfferCount: 9
   relicOfferCount: 1
-  cardRemovalCost: 25
+  cardRemovalCost: 5

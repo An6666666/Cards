@@ -15,7 +15,8 @@ MonoBehaviour:
   cardName: "\u8B77\u6211\u771F\u8EAB"
   cost: 1
   description: "\u589E\u52A08\u9EDE\u8B77\u7532"
-  cardImage: {fileID: 0}
+  cardImage: {fileID: 21300000, guid: 888d0909a5e748c4f891feef7852dcfe, type: 3}
   exhaustOnUse: 0
+  shopPrice: 0
   cardType: 1
-  blockValue: 8
+  blockValue: 5

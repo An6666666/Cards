@@ -17,6 +17,7 @@ MonoBehaviour:
   description: "\u96F7\u5143\u7D206\u9EDE\u55AE\u9AD4\u653B\u64CA"
   cardImage: {fileID: 21300000, guid: ddcd2bcf5c380574099215ec1f3a1eb7, type: 3}
   exhaustOnUse: 0
+  shopPrice: 4
   cardType: 0
   rangeOffsets:
   - {x: -2, y: 0}

@@ -14,7 +14,7 @@ public class ShopInventoryDefinition : ScriptableObject   // 這個資產描述�
     [SerializeField] private int cardOfferCount = 3;
     // 每次商店可供購買的遺物數量（0 代表不限制，會全部列出）
     [SerializeField] private int relicOfferCount = 1;
-    [SerializeField] private int cardRemovalCost = 75;
+    [SerializeField] private int cardRemovalCost = 5;
 
     // 對外的唯讀屬性：商店有哪些卡可以買
     public IReadOnlyList<CardBase> PurchasableCards => purchasableCards;

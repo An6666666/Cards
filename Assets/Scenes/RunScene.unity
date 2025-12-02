@@ -195,7 +195,7 @@ MonoBehaviour:
   minNodesPerFloor: 4
   maxNodesPerFloor: 5
   eventRate: 0.2
-  shopRate: 0.15
+  shopRate: 0.2
   encounterPool: {fileID: 11400000, guid: edfdd0303848fe24c94cb125f349ba8f, type: 2}
   bossEncounter: {fileID: 11400000, guid: aff795c95d3c974499abd8f9c35a3897, type: 2}
   defaultShopInventory: {fileID: 11400000, guid: ccc2e199ec64b5242bff3f0f57551a60, type: 2}
