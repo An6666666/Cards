@@ -4,10 +4,11 @@ using System.Linq;                                 // 為了用 Linq（雖然這
 using UnityEngine;                                 // Unity 基本命名空間
 using UnityEngine.SceneManagement;                 // 要切換 Scene 所以要引用這個
 
-// 地圖節點的種類：戰鬥、商店、事件、Boss
+// 地圖節點的種類：一般戰鬥、菁英戰鬥、商店、事件、Boss
 public enum MapNodeType
 {
     Battle,
+    EliteBattle,
     Shop,
     Event,
     Boss
@@ -17,7 +18,7 @@ public enum MapNodeType
 public class MapNodeData
 {
     [SerializeField] private string nodeId;         // 節點的唯一 ID
-    [SerializeField] private MapNodeType nodeType;  // 節點類型（戰鬥/商店/事件/Boss）
+    [SerializeField] private MapNodeType nodeType;  // 節點類型（一般戰鬥/菁英戰鬥/商店/事件/Boss）
     [SerializeField] private int floorIndex;        // 這個節點位於第幾層（第幾排）
     [SerializeField] private bool isCompleted;      // 是否已經完成過
     [SerializeField] private RunEncounterDefinition encounter;       // 如果是戰鬥節點，這裡放要打哪一場戰
@@ -101,7 +102,9 @@ public class RunManager : MonoBehaviour
     [SerializeField] private int maxNodesPerFloor = 4;               // 每層節點數上限
     [SerializeField, Range(0f, 1f)] private float eventRate = 0.2f;  // 生成事件節點的機率
     [SerializeField, Range(0f, 1f)] private float shopRate = 0.15f;  // 生成商店節點的機率
+    [SerializeField, Range(0f, 1f)] private float eliteBattleRate = 0.1f; // 生成菁英戰鬥節點的機率
     [SerializeField] private EncounterPool encounterPool;            // 戰鬥池，從這裡抽戰鬥 :contentReference[oaicite:4]{index=4}
+    [SerializeField] private EncounterPool eliteEncounterPool;       // 菁英戰鬥池，專門放菁英戰鬥
     [SerializeField] private RunEncounterDefinition bossEncounter;   // Boss 專用戰鬥
     [SerializeField] private ShopInventoryDefinition defaultShopInventory; // 預設商店清單
     [SerializeField] private List<RunEventDefinition> eventPool = new List<RunEventDefinition>(); // 事件池
@@ -194,6 +197,14 @@ public class RunManager : MonoBehaviour
                 {
                     // 戰鬥節點就從戰鬥池抽一場
                     node.SetEncounter(encounterPool != null ? encounterPool.GetRandomEncounter() : null);
+                }
+                else if (type == MapNodeType.EliteBattle)
+                {
+                    // 菁英戰鬥節點就從菁英戰鬥池抽一場，沒有就退回一般戰鬥池
+                    RunEncounterDefinition eliteEncounter = eliteEncounterPool != null
+                        ? eliteEncounterPool.GetRandomEncounter()
+                        : null;
+                    node.SetEncounter(eliteEncounter != null ? eliteEncounter : encounterPool?.GetRandomEncounter());
                 }
                 else if (type == MapNodeType.Boss)
                 {
@@ -370,6 +381,7 @@ public class RunManager : MonoBehaviour
         switch (node.NodeType)
         {
             case MapNodeType.Battle:
+            case MapNodeType.EliteBattle:
             case MapNodeType.Boss:
                 sceneName = battleSceneName;
                 break;
@@ -755,15 +767,25 @@ public class RunManager : MonoBehaviour
     // 決定這一層要生成什麼類型的節點
     private MapNodeType DetermineNodeTypeForFloor(int floor)
     {
+        // 第一層只放一般戰鬥，避免一開始就遇到事件或商店
+        if (floor == 0)
+            return MapNodeType.Battle;
+
         // 最後一層固定是 Boss
         if (floor == Mathf.Max(1, floorCount) - 1)
             return MapNodeType.Boss;
 
         float roll = UnityEngine.Random.value; // 0~1 隨機數
-        if (roll < shopRate)
+        float clampedShopRate = Mathf.Clamp01(shopRate);
+        float clampedEventRate = Mathf.Clamp01(eventRate);
+        float clampedEliteRate = Mathf.Clamp01(eliteBattleRate);
+
+        if (roll < clampedShopRate)
             return MapNodeType.Shop;
-        if (roll < shopRate + eventRate)
+        if (roll < clampedShopRate + clampedEventRate)
             return MapNodeType.Event;
+        if (roll < clampedShopRate + clampedEventRate + clampedEliteRate)
+            return MapNodeType.EliteBattle;
         return MapNodeType.Battle;
     }
 

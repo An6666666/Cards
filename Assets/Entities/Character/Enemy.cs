@@ -13,6 +13,10 @@ public class Enemy : MonoBehaviour              // 敵人角色，繼承自 Mono
     public int block = 0;                          // 格擋值，用於抵消傷害
     public virtual bool ShouldResetBlockEachTurn => true; // 預設每回合重置格擋
 
+    [Header("擊敗獎勵")]
+    [SerializeField] private int goldReward = 3;   // 被擊敗時給予玩家的金幣數量
+    public int GoldReward => goldReward;           // 對外公開的金幣獎勵讀取介面
+
     public int burningTurns = 0;                   // 燃燒狀態持續回合數
     public int frozenTurns = 0;                    // 冰凍狀態持續回合數
     public bool thunderstrike = false;             // 是否被雷擊標記

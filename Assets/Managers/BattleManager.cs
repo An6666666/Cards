@@ -43,6 +43,7 @@ public class BattleManager : MonoBehaviour               // 戰鬥流程管理�
     [Header("Rewards")]
     public List<CardBase> allCardPool = new List<CardBase>();
     private int defeatedEnemyCount = 0;
+    private int totalGoldReward = 0;
     public RewardUI rewardUIPrefab;
     private RewardUI rewardUIInstance;
     private bool battleStarted = false;                     // 是否已開始戰鬥，避免開場即觸發勝利
@@ -841,11 +842,12 @@ public class BattleManager : MonoBehaviour               // 戰鬥流程管理�
     public void OnEnemyDefeated(Enemy e)
     {
         defeatedEnemyCount++;
+        totalGoldReward += Mathf.Max(0, e != null ? e.GoldReward : 0);
     }
 
     public void ShowVictoryRewards()
     {
-        int goldReward = defeatedEnemyCount * 3;
+        int goldReward = totalGoldReward;
         player.AddGold(goldReward);
         var cardChoices = GetRandomCards(allCardPool, 3);
         Canvas canvas = handPanel != null ? handPanel.GetComponentInParent<Canvas>() : FindObjectOfType<Canvas>();

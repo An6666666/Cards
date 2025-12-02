@@ -145,6 +145,7 @@ MonoBehaviour:
   maxHP: 60
   currentHP: 60
   block: 0
+  goldReward: 6
   burningTurns: 0
   frozenTurns: 0
   thunderstrike: 0
@@ -175,6 +176,8 @@ MonoBehaviour:
   - {x: -3, y: -2}
   isBoss: 0
   spriteRoot: {fileID: 5048898058832816598}
+  useAppearAnimation: 1
+  deathDestroyDelay: 0.6
   sortingOrderBase: 0
   sortingOrderMultiplier: 100
   shakeDuration: 0.1
