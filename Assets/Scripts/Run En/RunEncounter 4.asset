@@ -10,9 +10,13 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a8d5e694b16040b44892125fbd90e621, type: 3}
-  m_Name: RunEncounter
+  m_Name: RunEncounter 4
   m_EditorClassIdentifier: 
-  encounterId: B1_three enemy
+  encounterId: Elite Monster
   enemyGroups:
   - enemyPrefab: {fileID: 4204690724760053818, guid: 87fab54ae39d11f449187455258a17cc, type: 3}
     count: 3
+  - enemyPrefab: {fileID: 4591814044274373110, guid: e0d91408b43bec24ab02b0d2932a3dfc, type: 3}
+    count: 1
+  - enemyPrefab: {fileID: 8896973269389346778, guid: 8e9ee8b5037fe5048ae8dc2cef4d967f, type: 3}
+    count: 1

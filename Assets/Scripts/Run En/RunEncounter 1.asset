@@ -15,4 +15,4 @@ MonoBehaviour:
   encounterId: B1_three HeiGouJing
   enemyGroups:
   - enemyPrefab: {fileID: 8258485525033336925, guid: b1fbe62463006294b80e46474639e1f9, type: 3}
-    count: 1
+    count: 3

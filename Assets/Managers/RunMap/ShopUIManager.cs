@@ -122,9 +122,43 @@ public class ShopUIManager : MonoBehaviour
             if (card == null)
                 continue;
 
-            string title = $"移除 {card.cardName}";
-            string description = string.IsNullOrEmpty(card.description) ? "" : card.description;
-            CreateOfferEntry(removalEntryTemplate, removalListParent, title, removalCost, description, () => RemoveCardAt(index, removalCost));
+            CreateRemovalEntry(card, removalCost, index);
+        }
+    }
+
+    private void CreateRemovalEntry(CardBase card, int price, int cardIndex)
+    {
+        if (card == null || removalEntryTemplate == null || removalListParent == null)
+            return;
+
+        var entry = Instantiate(removalEntryTemplate, removalListParent);
+        entry.name = $"Remove {card.cardName}";
+        entry.SetActive(true);
+
+        GameObject cardGO = null;
+        Transform cardContainer = FindCardContainer(entry.transform);
+        if (cardPrefab != null)
+        {
+            cardGO = Instantiate(cardPrefab, cardContainer != null ? cardContainer : entry.transform);
+            ResetTransform(cardGO.transform);
+        }
+
+        string title = $"移除 {card.cardName}";
+        string description = string.IsNullOrEmpty(card.description) ? "" : card.description;
+        ApplyOfferTexts(entry, title, price, description, cardGO != null ? cardGO.transform : cardContainer);
+
+        var button = entry.GetComponent<Button>() ?? entry.GetComponentInChildren<Button>(true);
+        if (button != null)
+        {
+            button.onClick.RemoveAllListeners();
+            button.onClick.AddListener(() => RemoveCardAt(cardIndex, price));
+        }
+
+        var cardUI = cardGO?.GetComponent<CardUI>();
+        if (cardUI != null)
+        {
+            cardUI.SetupCard(card);
+            cardUI.SetDisplayContext(CardUI.DisplayContext.Reward);
         }
     }
 
@@ -297,11 +331,28 @@ public class ShopUIManager : MonoBehaviour
         for (int i = parent.childCount - 1; i >= 0; i--)
         {
             var child = parent.GetChild(i);
-            if (removalCostText != null && child == removalCostText.transform)
+            if (ShouldPreserveChild(child))
                 continue;
 
             Destroy(child.gameObject);
         }
+    }
+
+    private bool ShouldPreserveChild(Transform child)
+    {
+        if (child == null)
+            return false;
+
+        if (removalCostText != null && child == removalCostText.transform)
+            return true;
+
+        if (removalEntryTemplate != null && child == removalEntryTemplate.transform)
+            return true;
+
+        if (cardOfferTemplate != null && child == cardOfferTemplate.transform)
+            return true;
+
+        return false;
     }
 
     // 以模板建立一個商品項目（卡片、遺物、移除卡）

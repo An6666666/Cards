@@ -8316,7 +8316,7 @@ MonoBehaviour:
   maxEnergy: 3
   energy: 3
   block: 0
-  gold: 0
+  gold: 50
   baseHandCardCount: 4
   deck:
   - {fileID: 11400000, guid: 11d3cc5377d2ef3459a4b4380becefff, type: 2}
