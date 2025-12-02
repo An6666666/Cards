@@ -46,6 +46,19 @@ public class Enemy : MonoBehaviour              // 敵人角色，繼承自 Mono
     private bool spriteDefaultsInitialized = false; // 是否已取得初始值
 
     private Animator spriteAnimator;                 // 本體動畫控制器
+        [Header("動畫設定")]
+    [SerializeField] private bool useAppearAnimation = true;
+    [SerializeField] private float deathDestroyDelay = 0.6f;
+
+    // Animator 參數 Hash（所有敵人共用）
+    private static readonly int HashAppear = Animator.StringToHash("Appear");
+    private static readonly int HashAttack = Animator.StringToHash("Attack");
+    private static readonly int HashHit = Animator.StringToHash("Hit");
+    private static readonly int HashIsDead = Animator.StringToHash("IsDead");
+
+    private bool hasAppeared = false;
+    private bool isDead = false;
+
     private Animator highlightAnimator;              // 高亮動畫控制器
 
     [Header("圖層排序設定")]
@@ -149,6 +162,40 @@ public class Enemy : MonoBehaviour              // 敵人角色，繼承自 Mono
             cachedSpriteRenderers = Array.Empty<SpriteRenderer>();
             cachedSpriteBaseOrders = Array.Empty<int>();
         }
+    }
+
+        protected void PlayAppearAnimation()
+    {
+        if (!useAppearAnimation || hasAppeared) return;
+        EnsureAnimators();
+        if (spriteAnimator == null) return;
+
+        hasAppeared = true;
+        spriteAnimator.SetTrigger(HashAppear);
+    }
+
+    protected void PlayAttackAnimation()
+    {
+        EnsureAnimators();
+        if (spriteAnimator == null || isDead) return;
+
+        spriteAnimator.SetTrigger(HashAttack);
+    }
+
+    protected void PlayHitAnimation()
+    {
+        EnsureAnimators();
+        if (spriteAnimator == null || isDead) return;
+
+        spriteAnimator.SetTrigger(HashHit);
+    }
+
+    protected void PlayDeadAnimation()
+    {
+        EnsureAnimators();
+        if (spriteAnimator == null) return;
+
+        spriteAnimator.SetBool(HashIsDead, true);
     }
 
     private void EnsureAnimators()
@@ -372,12 +419,14 @@ public class Enemy : MonoBehaviour              // 敵人角色，繼承自 Mono
         EnsureAnimators();
 
         cachedPlayer = FindObjectOfType<Player>();
-    if (cachedPlayer != null)
-    {
-        lastKnownPlayerPos = cachedPlayer.position;
-        hasLastKnownPlayerPos = true;
-        DecideNextIntent(cachedPlayer);   // 一開始就算一次
-    }
+        if (cachedPlayer != null)
+            {
+            lastKnownPlayerPos = cachedPlayer.position;
+            hasLastKnownPlayerPos = true;
+            DecideNextIntent(cachedPlayer);   // 一開始就算一次
+            }
+            // 播出場動畫（如果有開）
+        PlayAppearAnimation();
     }
 
     private void OnEnable()
@@ -460,7 +509,7 @@ public class Enemy : MonoBehaviour              // 敵人角色，繼承自 Mono
 
     }
 
-    public virtual void TakeDamage(int dmg)                // 受到傷害 (考慮格擋)
+    public virtual void TakeDamage(int dmg)
     {
         if (shakeRoutine != null)
         {
@@ -472,24 +521,34 @@ public class Enemy : MonoBehaviour              // 敵人角色，繼承自 Mono
             EnsureSpriteDefaults();
         }
         shakeRoutine = StartCoroutine(HitShake());
-        int remain = dmg - block;                 // 計算剩餘傷害
+
+        int remain = dmg - block;
         if (remain > 0)
         {
-            block = 0;                            // 格擋用完歸零
-            currentHP -= remain;                  // 扣除剩餘傷害
+            block = 0;
+            currentHP -= remain;
+
             if (currentHP <= 0)
             {
-                currentHP = 0;                   // 生命不低於 0
-                Die();                           // 生命歸零觸發死亡
+                currentHP = 0;
+                Die();          // Die() 內部會處理死亡動畫
+            }
+            else
+            {
+                // 還活著 → 播受傷動畫
+                PlayHitAnimation();
             }
         }
         else
         {
-            block -= dmg;                         // 僅扣除格擋
+            block -= dmg;
+            if (block < 0) block = 0;
+            // 純扣護甲，不一定要播受傷動畫，看你要不要
         }
     }
 
-    public virtual void TakeTrueDamage(int dmg)           // 真實傷害 (無視格擋)
+        
+    public virtual void TakeTrueDamage(int dmg)
     {
         if (shakeRoutine != null)
         {
@@ -501,13 +560,19 @@ public class Enemy : MonoBehaviour              // 敵人角色，繼承自 Mono
             EnsureSpriteDefaults();
         }
         shakeRoutine = StartCoroutine(HitShake());
-        currentHP -= dmg;                         // 直接扣除生命
+
+        currentHP -= dmg;
         if (currentHP <= 0)
         {
             currentHP = 0;
-            Die();                                // 扣到 0 則死亡
+            Die();
+        }
+        else
+        {
+            PlayHitAnimation();
         }
     }
+
 
     public void AddBlock(int amount)              // 增加格擋值
     {
@@ -715,6 +780,7 @@ public virtual void DecideNextIntent(Player player)
             int atkValue = CalculateAttackDamage();
             if (atkValue > 0)
             {
+                PlayAttackAnimation();
                 player.TakeDamage(atkValue);         // 對玩家造成傷害
             }
         }
@@ -724,16 +790,26 @@ public virtual void DecideNextIntent(Player player)
         }
     }
 
-    protected virtual void Die()                                    // 死亡處理
+        protected virtual void Die()
     {
+        if (isDead) return;      // 避免重複呼叫
+        isDead = true;
+
         Debug.Log(enemyName + " died!");
-         BattleManager bm = FindObjectOfType<BattleManager>();
+
+        // 播死亡動畫
+        PlayDeadAnimation();
+
+        BattleManager bm = FindObjectOfType<BattleManager>();
         if (bm != null)
         {
             bm.OnEnemyDefeated(this);
         }
-        Destroy(gameObject);                     // 刪除自身
+
+        // 給動畫一點時間演出後再刪除
+        Destroy(gameObject, deathDestroyDelay);
     }
+
 }
 
 [System.Serializable]

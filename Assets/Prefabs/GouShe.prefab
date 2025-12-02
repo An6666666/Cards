@@ -111,7 +111,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: -85.98605, y: 34.224026, z: 0}
-  m_LocalScale: {x: 2.3054214, y: 1.1700653, z: 0}
+  m_LocalScale: {x: 12, y: 6, z: 0}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 4812651367458895339}
@@ -512,6 +512,8 @@ MonoBehaviour:
   - {x: 1, y: 2}
   isBoss: 0
   spriteRoot: {fileID: 8275633406451967337}
+  useAppearAnimation: 0
+  deathDestroyDelay: 0.6
   sortingOrderBase: 0
   sortingOrderMultiplier: 100
   shakeDuration: 0.1
@@ -522,7 +524,7 @@ MonoBehaviour:
     type: 0
     value: 0
   intentIconRenderer: {fileID: 1447209954761177321}
-  intentWorldOffset: {x: 0, y: 2, z: 0}
+  intentWorldOffset: {x: 0, y: 3, z: 0}
   intentAttackSprite: {fileID: 21300000, guid: 31473bef10837b34c8e439b101e60e54, type: 3}
   intentMoveSprite: {fileID: 21300000, guid: 6991ec15219e6f04293499b20b3f41b8, type: 3}
   intentIdleSprite: {fileID: 21300000, guid: 185fcb8d652741645a212553470b6897, type: 3}

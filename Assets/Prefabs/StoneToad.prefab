@@ -225,7 +225,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: -4.930332, y: 5.0546722, z: 0}
-  m_LocalScale: {x: 0.13218996, y: 0.14346805, z: 0}
+  m_LocalScale: {x: 0.7, y: 0.85, z: 0}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 5066736359374214432}
@@ -464,6 +464,7 @@ GameObject:
   m_Component:
   - component: {fileID: 5048898058832816598}
   - component: {fileID: 1006455195531845558}
+  - component: {fileID: 8302359233923841165}
   m_Layer: 0
   m_Name: Square
   m_TagString: Untagged
@@ -480,8 +481,8 @@ Transform:
   m_GameObject: {fileID: 3318196671544289434}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0.33, y: 2, z: 0.069037385}
-  m_LocalScale: {x: 0.30069968, y: 0.30069968, z: 0}
+  m_LocalPosition: {x: 0.33, y: 3.42, z: 0.069037385}
+  m_LocalScale: {x: 0.49519148, y: 0.49519148, z: 0}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 9102699643074939717}
@@ -527,7 +528,7 @@ SpriteRenderer:
   m_SortingLayerID: 632128979
   m_SortingLayer: 3
   m_SortingOrder: 0
-  m_Sprite: {fileID: 21300000, guid: 5536f9f65000bb047adb52eb0c94e708, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 5dbf2ea3f0acb404fb33239273ffc4fa, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -538,6 +539,27 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
+--- !u!95 &8302359233923841165
+Animator:
+  serializedVersion: 5
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3318196671544289434}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: 96745307a5d306646b69a2752f8fb3d9, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorStateOnDisable: 0
+  m_WriteDefaultValuesOnDisable: 0
 --- !u!1 &3497268538794539498
 GameObject:
   m_ObjectHideFlags: 0
