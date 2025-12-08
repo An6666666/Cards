@@ -8230,9 +8230,13 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1848671828}
-  - component: {fileID: 1848671827}
   - component: {fileID: 1848671826}
   - component: {fileID: 1848671829}
+  - component: {fileID: 1848671827}
+  - component: {fileID: 1848671833}
+  - component: {fileID: 1848671832}
+  - component: {fileID: 1848671831}
+  - component: {fileID: 1848671830}
   m_Layer: 0
   m_Name: Player
   m_TagString: Untagged
@@ -8297,35 +8301,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 56865d4ac7b79ed48a7cc49694bac9dc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  maxHP: 100
-  currentHP: 0
-  maxEnergy: 3
-  energy: 3
-  block: 0
-  gold: 50
   baseHandCardCount: 4
-  deck: []
-  exhaustPile: []
   relics: []
-  exhaustCountThisTurn: 0
-  position: {x: 0, y: 0}
-  buffs:
-    damageTakenRatio: 1
-    nextAttackPlus: 0
-    nextDamageTakenUp: 0
-    nextAttackCostModify: 0
-    movementCostModify: 0
-    nextTurnDrawChange: 0
-    needRandomDiscardAtEnd: 0
-    meleeDamageReduce: 0
-    weak: 0
-    bleed: 0
-    imprison: 0
-    nextTurnAllAttackPlus: 0
-    drawBlockedThisTurn: 0
-    weakFromEnemies: 0
-    bleedFromEnemies: 0
-    imprisonFromEnemies: 0
 --- !u!4 &1848671828
 Transform:
   m_ObjectHideFlags: 0
@@ -8394,6 +8371,87 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
+--- !u!114 &1848671830
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1848671825}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8b2f78b78db6c294e90d6c272348fb5d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  position: {x: 0, y: 0}
+--- !u!114 &1848671831
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1848671825}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ec43d2a64345a704981db131db4084ef, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  deck:
+  - {fileID: 11400000, guid: 11d3cc5377d2ef3459a4b4380becefff, type: 2}
+  - {fileID: 11400000, guid: 11d3cc5377d2ef3459a4b4380becefff, type: 2}
+  - {fileID: 11400000, guid: 11d3cc5377d2ef3459a4b4380becefff, type: 2}
+  - {fileID: 11400000, guid: 11d3cc5377d2ef3459a4b4380becefff, type: 2}
+  - {fileID: 11400000, guid: 11d3cc5377d2ef3459a4b4380becefff, type: 2}
+  hand: []
+  discardPile: []
+  exhaustPile: []
+  exhaustCountThisTurn: 0
+--- !u!114 &1848671832
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1848671825}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bebb6a40d5b5460438cb6d38526c9b32, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  maxHP: 100
+  currentHP: 0
+  maxEnergy: 4
+  energy: 0
+  block: 0
+  gold: 0
+--- !u!114 &1848671833
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1848671825}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bc2ee45660eae9e4995668df5aa480d3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  damageTakenRatio: 1
+  nextAttackPlus: 0
+  nextDamageTakenUp: 0
+  nextAttackCostModify: 0
+  movementCostModify: 0
+  nextTurnDrawChange: 0
+  needRandomDiscardAtEnd: 0
+  meleeDamageReduce: 0
+  weak: 0
+  bleed: 0
+  imprison: 0
+  nextTurnAllAttackPlus: 0
+  drawBlockedThisTurn: 0
+  weakFromEnemies: 0
+  bleedFromEnemies: 0
+  imprisonFromEnemies: 0
 --- !u!4 &1871164232 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 2733580285815805351, guid: eacfe748df31fe649bac4cba447f47e8, type: 3}

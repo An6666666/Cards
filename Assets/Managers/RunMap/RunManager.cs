@@ -819,7 +819,7 @@ public class RunManager : MonoBehaviour
         target.block = 0;
         target.energy = target.maxEnergy;
         target.exhaustCountThisTurn = 0;
-        target.buffs = new PlayerBuffs();
+        target.buffs.ResetAll();
         target.ShuffleDeck(); // 重洗牌
     }
 
