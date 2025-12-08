@@ -222,17 +222,21 @@ public class BattleManager : MonoBehaviour  // 戰鬥管理器，整場戰鬥的
             return false;
         }
 
+        if (cardData is Skill_ZhiJiao && !player.HasExhaustableCardInHand())
+        {
+            Debug.Log("No exhaustable cards in hand for 擲筊");
+            return false;
+        }
+        
         Enemy target = enemies.Find(e => e != null && e.currentHP > 0);
         // 這裡簡單選擇第一個仍存活的敵人作為目標（若卡片沒自己處理目標）
 
         cardData.ExecuteEffect(player, target);
         // 執行卡片效果，由卡本身實作（增加護甲、造成傷害、上狀態等）
 
-        if (cardData.cardType == CardType.Attack)
+        if (cardData.cardType == CardType.Attack && player.buffs.nextAttackPlus > 0)
         {
-            player.attackUsedThisTurn++;                   // 記錄本回合已使用的攻擊卡次數（可能給其他效果用）
-            if (player.buffs.nextAttackPlus > 0)
-                player.buffs.nextAttackPlus = 0;           // 用掉一次攻擊加成後，把 nextAttackPlus 歸零
+            player.buffs.nextAttackPlus = 0;               // 用掉一次攻擊加成後，把 nextAttackPlus 歸零
         }
 
         // 若手牌中仍含此卡，則移至棄牌堆

@@ -818,9 +818,7 @@ public class RunManager : MonoBehaviour
         target.Hand.Clear();
         target.block = 0;
         target.energy = target.maxEnergy;
-        target.hasDiscardedThisTurn = false;
-        target.discardCountThisTurn = 0;
-        target.attackUsedThisTurn = 0;
+        target.exhaustCountThisTurn = 0;
         target.buffs = new PlayerBuffs();
         target.ShuffleDeck(); // 重洗牌
     }

@@ -112,9 +112,9 @@ public class Skill_LingHunZhenDang : CardBase
 
         public override void ExecuteEffect(Player player, Enemy enemy)
         {
-            bool isPlanToDiscard = player.CheckDiscardPlan();
+            bool isPlanToExhaust = player.CheckExhaustPlan();
             int totalBlock = baseBlock;
-            if (isPlanToDiscard)
+            if (isPlanToExhaust)
             {
                 totalBlock += bonusBlock;
             }

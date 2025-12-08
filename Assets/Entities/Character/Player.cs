@@ -30,9 +30,7 @@ public class Player : MonoBehaviour
     public List<CardBase> relics = new List<CardBase>();  // 遺物 / 聖物清單
 
     [Header("回合統計")]
-    public bool hasDiscardedThisTurn = false;  // 本回合是否曾經棄牌
-    public int discardCountThisTurn = 0;       // 本回合累計棄了幾張
-    public int attackUsedThisTurn = 0;         // 本回合使用攻擊卡次數
+    public int exhaustCountThisTurn = 0;       // 本回合累計消耗幾張
 
     // 棋盤座標（若使用 2D 格子）
     public Vector2Int position = new Vector2Int(0, 0);
@@ -65,9 +63,7 @@ public class Player : MonoBehaviour
         block = 0;  // 清空格擋（若要沿用 Slay the Spire，可在此重置 block）
         // 每回合開始時回滿能量
         energy = maxEnergy;
-        hasDiscardedThisTurn = false;
-        discardCountThisTurn = 0;
-        attackUsedThisTurn = 0;
+        exhaustCountThisTurn = 0;
 
         int initialDrawCount = Mathf.Max(0, baseHandCardCount);
         DrawCards(initialDrawCount); // 依設定的基礎手牌數量抽牌
@@ -91,13 +87,7 @@ public class Player : MonoBehaviour
     public void EndTurn()
     {
         // 遺物的「回合結束」觸發
-        foreach (CardBase r in relics)
-        {
-            if (r is Relic_PoMoXiao pmx)
-            {
-                pmx.OnEndTurn(this, attackUsedThisTurn);
-            }
-        }
+
 
         // 若需要在回合結束時隨機棄牌（由 Buff 指示），此處執行
         if (buffs.needRandomDiscardAtEnd > 0)
@@ -110,8 +100,6 @@ public class Player : MonoBehaviour
                 if (TryRemoveDiscardableCardFromHand(manager, true, out CardBase c))
                 {
                     discardPile.Add(c);
-                    hasDiscardedThisTurn = true;
-                    discardCountThisTurn++;
                 }
                 else
                 {
@@ -373,6 +361,8 @@ public class Player : MonoBehaviour
         {
             exhaustPile.Add(card);
         }
+
+        exhaustCountThisTurn++;
     }
 
     /// <summary>
@@ -491,6 +481,28 @@ public class Player : MonoBehaviour
     }
 
     /// <summary>
+    /// 檢查手牌中是否有可以被消耗的卡（排除保證移動卡）
+    /// </summary>
+    public bool HasExhaustableCardInHand()
+    {
+        BattleManager manager = FindObjectOfType<BattleManager>();
+        if (manager == null)
+        {
+            return hand.Count > 0;
+        }
+
+        foreach (CardBase card in hand)
+        {
+            if (!manager.IsGuaranteedMovementCard(card))
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /// <summary>
     /// 棄 n 張牌（依序處理：優先移除可棄的手牌；過程中更新計數與觸發遺物）
     /// </summary>
     public void DiscardCards(int n)
@@ -512,9 +524,6 @@ public class Player : MonoBehaviour
         }
         if (actualDiscarded > 0)
         {
-            hasDiscardedThisTurn = true;
-            discardCountThisTurn += actualDiscarded;
-
             // 觸發與棄牌相關的遺物
             foreach (CardBase r in relics)
             {
@@ -535,9 +544,6 @@ public class Player : MonoBehaviour
         if (!TryRemoveDiscardableCardFromHand(manager, false, out CardBase c))
             return false;
         discardPile.Add(c);
-
-        hasDiscardedThisTurn = true;
-        discardCountThisTurn++;
 
         // 觸發與棄牌相關的遺物
         foreach (CardBase r in relics)
@@ -563,8 +569,6 @@ public class Player : MonoBehaviour
         }
 
         discardPile.Add(c);
-        hasDiscardedThisTurn = true;
-        discardCountThisTurn++;
 
         foreach (CardBase r in relics)
         {
@@ -578,11 +582,26 @@ public class Player : MonoBehaviour
     }
     
     /// <summary>
+    /// 查詢本回合是否有卡片被消耗（供其他效果判斷）
+    /// </summary>
+    public bool ExhaustRandomCardFromHand()
+    {
+        BattleManager manager = FindObjectOfType<BattleManager>();
+        if (!TryRemoveDiscardableCardFromHand(manager, true, out CardBase removedCard))
+        {
+            return false;
+        }
+
+        ExhaustCard(removedCard);
+        return true;
+    }
+
+    /// <summary>
     /// 查詢本回合是否有棄牌（供其他效果判斷）
     /// </summary>
-    public bool CheckDiscardPlan()
+    public bool CheckExhaustPlan()
     {
-        return hasDiscardedThisTurn;
+        return exhaustCountThisTurn > 0;
     }
 
     /// <summary>

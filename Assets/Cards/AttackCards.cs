@@ -39,7 +39,7 @@ public class Attack_ZhenXun : CardBase
 #region P5-P10:進階攻擊卡
 
 /// <summary>
-/// 靈巧穿刺（若本回合有棄牌，額外加傷）
+/// 靈巧穿刺（若本回合有消耗，額外加傷）
 /// </summary>
 [CreateAssetMenu(fileName = "Attack_LingQiaoChuanCi", menuName = "Cards/Attack/靈巧穿刺")]
 public class Attack_LingQiaoChuanCi : CardBase
@@ -55,10 +55,10 @@ public class Attack_LingQiaoChuanCi : CardBase
 
     public override void ExecuteEffect(Player player, Enemy enemy)
     {
-        // 檢查本回合是否發生過棄牌
-        bool hasDiscarded = player.hasDiscardedThisTurn;
+         // 檢查本回合是否有卡片被消耗
+        bool hasExhausted = player.exhaustCountThisTurn > 0;
         int totalDamage = baseDamage;
-        if (hasDiscarded)
+        if (hasExhausted)
         {
             totalDamage += bonusDamageIfDiscard;
         }
@@ -151,7 +151,7 @@ public class Attack_DunJi : CardBase
 }
 
 /// <summary>
-/// 亂流手裡劍（若無棄牌 → 固定傷害；若有棄牌 → 依棄牌數×每次傷害）
+/// 亂流手裡劍（若無消耗 → 固定傷害；若有消耗 → 依消耗數×每次傷害）
 /// </summary>
 [CreateAssetMenu(fileName = "Attack_LuanLiuShuriken", menuName = "Cards/Attack/亂流手裡劍")]
 public class Attack_LuanLiuShuriken : CardBase
@@ -168,13 +168,12 @@ public class Attack_LuanLiuShuriken : CardBase
 
     public override void ExecuteEffect(Player player, Enemy enemy)
     {
-        // hasDiscardedThisTurn：是否有棄牌行為；discardCountThisTurn：本回合棄牌次數
-        bool hasDiscarded = player.hasDiscardedThisTurn;
-        int discardCount = player.discardCountThisTurn;
-        if (discardCount < 0) discardCount = 0;
+        // exhaustCountThisTurn：本回合卡片被消耗的次數
+        int exhaustCount = player.exhaustCountThisTurn;
+        if (exhaustCount < 0) exhaustCount = 0;
 
         int totalDamage = 0;
-        if (!hasDiscarded)
+        if (exhaustCount == 0)
         {
             // 無棄牌 → 固定傷害
             totalDamage = baseDamageIfNoDiscard;
@@ -182,7 +181,7 @@ public class Attack_LuanLiuShuriken : CardBase
         else
         {
             // 有棄牌 → 次數 × 每次傷害（若計算結果 ≤0，退回固定傷害）
-            totalDamage = discardCount * baseDamagePerDiscard;
+            totalDamage = exhaustCount * baseDamagePerDiscard;
             if (totalDamage <= 0) totalDamage = baseDamageIfNoDiscard;
         }
 
@@ -231,8 +230,6 @@ public class Attack_PianShuTuXi : CardBase
                 lastCard = candidate;
                 player.Hand.RemoveAt(i);
                 player.discardPile.Add(lastCard);
-                player.hasDiscardedThisTurn = true;
-                player.discardCountThisTurn++; // 記錄本回合的棄牌次數
                 break;
             }
         }
