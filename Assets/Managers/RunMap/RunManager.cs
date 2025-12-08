@@ -832,6 +832,7 @@ public class RunManager : MonoBehaviour
         public int gold;
         public List<CardBase> deck;
         public List<CardBase> relics;
+        public List<CardBase> exhaustPile;
 
         // 從一個 Player 抓下來一份快照
         public static PlayerRunSnapshot Capture(Player source)
@@ -861,13 +862,19 @@ public class RunManager : MonoBehaviour
                 combinedDeck.AddRange(source.discardPile.Where(card => card != null));
             }
 
+            if (source.exhaustPile != null && source.exhaustPile.Count > 0)
+            {
+                combinedDeck.AddRange(source.exhaustPile.Where(card => card != null));
+            }
+
             return new PlayerRunSnapshot
             {
                 maxHP = source.maxHP,
                 currentHP = source.currentHP,
                 gold = source.gold,
                 deck = combinedDeck,
-                relics = source.relics != null ? new List<CardBase>(source.relics.Where(card => card != null)) : new List<CardBase>()
+                relics = source.relics != null ? new List<CardBase>(source.relics.Where(card => card != null)) : new List<CardBase>(),
+                exhaustPile = source.exhaustPile != null ? new List<CardBase>(source.exhaustPile.Where(card => card != null)) : new List<CardBase>()
             };
         }
 
@@ -880,7 +887,8 @@ public class RunManager : MonoBehaviour
                 currentHP = this.currentHP,
                 gold = this.gold,
                 deck = this.deck != null ? new List<CardBase>(this.deck) : new List<CardBase>(),
-                relics = this.relics != null ? new List<CardBase>(this.relics) : new List<CardBase>()
+                relics = this.relics != null ? new List<CardBase>(this.relics) : new List<CardBase>(),
+                exhaustPile = this.exhaustPile != null ? new List<CardBase>(this.exhaustPile) : new List<CardBase>()
             };
         }
     }

@@ -23,7 +23,7 @@ public class Player : MonoBehaviour
 
     [System.NonSerialized] public List<CardBase> discardPile = new List<CardBase>(); // 棄牌堆（不序列化）
 
-    [System.NonSerialized] public List<CardBase> exhaustPile = new List<CardBase>(); // 消耗牌堆（不序列化）
+    public List<CardBase> exhaustPile = new List<CardBase>(); // 消耗牌堆
      
     private readonly Dictionary<CardBase, int> cardCostModifiers = new Dictionary<CardBase, int>();
 
