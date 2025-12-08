@@ -222,12 +222,12 @@ public class BattleManager : MonoBehaviour  // 戰鬥管理器，整場戰鬥的
             return false;
         }
 
-        if (cardData is Skill_ZhiJiao && !player.HasExhaustableCardInHand())
+        if (cardData is Skill_ZhiJiao && !player.HasExhaustableCardInHand(cardData))
         {
             Debug.Log("No exhaustable cards in hand for 擲筊");
             return false;
         }
-        
+
         Enemy target = enemies.Find(e => e != null && e.currentHP > 0);
         // 這裡簡單選擇第一個仍存活的敵人作為目標（若卡片沒自己處理目標）
 

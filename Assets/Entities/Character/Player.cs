@@ -431,14 +431,25 @@ public class Player : MonoBehaviour
     /// <summary>
     /// 從手牌移除一張「可被棄掉」的卡（可隨機 / 從尾端），並回傳該卡
     /// </summary>
-    private bool TryRemoveDiscardableCardFromHand(BattleManager manager, bool randomIndex, out CardBase removedCard)
+    private bool TryRemoveDiscardableCardFromHand(BattleManager manager, bool randomIndex, out CardBase removedCard, CardBase excludedCard = null)
     {
         removedCard = null;
         if (hand.Count == 0) return false;
 
         if (manager == null)
         {
-            int index = randomIndex ? Random.Range(0, hand.Count) : hand.Count - 1;
+            List<int> candidateIndexes = new List<int>();
+            for (int i = 0; i < hand.Count; i++)
+            {
+                if (!ReferenceEquals(hand[i], excludedCard))
+                {
+                    candidateIndexes.Add(i);
+                }
+            }
+
+            if (candidateIndexes.Count == 0) return false;
+
+            int index = randomIndex ? candidateIndexes[Random.Range(0, candidateIndexes.Count)] : candidateIndexes[candidateIndexes.Count - 1];
             removedCard = hand[index];
             hand.RemoveAt(index);
             ClearCardCostModifier(removedCard);
@@ -450,7 +461,7 @@ public class Player : MonoBehaviour
             List<int> candidateIndexes = new List<int>();
             for (int i = 0; i < hand.Count; i++)
             {
-                if (!manager.IsGuaranteedMovementCard(hand[i]))
+                if (!manager.IsGuaranteedMovementCard(hand[i]) && !ReferenceEquals(hand[i], excludedCard))
                 {
                     candidateIndexes.Add(i);
                 }
@@ -468,7 +479,7 @@ public class Player : MonoBehaviour
         for (int i = hand.Count - 1; i >= 0; i--)
         {
             CardBase candidate = hand[i];
-            if (!manager.IsGuaranteedMovementCard(candidate))
+            if (!manager.IsGuaranteedMovementCard(candidate) && !ReferenceEquals(candidate, excludedCard))
             {
                 removedCard = candidate;
                 hand.RemoveAt(i);
@@ -483,17 +494,18 @@ public class Player : MonoBehaviour
     /// <summary>
     /// 檢查手牌中是否有可以被消耗的卡（排除保證移動卡）
     /// </summary>
-    public bool HasExhaustableCardInHand()
+    /// <param name="excludedCard">若傳入，檢查時會排除這張卡</param>
+    public bool HasExhaustableCardInHand(CardBase excludedCard = null)
     {
         BattleManager manager = FindObjectOfType<BattleManager>();
         if (manager == null)
         {
-            return hand.Count > 0;
+            return hand.Exists(card => !ReferenceEquals(card, excludedCard));
         }
 
         foreach (CardBase card in hand)
         {
-            if (!manager.IsGuaranteedMovementCard(card))
+            if (!manager.IsGuaranteedMovementCard(card) && !ReferenceEquals(card, excludedCard))
             {
                 return true;
             }
@@ -584,10 +596,10 @@ public class Player : MonoBehaviour
     /// <summary>
     /// 查詢本回合是否有卡片被消耗（供其他效果判斷）
     /// </summary>
-    public bool ExhaustRandomCardFromHand()
+    public bool ExhaustRandomCardFromHand(CardBase excludedCard = null)
     {
         BattleManager manager = FindObjectOfType<BattleManager>();
-        if (!TryRemoveDiscardableCardFromHand(manager, true, out CardBase removedCard))
+        if (!TryRemoveDiscardableCardFromHand(manager, true, out CardBase removedCard, excludedCard))
         {
             return false;
         }

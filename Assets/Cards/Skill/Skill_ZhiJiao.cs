@@ -23,7 +23,7 @@ public class Skill_ZhiJiao : CardBase
 
         for (int i = 0; i < randomExhaustCount; i++)
         {
-            if (!player.ExhaustRandomCardFromHand())
+            if (!player.ExhaustRandomCardFromHand(this))
             {
                 break;
             }

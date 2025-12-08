@@ -8304,21 +8304,10 @@ MonoBehaviour:
   block: 0
   gold: 50
   baseHandCardCount: 4
-  deck:
-  - {fileID: 11400000, guid: 11d3cc5377d2ef3459a4b4380becefff, type: 2}
-  - {fileID: 11400000, guid: 11d3cc5377d2ef3459a4b4380becefff, type: 2}
-  - {fileID: 11400000, guid: a58c41531431ead4ebb45b0f3f038cbc, type: 2}
-  - {fileID: 11400000, guid: a58c41531431ead4ebb45b0f3f038cbc, type: 2}
-  - {fileID: 11400000, guid: 4fd70894f3d5cb54388922c21a1e3c60, type: 2}
-  - {fileID: 11400000, guid: 4fd70894f3d5cb54388922c21a1e3c60, type: 2}
-  - {fileID: 11400000, guid: 4b17aca886ce6ff488b11e95c1291b15, type: 2}
-  - {fileID: 11400000, guid: 4b17aca886ce6ff488b11e95c1291b15, type: 2}
-  - {fileID: 11400000, guid: 4b17aca886ce6ff488b11e95c1291b15, type: 2}
-  - {fileID: 11400000, guid: 4b17aca886ce6ff488b11e95c1291b15, type: 2}
+  deck: []
+  exhaustPile: []
   relics: []
-  hasDiscardedThisTurn: 0
-  discardCountThisTurn: 0
-  attackUsedThisTurn: 0
+  exhaustCountThisTurn: 0
   position: {x: 0, y: 0}
   buffs:
     damageTakenRatio: 1

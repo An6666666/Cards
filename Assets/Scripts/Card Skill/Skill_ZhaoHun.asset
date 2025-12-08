@@ -14,7 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   cardName: "\u62DB\u9B42"
   cost: 0
-  description: "\u6D88\u8017\u9019\u5F35\u724C\uFF0C\u8B93\u624B\u724C\u7684\u724C\u80FD\u91CF\u6D88\u8017\u90FD\u6E1B1\u9EDE"
+  description: "\u6D88\u8017\u9019\u5F35\u724C\uFF0C\u8B93\u7576\u524D\u624B\u724C\u7684\u724C\u80FD\u91CF\u6D88\u8017\u90FD\u6E1B1\u9EDE"
   cardImage: {fileID: 21300000, guid: 730b05fc30ef11345bb75ad9f80951e5, type: 3}
   exhaustOnUse: 1
+  shopPrice: 0
   cardType: 1

@@ -12,14 +12,20 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4e2e4e4aa66ec094aba295e73cf51a1a, type: 3}
   m_Name: Attack_RanJinShu_Wood
   m_EditorClassIdentifier: 
-  cardName: 
-  cost: 0
-  description: 
-  cardImage: {fileID: 0}
-  exhaustOnUse: 0
-  shopPrice: 0
+  cardName: " \u71C3\u76E1\u8853\u6728"
+  cost: 1
+  description: "\u6728\u5143\u7D2010\u9EDE\u55AE\u9AD4\u50B7\u5BB3\uFF0C\u6D88\u8017\u5F35\u724C"
+  cardImage: {fileID: 21300000, guid: d59825fd065379c43a4d9f0fb974ad2d, type: 3}
+  exhaustOnUse: 1
+  shopPrice: 5
   cardType: 0
-  rangeOffsets: []
+  rangeOffsets:
+  - {x: -2, y: 0}
+  - {x: 2, y: 0}
+  - {x: -1, y: -2}
+  - {x: 1, y: -2}
+  - {x: -1, y: 2}
+  - {x: 1, y: 2}
   damage: 10
-  hitEffectPrefab: {fileID: 0}
-  elementType: 0
+  hitEffectPrefab: {fileID: 4707066954145857473, guid: 1ff751b8832b3da42af3757d9d065a97, type: 3}
+  elementType: 4
