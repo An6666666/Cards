@@ -1,6 +1,8 @@
 // Assets/Managers/UIManager.cs
 // 使用 UIFxController 的「滑入 + 淡入」效果；完全移除按鈕彈跳呼叫
+using System;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 public class UIManager : MonoBehaviour
@@ -32,6 +34,8 @@ public class UIManager : MonoBehaviour
 
     private void Awake()
     {
+        EnsureNotDontDestroyOnLoad();
+        AutoBindIfMissing();
         // 開場先關閉（交給控制器顯示）
         if (rulePanel) rulePanel.SetActive(false);
         if (settingsPanel) settingsPanel.SetActive(false);
@@ -49,6 +53,30 @@ public class UIManager : MonoBehaviour
         UpdateCounterUI();
     }
 
+    private void OnEnable()
+    {
+        EnsureNotDontDestroyOnLoad();
+        AutoBindIfMissing();
+        // 每次重新啟用（例如進入新關卡時）都重置顯示狀態，避免沿用上一關的互動與透明度
+        showingDeck = true;
+        if (deckPanel) UIFxController.Instance?.HidePanel(deckPanel);
+        if (discardPanel) UIFxController.Instance?.HidePanel(discardPanel);
+        UpdateCounterUI();
+    }
+    
+    /// <summary>
+    /// UIManager 不需要跨場景保留；若被放入 DontDestroyOnLoad 場景則搬回目前場景，
+    /// 以避免在換關時沿用舊的 UI 物件。
+    /// </summary>
+    private void EnsureNotDontDestroyOnLoad()
+    {
+        var activeScene = SceneManager.GetActiveScene();
+        if (gameObject.scene.name == "DontDestroyOnLoad" && activeScene.IsValid())
+        {
+            SceneManager.MoveGameObjectToScene(gameObject, activeScene);
+        }
+    }
+    
     private void WireUpButtons()
     {
         if (settingsButton != null)
@@ -98,6 +126,68 @@ public class UIManager : MonoBehaviour
             ruleCloseButton.onClick.RemoveAllListeners();
             ruleCloseButton.onClick.AddListener(CloseRulePanel);
         }
+    }
+
+    private void AutoBindIfMissing()
+    {
+        var rootObjects = gameObject.scene.IsValid() && gameObject.scene.isLoaded
+            ? gameObject.scene.GetRootGameObjects()
+            : null;
+
+        Transform Search(string keyword)
+        {
+            if (string.IsNullOrEmpty(keyword)) return null;
+            if (rootObjects != null)
+            {
+                foreach (var go in rootObjects)
+                {
+                    var found = FindChildContains(go.transform, keyword);
+                    if (found != null) return found;
+                }
+            }
+            return FindChildContains(transform, keyword);
+        }
+
+        Button FindButton(string keyword) => FindComponentInChildren<Button>(keyword);
+
+        rulePanel ??= Search("Rule")?.gameObject;
+        settingsPanel ??= Search("Setting")?.gameObject ?? Search("設定")?.gameObject;
+        deckPanel ??= Search("Deck")?.gameObject ?? Search("牌庫")?.gameObject;
+        discardPanel ??= Search("Discard")?.gameObject ?? Search("棄牌")?.gameObject;
+
+        settingsButton ??= FindButton("Setting");
+        ruleButton ??= FindButton("Rule");
+        switchDeckDiscardButton ??= FindButton("Switch") ?? FindButton("切換");
+        deckCounterButton ??= FindButton("Deck");
+        discardCounterButton ??= FindButton("Discard") ?? FindButton("棄牌");
+
+        ruleImage ??= FindComponentInChildren<Image>("Rule");
+        ruleNextButton ??= FindButton("Next") ?? FindButton("下一頁");
+        rulePrevButton ??= FindButton("Prev") ?? FindButton("上一頁");
+        ruleCloseButton ??= FindButton("Close") ?? FindButton("關閉");
+    }
+
+    private T FindComponentInChildren<T>(string keyword) where T : Component
+    {
+        var comps = GetComponentsInChildren<T>(true);
+        foreach (var c in comps)
+        {
+            if (string.IsNullOrEmpty(keyword) || c.name.IndexOf(keyword, StringComparison.OrdinalIgnoreCase) >= 0)
+                return c;
+        }
+        return null;
+    }
+
+    private Transform FindChildContains(Transform parent, string keyword)
+    {
+        if (parent == null || string.IsNullOrEmpty(keyword)) return null;
+        if (parent.name.IndexOf(keyword, StringComparison.OrdinalIgnoreCase) >= 0) return parent;
+        for (int i = 0; i < parent.childCount; i++)
+        {
+            var found = FindChildContains(parent.GetChild(i), keyword);
+            if (found != null) return found;
+        }
+        return null;
     }
 
     // ========================
@@ -159,6 +249,9 @@ public class UIManager : MonoBehaviour
             UIFxController.Instance?.FadeSwapButtons(deckCounterButton, discardCounterButton);
         else
             UIFxController.Instance?.FadeSwapButtons(discardCounterButton, deckCounterButton);
+        
+        // 重新套用互動性與顯示狀態，避免在切換後的關卡中按鈕被隱藏/禁用而無法點擊
+        UpdateCounterUI();
 
         // 切換時關掉兩個 Panel
         if (deckPanel) UIFxController.Instance?.HidePanel(deckPanel);

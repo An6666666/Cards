@@ -1,7 +1,8 @@
+using System;
 using System.Collections.Generic;
+using DeckUI;
 using UnityEngine;
 using UnityEngine.UI;
-using DeckUI;
 
 public class DeckDiscardPanelView : MonoBehaviour
 {
@@ -31,32 +32,32 @@ public class DeckDiscardPanelView : MonoBehaviour
     }
 
     private CardIconItem GetItem(Transform parent)
-{
-    CardIconItem item = _pool.Count > 0 ? _pool.Dequeue() : Instantiate(cardItemPrefab);
-
-    // 一律先設父物件
-    item.transform.SetParent(parent, false);
-
-    // 嘗試取得 RectTransform；若沒有就用 Transform 退而求其次
-    var rt = item.transform as RectTransform;
-    if (rt != null)
     {
-        // UI 佈局情境
-        rt.localScale = Vector3.one;
-        rt.anchoredPosition3D = Vector3.zero;
-        rt.offsetMin = Vector2.zero;
-        rt.offsetMax = Vector2.zero;
-    }
-    else
-    {
-        // 非 UI 佈局（你的根是空物件 Transform）
-        item.transform.localScale = Vector3.one;
-        item.transform.localPosition = Vector3.zero;
-    }
+        CardIconItem item = _pool.Count > 0 ? _pool.Dequeue() : Instantiate(cardItemPrefab);
 
-    item.gameObject.SetActive(true);
-    return item;
-}
+        // 一律先設父物件
+        item.transform.SetParent(parent, false);
+
+        // 嘗試取得 RectTransform；若沒有就用 Transform 退而求其次
+        var rt = item.transform as RectTransform;
+        if (rt != null)
+        {
+            // UI 佈局情境
+            rt.localScale = Vector3.one;
+            rt.anchoredPosition3D = Vector3.zero;
+            rt.offsetMin = Vector2.zero;
+            rt.offsetMax = Vector2.zero;
+        }
+        else
+        {
+            // 非 UI 佈局（你的根是空物件 Transform）
+            item.transform.localScale = Vector3.one;
+            item.transform.localPosition = Vector3.zero;
+        }
+
+        item.gameObject.SetActive(true);
+        return item;
+    }
 
 
     private void ReturnAll(Transform parent)
@@ -73,25 +74,26 @@ public class DeckDiscardPanelView : MonoBehaviour
     }
 
     private void OnEnable()
+    {
+        AutoBindIfMissing();
+        DeckUIBus.Register(this);
+        // 可選：一啟用就嘗試自刷一次
+        var p = GameObject.FindObjectOfType<Player>();
+        if (p != null)
         {
-            DeckUIBus.Register(this);
-            // 可選：一啟用就嘗試自刷一次
-            var p = GameObject.FindObjectOfType<Player>();
-            if (p != null)
-            {
-                if (p.deck != null) RefreshDeck(p.deck);
-                if (p.discardPile != null) RefreshDiscard(p.discardPile);
-            }
-            // Debug
-            // Debug.Log($"[DeckDiscardPanelView] Registered. Total views={DeckUIBus.ViewCount}");
+            if (p.deck != null) RefreshDeck(p.deck);
+            if (p.discardPile != null) RefreshDiscard(p.discardPile);
         }
+        // Debug
+        // Debug.Log($"[DeckDiscardPanelView] Registered. Total views={DeckUIBus.ViewCount}");
+    }
 
-        private void OnDisable()
-        {
-            DeckUIBus.Unregister(this);
-            // Debug
-            // Debug.Log($"[DeckDiscardPanelView] Unregistered. Total views={DeckUIBus.ViewCount}");
-        }
+    private void OnDisable()
+    {
+        DeckUIBus.Unregister(this);
+        // Debug
+        // Debug.Log($"[DeckDiscardPanelView] Unregistered. Total views={DeckUIBus.ViewCount}");
+    }
 
 
     public void RefreshDeck(List<CardBase> deck)
@@ -122,5 +124,54 @@ public class DeckDiscardPanelView : MonoBehaviour
 
     }
 
+    private void AutoBindIfMissing()
+    {
+        var rootObjects = gameObject.scene.IsValid() && gameObject.scene.isLoaded
+            ? gameObject.scene.GetRootGameObjects()
+            : null;
+
+        Transform Search(string keyword)
+        {
+            if (string.IsNullOrEmpty(keyword)) return null;
+            if (rootObjects != null)
+            {
+                foreach (var go in rootObjects)
+                {
+                    var found = FindChildContains(go.transform, keyword);
+                    if (found != null) return found;
+                }
+            }
+            return FindChildContains(transform, keyword);
+        }
+
+        deckContent ??= Search("Deck") ?? Search("牌庫");
+        discardContent ??= Search("Discard") ?? Search("棄牌");
+        cardItemPrefab ??= FindComponentInChildren<CardIconItem>("Card") ?? FindComponentInChildren<CardIconItem>(string.Empty);
+    }
+
+    private Transform FindChildContains(Transform parent, string keyword)
+    {
+        if (parent == null || string.IsNullOrEmpty(keyword)) return null;
+        if (parent.name.IndexOf(keyword, StringComparison.OrdinalIgnoreCase) >= 0) return parent;
+        for (int i = 0; i < parent.childCount; i++)
+        {
+            var found = FindChildContains(parent.GetChild(i), keyword);
+            if (found != null) return found;
+        }
+        return null;
+    }
+
+    private T FindComponentInChildren<T>(string keyword) where T : Component
+    {
+        var comps = GetComponentsInChildren<T>(true);
+        foreach (var c in comps)
+        {
+            if (string.IsNullOrEmpty(keyword) || c.name.IndexOf(keyword, StringComparison.OrdinalIgnoreCase) >= 0)
+                return c;
+        }
+        return null;
+    }
+
 }
+
 

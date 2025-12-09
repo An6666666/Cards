@@ -6627,7 +6627,7 @@ MonoBehaviour:
   endTurnButton: {fileID: 2116894243}
   enemySpawnConfigs:
   - enemyPrefab: {fileID: 4204690724760053818, guid: 87fab54ae39d11f449187455258a17cc, type: 3}
-    count: 1
+    count: 5
   playerStartPos: {x: 0, y: 0}
   guaranteedMovementCard: {fileID: 11400000, guid: 105c7f2659020eb478d2fc42c9d7276e, type: 2}
   allCardPool:
@@ -7959,7 +7959,7 @@ SpriteRenderer:
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 632128979
-  m_SortingLayer: 3
+  m_SortingLayer: 5
   m_SortingOrder: 56
   m_Sprite: {fileID: 21300000, guid: 7ddc178422ea6194cbdd1f81820d5761, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
@@ -8397,11 +8397,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   deck:
-  - {fileID: 11400000, guid: 11d3cc5377d2ef3459a4b4380becefff, type: 2}
-  - {fileID: 11400000, guid: 11d3cc5377d2ef3459a4b4380becefff, type: 2}
-  - {fileID: 11400000, guid: 11d3cc5377d2ef3459a4b4380becefff, type: 2}
-  - {fileID: 11400000, guid: 11d3cc5377d2ef3459a4b4380becefff, type: 2}
-  - {fileID: 11400000, guid: 11d3cc5377d2ef3459a4b4380becefff, type: 2}
+  - {fileID: 11400000, guid: feba486c5bd8d53448c1a549d4e83245, type: 2}
+  - {fileID: 11400000, guid: feba486c5bd8d53448c1a549d4e83245, type: 2}
+  - {fileID: 11400000, guid: feba486c5bd8d53448c1a549d4e83245, type: 2}
+  - {fileID: 11400000, guid: feba486c5bd8d53448c1a549d4e83245, type: 2}
+  - {fileID: 11400000, guid: feba486c5bd8d53448c1a549d4e83245, type: 2}
   hand: []
   discardPile: []
   exhaustPile: []
@@ -8423,7 +8423,7 @@ MonoBehaviour:
   maxEnergy: 4
   energy: 0
   block: 0
-  gold: 0
+  gold: 98
 --- !u!114 &1848671833
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -9729,6 +9729,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 985692099}
     m_Modifications:
+    - target: {fileID: 1875879443906890754, guid: eacfe748df31fe649bac4cba447f47e8, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 2733580285815805351, guid: eacfe748df31fe649bac4cba447f47e8, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
@@ -9767,6 +9771,10 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2733580285815805351, guid: eacfe748df31fe649bac4cba447f47e8, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4656575721212004946, guid: eacfe748df31fe649bac4cba447f47e8, type: 3}
+      propertyPath: m_IsActive
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4939836915775690191, guid: eacfe748df31fe649bac4cba447f47e8, type: 3}
