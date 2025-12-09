@@ -4,11 +4,15 @@ using UnityEngine;
 [RequireComponent(typeof(PlayerBuffController))]
 public class PlayerDeckController : MonoBehaviour
 {
-    [Header("牌堆管理")]
-    [SerializeField] private List<CardBase> deck = new List<CardBase>();
-    [SerializeField] private List<CardBase> hand = new List<CardBase>();
-    [SerializeField] private List<CardBase> discardPile = new List<CardBase>();
-    [SerializeField] private List<CardBase> exhaustPile = new List<CardBase>();
+    [Header("起始卡組設定")]
+    [SerializeField] private List<CardBase> startingDeck = new List<CardBase>();
+    [SerializeField] private List<CardBase> debugStartingDeck = new List<CardBase>();
+    [SerializeField] private bool useDebugDeck = false;
+
+    private List<CardBase> deck = new List<CardBase>();
+    private List<CardBase> hand = new List<CardBase>();
+    private List<CardBase> discardPile = new List<CardBase>();
+    private List<CardBase> exhaustPile = new List<CardBase>();
 
     private readonly Dictionary<CardBase, int> cardCostModifiers = new Dictionary<CardBase, int>();
 
@@ -31,9 +35,28 @@ public class PlayerDeckController : MonoBehaviour
     {
         owner = player;
         buffController = buffs;
+        InitializeDeckFromStartingLists();
         ShuffleDeck();
     }
+    
+    private void InitializeDeckFromStartingLists()
+    {
+        List<CardBase> selectedDeck = startingDeck;
 
+#if UNITY_EDITOR
+        if (useDebugDeck && debugStartingDeck != null && debugStartingDeck.Count > 0)
+        {
+            selectedDeck = debugStartingDeck;
+        }
+#endif
+
+        deck = selectedDeck != null ? new List<CardBase>(selectedDeck) : new List<CardBase>();
+        hand.Clear();
+        discardPile.Clear();
+        exhaustPile.Clear();
+        cardCostModifiers.Clear();
+    }
+    
     public void StartTurn(int baseHandCardCount)
     {
         exhaustCountThisTurn = 0;
