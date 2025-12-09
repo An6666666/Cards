@@ -5,10 +5,10 @@ using UnityEngine;
 public class PlayerDeckController : MonoBehaviour
 {
     [Header("牌堆管理")]
-    [SerializeField, HideInInspector] private List<CardBase> deck = new List<CardBase>();
-    [SerializeField, HideInInspector] private List<CardBase> hand = new List<CardBase>();
-    [SerializeField, HideInInspector] private List<CardBase> discardPile = new List<CardBase>();
-    [SerializeField, HideInInspector] private List<CardBase> exhaustPile = new List<CardBase>();
+    [SerializeField] private List<CardBase> deck = new List<CardBase>();
+    [SerializeField] private List<CardBase> hand = new List<CardBase>();
+    [SerializeField] private List<CardBase> discardPile = new List<CardBase>();
+    [SerializeField] private List<CardBase> exhaustPile = new List<CardBase>();
 
     private readonly Dictionary<CardBase, int> cardCostModifiers = new Dictionary<CardBase, int>();
 
@@ -22,7 +22,7 @@ public class PlayerDeckController : MonoBehaviour
         get => deck;
         set => deck = value ?? new List<CardBase>();
     }
-    
+
     public List<CardBase> Hand => hand;
     public List<CardBase> DiscardPile => discardPile;
     public List<CardBase> ExhaustPile => exhaustPile;

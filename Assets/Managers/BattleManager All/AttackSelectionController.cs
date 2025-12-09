@@ -12,6 +12,7 @@ public class AttackSelectionController          // 負責「攻擊目標選取�
     private readonly List<Enemy> validEnemies = new List<Enemy>();
     // 可作為攻擊目標的敵人列表（不主動高亮）
     private Enemy currentHighlightedEnemy = null;           // 當前滑鼠瞄準並高亮的敵人
+    private readonly List<Enemy> areaHighlightedEnemies = new List<Enemy>();
     private readonly List<BoardTile> highlightedTiles = new List<BoardTile>();
     // 顯示攻擊範圍的棋盤格子高亮
 
@@ -162,15 +163,48 @@ public class AttackSelectionController          // 負責「攻擊目標選取�
 
         ClearCurrentEnemyHighlight();                     // 先清除舊的高亮
         currentHighlightedEnemy = enemy;                  // 更新目前高亮的敵人
-        currentHighlightedEnemy.SetHighlight(true);       // 只高亮目前滑鼠瞄準的敵人
+        Attack_TianFa tianFaCard = currentAttackCard as Attack_TianFa; // 判斷是否為天罰範圍攻擊
+        if (tianFaCard != null)
+        {
+            HighlightAreaTargets(enemy, tianFaCard.effectRadius); // 高亮所有會被範圍命中的敵人
+        }
+        else
+        {
+            currentHighlightedEnemy.SetHighlight(true);  // 單體攻擊只高亮目前瞄準的敵人
+            areaHighlightedEnemies.Add(currentHighlightedEnemy);
+        }
     }
 
     private void ClearCurrentEnemyHighlight()
     {
-        if (currentHighlightedEnemy != null)
+        foreach (Enemy highlightedEnemy in areaHighlightedEnemies)
         {
-            currentHighlightedEnemy.SetHighlight(false);  // 關閉高亮
-            currentHighlightedEnemy = null;               // 清空記錄
+            if (highlightedEnemy != null)
+            {
+                highlightedEnemy.SetHighlight(false);    // 關閉高亮
+            }
+        }
+
+        areaHighlightedEnemies.Clear();
+        currentHighlightedEnemy = null;                   // 清空記錄
+    }
+
+    private void HighlightAreaTargets(Enemy centerEnemy, float radius)
+    {
+        if (centerEnemy == null) return;
+
+        Vector2Int center = centerEnemy.gridPosition;
+        Enemy[] allEnemies = Object.FindObjectsOfType<Enemy>();
+
+        foreach (Enemy target in allEnemies)
+        {
+            if (target == null) continue;
+
+            float distance = Vector2Int.Distance(center, target.gridPosition);
+            if (target != centerEnemy && distance > radius) continue; // 同 ExecuteEffect 判斷方式
+
+            target.SetHighlight(true);
+            areaHighlightedEnemies.Add(target);
         }
     }
 }

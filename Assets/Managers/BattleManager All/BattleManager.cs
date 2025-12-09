@@ -331,11 +331,9 @@ public class BattleManager : MonoBehaviour  // 戰鬥管理器，整場戰鬥的
         Move_YiDong movementCard = guaranteedMovementCardInstance;
         // 取得保證移動卡的實例（若有）
 
-        bool hadGuaranteedCard = false;                    // 記錄手牌裡是否原本有保證移動卡
-
         if (movementCard != null)
         {
-            hadGuaranteedCard = player.Hand.Remove(movementCard);
+            player.Hand.Remove(movementCard);
             // 先從手牌中移除保證移動卡（如果存在）
 
             player.discardPile.Remove(movementCard);
@@ -347,12 +345,6 @@ public class BattleManager : MonoBehaviour  // 戰鬥管理器，整場戰鬥的
 
         player.Hand.Clear();
         // 清空手牌列表
-
-        if (hadGuaranteedCard)
-        {
-            player.Hand.Add(movementCard);
-            // 若原本有保證卡，結束時再重新放回手牌（使其不會被棄掉）
-        }
 
         RemoveGuaranteedMovementCardFromPiles();
         // 重新清理牌庫與棄牌堆中所有 YiDong（防止殘留）
