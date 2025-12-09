@@ -32,7 +32,6 @@ public class PlayerStats : MonoBehaviour
 
     public void StartTurn()
     {
-        block = 0;
         energy = maxEnergy;
 
         RaiseEnergyChanged();

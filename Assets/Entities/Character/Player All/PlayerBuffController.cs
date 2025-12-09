@@ -15,6 +15,7 @@ public class PlayerBuffController : MonoBehaviour
     public int imprison = 0;
     public int nextTurnAllAttackPlus = 0;
     public bool drawBlockedThisTurn = false;
+    public int blockGainAtTurnEnd = 0;
 
     [SerializeField, HideInInspector] private int weakFromEnemies = 0;
     [SerializeField, HideInInspector] private int bleedFromEnemies = 0;
@@ -30,6 +31,11 @@ public class PlayerBuffController : MonoBehaviour
     public void OnTurnEndReset(Player owner)
     {
         damageTakenRatio = 1.0f;
+
+        if (owner != null && blockGainAtTurnEnd > 0)
+        {
+            owner.AddBlock(blockGainAtTurnEnd);
+        }
 
         if (owner != null && bleed > 0)
         {
@@ -166,5 +172,6 @@ public class PlayerBuffController : MonoBehaviour
         weakFromEnemies = 0;
         bleedFromEnemies = 0;
         imprisonFromEnemies = 0;
+        blockGainAtTurnEnd = 0;
     }
 }
