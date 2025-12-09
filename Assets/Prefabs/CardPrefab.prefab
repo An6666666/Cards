@@ -141,7 +141,7 @@ MonoBehaviour:
   cardImage: {fileID: 9099820290413732922}
   cardData: {fileID: 0}
   originalParent: {fileID: 0}
-  draggingAlpha: 0.5
+  draggingAlpha: 0.2
   hoverMoveDistance: 80
   hoverGlowImage: {fileID: 4058666933160878638}
   hoverGlowColor: {r: 0.16078427, g: 0.972549, b: 0.9641703, a: 0.9019608}

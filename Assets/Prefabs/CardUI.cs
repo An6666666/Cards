@@ -216,7 +216,10 @@ public class CardUI : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHa
         if (battleManager != null && cardData != null)
         {
             if (cardData.cardType == CardType.Attack)        // 若是攻擊卡
+            {
                 battleManager.StartAttackSelect(cardData);   // 進入選擇攻擊目標模式
+                battleManager.UpdateAttackHover(GetWorldPosition(eventData)); // 同步目前拖曳點的瞄準狀態
+            }
             else if (cardData.cardType == CardType.Movement) // 若是移動卡
                 battleManager.UseMovementCard(cardData);     // 立即觸發移動卡的使用流程（進入選格狀態）
         }
@@ -229,52 +232,54 @@ public class CardUI : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHa
         if (!interactable || !allowDragging) return;         // 若不能互動或不允許拖曳就直接返回
         float scaleFactor = canvas != null ? canvas.scaleFactor : 1f; // 取 Canvas 縮放比例
         rectTransform.anchoredPosition += eventData.delta / scaleFactor; // 依照滑鼠移動距離更新錨點位置（除以 scaleFactor 修正）
+
+        if (cardData != null && cardData.cardType == CardType.Attack && battleManager != null)
+        {
+            battleManager.UpdateAttackHover(GetWorldPosition(eventData)); // 拖曳中更新攻擊瞄準高亮
+        }
     }
 
     public void OnEndDrag(PointerEventData eventData)
-{
-    if (!interactable || !allowDragging) return;             // 若不能互動或不允許拖曳就直接返回
-    if (canvasGroup != null) canvasGroup.blocksRaycasts = true; // 結束拖曳後恢復阻擋 Raycast
-
-    isDragging = false;                                      // 標記拖曳結束
-
-    if (battleManager == null)
-        battleManager = FindObjectOfType<BattleManager>();   // 確認 battleManager 存在
-
-    Camera targetCamera = mainCamera != null ? mainCamera : Camera.main; // 確認要用的相機
-    Vector2 worldPos = targetCamera != null
-        ? targetCamera.ScreenToWorldPoint(eventData.position) // 將滑鼠座標轉為世界座標
-        : eventData.position;
-
-    Collider2D hit = Physics2D.OverlapPoint(worldPos);       // 用世界座標檢查碰到哪個 2D Collider
-    bool used = false;                                       // 記錄是否成功用出這張卡
-
-    if (battleManager != null && cardData != null)
     {
-        if (cardData.cardType == CardType.Attack)            // 攻擊卡：嘗試打到敵人
-            used = HandleAttackDrop(hit);
-        else if (cardData.cardType == CardType.Movement)     // 移動卡：嘗試落在可移動的格子
-            used = HandleMovementDrop(hit);
-        else if (cardData.cardType == CardType.Skill)        // 技能卡：目前邏輯是針對 player 自身
-            used = HandleSkillDrop(hit);
-    }
+        if (!interactable || !allowDragging) return;         // 若不能互動或不允許拖曳就直接返回
+        if (canvasGroup != null) canvasGroup.blocksRaycasts = true; // 結束拖曳後恢復阻擋 Raycast
 
-    if (used)
-    {
-        // 成功使用：等一幀刷新 Deck/Discard，再銷毀這張卡的 UI
-        StartCoroutine(ConsumeAndRefreshThenDestroy());      // 啟動協程：先刷新 UI，再 Destroy 這張卡 UI
+        isDragging = false;                                  // 標記拖曳結束
 
-        FadeCardAlpha(originalAlpha, instant: true);         // 立即恢復原本透明度（避免閃一下）
-        if (layoutElement != null) layoutElement.ignoreLayout = false; // 回復 Layout 控制
-        DestroyPlaceholder();                                // 把 placeholder 刪掉
-        return; // 重要：避免繼續往下執行                      // 結束方法，不再執行回手的邏輯
+        if (battleManager == null)
+            battleManager = FindObjectOfType<BattleManager>();   // 確認 battleManager 存在
+
+        Vector2 worldPos = GetWorldPosition(eventData);          // 將滑鼠座標轉為世界座標
+
+        Collider2D hit = Physics2D.OverlapPoint(worldPos);       // 用世界座標檢查碰到哪個 2D Collider
+        bool used = false;                                       // 記錄是否成功用出這張卡
+
+        if (battleManager != null && cardData != null)
+        {
+            if (cardData.cardType == CardType.Attack)            // 攻擊卡：嘗試打到敵人
+                used = HandleAttackDrop(hit);
+            else if (cardData.cardType == CardType.Movement)     // 移動卡：嘗試落在可移動的格子
+                used = HandleMovementDrop(hit);
+            else if (cardData.cardType == CardType.Skill)        // 技能卡：目前邏輯是針對 player 自身
+                used = HandleSkillDrop(hit);
+        }
+
+        if (used)
+        {
+            // 成功使用：等一幀刷新 Deck/Discard，再銷毀這張卡的 UI
+            StartCoroutine(ConsumeAndRefreshThenDestroy());      // 啟動協程：先刷新 UI，再 Destroy 這張卡 UI
+
+            FadeCardAlpha(originalAlpha, instant: true);         // 立即恢復原本透明度（避免閃一下）
+            if (layoutElement != null) layoutElement.ignoreLayout = false; // 回復 Layout 控制
+            DestroyPlaceholder();                                // 把 placeholder 刪掉
+            return; // 重要：避免繼續往下執行                      // 結束方法，不再執行回手的邏輯
+        }
+        else
+        {
+            // 失敗或未命中：卡片回到手牌原位
+            ReturnToHand();                                      // 沒用出卡，就回到原手牌位置
+        }
     }
-    else
-    {
-        // 失敗或未命中：卡片回到手牌原位
-        ReturnToHand();                                      // 沒用出卡，就回到原手牌位置
-    }
-}
 
     #endregion
 
@@ -768,7 +773,15 @@ public class CardUI : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHa
         return playerReference.Hand.Contains(cardData);            // 檢查這張 cardData 是否存在於玩家手牌中
     }
 
-     private void CreatePlaceholder()
+    private Vector2 GetWorldPosition(PointerEventData eventData)
+    {
+        Camera targetCamera = mainCamera != null ? mainCamera : Camera.main; // 確認要用的相機
+        return targetCamera != null
+            ? (Vector2)targetCamera.ScreenToWorldPoint(eventData.position) // 將滑鼠座標轉為世界座標
+            : eventData.position;
+    }
+    
+    private void CreatePlaceholder()
     {
         if (placeholder != null || originalParent == null) return; // 若已經有 placeholder 或 parent 是 null，就不用再建
 

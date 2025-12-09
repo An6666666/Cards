@@ -167,6 +167,12 @@ public class BattleManager : MonoBehaviour  // 戰鬥管理器，整場戰鬥的
         // 敵人被點擊時，交由 AttackSelectionController 判斷是否為有效攻擊目標並執行效果
     }
 
+    public void UpdateAttackHover(Vector2 worldPosition)
+    {
+        attackSelectionController.UpdateAttackHover(worldPosition);
+        // 拖曳攻擊卡時，更新滑鼠瞄準目標的高亮與狀態
+    }
+
     public void EndAttackSelect()
     {
         attackSelectionController.EndAttackSelect();
@@ -433,9 +439,8 @@ public class BattleManager : MonoBehaviour  // 戰鬥管理器，整場戰鬥的
             handUIController);                             // 用來在移動時更新 UI 或鎖卡互動
 
         attackSelectionController = new AttackSelectionController(
-            this,                                          // BattleManager
             player,                                        // 玩家
-            enemies,                                       // 敵人列表
+            board,                                         // 棋盤（攻擊範圍高亮）
             handUIController);                             // 用來在攻擊後更新手牌 UI
 
         rewardController = new BattleRewardController(

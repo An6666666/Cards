@@ -3,25 +3,25 @@ using UnityEngine;                             // 引用 Unity 引擎相關類�
 
 public class AttackSelectionController          // 負責「攻擊目標選取」邏輯的控制類
 {
-    private readonly BattleManager battleManager;           // 戰鬥管理器參考，用來呼叫戰鬥相關流程
     private readonly Player player;                         // 玩家物件參考
-    private readonly List<Enemy> enemies;                   // 場上所有敵人的列表參考
+    private readonly Board board;                           // 棋盤參考，用來顯示攻擊範圍
     private readonly BattleHandUIController handUIController; // 管理手牌 UI 的控制器參考
 
     private bool isSelectingAttackTarget = false;           // 是否正在選擇攻擊目標的狀態旗標
     private CardBase currentAttackCard = null;              // 目前準備要執行攻擊的那張卡牌資料
-    private readonly List<Enemy> highlightedEnemies = new List<Enemy>();
-    // 被高亮顯示、可作為攻擊目標的敵人列表
+    private readonly List<Enemy> validEnemies = new List<Enemy>();
+    // 可作為攻擊目標的敵人列表（不主動高亮）
+    private Enemy currentHighlightedEnemy = null;           // 當前滑鼠瞄準並高亮的敵人
+    private readonly List<BoardTile> highlightedTiles = new List<BoardTile>();
+    // 顯示攻擊範圍的棋盤格子高亮
 
     public AttackSelectionController(
-        BattleManager battleManager,
         Player player,
-        List<Enemy> enemies,
+        Board board,
         BattleHandUIController handUIController)
     {
-        this.battleManager = battleManager;                 // 建構子注入戰鬥管理器
         this.player = player;                               // 注入玩家
-        this.enemies = enemies;                             // 注入敵人列表
+        this.board = board;                                 // 注入棋盤
         this.handUIController = handUIController;           // 注入手牌 UI 控制器
     }
 
@@ -51,13 +51,14 @@ public class AttackSelectionController          // 負責「攻擊目標選取�
                 new Vector2Int(-1,1), new Vector2Int(-1,-1)// 左上、左下
             };
 
-        HighlightEnemiesWithOffsets(player.position, offs); // 依照偏移列表，去找並高亮可攻擊的敵人
+        CacheValidEnemiesWithOffsets(player.position, offs); // 依照偏移列表，蒐集可攻擊的敵人
+        HighlightTilesWithOffsets(player.position, offs);    // 以棋盤格高亮顯示攻擊範圍
     }
 
     public bool OnEnemyClicked(Enemy e)
     {
         if (!isSelectingAttackTarget) return false;        // 若目前不是在選擇攻擊目標流程中，直接忽略
-        if (!highlightedEnemies.Contains(e)) return false; // 若點到的敵人不在可攻擊列表中，也忽略
+        if (!validEnemies.Contains(e)) return false;       // 若點到的敵人不在可攻擊列表中，也忽略
 
         // 執行目前攻擊卡對該敵人產生的效果（扣血、上狀態等）
         currentAttackCard.ExecuteEffect(player, e);
@@ -91,14 +92,31 @@ public class AttackSelectionController          // 負責「攻擊目標選取�
     {
         isSelectingAttackTarget = false;                  // 不再處於「選擇攻擊目標」狀態
         currentAttackCard = null;                         // 清除目前攻擊卡的引用
-        foreach (var en in highlightedEnemies)            // 對所有被高亮的敵人
-            en.SetHighlight(false);                       // 關閉高亮顯示
-        highlightedEnemies.Clear();                       // 清空高亮敵人列表
+        ClearCurrentEnemyHighlight();                     // 關閉目前瞄準敵人的高亮
+        validEnemies.Clear();                             // 清空可攻擊敵人列表
+        ClearRangeHighlights();                           // 關閉棋盤攻擊範圍高亮
     }
 
-    private void HighlightEnemiesWithOffsets(Vector2Int center, List<Vector2Int> offsets)
+    public void UpdateAttackHover(Vector2 worldPosition)
     {
-        highlightedEnemies.Clear();                       // 先清空高亮敵人列表
+        if (!isSelectingAttackTarget) return;             // 若不在攻擊選取狀態，不處理 hover
+
+        Collider2D hit = Physics2D.OverlapPoint(worldPosition); // 取得目前滑鼠指向的碰撞體
+        Enemy targetEnemy = hit != null ? hit.GetComponentInParent<Enemy>() : null; // 找到敵人元件
+
+        if (targetEnemy != null && validEnemies.Contains(targetEnemy))
+        {
+            SetCurrentEnemyHighlight(targetEnemy);        // 只有在有效目標範圍內才高亮
+        }
+        else
+        {
+            ClearCurrentEnemyHighlight();                 // 沒有有效目標就清除高亮
+        }
+    }
+
+    private void CacheValidEnemiesWithOffsets(Vector2Int center, List<Vector2Int> offsets)
+    {
+        validEnemies.Clear();                             // 先清空可攻擊敵人列表
         Enemy[] all = Object.FindObjectsOfType<Enemy>();  // 場上所有 Enemy（從場景中搜尋）
 
         foreach (var off in offsets)                      // 對每一個攻擊偏移量
@@ -106,12 +124,53 @@ public class AttackSelectionController          // 負責「攻擊目標選取�
             Vector2Int targetPos = center + off;          // 計算「玩家位置 + 偏移」得到可攻擊格子位置
             foreach (var e in all)                        // 檢查所有敵人
             {
-                if (e.gridPosition == targetPos && !highlightedEnemies.Contains(e))
+                if (e.gridPosition == targetPos && !validEnemies.Contains(e))
                 {
-                    e.SetHighlight(true);                 // 若敵人在該格，並且尚未被加入清單 → 設定高亮
-                    highlightedEnemies.Add(e);            // 加入高亮列表，避免重複高亮
+                    validEnemies.Add(e);                  // 加入可攻擊列表，避免重複
                 }
             }
+        }
+    }
+
+    private void HighlightTilesWithOffsets(Vector2Int center, List<Vector2Int> offsets)
+    {
+        ClearRangeHighlights();                           // 清掉舊的範圍高亮
+        if (board == null) return;                        // 沒有棋盤參考就不處理
+
+        foreach (var off in offsets)
+        {
+            BoardTile tile = board.GetTileAt(center + off);
+            if (tile != null)
+            {
+                tile.SetHighlight(true);                  // 使用與移動卡相同的格子高亮
+                highlightedTiles.Add(tile);               // 記錄以便之後關閉
+            }
+        }
+    }
+
+    private void ClearRangeHighlights()
+    {
+        foreach (var tile in highlightedTiles)
+            tile.SetHighlight(false);                     // 關閉所有範圍格子的高亮
+
+        highlightedTiles.Clear();
+    }
+
+    private void SetCurrentEnemyHighlight(Enemy enemy)
+    {
+        if (enemy == currentHighlightedEnemy) return;     // 已經高亮同一個敵人就不重複
+
+        ClearCurrentEnemyHighlight();                     // 先清除舊的高亮
+        currentHighlightedEnemy = enemy;                  // 更新目前高亮的敵人
+        currentHighlightedEnemy.SetHighlight(true);       // 只高亮目前滑鼠瞄準的敵人
+    }
+
+    private void ClearCurrentEnemyHighlight()
+    {
+        if (currentHighlightedEnemy != null)
+        {
+            currentHighlightedEnemy.SetHighlight(false);  // 關閉高亮
+            currentHighlightedEnemy = null;               // 清空記錄
         }
     }
 }
