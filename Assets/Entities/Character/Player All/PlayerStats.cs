@@ -15,18 +15,27 @@ public class PlayerStats : MonoBehaviour
     private PlayerBuffController buffController;
     private Player owner;
 
+    private void RaiseEnergyChanged()
+    {
+        UIEventBus.RaiseEnergyState(new EnergySnapshot(energy, maxEnergy));
+    }
+
     public void Initialize(Player player, PlayerBuffController buffs)
     {
         owner = player;
         buffController = buffs;
         currentHP = maxHP;
         energy = maxEnergy;
+
+        RaiseEnergyChanged();
     }
 
     public void StartTurn()
     {
         block = 0;
         energy = maxEnergy;
+
+        RaiseEnergyChanged();
     }
 
     public void UseEnergy(int cost)
@@ -34,6 +43,8 @@ public class PlayerStats : MonoBehaviour
         Debug.Log($"UseEnergy: deducting {cost} energy. Energy before={energy}");
         energy -= cost;
         if (energy < 0) energy = 0;
+
+        RaiseEnergyChanged();
     }
 
     public int CalculateAttackDamage(int baseDamage)

@@ -68,6 +68,9 @@ public class BattleTurnController               // 回合流程控制器：玩�
         player.energy = player.maxEnergy;
         // 回合開始：重置能量到最大值
 
+        UIEventBus.RaiseEnergyState(new EnergySnapshot(player.energy, player.maxEnergy));
+        // 確保能量 UI 在新回合時刷新到最新數值與透明度
+
         handUIController.UpdateEnergyUI();
         // 更新 UI 上顯示的能量數字
 
