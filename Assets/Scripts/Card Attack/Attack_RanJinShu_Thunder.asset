@@ -14,10 +14,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   cardName: "\u71C3\u76E1\u8853\u96F7"
   cost: 1
-  description: "\u96F7\u5143\u7D2010\u9EDE\u55AE\u9AD4\u50B7\u5BB3\uFF0C\u6D88\u8017\u5F35\u724C"
+  description: "\u96F7\u5143\u7D2010\u9EDE\u55AE\u9AD4\u50B7\u5BB3\uFF0C\u6D88\u8017\u9019\u5F35\u724C"
   cardImage: {fileID: 21300000, guid: d833b2683a48c29458b7c5481f803800, type: 3}
   exhaustOnUse: 1
-  shopPrice: 5
+  shopPrice: 8
   cardType: 0
   rangeOffsets:
   - {x: -2, y: 0}

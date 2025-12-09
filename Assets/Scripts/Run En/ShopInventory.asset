@@ -38,6 +38,12 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 1f89fc7fedee8f448aaca880364f9290, type: 2}
   - {fileID: 11400000, guid: 0f6835f2302109647a1d992613f60640, type: 2}
   - {fileID: 11400000, guid: 1e7fb32b8c725cb499b8dfc2fa0ec402, type: 2}
+  - {fileID: 11400000, guid: 293e02d9acc286446b6512a991161eaf, type: 2}
+  - {fileID: 11400000, guid: 69a0f11cbfbb26e498b55c8fd9783d21, type: 2}
+  - {fileID: 11400000, guid: 9dd79a8ebbf6a8b419f2e132fefe0222, type: 2}
+  - {fileID: 11400000, guid: bf7b25def5c8087448e32a965df46313, type: 2}
+  - {fileID: 11400000, guid: 5e0f37164bedc0c40849be8d4a828656, type: 2}
+  - {fileID: 11400000, guid: 6473b4799ec8542459f85042836e0f0e, type: 2}
   purchasableRelics: []
   cardOfferCount: 9
   relicOfferCount: 1

@@ -6665,7 +6665,7 @@ MonoBehaviour:
   endTurnButton: {fileID: 2116894243}
   enemySpawnConfigs:
   - enemyPrefab: {fileID: 4204690724760053818, guid: 87fab54ae39d11f449187455258a17cc, type: 3}
-    count: 5
+    count: 1
   playerStartPos: {x: 0, y: 0}
   guaranteedMovementCard: {fileID: 11400000, guid: 105c7f2659020eb478d2fc42c9d7276e, type: 2}
   allCardPool:
@@ -6694,6 +6694,12 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 7f7d6b20d27c4ee488fd366efed5fce3, type: 2}
   - {fileID: 11400000, guid: 9d0d809868f7c4c4c8e38ffad7b36899, type: 2}
   - {fileID: 11400000, guid: f64b7419d3d824a42a133bb4a9651876, type: 2}
+  - {fileID: 11400000, guid: 293e02d9acc286446b6512a991161eaf, type: 2}
+  - {fileID: 11400000, guid: 69a0f11cbfbb26e498b55c8fd9783d21, type: 2}
+  - {fileID: 11400000, guid: 9dd79a8ebbf6a8b419f2e132fefe0222, type: 2}
+  - {fileID: 11400000, guid: bf7b25def5c8087448e32a965df46313, type: 2}
+  - {fileID: 11400000, guid: 5e0f37164bedc0c40849be8d4a828656, type: 2}
+  - {fileID: 11400000, guid: 6473b4799ec8542459f85042836e0f0e, type: 2}
   rewardUIPrefab: {fileID: 5461426028147158543, guid: 8923449bae0f2f3459534ea2b271150f, type: 3}
   cardUseDelay: 0
 --- !u!4 &1640340007 stripped
@@ -8435,11 +8441,15 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   deck:
-  - {fileID: 11400000, guid: feba486c5bd8d53448c1a549d4e83245, type: 2}
-  - {fileID: 11400000, guid: feba486c5bd8d53448c1a549d4e83245, type: 2}
-  - {fileID: 11400000, guid: feba486c5bd8d53448c1a549d4e83245, type: 2}
-  - {fileID: 11400000, guid: feba486c5bd8d53448c1a549d4e83245, type: 2}
-  - {fileID: 11400000, guid: feba486c5bd8d53448c1a549d4e83245, type: 2}
+  - {fileID: 11400000, guid: 293e02d9acc286446b6512a991161eaf, type: 2}
+  - {fileID: 11400000, guid: 293e02d9acc286446b6512a991161eaf, type: 2}
+  - {fileID: 11400000, guid: 293e02d9acc286446b6512a991161eaf, type: 2}
+  - {fileID: 11400000, guid: 293e02d9acc286446b6512a991161eaf, type: 2}
+  - {fileID: 11400000, guid: 293e02d9acc286446b6512a991161eaf, type: 2}
+  - {fileID: 11400000, guid: 293e02d9acc286446b6512a991161eaf, type: 2}
+  - {fileID: 11400000, guid: 293e02d9acc286446b6512a991161eaf, type: 2}
+  - {fileID: 11400000, guid: 293e02d9acc286446b6512a991161eaf, type: 2}
+  - {fileID: 11400000, guid: 293e02d9acc286446b6512a991161eaf, type: 2}
   hand: []
   discardPile: []
   exhaustPile: []
@@ -8487,6 +8497,7 @@ MonoBehaviour:
   imprison: 0
   nextTurnAllAttackPlus: 0
   drawBlockedThisTurn: 0
+  blockGainAtTurnEnd: 0
   weakFromEnemies: 0
   bleedFromEnemies: 0
   imprisonFromEnemies: 0
