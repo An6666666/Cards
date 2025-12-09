@@ -75,24 +75,12 @@ public class DeckDiscardPanelView : MonoBehaviour
 
     private void OnEnable()
     {
-        AutoBindIfMissing();
         DeckUIBus.Register(this);
-        // 可選：一啟用就嘗試自刷一次
-        var p = GameObject.FindObjectOfType<Player>();
-        if (p != null)
-        {
-            if (p.deck != null) RefreshDeck(p.deck);
-            if (p.discardPile != null) RefreshDiscard(p.discardPile);
-        }
-        // Debug
-        // Debug.Log($"[DeckDiscardPanelView] Registered. Total views={DeckUIBus.ViewCount}");
     }
 
     private void OnDisable()
     {
         DeckUIBus.Unregister(this);
-        // Debug
-        // Debug.Log($"[DeckDiscardPanelView] Unregistered. Total views={DeckUIBus.ViewCount}");
     }
 
 
@@ -124,52 +112,12 @@ public class DeckDiscardPanelView : MonoBehaviour
 
     }
 
-    private void AutoBindIfMissing()
+    private void Reset()
     {
-        var rootObjects = gameObject.scene.IsValid() && gameObject.scene.isLoaded
-            ? gameObject.scene.GetRootGameObjects()
-            : null;
-
-        Transform Search(string keyword)
-        {
-            if (string.IsNullOrEmpty(keyword)) return null;
-            if (rootObjects != null)
-            {
-                foreach (var go in rootObjects)
-                {
-                    var found = FindChildContains(go.transform, keyword);
-                    if (found != null) return found;
-                }
-            }
-            return FindChildContains(transform, keyword);
-        }
-
-        deckContent ??= Search("Deck") ?? Search("牌庫");
-        discardContent ??= Search("Discard") ?? Search("棄牌");
-        cardItemPrefab ??= FindComponentInChildren<CardIconItem>("Card") ?? FindComponentInChildren<CardIconItem>(string.Empty);
-    }
-
-    private Transform FindChildContains(Transform parent, string keyword)
-    {
-        if (parent == null || string.IsNullOrEmpty(keyword)) return null;
-        if (parent.name.IndexOf(keyword, StringComparison.OrdinalIgnoreCase) >= 0) return parent;
-        for (int i = 0; i < parent.childCount; i++)
-        {
-            var found = FindChildContains(parent.GetChild(i), keyword);
-            if (found != null) return found;
-        }
-        return null;
-    }
-
-    private T FindComponentInChildren<T>(string keyword) where T : Component
-    {
-        var comps = GetComponentsInChildren<T>(true);
-        foreach (var c in comps)
-        {
-            if (string.IsNullOrEmpty(keyword) || c.name.IndexOf(keyword, StringComparison.OrdinalIgnoreCase) >= 0)
-                return c;
-        }
-        return null;
+        // Force explicit binding from the inspector; this method helps Unity auto-assign on add.
+        deckContent = null;
+        discardContent = null;
+        cardItemPrefab = null;
     }
 
 }

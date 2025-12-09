@@ -37,7 +37,6 @@ public class UIFxController : MonoBehaviour
     {
         if (Instance != null && Instance != this) { Destroy(gameObject); return; }
         Instance = this;
-        DontDestroyOnLoad(gameObject);
     }
 
     private (RectTransform rt, CanvasGroup cg, Vector2 origin) Prepare(GameObject go)

@@ -753,6 +753,7 @@ GameObject:
   - component: {fileID: 145912772}
   - component: {fileID: 145912774}
   - component: {fileID: 145912773}
+  - component: {fileID: 145912775}
   m_Layer: 5
   m_Name: Rule Panel
   m_TagString: Untagged
@@ -821,6 +822,24 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 145912771}
   m_CullTransparentMesh: 1
+--- !u!114 &145912775
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 145912771}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bc91069b3d96eea4193b3293592638f1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  rulePanel: {fileID: 145912771}
+  ruleImage: {fileID: 781730097}
+  rulePages: []
+  nextButton: {fileID: 690672859}
+  prevButton: {fileID: 313019858}
+  closeButton: {fileID: 39095062}
 --- !u!4 &146582884 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 2733580285815805351, guid: eacfe748df31fe649bac4cba447f47e8, type: 3}
@@ -2082,6 +2101,7 @@ GameObject:
   - component: {fileID: 530933989}
   - component: {fileID: 530933991}
   - component: {fileID: 530933990}
+  - component: {fileID: 530933992}
   m_Layer: 5
   m_Name: Deck Panel
   m_TagString: Untagged
@@ -2148,6 +2168,24 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 530933988}
   m_CullTransparentMesh: 1
+--- !u!114 &530933992
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 530933988}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3be29fb014aab8c4986819fd8df4bf0a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  deckPanel: {fileID: 530933988}
+  discardPanel: {fileID: 2006848886}
+  deckObserver: {fileID: 1723863388}
+  deckCounterButton: {fileID: 2059876247}
+  discardCounterButton: {fileID: 1151673517}
+  switchButton: {fileID: 0}
 --- !u!1001 &552404263
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -7254,23 +7292,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a26f5de53b8da0c4b9ffcb09fded9eb3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  rulePanel: {fileID: 145912771}
-  settingsPanel: {fileID: 1754313614}
-  deckPanel: {fileID: 530933988}
-  discardPanel: {fileID: 2006848886}
-  settingsButton: {fileID: 808639160}
-  ruleButton: {fileID: 610274721}
-  switchDeckDiscardButton: {fileID: 0}
-  deckCounterButton: {fileID: 2059876247}
-  discardCounterButton: {fileID: 1151673517}
-  ruleImage: {fileID: 781730097}
-  rulePages:
-  - {fileID: 21300000, guid: ec1092ff73e226c409b714ec4b7bc282, type: 3}
-  - {fileID: 21300000, guid: 0259986ce8ae6e047b19955a779c5dbd, type: 3}
-  - {fileID: 21300000, guid: 57c0433b62c0931488b63a12e982e723, type: 3}
-  ruleNextButton: {fileID: 690672859}
-  rulePrevButton: {fileID: 313019858}
-  ruleCloseButton: {fileID: 39095062}
+  ruleController: {fileID: 145912775}
+  settingsController: {fileID: 1754313619}
+  deckController: {fileID: 530933992}
+  openSettingsButton: {fileID: 808639160}
+  openRuleButton: {fileID: 610274721}
 --- !u!4 &1723863386
 Transform:
   m_ObjectHideFlags: 0
@@ -7323,7 +7349,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   player: {fileID: 1848671827}
-  checkInterval: 0.15
 --- !u!114 &1723863389
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -7337,7 +7362,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   player: {fileID: 1848671827}
-  checkInterval: 0.1
 --- !u!114 &1723863390
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -7406,6 +7430,7 @@ GameObject:
   - component: {fileID: 1754313617}
   - component: {fileID: 1754313616}
   - component: {fileID: 1754313618}
+  - component: {fileID: 1754313619}
   m_Layer: 5
   m_Name: Settings Panel
   m_TagString: Untagged
@@ -7489,6 +7514,19 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   bgmSlider: {fileID: 1348460796}
   sfxSlider: {fileID: 706157683}
+--- !u!114 &1754313619
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1754313614}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 83210cb6273c73e41b56ee152bedb52d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  settingsPanel: {fileID: 1754313614}
 --- !u!4 &1755828470 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 2733580285815805351, guid: eacfe748df31fe649bac4cba447f47e8, type: 3}
@@ -8420,7 +8458,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   maxHP: 100
   currentHP: 0
-  maxEnergy: 4
+  maxEnergy: 3
   energy: 0
   block: 0
   gold: 98
@@ -9448,7 +9486,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 2059876245}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 1723863385}
+        m_TargetAssemblyTypeName: UIManager, Assembly-CSharp
+        m_MethodName: OnDeckCounterClicked
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!1001 &2074935083
 PrefabInstance:
   m_ObjectHideFlags: 0
