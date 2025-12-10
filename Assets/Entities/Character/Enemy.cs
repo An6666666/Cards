@@ -92,6 +92,17 @@ public class Enemy : MonoBehaviour              // 敵人角色，繼承自 Mono
 
     [Tooltip("掛在敵人身上的 SpriteRenderer，用來顯示意圖小圖")]
     public SpriteRenderer intentIconRenderer;
+    // ===== Intent 顯示控制 =====
+    private bool forceHideIntent = false;
+
+    /// <summary>
+    /// 讓特殊狀態（飛天、鑽地、暫時離場）可以強制關掉攻擊意圖顯示
+    /// </summary>
+    public void SetForceHideIntent(bool hide)
+    {
+        forceHideIntent = hide;
+        UpdateIntentIcon();   // 立刻刷新一次顯示狀態
+    }
 
     [Tooltip("意圖圖示相對於敵人中心的位置偏移")]
     public Vector3 intentWorldOffset = new Vector3(0f, 2f, 0f);
@@ -348,17 +359,17 @@ public class Enemy : MonoBehaviour              // 敵人角色，繼承自 Mono
 
         transform.hasChanged = false;
         // 讓意圖小圖跟著敵人位置
-        if (intentIconRenderer != null)
-        {
-            intentIconRenderer.transform.position = transform.position + intentWorldOffset;
-        }
+        // if (intentIconRenderer != null)
+        // {
+        //     intentIconRenderer.transform.position = transform.position + intentWorldOffset;
+        // }
         // ★ 攻擊數字也跟著圖示移動
-        if (intentValueText != null)
-        {
-            intentValueText.transform.position =
-                (intentIconRenderer != null ? intentIconRenderer.transform.position : transform.position)
-                + intentValueOffset;
-        }
+        // if (intentValueText != null)
+        // {
+        //     intentValueText.transform.position =
+        //         (intentIconRenderer != null ? intentIconRenderer.transform.position : transform.position)
+        //         + intentValueOffset;
+        // }
         if (cachedPlayer == null)
     {
         cachedPlayer = FindObjectOfType<Player>();
@@ -737,11 +748,19 @@ public virtual void DecideNextIntent(Player player)
                 icon = intentIdleSprite;
                 break;
         }
+        
+         if (forceHideIntent)
+        {
+            intentIconRenderer.enabled = false;
+            if (intentValueText != null)
+                intentValueText.gameObject.SetActive(false);
+            return;
+        }
 
         intentIconRenderer.sprite = icon;
         intentIconRenderer.enabled = (icon != null);
         // 位置跟著敵人 + 偏移
-        intentIconRenderer.transform.position = transform.position + intentWorldOffset;
+        //intentIconRenderer.transform.position = transform.position + intentWorldOffset;
 
         // === 處理攻擊數字 ===
         if (intentValueText != null)
@@ -753,11 +772,11 @@ public virtual void DecideNextIntent(Player player)
                 intentValueText.text = nextIntent.value.ToString();
 
                 // 位置：跟圖示或跟敵人，再加偏移
-                Vector3 basePos = transform.position;
-                if (intentIconRenderer != null)
-                    basePos = intentIconRenderer.transform.position;
+                // Vector3 basePos = transform.position;
+                // if (intentIconRenderer != null)
+                //     basePos = intentIconRenderer.transform.position;
 
-                intentValueText.transform.position = basePos + intentValueOffset;
+                // intentValueText.transform.position = basePos + intentValueOffset;
             }
             else
             {

@@ -6666,6 +6666,20 @@ MonoBehaviour:
   enemySpawnConfigs:
   - enemyPrefab: {fileID: 4204690724760053818, guid: 87fab54ae39d11f449187455258a17cc, type: 3}
     count: 1
+  - enemyPrefab: {fileID: 4898516673341191513, guid: a09861f3a2ead1f4f876a9345a60088b, type: 3}
+    count: 1
+  - enemyPrefab: {fileID: 4591814044274373110, guid: e0d91408b43bec24ab02b0d2932a3dfc, type: 3}
+    count: 1
+  - enemyPrefab: {fileID: 7728357840837083407, guid: 6fb8d547b14a881468023f486a977e6b, type: 3}
+    count: 1
+  - enemyPrefab: {fileID: 8258485525033336925, guid: b1fbe62463006294b80e46474639e1f9, type: 3}
+    count: 1
+  - enemyPrefab: {fileID: 8896973269389346778, guid: 8e9ee8b5037fe5048ae8dc2cef4d967f, type: 3}
+    count: 1
+  - enemyPrefab: {fileID: 3762648908618512516, guid: cbb7c20ed40c0294daca78f7a8548c50, type: 3}
+    count: 1
+  - enemyPrefab: {fileID: 40532459971013023, guid: 5ecce71dfdd5e304fa13dac5018a9458, type: 3}
+    count: 1
   playerStartPos: {x: 0, y: 0}
   guaranteedMovementCard: {fileID: 11400000, guid: 105c7f2659020eb478d2fc42c9d7276e, type: 2}
   allCardPool:
@@ -8440,19 +8454,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ec43d2a64345a704981db131db4084ef, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  deck:
-  - {fileID: 11400000, guid: 293e02d9acc286446b6512a991161eaf, type: 2}
-  - {fileID: 11400000, guid: 293e02d9acc286446b6512a991161eaf, type: 2}
-  - {fileID: 11400000, guid: 293e02d9acc286446b6512a991161eaf, type: 2}
-  - {fileID: 11400000, guid: 293e02d9acc286446b6512a991161eaf, type: 2}
-  - {fileID: 11400000, guid: 293e02d9acc286446b6512a991161eaf, type: 2}
-  - {fileID: 11400000, guid: 293e02d9acc286446b6512a991161eaf, type: 2}
-  - {fileID: 11400000, guid: 293e02d9acc286446b6512a991161eaf, type: 2}
-  - {fileID: 11400000, guid: 293e02d9acc286446b6512a991161eaf, type: 2}
-  - {fileID: 11400000, guid: 293e02d9acc286446b6512a991161eaf, type: 2}
-  hand: []
-  discardPile: []
-  exhaustPile: []
+  startingDeck: []
+  debugStartingDeck: []
+  useDebugDeck: 0
   exhaustCountThisTurn: 0
 --- !u!114 &1848671832
 MonoBehaviour:
