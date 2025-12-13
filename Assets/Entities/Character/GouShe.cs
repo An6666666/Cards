@@ -27,6 +27,7 @@ public class GouShe : Enemy               // 鉤蛇怪物類別，繼承自 Enem
 
     private Vector2Int storedGridBeforeHide;                     // 在消失前記錄的原來棋盤座標
     private SpriteRenderer[] cachedRenderers;                    // 快取身上所有 SpriteRenderer，方便一鍵隱藏/顯示
+    private EnemyElementStatusDisplay elementStatusDisplay;      // 🔴 新增：元素圖示控制元件的參考
     private bool initialWaterPrepared = false;                   // 是否已經建立過初始水域區域
 
     protected override void Awake()
@@ -251,6 +252,7 @@ public class GouShe : Enemy               // 鉤蛇怪物類別，繼承自 Enem
         columnStrikePending = true;                                // 標記為「已準備好，下回合發動」
         SetHidden(true);                                           // 把自己隱藏（SpriteRenderer.enabled = false）
         SetHighlight(false);                                       // 關閉自身的選取高亮
+        SetForceHideIntent(true);                                  // 頭上的意圖也一起關掉
         gridPosition = OffBoardSentinel;                           // 把棋盤座標設為「離開棋盤」的特殊值
         return true;                                               // 準備成功
     }
@@ -272,6 +274,7 @@ public class GouShe : Enemy               // 鉤蛇怪物類別，繼承自 Enem
         Vector2Int targetPos = ChooseReappearPosition(board, player); // 選一個重新現身的位置
         MoveToPosition(targetPos);                                    // 將敵人移動到該位置（更新座標與位置）
         SetHidden(false);                                             // 顯示自己（恢復 SpriteRenderer）
+        SetForceHideIntent(false);                                    // 回到場上時，意圖再次顯示
 
         columnStrikePending = false;                                  // 不再處於待發動狀態
         columnStrikeTargetColumn = 0;                                 // 清空目標欄位
@@ -413,13 +416,26 @@ public class GouShe : Enemy               // 鉤蛇怪物類別，繼承自 Enem
 
     private void SetHidden(bool hidden)
     {
-        EnsureRendererCache();                                 // 確保已經把所有子孫 SpriteRenderer 抓起來
+        EnsureRendererCache();
         foreach (var renderer in cachedRenderers)
         {
             if (renderer != null)
             {
-                renderer.enabled = !hidden;                    // hidden = true → 關閉渲染；false → 顯示
+                renderer.enabled = !hidden;   // 本體 sprite 開關
             }
+        }
+
+    // 🔹 同時關掉 / 打開 攻擊意圖（頭上的小圖示）
+        SetForceHideIntent(hidden);
+
+    // 🔹 關掉 / 打開 元素圖示（EnemyElementStatusDisplay）
+        if (elementStatusDisplay == null)
+        {
+            elementStatusDisplay = GetComponentInChildren<EnemyElementStatusDisplay>(true);
+        }
+        if (elementStatusDisplay != null)
+        {
+            elementStatusDisplay.gameObject.SetActive(!hidden);
         }
     }
 

@@ -36,6 +36,7 @@ public class YingGe : Enemy
     private YingGeStone activeStone;          // 當前正在場上的復活石
     private BattleManager battleManager;      // 戰鬥管理器的參考
     private SpriteRenderer[] cachedRenderers; // 快取這個 Boss 底下所有 SpriteRenderer，方便一起隱藏/顯示
+    private EnemyElementStatusDisplay elementStatusDisplay;   //新增：元素圖示控制元件的參考
 
     // ====== 復活相關旗標 ======
     private bool resurrectionTriggered = false;   // 是否已經進入過復活流程
@@ -218,6 +219,7 @@ public class YingGe : Enemy
         storedGridBeforeHide = gridPosition;
         SetHidden(true);                 // 把 Boss 外觀藏起來
         SetHighlight(false);             // 不要讓它像被選取一樣
+        SetForceHideIntent(true);        // 石羽雨預告期間 → 不顯示意圖
         gridPosition = OffBoardSentinel; // 把格子位置移到場外，避免跟其他單位衝突
 
         // 確認手上有 battleManager
@@ -325,6 +327,7 @@ public class YingGe : Enemy
 
         MoveToPosition(targetPos);       // 把 Boss 的邏輯位置移回棋盤
         SetHidden(false);                // 顯示出來
+        SetForceHideIntent(false);      //回到場上 → 意圖恢復顯示
 
         // 確保 Boss 有被加回 battleManager 的敵人列表裡
         if (battleManager != null && !battleManager.enemies.Contains(this))
@@ -351,6 +354,7 @@ public class YingGe : Enemy
         gridPosition = OffBoardSentinel; // 先把 Boss 移出棋盤
         SetHidden(true);                 // 把 Boss 藏起來
         SetHighlight(false);             // 也不要有高亮
+        SetForceHideIntent(true);       //進入假死階段 → 不顯示意圖
 
         // 實際生成復活石
         YingGeStone stone = CreateStoneInstance(stoneGrid, stoneWorld);
@@ -464,6 +468,7 @@ public class YingGe : Enemy
         transform.position = worldPos;   // 把物件位置移到石頭原本的位置
         gridPosition = gridPos;          // 棋盤座標也設成一樣
         SetHidden(false);                // 顯示出來
+        SetForceHideIntent(false);       // 復活回來 → 意圖恢復顯示
 
         if (battleManager == null)
         {
@@ -490,15 +495,28 @@ public class YingGe : Enemy
     }
 
     // 把這個 Boss 下面所有 SpriteRenderer 一次打開或關閉
-    private void SetHidden(bool hidden)
+        private void SetHidden(bool hidden)
     {
-        EnsureRendererCache();           // 確保有取過 Renderer 陣列
+        EnsureRendererCache();
         foreach (var renderer in cachedRenderers)
         {
             if (renderer != null)
             {
-                renderer.enabled = !hidden; // hidden = true → enabled = false
+                renderer.enabled = !hidden;   // 本體 sprite 開關
             }
+        }
+
+    // 🔹 頭上的攻擊意圖一起關掉 / 打開
+        SetForceHideIntent(hidden);
+
+    // 🔹 元素狀態圖示一起關掉 / 打開
+        if (elementStatusDisplay == null)
+        {
+            elementStatusDisplay = GetComponentInChildren<EnemyElementStatusDisplay>(true);
+        }
+        if (elementStatusDisplay != null)
+        {
+            elementStatusDisplay.gameObject.SetActive(!hidden);
         }
     }
 
