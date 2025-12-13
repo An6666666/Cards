@@ -1,0 +1,25 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 48536ca6842332b4fa408c0b53c395fd, type: 3}
+  m_Name: Attack_DaRanJinShu_Water
+  m_EditorClassIdentifier: 
+  cardName: 
+  cost: 0
+  description: 
+  cardImage: {fileID: 0}
+  exhaustOnUse: 0
+  shopPrice: 0
+  cardType: 0
+  rangeOffsets: []
+  damagePerExhaust: 2
+  hitEffectPrefab: {fileID: 0}
+  elementType: 0

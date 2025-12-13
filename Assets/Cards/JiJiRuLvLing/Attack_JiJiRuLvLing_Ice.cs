@@ -1,37 +1,29 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 [CreateAssetMenu(fileName = "Attack_JiJiRuLvLing_Ice", menuName = "Cards/Attack/急急如律令(冰)")]
-public class Attack_JiJiRuLvLing_Ice : AttackCardBase
+public class Attack_JiJiRuLvLing_Ice : Attack_JiJiRuLvLing
 {
-    public int baseDamage = 6;
+    [SerializeField] private GameObject iceEffectPrefab;
 
-    public GameObject iceEffectPrefab;
+    protected override ElementType Element => ElementType.Ice;
 
-    private void OnEnable() { cardType = CardType.Attack; }
+    protected override GameObject EffectPrefab => iceEffectPrefab;
 
-    public override void ExecuteEffect(Player player, Enemy enemy)
+    protected override void OnAfterDamage(Player player, Enemy enemy, ElementType element, int damage)
     {
-        int dmg = enemy.ApplyElementalAttack(ElementType.Ice, baseDamage, player);
-        enemy.TakeDamage(dmg);
         Board board = GameObject.FindObjectOfType<Board>();
-        if (board)
+        if (board == null)
         {
-            foreach (var adjE in GameObject.FindObjectsOfType<Enemy>())
+            return;
+        }
+
+        foreach (var adjE in GameObject.FindObjectsOfType<Enemy>())
+        {
+            if (adjE == enemy) continue;
+            if (Vector2Int.Distance(adjE.gridPosition, enemy.gridPosition) <= 1.1f)
             {
-                if (adjE == enemy) continue;
-                if (Vector2Int.Distance(adjE.gridPosition, enemy.gridPosition) <= 1.1f)
-                {
-                    adjE.AddElementTag(ElementType.Ice);
-                }
+                adjE.AddElementTag(ElementType.Ice);
             }
         }
-        
-         if (iceEffectPrefab != null)
-            GameObject.Instantiate(iceEffectPrefab, enemy.transform.position, Quaternion.identity);
-
-        AudioManager.Instance.PlayAttackSFX(ElementType.Ice);
-
     }
 }
