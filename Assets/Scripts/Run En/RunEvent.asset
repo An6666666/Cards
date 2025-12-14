@@ -12,24 +12,25 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 47b75dc1d5fb1d747aa52eced8878d12, type: 3}
   m_Name: RunEvent
   m_EditorClassIdentifier: 
-  eventId: 
-  title: 
-  description: 
+  eventId: A_0
+  title: "\u5947\u602A\u7684\u5996\u602A"
+  description: "\u9047\u5230\u5947\u602A\u7684\u5996\u602A"
   options:
-  - optionLabel: 
-    resultDescription: 
+  - optionLabel: "\u6276\u9664"
+    resultDescription: "\u5996\u602A\u5728\u88AB\u6276\u9664\u6700\u5F8C\u8A5B\u5492\u4E86\u4F60"
     goldDelta: 0
-    hpDelta: 0
+    hpDelta: -10
     rewardCards: []
     rewardRelics: []
-  - optionLabel: 
-    resultDescription: 
+  - optionLabel: "\u6500\u8AC7"
+    resultDescription: "\u5996\u602A\u8D08\u9001\u4E86\u79AE\u7269"
     goldDelta: 0
     hpDelta: 0
-    rewardCards: []
+    rewardCards:
+    - {fileID: 11400000, guid: 457225c57c6113a45b6c95acbbeb7819, type: 2}
     rewardRelics: []
-  - optionLabel: 
-    resultDescription: 
+  - optionLabel: "\u96E2\u958B"
+    resultDescription: "\u8207\u5996\u602A\u64E6\u80A9\u800C\u904E\uFF0C\u7121\u4E8B\u767C\u751F\n"
     goldDelta: 0
     hpDelta: 0
     rewardCards: []

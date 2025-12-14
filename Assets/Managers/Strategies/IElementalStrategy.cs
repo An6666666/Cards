@@ -298,6 +298,8 @@ public class IceStrategy : DefaultElementalStrategy              // 冰元素策
             defender.AddElementTag(ElementType.Ice);             // 單純附著冰
         }                                                        // else 區塊結束
 
+        ApplyIceTagToAdjacentEnemies(defender);                  // 將冰元素標記擴散到相鄰敵人
+
         if (defender.superconduct)                               // 若有超導狀態
         {                                                        // if 區塊開始
             dmg += 6;                                            // 額外加 6 傷害
@@ -306,7 +308,23 @@ public class IceStrategy : DefaultElementalStrategy              // 冰元素策
 
         return dmg;                                              // 回傳傷害
     }                                                            // 方法區塊結束
+
+    private void ApplyIceTagToAdjacentEnemies(Enemy defender)
+    {
+        Board board = GameObject.FindObjectOfType<Board>();
+        if (board == null) return;
+
+        foreach (var enemy in GameObject.FindObjectsOfType<Enemy>())
+        {
+            if (enemy == defender) continue;
+            if (Vector2Int.Distance(enemy.gridPosition, defender.gridPosition) <= 2.3f)
+            {
+                enemy.AddElementTag(ElementType.Ice);
+            }
+        }
+    }
 }                                                                // 類別區塊結束
+
 
 public class WoodStrategy : DefaultElementalStrategy             // 木元素策略
 {                                                                // 類別區塊開始

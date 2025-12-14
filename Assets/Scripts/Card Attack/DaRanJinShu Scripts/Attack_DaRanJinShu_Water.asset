@@ -12,14 +12,26 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 48536ca6842332b4fa408c0b53c395fd, type: 3}
   m_Name: Attack_DaRanJinShu_Water
   m_EditorClassIdentifier: 
-  cardName: 
+  cardName: "\u5927\u71C3\u76E1\u8853\u6C34"
   cost: 0
-  description: 
-  cardImage: {fileID: 0}
+  description: "\u5C0D\u653B\u64CA\u7BC4\u570D\u5167\u7684\u6240\u6709\u6575\u4EBA\u9020\u62102*\u6D88\u8017\u7684\u724C\u6578\u7684\u6C34\u5C6C\u6027\u50B7\u5BB3\r\n"
+  cardImage: {fileID: 21300000, guid: 72185ed901cb82e44a8dfa74b8f55b7b, type: 3}
   exhaustOnUse: 0
-  shopPrice: 0
+  shopPrice: 8
   cardType: 0
-  rangeOffsets: []
+  rangeOffsets:
+  - {x: 0, y: 4}
+  - {x: 0, y: -4}
+  - {x: 2, y: 4}
+  - {x: 2, y: -4}
+  - {x: 3, y: 2}
+  - {x: 3, y: -2}
+  - {x: 4, y: 0}
+  - {x: -4, y: 0}
+  - {x: -2, y: 4}
+  - {x: -2, y: -4}
+  - {x: -3, y: 2}
+  - {x: -3, y: -2}
   damagePerExhaust: 2
-  hitEffectPrefab: {fileID: 0}
-  elementType: 0
+  hitEffectPrefab: {fileID: 7213305712601285595, guid: 1e8d195486e9d0340b3ca44c17f86d2d, type: 3}
+  elementType: 1

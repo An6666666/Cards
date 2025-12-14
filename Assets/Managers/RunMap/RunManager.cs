@@ -94,7 +94,7 @@ public class RunManager : MonoBehaviour
     [SerializeField] private string runSceneName = "RunScene";       // 地圖場景名稱
     [SerializeField] private string battleSceneName = "BattleScene"; // 戰鬥場景名稱
     [SerializeField] private string shopSceneName = "ShopScene";     // 商店場景名稱
-    [SerializeField] private string eventSceneName = "EventScene";   // 事件場景名稱
+    [SerializeField] private RunEventUIManager eventUIManager;        // 事件彈窗管理器
 
     [Header("Map Generation")]
     [SerializeField] private int floorCount = 4;                     // 一張圖有幾層
@@ -271,7 +271,14 @@ public class RunManager : MonoBehaviour
             return false;
 
         activeNode = node;     // 標記現在正在這個節點
-        LoadSceneForNode(node); // 依節點類型載入場景
+        if (node.NodeType == MapNodeType.Event)
+        {
+            HandleEventNode(node);
+        }
+        else
+        {
+            LoadSceneForNode(node); // 依節點類型載入場景
+        }
         MapStateChanged?.Invoke();
         return true;
     }
@@ -314,6 +321,7 @@ public class RunManager : MonoBehaviour
 
         activeNode.MarkCompleted();
         currentNode = activeNode;
+        activeNode = null;
         MapStateChanged?.Invoke();
     }
 
@@ -388,9 +396,6 @@ public class RunManager : MonoBehaviour
             case MapNodeType.Shop:
                 sceneName = shopSceneName;
                 break;
-            case MapNodeType.Event:
-                sceneName = eventSceneName;
-                break;
         }
 
         if (string.IsNullOrEmpty(sceneName))
@@ -402,6 +407,67 @@ public class RunManager : MonoBehaviour
         SceneManager.LoadScene(sceneName);
     }
 
+     private void HandleEventNode(MapNodeData node)
+    {
+        if (node == null)
+            return;
+
+        RunEventDefinition eventDefinition = node.Event;
+        if (eventDefinition == null)
+        {
+            Debug.LogWarning($"RunManager: Event node {node.NodeId} has no definition.");
+            CompleteActiveNodeWithoutBattle();
+            return;
+        }
+
+        if (eventUIManager == null)
+        {
+            eventUIManager = FindObjectOfType<RunEventUIManager>(includeInactive: true);
+        }
+
+        if (eventUIManager == null)
+        {
+            Debug.LogWarning("RunManager: Event UI Manager is not assigned; completing event immediately.");
+            CompleteActiveNodeWithoutBattle();
+            return;
+        }
+
+        eventUIManager.ShowEvent(eventDefinition, option =>
+        {
+            ApplyEventOption(option);
+            CompleteActiveNodeWithoutBattle();
+        });
+    }
+
+    private void ApplyEventOption(RunEventOption option)
+    {
+        if (option == null || player == null)
+            return;
+
+        if (option.goldDelta != 0)
+        {
+            player.gold += option.goldDelta;
+        }
+
+        if (option.hpDelta != 0)
+        {
+            int clampedHp = Mathf.Clamp(player.currentHP + option.hpDelta, 0, player.maxHP);
+            player.currentHP = clampedHp;
+        }
+
+        if (option.rewardCards != null && option.rewardCards.Count > 0)
+        {
+            player.deck.AddRange(option.rewardCards);
+        }
+
+        if (option.rewardRelics != null && option.rewardRelics.Count > 0)
+        {
+            player.relics.AddRange(option.rewardRelics);
+        }
+
+        SyncPlayerRunState();
+    }
+    
     // 把每一層的節點彼此連起來，形成可以走的路
     private void BuildConnections()
     {
