@@ -441,31 +441,93 @@ public class RunManager : MonoBehaviour
 
     private void ApplyEventOption(RunEventOption option)
     {
-        if (option == null || player == null)
+        if (option == null)
             return;
 
+        if (player != null)
+        {
+            ApplyEventOptionToPlayer(option, player);
+            SyncPlayerRunState();
+        }
+        else
+        {
+            ApplyEventOptionToSnapshot(option);
+        }
+    }
+
+    private void ApplyEventOptionToPlayer(RunEventOption option, Player target)
+    {
         if (option.goldDelta != 0)
         {
-            player.gold += option.goldDelta;
+            target.gold += option.goldDelta;
         }
 
         if (option.hpDelta != 0)
         {
-            int clampedHp = Mathf.Clamp(player.currentHP + option.hpDelta, 0, player.maxHP);
-            player.currentHP = clampedHp;
+            int clampedHp = Mathf.Clamp(target.currentHP + option.hpDelta, 0, target.maxHP);
+            target.currentHP = clampedHp;
         }
 
         if (option.rewardCards != null && option.rewardCards.Count > 0)
         {
-            player.deck.AddRange(option.rewardCards);
+            target.deck.AddRange(option.rewardCards.Where(card => card != null));
         }
 
         if (option.rewardRelics != null && option.rewardRelics.Count > 0)
         {
-            player.relics.AddRange(option.rewardRelics);
+            target.relics.AddRange(option.rewardRelics.Where(card => card != null));
+        }
+    }
+
+    private void ApplyEventOptionToSnapshot(RunEventOption option)
+    {
+        EnsureRunSnapshotExists();
+
+        if (currentRunSnapshot == null)
+            return;
+
+        if (option.goldDelta != 0)
+        {
+            currentRunSnapshot.gold += option.goldDelta;
         }
 
-        SyncPlayerRunState();
+        if (option.hpDelta != 0)
+        {
+            int clampedHp = Mathf.Clamp(currentRunSnapshot.currentHP + option.hpDelta, 0, currentRunSnapshot.maxHP);
+            currentRunSnapshot.currentHP = clampedHp;
+        }
+
+        if (option.rewardCards != null && option.rewardCards.Count > 0)
+        {
+            currentRunSnapshot.deck.AddRange(option.rewardCards.Where(card => card != null));
+        }
+
+        if (option.rewardRelics != null && option.rewardRelics.Count > 0)
+        {
+            currentRunSnapshot.relics.AddRange(option.rewardRelics.Where(card => card != null));
+        }
+    }
+
+    private void EnsureRunSnapshotExists()
+    {
+        if (currentRunSnapshot != null)
+            return;
+
+        if (initialPlayerSnapshot != null)
+        {
+            currentRunSnapshot = initialPlayerSnapshot.Clone();
+            return;
+        }
+
+        currentRunSnapshot = new PlayerRunSnapshot
+        {
+            maxHP = player != null ? player.maxHP : 0,
+            currentHP = player != null ? player.currentHP : 0,
+            gold = player != null ? player.gold : 0,
+            deck = new List<CardBase>(),
+            relics = new List<CardBase>(),
+            exhaustPile = new List<CardBase>()
+        };
     }
     
     // 把每一層的節點彼此連起來，形成可以走的路
