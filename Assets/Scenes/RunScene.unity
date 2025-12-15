@@ -427,14 +427,14 @@ RectTransform:
   m_GameObject: {fileID: 494392453}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 0.9744988, y: 0.62207156, z: 0.87374514}
+  m_LocalScale: {x: 0.51035357, y: 0.3257843, z: 0.45758793}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 2121037502}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: 196}
+  m_AnchoredPosition: {x: 0, y: 343}
   m_SizeDelta: {x: 1000, y: 800}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &521217746
@@ -586,12 +586,12 @@ MonoBehaviour:
   battleSceneName: BattleScene
   shopSceneName: ShopScene
   eventUIManager: {fileID: 1731840768}
-  floorCount: 8
+  floorCount: 16
   minNodesPerFloor: 2
   maxNodesPerFloor: 5
-  eventRate: 1
+  eventRate: 0.14
   shopRate: 0.14
-  eliteBattleRate: 0.17
+  eliteBattleRate: 0.09
   encounterPool: {fileID: 11400000, guid: edfdd0303848fe24c94cb125f349ba8f, type: 2}
   eliteEncounterPool: {fileID: 11400000, guid: 21dfd7dd61a961c41855a6e99449ef9e, type: 2}
   bossEncounter: {fileID: 11400000, guid: aff795c95d3c974499abd8f9c35a3897, type: 2}
@@ -1358,11 +1358,11 @@ MonoBehaviour:
   nodeButtonPrefab: {fileID: 2492151301511066359, guid: f4ee4c21dc5b0004c8f5bee9f504acb7, type: 3}
   connectionLinePrefab: {fileID: 3847716138468893191, guid: 36d36d61597f2a349833978c4864d779, type: 3}
   floorSpacing: 200
-  nodeSpacing: 300
+  nodeSpacing: 400
   connectionThickness: 8
   horizontalPositionJitter: 50
   verticalPositionJitter: 0
-  connectionAnchorJitter: 0
+  connectionAnchorJitter: 10
   defaultColor: {r: 0.5283019, g: 0.5283019, b: 0.5283019, a: 1}
   completedColor: {r: 0, g: 0, b: 0, a: 1}
   currentColor: {r: 1, g: 0.85, b: 0.3, a: 1}

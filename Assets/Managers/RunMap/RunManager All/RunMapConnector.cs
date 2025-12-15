@@ -418,7 +418,7 @@ public class RunMapConnector
     {
         int nextCount = nextFloor.Count;
         int currentCount = currentFloor.Count;
-        int distinctTargets = incomingCounts.Count(count => count > 0);
+        int distinctTargets = incomingCounts.Count(count => count >= minIncomingPerTarget);
 
         if (distinctTargets >= minDistinctTargetsPerFloor)
             return;
@@ -588,13 +588,9 @@ public class RunMapConnector
             // 確保非遞減的目標索引，避免交叉
             lowerBound = Mathf.Max(lowerBound, previousTarget);
 
-            // 如果界線太緊，放寬到鄰近窗口內的最接近值
+            // 如果界線太緊，跳過此來源，避免強行壓縮連線形狀
             if (lowerBound > upperBound)
-            {
-                lowerBound = Mathf.Clamp(anchorMin, 0, nextCount - 1);
-                upperBound = Mathf.Clamp(anchorMax, 0, nextCount - 1);
-                lowerBound = Mathf.Min(lowerBound, upperBound);
-            }
+                continue;
 
             int targetIndex = Mathf.Clamp(anchor, lowerBound, upperBound);
             if (ConnectAndTrack(
