@@ -4,6 +4,33 @@ using UnityEngine;
 
 public class RunMapGenerator
 {
+    private readonly float floorVarianceChance;
+
+    private readonly int earlyMin;
+    private readonly int earlyMax;
+    private readonly int midMin;
+    private readonly int midMax;
+    private readonly int lateMin;
+    private readonly int lateMax;
+
+    public RunMapGenerator(
+        float floorVarianceChance = 0.2f,
+        int earlyMin = 2,
+        int earlyMax = 3,
+        int midMin = 3,
+        int midMax = 5,
+        int lateMin = 3,
+        int lateMax = 4)
+    {
+        this.floorVarianceChance = Mathf.Clamp01(floorVarianceChance);
+        this.earlyMin = Mathf.Max(1, Mathf.Min(earlyMin, earlyMax));
+        this.earlyMax = Mathf.Max(this.earlyMin, earlyMax);
+        this.midMin = Mathf.Max(1, Mathf.Min(midMin, midMax));
+        this.midMax = Mathf.Max(this.midMin, midMax);
+        this.lateMin = Mathf.Max(1, Mathf.Min(lateMin, lateMax));
+        this.lateMax = Mathf.Max(this.lateMin, lateMax);
+    }
+
     public RunMap Generate(
         int floorCount,
         int minNodes,
@@ -16,12 +43,15 @@ public class RunMapGenerator
         RunEncounterDefinition bossEncounter,
         ShopInventoryDefinition defaultShop,
         List<RunEventDefinition> eventPool)
-    {
+        {
         var map = new RunMap();
         int totalFloors = Mathf.Max(1, floorCount);
         for (int floor = 0; floor < totalFloors; floor++)
         {
-            int nodeCount = floor == totalFloors - 1 ? 1 : GetRandomNodeCountForFloor(map.Floors, floor, minNodes, maxNodes);
+            int nodeCount = floor == totalFloors - 1
+                ? 1
+                : GetRandomNodeCountForFloor(map.Floors, floor, minNodes, maxNodes, floorVarianceChance, totalFloors);
+
 
             var floorNodes = new List<MapNodeData>(nodeCount);
             for (int i = 0; i < nodeCount; i++)
@@ -62,27 +92,59 @@ public class RunMapGenerator
         return map;
     }
 
-    private int GetRandomNodeCountForFloor(List<List<MapNodeData>> floors, int floor, int minNodes, int maxNodes)
+    private int GetRandomNodeCountForFloor(
+        List<List<MapNodeData>> floors,
+        int floor,
+        int minNodes,
+        int maxNodes,
+        float floorVarianceChance,
+        int totalFloors)
     {
         int clampedMin = Mathf.Max(1, Mathf.Min(minNodes, maxNodes));
         int clampedMax = Mathf.Max(clampedMin, maxNodes);
 
-        if (floor <= 0 || floors.Count == 0)
+        int lastFloor = Mathf.Max(0, totalFloors - 1);
+        int baseMin;
+        int baseMax;
+        if (floor == lastFloor - 1)
         {
-            return UnityEngine.Random.Range(clampedMin, clampedMax + 1);
+            baseMin = Mathf.Max(3, lateMin);
+            baseMax = Mathf.Max(baseMin, lateMax);
+        }
+        else if (floor <= 2)
+        {
+            baseMin = earlyMin;
+            baseMax = Mathf.Max(baseMin, earlyMax);
+        }
+        else
+        {
+            baseMin = midMin;
+            baseMax = Mathf.Max(baseMin, midMax);
         }
 
-        int previousCount = floors[floors.Count - 1].Count;
-        int smoothMin = Mathf.Max(clampedMin, previousCount - 1);
-        int smoothMax = Mathf.Min(clampedMax, previousCount + 1);
+        baseMin = Mathf.Clamp(baseMin, clampedMin, clampedMax);
+        baseMax = Mathf.Clamp(baseMax, baseMin, clampedMax);
 
-        if (smoothMin > smoothMax)
+        bool allowVariance = UnityEngine.Random.value < Mathf.Clamp01(floorVarianceChance);
+        int varianceMin = baseMin;
+        int varianceMax = baseMax;
+
+        if (allowVariance)
         {
-            smoothMin = clampedMin;
-            smoothMax = clampedMax;
+            int expandedMin = baseMin - 1;
+            int expandedMax = baseMax + 1;
+
+            if (floor == lastFloor - 1)
+            {
+                expandedMin = Mathf.Max(3, expandedMin);
+            }
+
+            varianceMin = Mathf.Clamp(expandedMin, clampedMin, clampedMax);
+            varianceMax = Mathf.Clamp(expandedMax, varianceMin, clampedMax);
         }
 
-        return UnityEngine.Random.Range(smoothMin, smoothMax + 1);
+        int choice = UnityEngine.Random.Range(varianceMin, varianceMax + 1);
+        return Mathf.Clamp(choice, clampedMin, clampedMax);
     }
 
     private MapNodeType DetermineNodeTypeForFloor(int floor, int totalFloors, float shopRate, float eventRate, float eliteRate)

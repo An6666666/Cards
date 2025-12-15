@@ -109,6 +109,14 @@ public class RunManager : MonoBehaviour
     [SerializeField] private List<RunEventDefinition> eventPool = new List<RunEventDefinition>(); // 事件池
     [SerializeField] private bool autoGenerateOnStart = true;        // 是否一開場就自動做一張圖
 
+    [Header("Map Connection Tuning")]
+    [SerializeField] private int connectionNeighborWindow = 2;
+    [SerializeField] private int maxOutgoingPerNode = 4;
+    [SerializeField, Range(1f, 2.5f)] private float connectionDensity = 1.5f;
+    [SerializeField, Range(1, 3)] private int minIncomingPerTarget = 1;
+    [SerializeField, Range(2, 4)] private int minDistinctSourcesToBoss = 3;
+    [SerializeField, Range(0f, 0.4f)] private float longLinkChance = 0.2f;
+    [SerializeField, Range(0f, 1f)] private float floorVarianceChance = 0.2f;
     private readonly List<List<MapNodeData>> mapFloors = new List<List<MapNodeData>>(); // 存每一層的節點
     private MapNodeData currentNode;                                  // 玩家目前所在的節點
     private MapNodeData activeNode;                                   // 正在進行中的節點（正在戰鬥/商店/事件）
@@ -144,8 +152,16 @@ public class RunManager : MonoBehaviour
         Instance = this;
         DontDestroyOnLoad(gameObject); // 場景切換時不要把我刪掉
 
-        mapGenerator = new RunMapGenerator();
-        mapConnector = new RunMapConnector();
+        mapGenerator = new RunMapGenerator(floorVarianceChance);
+        mapConnector = new RunMapConnector(
+            connectionNeighborWindow,
+            maxOutgoingPerNode,
+            minConnectedSourcesPerRow: 2,
+            backtrackAllowance: 1,
+            connectionDensity: connectionDensity,
+            minIncomingPerTarget: minIncomingPerTarget,
+            minDistinctSourcesToBoss: minDistinctSourcesToBoss,
+            longLinkChance: longLinkChance);
         sceneRouter = new RunSceneRouter(runSceneName, battleSceneName, shopSceneName);
         eventResolver = new RunEventResolver(eventUIManager);
     }
