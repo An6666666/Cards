@@ -1,3 +1,19 @@
+// Default NodeTypeConstraints:
+// eliteMinFloorOffset = 2
+// eliteMaxFloorOffsetFromBoss = 2
+// shopMinFloorOffset = 2
+// shopMaxFloorOffsetFromBoss = 3
+// eventMinFloorOffset = 1
+// eventMaxFloorOffsetFromBoss = 2
+// restMinFloorOffset = 2
+// restMaxFloorOffsetFromBoss = 1
+// eliteMinGap = 3
+// shopMinGap = 3
+// restMinGap = 2
+// forbidConsecutiveElite = true
+// forbidConsecutiveShop = true
+// forbidConsecutiveRest = true
+// maxConsecutiveEvents = 2
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -750,7 +766,7 @@ public class RunMapGenerator
         public int MaxConsecutiveEvents { get; }
 
         public static NodeTypeConstraints Default => new NodeTypeConstraints(
-            eliteMinFloorOffset: 2,
+            eliteMinFloorOffset: 5,
             eliteMaxFloorOffsetFromBoss: 2,
             shopMinFloorOffset: 2,
             shopMaxFloorOffsetFromBoss: 3,
