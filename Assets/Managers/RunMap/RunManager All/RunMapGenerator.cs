@@ -101,6 +101,7 @@ public class RunMapGenerator
 
         int totalFloors = map.Floors.Count;
         SlotAllocationSettings clamped = settings.GetClamped();
+        NodeTypeConstraints constraints = clamped.TypeConstraints;
         List<NodeSlot> availableSlots = CollectConfigurableSlots(map);
         Dictionary<MapNodeData, List<MapNodeData>> predecessors = BuildPredecessorMap(map);
         int remainingSlots = availableSlots.Count;
@@ -120,10 +121,10 @@ public class RunMapGenerator
             remainingSlots);
         remainingSlots -= eventSlots;
 
-        AssignShops(map, availableSlots, shopSlots, totalFloors);
-        AssignElites(map, availableSlots, eliteSlots, totalFloors, predecessors);
-        AssignRests(map, availableSlots, restSlots, totalFloors);
-        AssignEvents(map, availableSlots, eventSlots, totalFloors);
+        AssignShops(map, availableSlots, shopSlots, totalFloors, predecessors, constraints);
+        AssignElites(map, availableSlots, eliteSlots, totalFloors, predecessors, constraints);
+        AssignRests(map, availableSlots, restSlots, totalFloors, predecessors, constraints);
+        AssignEvents(map, availableSlots, eventSlots, totalFloors, predecessors, constraints);
 
         ApplyNodePayloads(map, encounterPool, elitePool, bossEncounter, defaultShop, eventPool);
     }
@@ -230,7 +231,13 @@ public class RunMapGenerator
         return UnityEngine.Random.Range(clampedMin, clampedMax + 1);
     }
 
-    private void AssignShops(RunMap map, List<NodeSlot> available, int count, int totalFloors)
+    private void AssignShops(
+        RunMap map,
+        List<NodeSlot> available,
+        int count,
+        int totalFloors,
+        Dictionary<MapNodeData, List<MapNodeData>> predecessors,
+        NodeTypeConstraints constraints)
     {
         var placed = new List<NodeSlot>();
         var targets = new List<float> { 0.25f, 0.65f, 0.85f };
@@ -241,7 +248,7 @@ public class RunMapGenerator
             NodeSlot? slot = PickBestSlot(
                 available,
                 s => ScoreShopSlot(s, target, totalFloors, placed),
-                s => IsShopAllowed(s, placed));
+                s => IsTypeAllowed(s, MapNodeType.Shop, placed, predecessors, totalFloors, constraints));
 
             if (slot.HasValue)
             {
@@ -251,7 +258,13 @@ public class RunMapGenerator
         }
     }
 
-    private void AssignElites(RunMap map, List<NodeSlot> available, int count, int totalFloors, Dictionary<MapNodeData, List<MapNodeData>> predecessors)
+    private void AssignElites(
+        RunMap map,
+        List<NodeSlot> available,
+        int count,
+        int totalFloors,
+        Dictionary<MapNodeData, List<MapNodeData>> predecessors,
+        NodeTypeConstraints constraints)
     {
         var placed = new List<NodeSlot>();
         for (int i = 0; i < count; i++)
@@ -259,7 +272,7 @@ public class RunMapGenerator
             NodeSlot? slot = PickBestSlot(
                 available,
                 s => ScoreEliteSlot(s, totalFloors),
-                s => IsEliteAllowed(s, placed, predecessors));
+                s => IsTypeAllowed(s, MapNodeType.EliteBattle, placed, predecessors, totalFloors, constraints));
 
             if (slot.HasValue)
             {
@@ -269,7 +282,13 @@ public class RunMapGenerator
         }
     }
 
-    private void AssignRests(RunMap map, List<NodeSlot> available, int count, int totalFloors)
+    private void AssignRests(
+        RunMap map,
+        List<NodeSlot> available,
+        int count,
+        int totalFloors,
+        Dictionary<MapNodeData, List<MapNodeData>> predecessors,
+        NodeTypeConstraints constraints)
     {
         var placed = new List<NodeSlot>();
         for (int i = 0; i < count; i++)
@@ -277,7 +296,7 @@ public class RunMapGenerator
             NodeSlot? slot = PickBestSlot(
                 available,
                 s => ScoreRestSlot(s, totalFloors, placed),
-                _ => true);
+                s => IsTypeAllowed(s, MapNodeType.Rest, placed, predecessors, totalFloors, constraints));
 
             if (slot.HasValue)
             {
@@ -287,18 +306,26 @@ public class RunMapGenerator
         }
     }
 
-    private void AssignEvents(RunMap map, List<NodeSlot> available, int count, int totalFloors)
+    private void AssignEvents(
+        RunMap map,
+        List<NodeSlot> available,
+        int count,
+        int totalFloors,
+        Dictionary<MapNodeData, List<MapNodeData>> predecessors,
+        NodeTypeConstraints constraints)
     {
+        var placed = new List<NodeSlot>();
         for (int i = 0; i < count; i++)
         {
             NodeSlot? slot = PickBestSlot(
                 available,
                 s => ScoreEventSlot(s, totalFloors),
-                _ => true);
+                s => IsTypeAllowed(s, MapNodeType.Event, placed, predecessors, totalFloors, constraints));
 
             if (slot.HasValue)
             {
                 SetSlotType(map, available, slot.Value, MapNodeType.Event);
+                placed.Add(slot.Value);
             }
         }
     }
@@ -339,17 +366,6 @@ public class RunMapGenerator
         return 1.3f - distance * 1.4f + traffic + spacingBonus;
     }
 
-    private bool IsShopAllowed(NodeSlot slot, List<NodeSlot> existingShops)
-    {
-        foreach (NodeSlot shop in existingShops)
-        {
-            if (Mathf.Abs(shop.FloorIndex - slot.FloorIndex) <= 1)
-                return false; // 不允許相鄰樓層連續出現商店
-        }
-
-        return slot.FloorIndex < slot.TotalFloors - 1; // 不要把商店放在 Boss 層
-    }
-
     private float ScoreEliteSlot(NodeSlot slot, int totalFloors)
     {
         float incomingPressure = 1.2f / (1 + slot.Incoming); // incoming 越低越偏側路
@@ -359,18 +375,6 @@ public class RunMapGenerator
         float depth = Mathf.Lerp(0.2f, 0.85f, slot.GetNormalizedFloor(totalFloors));
 
         return incomingPressure + edgeBonus + narrowness + bottleneck + depth;
-    }
-
-    private bool IsEliteAllowed(NodeSlot slot, List<NodeSlot> existingElites, Dictionary<MapNodeData, List<MapNodeData>> predecessors)
-    {
-        foreach (NodeSlot elite in existingElites)
-        {
-            int floorGap = Mathf.Abs(elite.FloorIndex - slot.FloorIndex);
-            if (floorGap <= 2 && AreNodesCloseOnPath(elite.Node, slot.Node, floorGap, predecessors))
-                return false; // 同一路徑或短距離可達時避免連續菁英
-        }
-
-        return true;
     }
 
     private bool AreNodesCloseOnPath(MapNodeData a, MapNodeData b, int maxFloorGap, Dictionary<MapNodeData, List<MapNodeData>> predecessors)
@@ -424,6 +428,103 @@ public class RunMapGenerator
         }
 
         return false;
+    }
+
+    private bool IsTypeAllowed(
+        NodeSlot slot,
+        MapNodeType type,
+        List<NodeSlot> placedOfType,
+        Dictionary<MapNodeData, List<MapNodeData>> predecessors,
+        int totalFloors,
+        NodeTypeConstraints constraints)
+    {
+        (int minOffset, int maxOffsetFromBoss, int minGap, bool forbidConsecutive, int maxConsecutiveEvents) = type switch
+        {
+            MapNodeType.EliteBattle => (
+                constraints.EliteMinFloorOffset,
+                constraints.EliteMaxFloorOffsetFromBoss,
+                constraints.EliteMinGap,
+                constraints.ForbidConsecutiveElite,
+                0),
+            MapNodeType.Shop => (
+                constraints.ShopMinFloorOffset,
+                constraints.ShopMaxFloorOffsetFromBoss,
+                constraints.ShopMinGap,
+                constraints.ForbidConsecutiveShop,
+                0),
+            MapNodeType.Rest => (
+                constraints.RestMinFloorOffset,
+                constraints.RestMaxFloorOffsetFromBoss,
+                constraints.RestMinGap,
+                constraints.ForbidConsecutiveRest,
+                0),
+            MapNodeType.Event => (
+                constraints.EventMinFloorOffset,
+                constraints.EventMaxFloorOffsetFromBoss,
+                0,
+                false,
+                constraints.MaxConsecutiveEvents),
+            _ => (0, 0, 0, false, 0)
+        };
+
+        if (slot.FloorIndex < minOffset)
+            return false;
+
+        int distanceToBoss = (totalFloors - 1) - slot.FloorIndex;
+        if (distanceToBoss < maxOffsetFromBoss)
+            return false;
+
+        foreach (NodeSlot placed in placedOfType)
+        {
+            int floorGap = Mathf.Abs(placed.FloorIndex - slot.FloorIndex);
+            if (minGap > 0 && floorGap < minGap && AreNodesCloseOnPath(placed.Node, slot.Node, minGap, predecessors))
+                return false;
+
+            if (forbidConsecutive && floorGap == 1 && AreNodesCloseOnPath(placed.Node, slot.Node, 1, predecessors))
+                return false;
+        }
+
+        if (type == MapNodeType.Event && maxConsecutiveEvents > 0)
+        {
+            var memo = new Dictionary<MapNodeData, int>();
+            int chain = GetConsecutiveEventDepth(slot.Node, predecessors, memo, true);
+            if (chain > maxConsecutiveEvents)
+                return false;
+        }
+
+        return true;
+    }
+
+    private int GetConsecutiveEventDepth(
+        MapNodeData node,
+        Dictionary<MapNodeData, List<MapNodeData>> predecessors,
+        Dictionary<MapNodeData, int> memo,
+        bool treatNodeAsEvent = false)
+    {
+        bool isEvent = treatNodeAsEvent || node.NodeType == MapNodeType.Event;
+        if (!isEvent)
+            return 0;
+
+        if (!treatNodeAsEvent && memo.TryGetValue(node, out int cached))
+            return cached;
+
+        int maxParentChain = 0;
+        if (predecessors != null && predecessors.TryGetValue(node, out var parents))
+        {
+            foreach (MapNodeData parent in parents)
+            {
+                if (parent == null)
+                    continue;
+
+                int parentChain = GetConsecutiveEventDepth(parent, predecessors, memo);
+                maxParentChain = Mathf.Max(maxParentChain, parentChain);
+            }
+        }
+
+        int result = 1 + maxParentChain;
+        if (!treatNodeAsEvent)
+            memo[node] = result;
+        return result;
     }
 
     private float ScoreRestSlot(NodeSlot slot, int totalFloors, List<NodeSlot> existingRests)
@@ -585,7 +686,9 @@ public class RunMapGenerator
         public float EventRatioMin { get; }
         public float EventRatioMax { get; }
 
-        public static SlotAllocationSettings Default => new SlotAllocationSettings(2, 3, 2, 4, 4, 6, 0.2f, 0.25f);
+        public NodeTypeConstraints TypeConstraints { get; }
+
+        public static SlotAllocationSettings Default => new SlotAllocationSettings(2, 3, 2, 4, 4, 6, 0.2f, 0.25f, NodeTypeConstraints.Default);
 
         public SlotAllocationSettings(
             int shopMin,
@@ -595,7 +698,8 @@ public class RunMapGenerator
             int restMin,
             int restMax,
             float eventRatioMin,
-            float eventRatioMax)
+            float eventRatioMax,
+            NodeTypeConstraints? typeConstraints = null)
         {
             ShopMin = shopMin;
             ShopMax = shopMax;
@@ -605,6 +709,7 @@ public class RunMapGenerator
             RestMax = restMax;
             EventRatioMin = eventRatioMin;
             EventRatioMax = eventRatioMax;
+            TypeConstraints = typeConstraints ?? NodeTypeConstraints.Default;
         }
 
         public SlotAllocationSettings GetClamped()
@@ -619,7 +724,100 @@ public class RunMapGenerator
             float eventMin = Mathf.Clamp01(EventRatioMin);
             float eventMax = Mathf.Clamp(EventRatioMax, eventMin, 1f);
 
-            return new SlotAllocationSettings(shopMin, shopMax, eliteMin, eliteMax, restMin, restMax, eventMin, eventMax);
+            NodeTypeConstraints clampedConstraints = TypeConstraints.GetClamped();
+
+            return new SlotAllocationSettings(shopMin, shopMax, eliteMin, eliteMax, restMin, restMax, eventMin, eventMax, clampedConstraints);
+        }
+    }
+
+    [Serializable]
+    public readonly struct NodeTypeConstraints
+    {
+        public int EliteMinFloorOffset { get; }
+        public int EliteMaxFloorOffsetFromBoss { get; }
+        public int ShopMinFloorOffset { get; }
+        public int ShopMaxFloorOffsetFromBoss { get; }
+        public int EventMinFloorOffset { get; }
+        public int EventMaxFloorOffsetFromBoss { get; }
+        public int RestMinFloorOffset { get; }
+        public int RestMaxFloorOffsetFromBoss { get; }
+        public int EliteMinGap { get; }
+        public int ShopMinGap { get; }
+        public int RestMinGap { get; }
+        public bool ForbidConsecutiveElite { get; }
+        public bool ForbidConsecutiveShop { get; }
+        public bool ForbidConsecutiveRest { get; }
+        public int MaxConsecutiveEvents { get; }
+
+        public static NodeTypeConstraints Default => new NodeTypeConstraints(
+            eliteMinFloorOffset: 2,
+            eliteMaxFloorOffsetFromBoss: 2,
+            shopMinFloorOffset: 2,
+            shopMaxFloorOffsetFromBoss: 3,
+            eventMinFloorOffset: 1,
+            eventMaxFloorOffsetFromBoss: 2,
+            restMinFloorOffset: 2,
+            restMaxFloorOffsetFromBoss: 1,
+            eliteMinGap: 3,
+            shopMinGap: 3,
+            restMinGap: 2,
+            forbidConsecutiveElite: true,
+            forbidConsecutiveShop: true,
+            forbidConsecutiveRest: true,
+            maxConsecutiveEvents: 2);
+
+        public NodeTypeConstraints(
+            int eliteMinFloorOffset,
+            int eliteMaxFloorOffsetFromBoss,
+            int shopMinFloorOffset,
+            int shopMaxFloorOffsetFromBoss,
+            int eventMinFloorOffset,
+            int eventMaxFloorOffsetFromBoss,
+            int restMinFloorOffset,
+            int restMaxFloorOffsetFromBoss,
+            int eliteMinGap,
+            int shopMinGap,
+            int restMinGap,
+            bool forbidConsecutiveElite,
+            bool forbidConsecutiveShop,
+            bool forbidConsecutiveRest,
+            int maxConsecutiveEvents)
+        {
+            EliteMinFloorOffset = eliteMinFloorOffset;
+            EliteMaxFloorOffsetFromBoss = eliteMaxFloorOffsetFromBoss;
+            ShopMinFloorOffset = shopMinFloorOffset;
+            ShopMaxFloorOffsetFromBoss = shopMaxFloorOffsetFromBoss;
+            EventMinFloorOffset = eventMinFloorOffset;
+            EventMaxFloorOffsetFromBoss = eventMaxFloorOffsetFromBoss;
+            RestMinFloorOffset = restMinFloorOffset;
+            RestMaxFloorOffsetFromBoss = restMaxFloorOffsetFromBoss;
+            EliteMinGap = eliteMinGap;
+            ShopMinGap = shopMinGap;
+            RestMinGap = restMinGap;
+            ForbidConsecutiveElite = forbidConsecutiveElite;
+            ForbidConsecutiveShop = forbidConsecutiveShop;
+            ForbidConsecutiveRest = forbidConsecutiveRest;
+            MaxConsecutiveEvents = maxConsecutiveEvents;
+        }
+
+        public NodeTypeConstraints GetClamped()
+        {
+            return new NodeTypeConstraints(
+                Mathf.Max(0, EliteMinFloorOffset),
+                Mathf.Max(0, EliteMaxFloorOffsetFromBoss),
+                Mathf.Max(0, ShopMinFloorOffset),
+                Mathf.Max(0, ShopMaxFloorOffsetFromBoss),
+                Mathf.Max(0, EventMinFloorOffset),
+                Mathf.Max(0, EventMaxFloorOffsetFromBoss),
+                Mathf.Max(0, RestMinFloorOffset),
+                Mathf.Max(0, RestMaxFloorOffsetFromBoss),
+                Mathf.Max(0, EliteMinGap),
+                Mathf.Max(0, ShopMinGap),
+                Mathf.Max(0, RestMinGap),
+                ForbidConsecutiveElite,
+                ForbidConsecutiveShop,
+                ForbidConsecutiveRest,
+                Mathf.Max(0, MaxConsecutiveEvents));
         }
     }
 
