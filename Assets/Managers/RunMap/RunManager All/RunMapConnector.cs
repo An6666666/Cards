@@ -20,7 +20,7 @@ public class RunMapConnector
     public RunMapConnector(
         int neighborWindow = 2,
         int maxOutgoingPerNode = 4,
-        int minConnectedSourcesPerRow = 2,
+        int minConnectedSourcesPerRow = 3,
         int backtrackAllowance = 1,
         float connectionDensity = 1.5f,
         int minIncomingPerTarget = 1,
@@ -142,9 +142,12 @@ public class RunMapConnector
 
             // 補強：至少有 MinConnectedSourcesPerRow 個來源節點與下一列連結
             int connectedSources = outgoingConnections.Count(pair => pair.Value > 0);
-            if (connectedSources < minConnectedSourcesPerRow)
+            int requiredSources = currentCount >= 3
+                ? Mathf.Min(minConnectedSourcesPerRow, currentCount)
+                : Mathf.Min(currentCount, minConnectedSourcesPerRow);
+            if (connectedSources < requiredSources)
             {
-                for (int sourceIndex = 0; sourceIndex < currentCount && connectedSources < minConnectedSourcesPerRow; sourceIndex++)
+                for (int sourceIndex = 0; sourceIndex < currentCount && connectedSources < requiredSources; sourceIndex++)
                 {
                     if (outgoingConnections[currentFloor[sourceIndex]] > 0)
                         continue;
@@ -568,7 +571,10 @@ public class RunMapConnector
         int nextCount = nextFloor.Count;
 
         int connectedSources = outgoingConnections.Count(pair => pair.Value > 0);
-        int required = Mathf.Min(minConnectedSourcesPerRow, currentCount) - connectedSources;
+        int desired = currentCount >= 3
+            ? Mathf.Min(minConnectedSourcesPerRow, currentCount)
+            : Mathf.Min(currentCount, minConnectedSourcesPerRow);
+        int required = desired - connectedSources;
         if (required <= 0)
             return;
 

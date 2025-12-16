@@ -9,6 +9,7 @@ public enum MapNodeType
     Battle,
     EliteBattle,
     Shop,
+    Rest,
     Event,
     Boss
 }
@@ -62,6 +63,12 @@ public class MapNodeData
         shopInventory = definition;
     }
 
+    // 更新節點類型（Slot 分配後用）
+    public void SetNodeType(MapNodeType type)
+    {
+        nodeType = type;
+    }
+
     // 標記這個節點完成
     public void MarkCompleted()
     {
@@ -99,9 +106,17 @@ public class RunManager : MonoBehaviour
     [SerializeField] private int floorCount = 4;                     // 一張圖有幾層
     [SerializeField] private int minNodesPerFloor = 2;               // 每層節點數下限
     [SerializeField] private int maxNodesPerFloor = 4;               // 每層節點數上限
-    [SerializeField, Range(0f, 1f)] private float eventRate = 0.2f;  // 生成事件節點的機率
-    [SerializeField, Range(0f, 1f)] private float shopRate = 0.15f;  // 生成商店節點的機率
-    [SerializeField, Range(0f, 1f)] private float eliteBattleRate = 0.1f; // 生成菁英戰鬥節點的機率
+    [Obsolete("Slot-based generation no longer uses single-node rates")] [SerializeField, Range(0f, 1f)] private float eventRate = 0.2f;  // 已棄用
+    [Obsolete("Slot-based generation no longer uses single-node rates")] [SerializeField, Range(0f, 1f)] private float shopRate = 0.15f;  // 已棄用
+    [Obsolete("Slot-based generation no longer uses single-node rates")] [SerializeField, Range(0f, 1f)] private float eliteBattleRate = 0.1f; // 已棄用
+    [SerializeField] private int shopMin = 2;
+    [SerializeField] private int shopMax = 3;
+    [SerializeField] private int eliteMin = 2;
+    [SerializeField] private int eliteMax = 4;
+    [SerializeField] private int restMin = 4;
+    [SerializeField] private int restMax = 6;
+    [SerializeField, Range(0f, 1f)] private float eventRatioMin = 0.2f;
+    [SerializeField, Range(0f, 1f)] private float eventRatioMax = 0.25f;
     [SerializeField] private EncounterPool encounterPool;            // 戰鬥池，從這裡抽戰鬥 :contentReference[oaicite:4]{index=
     [SerializeField] private EncounterPool eliteEncounterPool;       // 菁英戰鬥池，專門放菁英戰鬥
     [SerializeField] private RunEncounterDefinition bossEncounter;   // Boss 專用戰鬥
@@ -117,6 +132,7 @@ public class RunManager : MonoBehaviour
     [SerializeField, Range(2, 4)] private int minDistinctSourcesToBoss = 3;
     [SerializeField, Range(0f, 0.4f)] private float longLinkChance = 0.2f;
     [SerializeField, Range(0f, 1f)] private float floorVarianceChance = 0.2f;
+    [SerializeField, Range(1, 4)] private int minConnectedSourcesPerRow = 3;
     private readonly List<List<MapNodeData>> mapFloors = new List<List<MapNodeData>>(); // 存每一層的節點
     private MapNodeData currentNode;                                  // 玩家目前所在的節點
     private MapNodeData activeNode;                                   // 正在進行中的節點（正在戰鬥/商店/事件）
@@ -156,7 +172,7 @@ public class RunManager : MonoBehaviour
         mapConnector = new RunMapConnector(
             connectionNeighborWindow,
             maxOutgoingPerNode,
-            minConnectedSourcesPerRow: 2,
+            minConnectedSourcesPerRow: minConnectedSourcesPerRow,
             backtrackAllowance: 1,
             connectionDensity: connectionDensity,
             minIncomingPerTarget: minIncomingPerTarget,
@@ -202,20 +218,35 @@ public class RunManager : MonoBehaviour
     // 產生一張新的 run 地圖
     public void GenerateNewRun()
     {
+        var slotSettings = new RunMapGenerator.SlotAllocationSettings(
+            shopMin,
+            shopMax,
+            eliteMin,
+            eliteMax,
+            restMin,
+            restMax,
+            eventRatioMin,
+            eventRatioMax);
+
         RunMap map = mapGenerator.Generate(
             floorCount,
             minNodesPerFloor,
             maxNodesPerFloor,
-            shopRate,
-            eventRate,
-            eliteBattleRate,
+            encounterPool,
+            eliteEncounterPool,
+            bossEncounter,
+            defaultShopInventory,
+            eventPool,
+            slotSettings);
+
+        mapConnector.BuildConnections(map);
+        mapGenerator.AllocateSlotsAcrossMapAfterConnections(
+            map,
             encounterPool,
             eliteEncounterPool,
             bossEncounter,
             defaultShopInventory,
             eventPool);
-
-        mapConnector.BuildConnections(map);
         mapFloors.Clear();
         mapFloors.AddRange(map.Floors);
         currentNode = null;     // 還沒選起始節點
@@ -270,6 +301,10 @@ public class RunManager : MonoBehaviour
                 CompleteActiveNodeWithoutBattle();
                 currentRunSnapshot = eventResolver.CurrentRunSnapshot;
             });
+        }
+        else if (node.NodeType == MapNodeType.Rest)
+        {
+            CompleteActiveNodeWithoutBattle();
         }
         else
         {
