@@ -21,6 +21,7 @@ using UnityEngine;
 
 public class RunMapGenerator
 {
+    private readonly RunMapGenerationFeatureFlags featureFlags;
     private readonly float floorVarianceChance;
 
     private readonly int earlyMin;
@@ -37,7 +38,8 @@ public class RunMapGenerator
         int midMin = 3,
         int midMax = 5,
         int lateMin = 3,
-        int lateMax = 4)
+        int lateMax = 4,
+        RunMapGenerationFeatureFlags featureFlags = null)
     {
         this.floorVarianceChance = Mathf.Clamp01(floorVarianceChance);
         this.earlyMin = Mathf.Max(1, Mathf.Min(earlyMin, earlyMax));
@@ -46,6 +48,7 @@ public class RunMapGenerator
         this.midMax = Mathf.Max(this.midMin, midMax);
         this.lateMin = Mathf.Max(1, Mathf.Min(lateMin, lateMax));
         this.lateMax = Mathf.Max(this.lateMin, lateMax);
+        this.featureFlags = featureFlags ?? RunMapGenerationFeatureFlags.Default;
     }
 
     public RunMap Generate(
@@ -120,6 +123,7 @@ public class RunMapGenerator
         NodeTypeConstraints constraints = clamped.TypeConstraints;
         List<NodeSlot> availableSlots = CollectConfigurableSlots(map);
         Dictionary<MapNodeData, List<MapNodeData>> predecessors = BuildPredecessorMap(map);
+        var slotContext = new SlotAssignmentContext(map, constraints, availableSlots, predecessors);
         int remainingSlots = availableSlots.Count;
 
         int shopSlots = Mathf.Min(GetSlotCount(clamped.ShopMin, clamped.ShopMax, remainingSlots), remainingSlots);
@@ -137,10 +141,10 @@ public class RunMapGenerator
             remainingSlots);
         remainingSlots -= eventSlots;
 
-        AssignShops(map, availableSlots, shopSlots, totalFloors, predecessors, constraints);
-        AssignElites(map, availableSlots, eliteSlots, totalFloors, predecessors, constraints);
-        AssignRests(map, availableSlots, restSlots, totalFloors, predecessors, constraints);
-        AssignEvents(map, availableSlots, eventSlots, totalFloors, predecessors, constraints);
+        AssignShops(slotContext, shopSlots);
+        AssignElites(slotContext, eliteSlots);
+        AssignRests(slotContext, restSlots);
+        AssignEvents(slotContext, eventSlots);
 
         ApplyNodePayloads(map, encounterPool, elitePool, bossEncounter, defaultShop, eventPool);
     }
@@ -248,12 +252,8 @@ public class RunMapGenerator
     }
 
     private void AssignShops(
-        RunMap map,
-        List<NodeSlot> available,
-        int count,
-        int totalFloors,
-        Dictionary<MapNodeData, List<MapNodeData>> predecessors,
-        NodeTypeConstraints constraints)
+        SlotAssignmentContext context,
+        int count)
     {
         var placed = new List<NodeSlot>();
         var targets = new List<float> { 0.25f, 0.65f, 0.85f };
@@ -262,94 +262,82 @@ public class RunMapGenerator
         {
             float target = i < targets.Count ? targets[i] : targets.Last();
             NodeSlot? slot = PickBestSlot(
-                available,
-                s => ScoreShopSlot(s, target, totalFloors, placed),
-                s => IsTypeAllowed(s, MapNodeType.Shop, placed, predecessors, totalFloors, constraints));
+                context.AvailableSlots,
+                s => ScoreShopSlot(s, target, context.TotalFloors, placed),
+                s => IsTypeAllowed(s, MapNodeType.Shop, placed, context.Predecessors, context.TotalFloors, context.Constraints));
 
             if (slot.HasValue)
             {
-                SetSlotType(map, available, slot.Value, MapNodeType.Shop);
+                SetSlotType(context, slot.Value, MapNodeType.Shop);
                 placed.Add(slot.Value);
             }
         }
     }
 
     private void AssignElites(
-        RunMap map,
-        List<NodeSlot> available,
-        int count,
-        int totalFloors,
-        Dictionary<MapNodeData, List<MapNodeData>> predecessors,
-        NodeTypeConstraints constraints)
+        SlotAssignmentContext context,
+        int count)
     {
         var placed = new List<NodeSlot>();
         for (int i = 0; i < count; i++)
         {
             NodeSlot? slot = PickBestSlot(
-                available,
-                s => ScoreEliteSlot(s, totalFloors),
-                s => IsTypeAllowed(s, MapNodeType.EliteBattle, placed, predecessors, totalFloors, constraints));
+                context.AvailableSlots,
+                s => ScoreEliteSlot(s, context.TotalFloors),
+                s => IsTypeAllowed(s, MapNodeType.EliteBattle, placed, context.Predecessors, context.TotalFloors, context.Constraints));
 
             if (slot.HasValue)
             {
-                SetSlotType(map, available, slot.Value, MapNodeType.EliteBattle);
+                SetSlotType(context, slot.Value, MapNodeType.EliteBattle);
                 placed.Add(slot.Value);
             }
         }
     }
 
     private void AssignRests(
-        RunMap map,
-        List<NodeSlot> available,
-        int count,
-        int totalFloors,
-        Dictionary<MapNodeData, List<MapNodeData>> predecessors,
-        NodeTypeConstraints constraints)
+        SlotAssignmentContext context,
+        int count)
     {
         var placed = new List<NodeSlot>();
         for (int i = 0; i < count; i++)
         {
             NodeSlot? slot = PickBestSlot(
-                available,
-                s => ScoreRestSlot(s, totalFloors, placed),
-                s => IsTypeAllowed(s, MapNodeType.Rest, placed, predecessors, totalFloors, constraints));
+                context.AvailableSlots,
+                s => ScoreRestSlot(s, context.TotalFloors, placed),
+                s => IsTypeAllowed(s, MapNodeType.Rest, placed, context.Predecessors, context.TotalFloors, context.Constraints));
 
             if (slot.HasValue)
             {
-                SetSlotType(map, available, slot.Value, MapNodeType.Rest);
+                SetSlotType(context, slot.Value, MapNodeType.Rest);
                 placed.Add(slot.Value);
             }
         }
     }
 
     private void AssignEvents(
-        RunMap map,
-        List<NodeSlot> available,
-        int count,
-        int totalFloors,
-        Dictionary<MapNodeData, List<MapNodeData>> predecessors,
-        NodeTypeConstraints constraints)
+        SlotAssignmentContext context,
+        int count)
     {
         var placed = new List<NodeSlot>();
         for (int i = 0; i < count; i++)
         {
             NodeSlot? slot = PickBestSlot(
-                available,
-                s => ScoreEventSlot(s, totalFloors),
-                s => IsTypeAllowed(s, MapNodeType.Event, placed, predecessors, totalFloors, constraints));
+                context.AvailableSlots,
+                s => ScoreEventSlot(s, context.TotalFloors),
+                s => IsTypeAllowed(s, MapNodeType.Event, placed, context.Predecessors, context.TotalFloors, context.Constraints));
 
             if (slot.HasValue)
             {
-                SetSlotType(map, available, slot.Value, MapNodeType.Event);
+                SetSlotType(context, slot.Value, MapNodeType.Event);
                 placed.Add(slot.Value);
             }
         }
     }
 
-    private void SetSlotType(RunMap map, List<NodeSlot> available, NodeSlot slot, MapNodeType type)
+    private void SetSlotType(SlotAssignmentContext context, NodeSlot slot, MapNodeType type)
     {
         slot.Node.SetNodeType(type);
-        available.RemoveAll(s => s.Node == slot.Node);
+        context.AvailableSlots.RemoveAll(s => s.Node == slot.Node);
     }
 
     private NodeSlot? PickBestSlot(
@@ -837,6 +825,28 @@ public class RunMapGenerator
         }
     }
 
+    private sealed class SlotAssignmentContext
+    {
+        public SlotAssignmentContext(
+            RunMap map,
+            NodeTypeConstraints constraints,
+            List<NodeSlot> availableSlots,
+            Dictionary<MapNodeData, List<MapNodeData>> predecessors)
+        {
+            Map = map;
+            Constraints = constraints;
+            AvailableSlots = availableSlots;
+            Predecessors = predecessors;
+            TotalFloors = map?.Floors?.Count ?? 0;
+        }
+
+        public RunMap Map { get; }
+        public NodeTypeConstraints Constraints { get; }
+        public List<NodeSlot> AvailableSlots { get; }
+        public Dictionary<MapNodeData, List<MapNodeData>> Predecessors { get; }
+        public int TotalFloors { get; }
+    }
+    
     private readonly struct NodeSlot
     {
         public MapNodeData Node { get; }

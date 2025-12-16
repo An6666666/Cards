@@ -168,7 +168,8 @@ public class RunManager : MonoBehaviour
         Instance = this;
         DontDestroyOnLoad(gameObject); // 場景切換時不要把我刪掉
 
-        mapGenerator = new RunMapGenerator(floorVarianceChance);
+        RunMapGenerationFeatureFlags generationFeatureFlags = RunMapGenerationFeatureFlags.Default;
+        mapGenerator = new RunMapGenerator(floorVarianceChance, featureFlags: generationFeatureFlags);
         mapConnector = new RunMapConnector(
             connectionNeighborWindow,
             maxOutgoingPerNode,
@@ -177,7 +178,8 @@ public class RunManager : MonoBehaviour
             connectionDensity: connectionDensity,
             minIncomingPerTarget: minIncomingPerTarget,
             minDistinctSourcesToBoss: minDistinctSourcesToBoss,
-            longLinkChance: longLinkChance);
+            longLinkChance: longLinkChance,
+            featureFlags: generationFeatureFlags);
         sceneRouter = new RunSceneRouter(runSceneName, battleSceneName, shopSceneName);
         eventResolver = new RunEventResolver(eventUIManager);
     }

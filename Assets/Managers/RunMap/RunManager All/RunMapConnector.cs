@@ -4,6 +4,8 @@ using UnityEngine;
 
 public class RunMapConnector
 {
+    private readonly RunMapGenerationFeatureFlags featureFlags;
+
     private readonly int maxOutgoingPerNode;
     private readonly int neighborWindow; // 限制連線僅在左右相鄰一格內
     private readonly int minConnectedSourcesPerRow;
@@ -26,7 +28,8 @@ public class RunMapConnector
         int minIncomingPerTarget = 1,
         int minDistinctSourcesToBoss = 3,
         float longLinkChance = 0.2f,
-        int minDistinctTargetsPerFloor = 2)
+        int minDistinctTargetsPerFloor = 2,
+        RunMapGenerationFeatureFlags featureFlags = null)
     {
         this.neighborWindow = Mathf.Max(0, neighborWindow);
         this.maxOutgoingPerNode = Mathf.Max(1, maxOutgoingPerNode);
@@ -37,6 +40,50 @@ public class RunMapConnector
         this.minDistinctSourcesToBoss = Mathf.Max(1, minDistinctSourcesToBoss);
         this.longLinkChance = Mathf.Clamp01(longLinkChance);
         this.minDistinctTargetsPerFloor = Mathf.Max(1, minDistinctTargetsPerFloor);
+        this.featureFlags = featureFlags ?? RunMapGenerationFeatureFlags.Default;
+    }
+
+    private sealed class FloorConnectionContext
+    {
+        public FloorConnectionContext(List<MapNodeData> currentFloor, List<MapNodeData> nextFloor)
+        {
+            CurrentFloor = currentFloor;
+            NextFloor = nextFloor;
+
+            OutgoingConnections = new Dictionary<MapNodeData, int>();
+            IncomingConnections = new Dictionary<MapNodeData, int>();
+
+            PrimaryTargets = new int[currentFloor.Count];
+            IncomingCounts = new int[nextFloor.Count];
+            MinTargets = new int[currentFloor.Count];
+            MaxTargets = new int[currentFloor.Count];
+            PrefixMaxTargets = new int[currentFloor.Count];
+            SuffixMinTargets = new int[currentFloor.Count];
+
+            for (int i = 0; i < CurrentCount; i++)
+            {
+                OutgoingConnections[currentFloor[i]] = 0;
+                PrimaryTargets[i] = -1;
+                MinTargets[i] = int.MaxValue;
+                MaxTargets[i] = -1;
+            }
+        }
+
+        public List<MapNodeData> CurrentFloor { get; }
+        public List<MapNodeData> NextFloor { get; }
+
+        public Dictionary<MapNodeData, int> OutgoingConnections { get; }
+        public Dictionary<MapNodeData, int> IncomingConnections { get; }
+
+        public int[] PrimaryTargets { get; }
+        public int[] IncomingCounts { get; }
+        public int[] MinTargets { get; }
+        public int[] MaxTargets { get; }
+        public int[] PrefixMaxTargets { get; }
+        public int[] SuffixMinTargets { get; }
+
+        public int CurrentCount => CurrentFloor.Count;
+        public int NextCount => NextFloor.Count;
     }
     public void BuildConnections(RunMap map)
     {
@@ -51,251 +98,155 @@ public class RunMapConnector
             if (currentFloor.Count == 0 || nextFloor.Count == 0)
                 continue;
 
-            int currentCount = currentFloor.Count;
-            int nextCount = nextFloor.Count;
+            var context = new FloorConnectionContext(currentFloor, nextFloor);
+            bool isLinkToBoss = (floor + 1 == map.Floors.Count - 1) && context.NextCount == 1;
 
-            var outgoingConnections = new Dictionary<MapNodeData, int>();
-            var incomingConnections = new Dictionary<MapNodeData, int>();
+            InitializePrimaryConnections(context);
+            RecomputeBounds(context);
 
-            var primaryTargets = new int[currentCount];
-            var incomingCounts = new int[nextCount];
-            var minTargets = new int[currentCount];
-            var maxTargets = new int[currentCount];
-            var prefixMaxTargets = new int[currentCount];
-            var suffixMinTargets = new int[currentCount];
-
-
-            for (int i = 0; i < currentCount; i++)
-            {
-                outgoingConnections[currentFloor[i]] = 0;
-                primaryTargets[i] = -1;
-                minTargets[i] = int.MaxValue;
-                maxTargets[i] = -1;
-            }
-
-            // 第一輪：每個來源至少連到一個目標，保持目標索引非遞減以避免交叉，且僅連到相鄰索引範圍
-            int previousTarget = -1;
-            for (int sourceIndex = 0; sourceIndex < currentCount; sourceIndex++)
-            {
-                GetAnchorRange(sourceIndex, currentCount, nextCount, out int anchor, out int anchorMin, out int anchorMax);
-                int lowerBound = Mathf.Max(previousTarget - backtrackAllowance, anchorMin);
-                int upperBound = anchorMax;
-                if (lowerBound > upperBound)
-                {
-                    lowerBound = Mathf.Min(lowerBound, nextCount - 1);
-                    upperBound = Mathf.Max(lowerBound, upperBound);
-                }
-
-                int targetIndex = Mathf.Clamp(anchor, lowerBound, upperBound);
-                if (ConnectAndTrack(
-                        currentFloor,
-                        nextFloor,
-                        sourceIndex,
-                        targetIndex,
-                        outgoingConnections,
-                        incomingConnections,
-                        incomingCounts,
-                        minTargets,
-                        maxTargets,
-                        primaryTargets))
-                {
-                    previousTarget = Mathf.Max(previousTarget, targetIndex);
-                }
-            }
-
-            // 建立界線陣列供後續判斷交叉
-            RecomputeBounds(currentCount, nextCount, minTargets, maxTargets, prefixMaxTargets, suffixMinTargets);
-
-            // 第二輪：確保每個目標至少有一條進線
-            for (int targetIndex = 0; targetIndex < nextCount; targetIndex++)
-            {
-                if (incomingCounts[targetIndex] >= minIncomingPerTarget)
-                    continue;
-
-                int sourceIndex = SelectSourceForUnconnectedTarget(
-                    floor,
-                    targetIndex,
-                    primaryTargets,
-                    outgoingConnections,
-                    minTargets,
-                    maxTargets,
-                    prefixMaxTargets,
-                    suffixMinTargets,
-                    currentFloor,
-                    nextCount);
-
-                if (sourceIndex >= 0 && ConnectAndTrack(
-                        currentFloor,
-                        nextFloor,
-                        sourceIndex,
-                        targetIndex,
-                        outgoingConnections,
-                        incomingConnections,
-                        incomingCounts,
-                        minTargets,
-                        maxTargets,
-                        primaryTargets))
-                {
-                    RecomputeBounds(currentCount, nextCount, minTargets, maxTargets, prefixMaxTargets, suffixMinTargets);
-                }
-            }
-
-            // 補強：至少有 MinConnectedSourcesPerRow 個來源節點與下一列連結
-            int connectedSources = outgoingConnections.Count(pair => pair.Value > 0);
-            int requiredSources = currentCount >= 3
-                ? Mathf.Min(minConnectedSourcesPerRow, currentCount)
-                : Mathf.Min(currentCount, minConnectedSourcesPerRow);
-            if (connectedSources < requiredSources)
-            {
-                for (int sourceIndex = 0; sourceIndex < currentCount && connectedSources < requiredSources; sourceIndex++)
-                {
-                    if (outgoingConnections[currentFloor[sourceIndex]] > 0)
-                        continue;
-
-                    GetAnchorRange(sourceIndex, currentCount, nextCount, out int anchorTarget, out int anchorLower, out int anchorUpper);
-
-                    int lowerBound = sourceIndex > 0 ? prefixMaxTargets[sourceIndex - 1] + 1 : 0;
-                    int upperBound = sourceIndex < currentCount - 1
-                        ? Mathf.Min(nextCount - 1, suffixMinTargets[sourceIndex + 1] - 1)
-                        : nextCount - 1;
-
-                    lowerBound = Mathf.Max(lowerBound, anchorLower);
-                    upperBound = Mathf.Min(upperBound, anchorUpper);
-
-                    if (lowerBound > upperBound)
-                        continue;
-
-                    int candidate = Mathf.Clamp(anchorTarget, lowerBound, upperBound);
-                    if (ConnectAndTrack(
-                            currentFloor,
-                            nextFloor,
-                            sourceIndex,
-                            candidate,
-                            outgoingConnections,
-                            incomingConnections,
-                            incomingCounts,
-                            minTargets,
-                            maxTargets,
-                            primaryTargets))
-                    {
-                        connectedSources++;
-                        RecomputeBounds(currentCount, nextCount, minTargets, maxTargets, prefixMaxTargets, suffixMinTargets);
-                    }
-                }
-            }
-
-            // Boss 前一層特別處理：確保有足夠來源連到 Boss
-            bool isLinkToBoss = (floor + 1 == map.Floors.Count - 1) && nextCount == 1;
+            EnsureIncomingCoverage(context, floor);
+            EnsureMinimumConnectedSources(context);
             if (isLinkToBoss)
             {
-                EnsureBossConnections(
-                    currentFloor,
-                    nextFloor,
-                    outgoingConnections,
-                    incomingConnections,
-                    incomingCounts,
-                    minTargets,
-                    maxTargets,
-                    prefixMaxTargets,
-                    suffixMinTargets,
-                    primaryTargets,
-                    floor);
+                EnsureBossConnections(context, floor);
             }
 
-            // 第三輪：在不破壞順序的範圍內增加適量分叉
-            for (int sourceIndex = 0; sourceIndex < currentCount; sourceIndex++)
+            AddBranchingConnections(context);
+            EnsureMinimumDistinctTargets(context);
+            EnsureMinimumOutgoing(context);
+        }
+    }
+
+    private void InitializePrimaryConnections(FloorConnectionContext context)
+    {
+        int previousTarget = -1;
+        for (int sourceIndex = 0; sourceIndex < context.CurrentCount; sourceIndex++)
+        {
+            GetAnchorRange(sourceIndex, context.CurrentCount, context.NextCount, out int anchor, out int anchorMin, out int anchorMax);
+            int lowerBound = Mathf.Max(previousTarget - backtrackAllowance, anchorMin);
+            int upperBound = anchorMax;
+            if (lowerBound > upperBound)
             {
-                int desiredConnections = Mathf.CeilToInt(((float)nextCount / currentCount) * connectionDensity) + 1;
-                desiredConnections = Mathf.Clamp(desiredConnections, 2, maxOutgoingPerNode);
-                if (outgoingConnections[currentFloor[sourceIndex]] >= desiredConnections)
-                    continue;
+                lowerBound = Mathf.Min(lowerBound, context.NextCount - 1);
+                upperBound = Mathf.Max(lowerBound, upperBound);
+            }
 
-                GetAnchorRange(sourceIndex, currentCount, nextCount, out int anchorTarget, out int anchorLower, out int anchorUpper);
-                if (primaryTargets[sourceIndex] >= 0)
+            int targetIndex = Mathf.Clamp(anchor, lowerBound, upperBound);
+            if (ConnectAndTrack(context, sourceIndex, targetIndex))
+            {
+                previousTarget = Mathf.Max(previousTarget, targetIndex);
+            }
+        }
+    }
+
+    private void EnsureIncomingCoverage(FloorConnectionContext context, int floor)
+    {
+        for (int targetIndex = 0; targetIndex < context.NextCount; targetIndex++)
+        {
+            if (context.IncomingCounts[targetIndex] >= minIncomingPerTarget)
+                continue;
+
+            int sourceIndex = SelectSourceForUnconnectedTarget(floor, targetIndex, context);
+            if (sourceIndex >= 0 && ConnectAndTrack(context, sourceIndex, targetIndex))
+            {
+                RecomputeBounds(context);
+            }
+        }
+    }
+
+    private void EnsureMinimumConnectedSources(FloorConnectionContext context)
+    {
+        int connectedSources = context.OutgoingConnections.Count(pair => pair.Value > 0);
+        int requiredSources = context.CurrentCount >= 3
+            ? Mathf.Min(minConnectedSourcesPerRow, context.CurrentCount)
+            : Mathf.Min(context.CurrentCount, minConnectedSourcesPerRow);
+        if (connectedSources >= requiredSources)
+            return;
+
+        for (int sourceIndex = 0; sourceIndex < context.CurrentCount && connectedSources < requiredSources; sourceIndex++)
+        {
+            if (context.OutgoingConnections[context.CurrentFloor[sourceIndex]] > 0)
+                continue;
+
+            GetAnchorRange(sourceIndex, context.CurrentCount, context.NextCount, out int anchorTarget, out int anchorLower, out int anchorUpper);
+
+            int lowerBound = sourceIndex > 0 ? context.PrefixMaxTargets[sourceIndex - 1] + 1 : 0;
+            int upperBound = sourceIndex < context.CurrentCount - 1
+                ? Mathf.Min(context.NextCount - 1, context.SuffixMinTargets[sourceIndex + 1] - 1)
+                : context.NextCount - 1;
+
+            lowerBound = Mathf.Max(lowerBound, anchorLower);
+            upperBound = Mathf.Min(upperBound, anchorUpper);
+
+            if (lowerBound > upperBound)
+                continue;
+
+            int candidate = Mathf.Clamp(anchorTarget, lowerBound, upperBound);
+            if (ConnectAndTrack(context, sourceIndex, candidate))
+            {
+                connectedSources++;
+                RecomputeBounds(context);
+            }
+        }
+    }
+
+    private void AddBranchingConnections(FloorConnectionContext context)
+    {
+        for (int sourceIndex = 0; sourceIndex < context.CurrentCount; sourceIndex++)
+        {
+            int desiredConnections = Mathf.CeilToInt(((float)context.NextCount / context.CurrentCount) * connectionDensity) + 1;
+            desiredConnections = Mathf.Clamp(desiredConnections, 2, maxOutgoingPerNode);
+            if (context.OutgoingConnections[context.CurrentFloor[sourceIndex]] >= desiredConnections)
+                continue;
+
+            GetAnchorRange(sourceIndex, context.CurrentCount, context.NextCount, out int anchorTarget, out int anchorLower, out int anchorUpper);
+            if (context.PrimaryTargets[sourceIndex] >= 0)
+            {
+                anchorTarget = Mathf.Clamp(context.PrimaryTargets[sourceIndex], anchorLower, anchorUpper);
+            }
+
+            int maxAttempts = 6;
+            for (int attempt = 0; attempt < maxAttempts && context.OutgoingConnections[context.CurrentFloor[sourceIndex]] < desiredConnections; attempt++)
+            {
+                int lowerBound = sourceIndex > 0 ? context.PrefixMaxTargets[sourceIndex - 1] + 1 : 0;
+                int upperBound = sourceIndex < context.CurrentCount - 1 ? context.SuffixMinTargets[sourceIndex + 1] - 1 : context.NextCount - 1;
+                int adjustedLower = anchorLower;
+                int adjustedUpper = anchorUpper;
+
+                if (UnityEngine.Random.value < longLinkChance)
                 {
-                    anchorTarget = Mathf.Clamp(primaryTargets[sourceIndex], anchorLower, anchorUpper);
+                    int expand = UnityEngine.Random.Range(1, 3);
+                    adjustedLower = Mathf.Max(0, anchorLower - expand);
+                    adjustedUpper = Mathf.Min(context.NextCount - 1, anchorUpper + expand);
                 }
 
-                int maxAttempts = 6;
-                for (int attempt = 0; attempt < maxAttempts && outgoingConnections[currentFloor[sourceIndex]] < desiredConnections; attempt++)
+                lowerBound = Mathf.Max(lowerBound, adjustedLower);
+                upperBound = Mathf.Min(upperBound, adjustedUpper);
+                if (lowerBound > upperBound)
+                    break;
+
+                var candidates = new List<int>();
+                var weights = new List<float>();
+                for (int t = lowerBound; t <= upperBound; t++)
                 {
-                    int lowerBound = sourceIndex > 0 ? prefixMaxTargets[sourceIndex - 1] + 1 : 0;
-                    int upperBound = sourceIndex < currentCount - 1 ? suffixMinTargets[sourceIndex + 1] - 1 : nextCount - 1;
-                    int adjustedLower = anchorLower;
-                    int adjustedUpper = anchorUpper;
+                    candidates.Add(t);
+                    float weight = 1f / (1 + context.IncomingCounts[t]);
+                    weights.Add(weight);
+                }
 
-                    if (UnityEngine.Random.value < longLinkChance)
+                if (candidates.Count == 0)
+                    break;
+
+                for (int pickAttempt = 0; pickAttempt < 6 && context.OutgoingConnections[context.CurrentFloor[sourceIndex]] < desiredConnections; pickAttempt++)
+                {
+                    int candidate = SampleByWeight(candidates, weights);
+                    if (ConnectAndTrack(context, sourceIndex, candidate))
                     {
-                        int expand = UnityEngine.Random.Range(1, 3);
-                        adjustedLower = Mathf.Max(0, anchorLower - expand);
-                        adjustedUpper = Mathf.Min(nextCount - 1, anchorUpper + expand);
-                    }
-
-                    lowerBound = Mathf.Max(lowerBound, adjustedLower);
-                    upperBound = Mathf.Min(upperBound, adjustedUpper);
-                    if (lowerBound > upperBound)
+                        RecomputeBounds(context);
                         break;
-
-                    var candidates = new List<int>();
-                    var weights = new List<float>();
-                    for (int t = lowerBound; t <= upperBound; t++)
-                    {
-                        candidates.Add(t);
-                        float weight = 1f / (1 + incomingCounts[t]);
-                        weights.Add(weight);
-                    }
-
-                    if (candidates.Count == 0)
-                        break;
-
-                    for (int pickAttempt = 0; pickAttempt < 6 && outgoingConnections[currentFloor[sourceIndex]] < desiredConnections; pickAttempt++)
-                    {
-                        int candidate = SampleByWeight(candidates, weights);
-                        if (ConnectAndTrack(
-                                currentFloor,
-                                nextFloor,
-                                sourceIndex,
-                                candidate,
-                                outgoingConnections,
-                                incomingConnections,
-                                incomingCounts,
-                                minTargets,
-                                maxTargets,
-                                primaryTargets))
-                        {
-                            RecomputeBounds(currentCount, nextCount, minTargets, maxTargets, prefixMaxTargets, suffixMinTargets);
-                            break;
-                        }
                     }
                 }
             }
-
-            // 每層至少 N 個不同 target 被連到，避免路徑過度收斂
-            EnsureMinimumDistinctTargets(
-                currentFloor,
-                nextFloor,
-                outgoingConnections,
-                incomingConnections,
-                incomingCounts,
-                minTargets,
-                maxTargets,
-                prefixMaxTargets,
-                suffixMinTargets,
-                primaryTargets);
-
-            // 最終保底：如果仍然不足兩個來源節點有連線，
-            // 以不交叉且鄰近的方式強制連線，避免出現整行無連線的情況。
-            EnsureMinimumOutgoing(
-                currentFloor,
-                nextFloor,
-                outgoingConnections,
-                incomingConnections,
-                incomingCounts,
-                minTargets,
-                maxTargets,
-                prefixMaxTargets,
-                suffixMinTargets,
-                primaryTargets);
         }
     }
 
@@ -322,26 +273,19 @@ public class RunMapConnector
     private int SelectSourceForUnconnectedTarget(
         int floor,
         int targetIndex,
-        int[] primaryTargets,
-        Dictionary<MapNodeData, int> outgoingConnections,
-        int[] minTargets,
-        int[] maxTargets,
-        int[] prefixMaxTargets,
-        int[] suffixMinTargets,
-        List<MapNodeData> currentFloor,
-        int nextCount)
+        FloorConnectionContext context)
     {
         int bestSource = -1;
         int bestDistance = int.MaxValue;
 
-        for (int i = 0; i < primaryTargets.Length; i++)
+        for (int i = 0; i < context.PrimaryTargets.Length; i++)
         {
-            GetAnchorRange(i, currentFloor.Count, nextCount, out int anchor, out int anchorMin, out int anchorMax);
+            GetAnchorRange(i, context.CurrentCount, context.NextCount, out int anchor, out int anchorMin, out int anchorMax);
 
-            int lowerBound = i > 0 ? prefixMaxTargets[i - 1] + 1 : 0;
-            int upperBound = i < currentFloor.Count - 1
-                ? Mathf.Min(nextCount - 1, suffixMinTargets[i + 1] - 1)
-                : nextCount - 1;
+            int lowerBound = i > 0 ? context.PrefixMaxTargets[i - 1] + 1 : 0;
+            int upperBound = i < context.CurrentCount - 1
+                ? Mathf.Min(context.NextCount - 1, context.SuffixMinTargets[i + 1] - 1)
+                : context.NextCount - 1;
 
             lowerBound = Mathf.Max(lowerBound, anchorMin);
             upperBound = Mathf.Min(upperBound, anchorMax);
@@ -349,12 +293,12 @@ public class RunMapConnector
             if (lowerBound > upperBound || targetIndex < lowerBound || targetIndex > upperBound)
                 continue;
 
-            int outgoing = outgoingConnections.TryGetValue(currentFloor[i], out int value) ? value : 0;
+            int outgoing = context.OutgoingConnections.TryGetValue(context.CurrentFloor[i], out int value) ? value : 0;
             if (outgoing >= maxOutgoingPerNode)
                 continue;
 
-            anchor = primaryTargets[i] >= 0
-                ? Mathf.Clamp(primaryTargets[i], anchorMin, anchorMax)
+            anchor = context.PrimaryTargets[i] >= 0
+                ? Mathf.Clamp(context.PrimaryTargets[i], anchorMin, anchorMax)
                 : Mathf.Clamp(targetIndex, lowerBound, upperBound);
             int distance = Mathf.Abs(targetIndex - anchor);
             if (distance < bestDistance)
@@ -367,29 +311,28 @@ public class RunMapConnector
         if (bestSource >= 0)
             return bestSource;
 
-        // Relaxed pass: 放寬 anchor 範圍但仍維持不交叉與輸出上限
         int relaxedBestSource = -1;
         bestDistance = int.MaxValue;
 
-        for (int i = 0; i < primaryTargets.Length; i++)
+        for (int i = 0; i < context.PrimaryTargets.Length; i++)
         {
-            GetAnchorRange(i, currentFloor.Count, nextCount, out int anchor, out _, out _);
+            GetAnchorRange(i, context.CurrentCount, context.NextCount, out int anchor, out _, out _);
 
-            int lowerBound = i > 0 ? prefixMaxTargets[i - 1] + 1 : 0;
-            int upperBound = i < currentFloor.Count - 1
-                ? Mathf.Min(nextCount - 1, suffixMinTargets[i + 1] - 1)
-                : nextCount - 1;
+            int lowerBound = i > 0 ? context.PrefixMaxTargets[i - 1] + 1 : 0;
+            int upperBound = i < context.CurrentCount - 1
+                ? Mathf.Min(context.NextCount - 1, context.SuffixMinTargets[i + 1] - 1)
+                : context.NextCount - 1;
 
             if (lowerBound > upperBound || targetIndex < lowerBound || targetIndex > upperBound)
                 continue;
 
-            int outgoing = outgoingConnections.TryGetValue(currentFloor[i], out int value) ? value : 0;
+            int outgoing = context.OutgoingConnections.TryGetValue(context.CurrentFloor[i], out int value) ? value : 0;
             if (outgoing >= maxOutgoingPerNode)
                 continue;
 
-            int clampedAnchor = primaryTargets[i] >= 0
-                ? Mathf.Clamp(primaryTargets[i], 0, nextCount - 1)
-                : Mathf.Clamp(anchor, 0, nextCount - 1);
+            int clampedAnchor = context.PrimaryTargets[i] >= 0
+                ? Mathf.Clamp(context.PrimaryTargets[i], 0, context.NextCount - 1)
+                : Mathf.Clamp(anchor, 0, context.NextCount - 1);
 
             int distance = Mathf.Abs(targetIndex - clampedAnchor);
             if (distance < bestDistance)
@@ -407,29 +350,19 @@ public class RunMapConnector
         return relaxedBestSource;
     }
 
-    private void EnsureMinimumDistinctTargets(
-        List<MapNodeData> currentFloor,
-        List<MapNodeData> nextFloor,
-        Dictionary<MapNodeData, int> outgoingConnections,
-        Dictionary<MapNodeData, int> incomingConnections,
-        int[] incomingCounts,
-        int[] minTargets,
-        int[] maxTargets,
-        int[] prefixMaxTargets,
-        int[] suffixMinTargets,
-        int[] primaryTargets)
+    private void EnsureMinimumDistinctTargets(FloorConnectionContext context)
     {
-        int nextCount = nextFloor.Count;
-        int currentCount = currentFloor.Count;
-        int distinctTargets = incomingCounts.Count(count => count >= minIncomingPerTarget);
+        int nextCount = context.NextFloor.Count;
+        int currentCount = context.CurrentFloor.Count;
+        int distinctTargets = context.IncomingCounts.Count(count => count >= minIncomingPerTarget);
 
         if (distinctTargets >= minDistinctTargetsPerFloor)
             return;
 
-        var orderedSources = outgoingConnections
+        var orderedSources = context.OutgoingConnections
             .OrderBy(pair => pair.Value)
-            .ThenBy(pair => currentFloor.IndexOf(pair.Key))
-            .Select(pair => currentFloor.IndexOf(pair.Key))
+            .ThenBy(pair => context.CurrentFloor.IndexOf(pair.Key))
+            .Select(pair => context.CurrentFloor.IndexOf(pair.Key))
             .ToList();
 
         foreach (int sourceIndex in orderedSources)
@@ -437,24 +370,24 @@ public class RunMapConnector
             if (distinctTargets >= minDistinctTargetsPerFloor)
                 break;
 
-            if (outgoingConnections[currentFloor[sourceIndex]] >= maxOutgoingPerNode)
+            if (context.OutgoingConnections[context.CurrentFloor[sourceIndex]] >= maxOutgoingPerNode)
                 continue;
 
             GetAnchorRange(sourceIndex, currentCount, nextCount, out int anchor, out int anchorMin, out int anchorMax);
 
-            int lowerBound = sourceIndex > 0 ? prefixMaxTargets[sourceIndex - 1] + 1 : 0;
-            int upperBound = sourceIndex < currentCount - 1 ? suffixMinTargets[sourceIndex + 1] - 1 : nextCount - 1;
+            int lowerBound = sourceIndex > 0 ? context.PrefixMaxTargets[sourceIndex - 1] + 1 : 0;
+            int upperBound = sourceIndex < currentCount - 1 ? context.SuffixMinTargets[sourceIndex + 1] - 1 : nextCount - 1;
             lowerBound = Mathf.Max(lowerBound, anchorMin);
             upperBound = Mathf.Min(upperBound, anchorMax);
 
             if (lowerBound > upperBound)
                 continue;
 
-            int minIncoming = incomingCounts.Skip(lowerBound).Take(upperBound - lowerBound + 1).Min();
+            int minIncoming = context.IncomingCounts.Skip(lowerBound).Take(upperBound - lowerBound + 1).Min();
             var candidates = new List<int>();
             for (int t = lowerBound; t <= upperBound; t++)
             {
-                if (incomingCounts[t] == minIncoming)
+                if (context.IncomingCounts[t] == minIncoming)
                 {
                     candidates.Add(t);
                 }
@@ -464,61 +397,29 @@ public class RunMapConnector
                 continue;
 
             int bestTarget = candidates.OrderBy(t => Mathf.Abs(t - anchor)).First();
-            if (ConnectAndTrack(
-                    currentFloor,
-                    nextFloor,
-                    sourceIndex,
-                    bestTarget,
-                    outgoingConnections,
-                    incomingConnections,
-                    incomingCounts,
-                    minTargets,
-                    maxTargets,
-                    primaryTargets))
+            if (ConnectAndTrack(context, sourceIndex, bestTarget))
             {
-                distinctTargets = incomingCounts.Count(c => c >= minIncomingPerTarget);
-                RecomputeBounds(currentCount, nextCount, minTargets, maxTargets, prefixMaxTargets, suffixMinTargets);
+                distinctTargets = context.IncomingCounts.Count(c => c >= minIncomingPerTarget);
+                RecomputeBounds(context);
             }
         }
     }
 
-    private bool ConnectNodes(
-        List<MapNodeData> currentFloor,
-        List<MapNodeData> nextFloor,
-        int sourceIndex,
-        int targetIndex,
-        Dictionary<MapNodeData, int> outgoingConnections,
-        Dictionary<MapNodeData, int> incomingConnections)
+    private bool ConnectNodes(FloorConnectionContext context, int sourceIndex, int targetIndex)
     {
-        return TryConnectNodes(currentFloor[sourceIndex], nextFloor[targetIndex], outgoingConnections, incomingConnections);
+        return TryConnectNodes(context.CurrentFloor[sourceIndex], context.NextFloor[targetIndex], context.OutgoingConnections, context.IncomingConnections);
     }
 
-    private bool ConnectAndTrack(
-        List<MapNodeData> currentFloor,
-        List<MapNodeData> nextFloor,
-        int sourceIndex,
-        int targetIndex,
-        Dictionary<MapNodeData, int> outgoingConnections,
-        Dictionary<MapNodeData, int> incomingConnections,
-        int[] incomingCounts,
-        int[] minTargets,
-        int[] maxTargets,
-        int[] primaryTargets)
+    private bool ConnectAndTrack(FloorConnectionContext context, int sourceIndex, int targetIndex)
     {
-        if (ConnectNodes(
-                currentFloor,
-                nextFloor,
-                sourceIndex,
-                targetIndex,
-                outgoingConnections,
-                incomingConnections))
+        if (ConnectNodes(context, sourceIndex, targetIndex))
         {
-            incomingCounts[targetIndex]++;
-            minTargets[sourceIndex] = Mathf.Min(minTargets[sourceIndex], targetIndex);
-            maxTargets[sourceIndex] = Mathf.Max(maxTargets[sourceIndex], targetIndex);
-            if (primaryTargets[sourceIndex] == -1)
+            context.IncomingCounts[targetIndex]++;
+            context.MinTargets[sourceIndex] = Mathf.Min(context.MinTargets[sourceIndex], targetIndex);
+            context.MaxTargets[sourceIndex] = Mathf.Max(context.MaxTargets[sourceIndex], targetIndex);
+            if (context.PrimaryTargets[sourceIndex] == -1)
             {
-                primaryTargets[sourceIndex] = targetIndex;
+                context.PrimaryTargets[sourceIndex] = targetIndex;
             }
             return true;
         }
@@ -555,129 +456,117 @@ public class RunMapConnector
         return true;
     }
 
-     private void EnsureMinimumOutgoing(
-        List<MapNodeData> currentFloor,
-        List<MapNodeData> nextFloor,
-        Dictionary<MapNodeData, int> outgoingConnections,
-        Dictionary<MapNodeData, int> incomingConnections,
-        int[] incomingCounts,
-        int[] minTargets,
-        int[] maxTargets,
-        int[] prefixMaxTargets,
-        int[] suffixMinTargets,
-        int[] primaryTargets)
+     private void RecomputeBounds(FloorConnectionContext context)
     {
-        int currentCount = currentFloor.Count;
-        int nextCount = nextFloor.Count;
+        int currentCount = context.CurrentCount;
+        int nextCount = context.NextCount;
 
-        int connectedSources = outgoingConnections.Count(pair => pair.Value > 0);
-        int desired = currentCount >= 3
-            ? Mathf.Min(minConnectedSourcesPerRow, currentCount)
-            : Mathf.Min(currentCount, minConnectedSourcesPerRow);
-        int required = desired - connectedSources;
-        if (required <= 0)
-            return;
-
-        int previousTarget = -1;
-        for (int sourceIndex = 0; sourceIndex < currentCount && required > 0; sourceIndex++)
-        {
-            if (outgoingConnections[currentFloor[sourceIndex]] > 0)
-                continue;
-
-            GetAnchorRange(sourceIndex, currentCount, nextCount, out int anchor, out int anchorMin, out int anchorMax);
-
-            int lowerBound = sourceIndex > 0 ? prefixMaxTargets[sourceIndex - 1] + 1 : 0;
-            int upperBound = sourceIndex < currentCount - 1 ? suffixMinTargets[sourceIndex + 1] - 1 : nextCount - 1;
-            lowerBound = Mathf.Max(lowerBound, anchorMin);
-            upperBound = Mathf.Min(upperBound, anchorMax);
-
-            // 確保非遞減的目標索引，避免交叉
-            lowerBound = Mathf.Max(lowerBound, previousTarget);
-
-            // 如果界線太緊，跳過此來源，避免強行壓縮連線形狀
-            if (lowerBound > upperBound)
-                continue;
-
-            int targetIndex = Mathf.Clamp(anchor, lowerBound, upperBound);
-            if (ConnectAndTrack(
-                    currentFloor,
-                    nextFloor,
-                    sourceIndex,
-                    targetIndex,
-                    outgoingConnections,
-                    incomingConnections,
-                    incomingCounts,
-                    minTargets,
-                    maxTargets,
-                    primaryTargets))
-            {
-                required--;
-                previousTarget = Mathf.Max(previousTarget, targetIndex);
-                RecomputeBounds(currentCount, nextCount, minTargets, maxTargets, prefixMaxTargets, suffixMinTargets);
-            }
-        }
-
-        // 若仍不足，允許在既有連線的來源上補一條鄰近連線作為最後手段
-        for (int sourceIndex = 0; sourceIndex < currentCount && required > 0; sourceIndex++)
-        {
-            if (outgoingConnections[currentFloor[sourceIndex]] >= maxOutgoingPerNode)
-                continue;
-
-            GetAnchorRange(sourceIndex, currentCount, nextCount, out int anchor, out int anchorMin, out int anchorMax);
-
-            int lowerBound = sourceIndex > 0 ? prefixMaxTargets[sourceIndex - 1] + 1 : 0;
-
-            int upperBound = sourceIndex < currentCount - 1 ? suffixMinTargets[sourceIndex + 1] - 1 : nextCount - 1;
-            lowerBound = Mathf.Max(lowerBound, anchorMin);
-            upperBound = Mathf.Min(upperBound, anchorMax);
-            if (lowerBound > upperBound)
-                continue;
-
-            int targetIndex = Mathf.Clamp(anchor, lowerBound, upperBound);
-            if (ConnectAndTrack(
-                    currentFloor,
-                    nextFloor,
-                    sourceIndex,
-                    targetIndex,
-                    outgoingConnections,
-                    incomingConnections,
-                    incomingCounts,
-                    minTargets,
-                    maxTargets,
-                    primaryTargets))
-            {
-                required--;
-                RecomputeBounds(currentCount, nextCount, minTargets, maxTargets, prefixMaxTargets, suffixMinTargets);
-            }
-        }
-    }
-
-    private void RecomputeBounds(
-        int currentCount,
-        int nextCount,
-        int[] minTargets,
-        int[] maxTargets,
-        int[] prefixMaxTargets,
-        int[] suffixMinTargets)
-    {
         int runningMax = -1;
         for (int i = 0; i < currentCount; i++)
         {
-            if (maxTargets[i] != -1)
+            if (context.MaxTargets[i] >= 0)
             {
-                runningMax = Mathf.Max(runningMax, maxTargets[i]);
+                runningMax = Mathf.Max(runningMax, context.MaxTargets[i]);
             }
-            prefixMaxTargets[i] = runningMax;
+            context.PrefixMaxTargets[i] = runningMax;
         }
 
         int runningMin = nextCount;
         for (int i = currentCount - 1; i >= 0; i--)
         {
-            if (minTargets[i] != int.MaxValue)
+            if (context.MinTargets[i] != int.MaxValue)
             {
-                runningMin = Mathf.Min(runningMin, minTargets[i]);
+                runningMin = Mathf.Min(runningMin, context.MinTargets[i]);
             }
-            suffixMinTargets[i] = runningMin;
+            context.SuffixMinTargets[i] = runningMin;
+        }
+    }
+
+    private void EnsureMinimumOutgoing(FloorConnectionContext context)
+    {
+        int currentCount = context.CurrentFloor.Count;
+        int nextCount = context.NextFloor.Count;
+
+        for (int sourceIndex = 0; sourceIndex < currentCount; sourceIndex++)
+        {
+            if (context.OutgoingConnections[context.CurrentFloor[sourceIndex]] > 0)
+                continue;
+
+            GetAnchorRange(sourceIndex, currentCount, nextCount, out int anchor, out int anchorMin, out int anchorMax);
+
+            int lowerBound = sourceIndex > 0 ? context.PrefixMaxTargets[sourceIndex - 1] + 1 : 0;
+            int upperBound = sourceIndex < currentCount - 1
+                ? Mathf.Min(nextCount - 1, context.SuffixMinTargets[sourceIndex + 1] - 1)
+                : nextCount - 1;
+
+            lowerBound = Mathf.Max(lowerBound, anchorMin);
+            upperBound = Mathf.Min(upperBound, anchorMax);
+
+            if (lowerBound > upperBound)
+                continue;
+
+            int targetIndex = Mathf.Clamp(anchor, lowerBound, upperBound);
+            ConnectAndTrack(context, sourceIndex, targetIndex);
+        }
+    }
+
+    private void EnsureBossConnections(FloorConnectionContext context, int floorIndex)
+    {
+        if (context.NextFloor.Count == 0)
+            return;
+
+        int currentCount = context.CurrentFloor.Count;
+        int nextCount = context.NextFloor.Count;
+        int bossTarget = 0;
+        int required = Mathf.Max(0, Mathf.Min(minDistinctSourcesToBoss, currentCount) - context.IncomingCounts[bossTarget]);
+        if (required <= 0)
+            return;
+
+        for (int pass = 0; pass < required; pass++)
+        {
+            int bestSource = -1;
+            int bestScore = int.MaxValue;
+
+            for (int sourceIndex = 0; sourceIndex < currentCount; sourceIndex++)
+            {
+                int outgoing = context.OutgoingConnections.TryGetValue(context.CurrentFloor[sourceIndex], out int value) ? value : 0;
+                if (outgoing >= maxOutgoingPerNode)
+                    continue;
+
+                GetAnchorRange(sourceIndex, currentCount, nextCount, out int anchor, out int anchorMin, out int anchorMax);
+
+                int lowerBound = sourceIndex > 0 ? context.PrefixMaxTargets[sourceIndex - 1] + 1 : 0;
+                int upperBound = sourceIndex < currentCount - 1 ? context.SuffixMinTargets[sourceIndex + 1] - 1 : nextCount - 1;
+                lowerBound = Mathf.Max(lowerBound, anchorMin);
+                upperBound = Mathf.Min(upperBound, anchorMax);
+
+                if (bossTarget < lowerBound || bossTarget > upperBound)
+                    continue;
+
+                int anchorTarget = context.PrimaryTargets[sourceIndex] >= 0
+                    ? Mathf.Clamp(context.PrimaryTargets[sourceIndex], anchorMin, anchorMax)
+                    : anchor;
+                int distance = Mathf.Abs(bossTarget - anchorTarget);
+                int score = outgoing * 10 + distance;
+
+                if (score < bestScore)
+                {
+                    bestScore = score;
+                    bestSource = sourceIndex;
+                }
+            }
+
+            if (bestSource < 0)
+                break;
+
+            if (ConnectAndTrack(context, bestSource, bossTarget))
+            {
+                RecomputeBounds(context);
+            }
+            else
+            {
+                Debug.LogWarning($"Failed to enforce boss connection on floor {floorIndex} from source {bestSource}");
+            }
         }
     }
 
@@ -707,86 +596,5 @@ public class RunMapConnector
         }
 
         return candidates[candidates.Count - 1];
-    }
-
-    private void EnsureBossConnections(
-        List<MapNodeData> currentFloor,
-        List<MapNodeData> nextFloor,
-        Dictionary<MapNodeData, int> outgoingConnections,
-        Dictionary<MapNodeData, int> incomingConnections,
-        int[] incomingCounts,
-        int[] minTargets,
-        int[] maxTargets,
-        int[] prefixMaxTargets,
-        int[] suffixMinTargets,
-        int[] primaryTargets,
-        int floorIndex)
-    {
-        if (nextFloor.Count == 0)
-            return;
-
-        int currentCount = currentFloor.Count;
-        int nextCount = nextFloor.Count;
-        int bossTarget = 0;
-        int required = Mathf.Max(0, Mathf.Min(minDistinctSourcesToBoss, currentCount) - incomingCounts[bossTarget]);
-        if (required <= 0)
-            return;
-
-        for (int pass = 0; pass < required; pass++)
-        {
-            int bestSource = -1;
-            int bestScore = int.MaxValue;
-
-            for (int sourceIndex = 0; sourceIndex < currentCount; sourceIndex++)
-            {
-                int outgoing = outgoingConnections.TryGetValue(currentFloor[sourceIndex], out int value) ? value : 0;
-                if (outgoing >= maxOutgoingPerNode)
-                    continue;
-
-                GetAnchorRange(sourceIndex, currentCount, nextCount, out int anchor, out int anchorMin, out int anchorMax);
-
-                int lowerBound = sourceIndex > 0 ? prefixMaxTargets[sourceIndex - 1] + 1 : 0;
-                int upperBound = sourceIndex < currentCount - 1 ? suffixMinTargets[sourceIndex + 1] - 1 : nextCount - 1;
-                lowerBound = Mathf.Max(lowerBound, anchorMin);
-                upperBound = Mathf.Min(upperBound, anchorMax);
-
-                if (bossTarget < lowerBound || bossTarget > upperBound)
-                    continue;
-
-                int anchorTarget = primaryTargets[sourceIndex] >= 0
-                    ? Mathf.Clamp(primaryTargets[sourceIndex], anchorMin, anchorMax)
-                    : anchor;
-                int distance = Mathf.Abs(bossTarget - anchorTarget);
-                int score = outgoing * 10 + distance;
-
-                if (score < bestScore)
-                {
-                    bestScore = score;
-                    bestSource = sourceIndex;
-                }
-            }
-
-            if (bestSource < 0)
-                break;
-
-            if (ConnectAndTrack(
-                    currentFloor,
-                    nextFloor,
-                    bestSource,
-                    bossTarget,
-                    outgoingConnections,
-                    incomingConnections,
-                    incomingCounts,
-                    minTargets,
-                    maxTargets,
-                    primaryTargets))
-            {
-                RecomputeBounds(currentCount, nextCount, minTargets, maxTargets, prefixMaxTargets, suffixMinTargets);
-            }
-            else
-            {
-                Debug.LogWarning($"Failed to enforce boss connection on floor {floorIndex} from source {bestSource}");
-            }
-        }
     }
 }
