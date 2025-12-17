@@ -17,7 +17,8 @@ public class RunMapConnector
     private readonly int minDistinctSourcesToBoss;
     private readonly float longLinkChance;
     private readonly int minDistinctTargetsPerFloor;
-    
+    private readonly int minBranchingNodesPerFloor;
+    private readonly int maxBranchingNodesPerFloor;
     internal int MaxOutgoingPerNode => maxOutgoingPerNode;
     internal int MinConnectedSourcesPerRow => minConnectedSourcesPerRow;
     internal float ConnectionDensity => connectionDensity;
@@ -26,7 +27,8 @@ public class RunMapConnector
     internal float LongLinkChance => longLinkChance;
     internal int MinDistinctTargetsPerFloor => minDistinctTargetsPerFloor;
     internal RunMapGenerationFeatureFlags FeatureFlags => featureFlags;
-
+    internal int MinBranchingNodesPerFloor => minBranchingNodesPerFloor;
+    internal int MaxBranchingNodesPerFloor => maxBranchingNodesPerFloor;
     public RunMapConnector(
         int neighborWindow = 2,
         int maxOutgoingPerNode = 4,
@@ -37,6 +39,8 @@ public class RunMapConnector
         int minDistinctSourcesToBoss = 3,
         float longLinkChance = 0.2f,
         int minDistinctTargetsPerFloor = 2,
+        int minBranchingNodesPerFloor = 1,
+        int maxBranchingNodesPerFloor = 3,
         RunMapGenerationFeatureFlags featureFlags = null)
     {
         this.neighborWindow = Mathf.Max(0, neighborWindow);
@@ -48,6 +52,8 @@ public class RunMapConnector
         this.minDistinctSourcesToBoss = Mathf.Max(1, minDistinctSourcesToBoss);
         this.longLinkChance = Mathf.Clamp01(longLinkChance);
         this.minDistinctTargetsPerFloor = Mathf.Max(1, minDistinctTargetsPerFloor);
+        this.minBranchingNodesPerFloor = Mathf.Max(1, minBranchingNodesPerFloor);
+        this.maxBranchingNodesPerFloor = Mathf.Max(this.minBranchingNodesPerFloor, maxBranchingNodesPerFloor);
         this.featureFlags = featureFlags ?? RunMapGenerationFeatureFlags.Default;
     }
 
@@ -81,7 +87,9 @@ public class RunMapConnector
             rules.AddBranchingConnections(context);
             rules.EnsureMinimumDistinctTargets(context);
             rules.EnsureMinimumOutgoing(context);
+            rules.EnsureMinimumBranchingPerFloor(context);
         }
+        EnforceColumnBranchingCoverage(map);
     }
 
     private void InitializePrimaryConnections(FloorConnectionContext context)
@@ -255,5 +263,136 @@ public class RunMapConnector
         }
 
         return true;
+    }
+
+    private void EnforceColumnBranchingCoverage(RunMap map)
+    {
+        if (map.Floors.Count < 2)
+            return;
+
+        int maxColumns = map.Floors.Max(floor => floor.Count);
+        bool[] columnHasBranch = new bool[maxColumns];
+        int[] branchingPerFloor = new int[map.Floors.Count];
+
+        for (int floor = 0; floor < map.Floors.Count - 1; floor++)
+        {
+            List<MapNodeData> currentFloor = map.Floors[floor];
+            for (int column = 0; column < currentFloor.Count; column++)
+            {
+                int outgoing = currentFloor[column].NextNodes.Count;
+                if (outgoing > 1)
+                {
+                    columnHasBranch[column] = true;
+                    branchingPerFloor[floor]++;
+                }
+            }
+        }
+
+        for (int column = 0; column < maxColumns; column++)
+        {
+            if (columnHasBranch[column])
+                continue;
+
+            TryCreateBranchOnColumn(map, column, columnHasBranch, branchingPerFloor);
+        }
+    }
+
+    private void TryCreateBranchOnColumn(RunMap map, int column, bool[] columnHasBranch, int[] branchingPerFloor)
+    {
+        for (int floor = 0; floor < map.Floors.Count - 1; floor++)
+        {
+            List<MapNodeData> currentFloor = map.Floors[floor];
+            List<MapNodeData> nextFloor = map.Floors[floor + 1];
+            if (column >= currentFloor.Count || nextFloor.Count == 0)
+                continue;
+
+            MapNodeData source = currentFloor[column];
+            int outgoing = source.NextNodes.Count;
+            if (outgoing == 0 || outgoing >= maxOutgoingPerNode)
+                continue;
+
+            if (branchingPerFloor[floor] >= maxBranchingNodesPerFloor)
+                continue;
+
+            GetAnchorRange(column, currentFloor.Count, nextFloor.Count, out int anchor, out int anchorMin, out int anchorMax);
+
+            // Constrain the target range to avoid crossing existing connections from neighboring columns.
+            Dictionary<MapNodeData, int> targetIndexLookup = new Dictionary<MapNodeData, int>(nextFloor.Count);
+            for (int i = 0; i < nextFloor.Count; i++)
+            {
+                targetIndexLookup[nextFloor[i]] = i;
+            }
+
+            int leftMax = -1;
+            for (int i = 0; i < column; i++)
+            {
+                foreach (MapNodeData target in currentFloor[i].NextNodes)
+                {
+                    if (targetIndexLookup.TryGetValue(target, out int index))
+                    {
+                        leftMax = Mathf.Max(leftMax, index);
+                    }
+                }
+            }
+
+            int rightMin = nextFloor.Count;
+            for (int i = column + 1; i < currentFloor.Count; i++)
+            {
+                foreach (MapNodeData target in currentFloor[i].NextNodes)
+                {
+                    if (targetIndexLookup.TryGetValue(target, out int index))
+                    {
+                        rightMin = Mathf.Min(rightMin, index);
+                    }
+                }
+            }
+
+            int lowerBound = Mathf.Max(0, anchorMin, leftMax >= 0 ? leftMax : 0);
+            int upperBound = Mathf.Min(nextFloor.Count - 1, anchorMax, rightMin < nextFloor.Count ? rightMin : nextFloor.Count - 1);
+            List<int> candidates = new List<int>();
+            for (int target = lowerBound; target <= upperBound; target++)
+            {
+                if (!source.NextNodes.Contains(nextFloor[target]))
+                {
+                    candidates.Add(target);
+                }
+            }
+
+            if (candidates.Count == 0)
+            {
+                int safeLower = Mathf.Max(0, leftMax);
+                int safeUpper = rightMin < nextFloor.Count ? rightMin : nextFloor.Count - 1;
+                if (safeLower > safeUpper)
+                    continue;
+                for (int target = safeLower; target <= safeUpper; target++)
+                {
+                    if (!source.NextNodes.Contains(nextFloor[target]))
+                    {
+                        candidates.Add(target);
+                    }
+                }
+            }
+
+            if (candidates.Count == 0)
+                continue;
+
+            int bestTarget = candidates
+                .OrderBy(target => Mathf.Abs(target - anchor))
+                .First();
+
+            var outgoingConnections = new Dictionary<MapNodeData, int>();
+            var incomingConnections = new Dictionary<MapNodeData, int>();
+            foreach (MapNodeData node in currentFloor)
+            {
+                outgoingConnections[node] = node.NextNodes.Count;
+            }
+
+            if (TryConnectNodes(source, nextFloor[bestTarget], outgoingConnections, incomingConnections))
+            {
+                branchingPerFloor[floor]++;
+                columnHasBranch[column] = true;
+                return;
+            }
+        }
     }
 }

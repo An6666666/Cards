@@ -11,16 +11,38 @@ internal class RunMapConnectionRules
         this.connector = connector;
     }
 
+    private int CountBranchingNodes(FloorConnectionContext context)
+    {
+        return context.OutgoingConnections.Values.Count(count => count > 1);
+    }
+
+    private bool CanAddConnectionWithoutExceedingBranchLimit(FloorConnectionContext context, int sourceIndex, int branchingCount)
+    {
+        if (branchingCount < connector.MaxBranchingNodesPerFloor)
+            return true;
+
+        int outgoing = context.OutgoingConnections.TryGetValue(context.CurrentFloor[sourceIndex], out int value)
+            ? value
+            : 0;
+        return outgoing != 1;
+    }
+
     public void EnsureIncomingCoverage(FloorConnectionContext context, int floor)
     {
+        int branchingCount = CountBranchingNodes(context);
         for (int targetIndex = 0; targetIndex < context.NextCount; targetIndex++)
         {
             if (context.IncomingCounts[targetIndex] >= connector.MinIncomingPerTarget)
                 continue;
 
             int sourceIndex = connector.SelectSourceForUnconnectedTarget(floor, targetIndex, context);
-            if (sourceIndex >= 0 && connector.ConnectAndTrack(context, sourceIndex, targetIndex))
+            if (sourceIndex >= 0 && CanAddConnectionWithoutExceedingBranchLimit(context, sourceIndex, branchingCount))
             {
+                int outgoingBefore = context.OutgoingConnections[context.CurrentFloor[sourceIndex]];
+                if (connector.ConnectAndTrack(context, sourceIndex, targetIndex) && outgoingBefore == 1)
+                {
+                    branchingCount++;
+                }
                 context.RecomputeBounds();
             }
         }
@@ -64,11 +86,15 @@ internal class RunMapConnectionRules
 
     public void AddBranchingConnections(FloorConnectionContext context)
     {
+        int branchingCount = CountBranchingNodes(context);
         for (int sourceIndex = 0; sourceIndex < context.CurrentCount; sourceIndex++)
         {
             int desiredConnections = Mathf.CeilToInt(((float)context.NextCount / context.CurrentCount) * connector.ConnectionDensity) + 1;
             desiredConnections = Mathf.Clamp(desiredConnections, 2, connector.MaxOutgoingPerNode);
             if (context.OutgoingConnections[context.CurrentFloor[sourceIndex]] >= desiredConnections)
+                continue;
+
+            if (!CanAddConnectionWithoutExceedingBranchLimit(context, sourceIndex, branchingCount))
                 continue;
 
             connector.GetAnchorRange(sourceIndex, context.CurrentCount, context.NextCount, out int anchorTarget, out int anchorLower, out int anchorUpper);
@@ -115,6 +141,10 @@ internal class RunMapConnectionRules
                     if (connector.ConnectAndTrack(context, sourceIndex, candidate))
                     {
                         context.RecomputeBounds();
+                        if (context.OutgoingConnections[context.CurrentFloor[sourceIndex]] == 2)
+                        {
+                            branchingCount++;
+                        }
                         break;
                     }
                 }
@@ -127,6 +157,7 @@ internal class RunMapConnectionRules
         int nextCount = context.NextFloor.Count;
         int currentCount = context.CurrentFloor.Count;
         int distinctTargets = context.IncomingCounts.Count(count => count >= connector.MinIncomingPerTarget);
+        int branchingCount = CountBranchingNodes(context);
 
         if (distinctTargets >= connector.MinDistinctTargetsPerFloor)
             return;
@@ -143,6 +174,9 @@ internal class RunMapConnectionRules
                 break;
 
             if (context.OutgoingConnections[context.CurrentFloor[sourceIndex]] >= connector.MaxOutgoingPerNode)
+                continue;
+
+            if (!CanAddConnectionWithoutExceedingBranchLimit(context, sourceIndex, branchingCount))
                 continue;
 
             connector.GetAnchorRange(sourceIndex, currentCount, nextCount, out int anchor, out int anchorMin, out int anchorMax);
@@ -168,9 +202,14 @@ internal class RunMapConnectionRules
                 continue;
 
             int bestTarget = candidates.OrderBy(t => Mathf.Abs(t - anchor)).First();
+            int outgoingBefore = context.OutgoingConnections[context.CurrentFloor[sourceIndex]];
             if (connector.ConnectAndTrack(context, sourceIndex, bestTarget))
             {
                 distinctTargets = context.IncomingCounts.Count(c => c >= connector.MinIncomingPerTarget);
+                if (outgoingBefore == 1)
+                {
+                    branchingCount++;
+                }
                 context.RecomputeBounds();
             }
         }
@@ -216,6 +255,8 @@ internal class RunMapConnectionRules
         if (required <= 0)
             return;
 
+        int branchingCount = CountBranchingNodes(context);
+
         for (int pass = 0; pass < required; pass++)
         {
             int bestSource = -1;
@@ -223,6 +264,8 @@ internal class RunMapConnectionRules
 
             for (int sourceIndex = 0; sourceIndex < currentCount; sourceIndex++)
             {
+                if (!CanAddConnectionWithoutExceedingBranchLimit(context, sourceIndex, branchingCount))
+                    continue;
                 int outgoing = context.OutgoingConnections.TryGetValue(context.CurrentFloor[sourceIndex], out int value) ? value : 0;
                 if (outgoing >= connector.MaxOutgoingPerNode)
                     continue;
@@ -253,13 +296,60 @@ internal class RunMapConnectionRules
             if (bestSource < 0)
                 break;
 
+            int outgoingBefore = context.OutgoingConnections[context.CurrentFloor[bestSource]];
             if (connector.ConnectAndTrack(context, bestSource, bossTarget))
             {
+                if (outgoingBefore == 1)
+                {
+                    branchingCount++;
+                }
                 context.RecomputeBounds();
             }
             else
             {
                 Debug.LogWarning($"Failed to enforce boss connection on floor {floorIndex} from source {bestSource}");
+            }
+        }
+    }
+
+    public void EnsureMinimumBranchingPerFloor(FloorConnectionContext context)
+    {
+        int branchingCount = CountBranchingNodes(context);
+        if (branchingCount >= connector.MinBranchingNodesPerFloor)
+            return;
+
+        for (int sourceIndex = 0; sourceIndex < context.CurrentCount && branchingCount < connector.MinBranchingNodesPerFloor; sourceIndex++)
+        {
+            int outgoing = context.OutgoingConnections[context.CurrentFloor[sourceIndex]];
+            if (outgoing == 0 || outgoing >= connector.MaxOutgoingPerNode)
+                continue;
+
+            connector.GetAnchorRange(sourceIndex, context.CurrentCount, context.NextCount, out int anchor, out int anchorLower, out int anchorUpper);
+
+            int lowerBound = sourceIndex > 0 ? context.PrefixMaxTargets[sourceIndex - 1] + 1 : 0;
+            int upperBound = sourceIndex < context.CurrentCount - 1 ? context.SuffixMinTargets[sourceIndex + 1] - 1 : context.NextCount - 1;
+            lowerBound = Mathf.Max(lowerBound, anchorLower);
+            upperBound = Mathf.Min(upperBound, anchorUpper);
+
+            if (lowerBound > upperBound)
+                continue;
+
+            for (int targetIndex = lowerBound; targetIndex <= upperBound; targetIndex++)
+            {
+                MapNodeData targetNode = context.NextFloor[targetIndex];
+                if (context.CurrentFloor[sourceIndex].NextNodes.Contains(targetNode))
+                    continue;
+
+                int outgoingBefore = context.OutgoingConnections[context.CurrentFloor[sourceIndex]];
+                if (connector.ConnectAndTrack(context, sourceIndex, targetIndex))
+                {
+                    if (outgoingBefore == 1)
+                    {
+                        branchingCount++;
+                    }
+                    context.RecomputeBounds();
+                    break;
+                }
             }
         }
     }

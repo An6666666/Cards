@@ -133,6 +133,8 @@ public class RunManager : MonoBehaviour
     [SerializeField, Range(0f, 0.4f)] private float longLinkChance = 0.2f;
     [SerializeField, Range(0f, 1f)] private float floorVarianceChance = 0.2f;
     [SerializeField, Range(1, 4)] private int minConnectedSourcesPerRow = 3;
+    [SerializeField, Range(1, 3)] private int minBranchingNodesPerFloor = 1;
+    [SerializeField, Range(1, 3)] private int maxBranchingNodesPerFloor = 3;
     private readonly List<List<MapNodeData>> mapFloors = new List<List<MapNodeData>>(); // 存每一層的節點
     private MapNodeData currentNode;                                  // 玩家目前所在的節點
     private MapNodeData activeNode;                                   // 正在進行中的節點（正在戰鬥/商店/事件）
@@ -179,6 +181,8 @@ public class RunManager : MonoBehaviour
             minIncomingPerTarget: minIncomingPerTarget,
             minDistinctSourcesToBoss: minDistinctSourcesToBoss,
             longLinkChance: longLinkChance,
+            minBranchingNodesPerFloor: minBranchingNodesPerFloor,
+            maxBranchingNodesPerFloor: maxBranchingNodesPerFloor,
             featureFlags: generationFeatureFlags);
         sceneRouter = new RunSceneRouter(runSceneName, battleSceneName, shopSceneName);
         eventResolver = new RunEventResolver(eventUIManager);
