@@ -587,15 +587,15 @@ MonoBehaviour:
   shopSceneName: ShopScene
   eventUIManager: {fileID: 1731840768}
   floorCount: 16
-  minNodesPerFloor: 2
-  maxNodesPerFloor: 5
+  minNodesPerFloor: 3
+  maxNodesPerFloor: 6
   eventRate: 0.14
   shopRate: 0.14
   eliteBattleRate: 0.09
   shopMin: 2
   shopMax: 3
-  eliteMin: 2
-  eliteMax: 4
+  eliteMin: 3
+  eliteMax: 3
   restMin: 4
   restMax: 6
   eventRatioMin: 0.2
@@ -608,7 +608,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 6839a1818d2963e4a80b5028db4dea5f, type: 2}
   autoGenerateOnStart: 1
   connectionNeighborWindow: 3
-  maxOutgoingPerNode: 5
+  maxOutgoingPerNode: 4
   connectionDensity: 1.5
   minIncomingPerTarget: 1
   minDistinctSourcesToBoss: 3
