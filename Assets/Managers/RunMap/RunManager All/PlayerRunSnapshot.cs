@@ -22,12 +22,26 @@ public class PlayerRunSnapshot
                 relics = new List<CardBase>()
             };
 
+        List<CardBase> mergedDeck = new List<CardBase>();
+        void AddPile(IEnumerable<CardBase> pile)
+        {
+            if (pile == null) return;
+            mergedDeck.AddRange(pile.Where(card => card != null));
+        }
+
+        // 收集所有當前卡片狀態：牌庫、棄牌、手牌與戰鬥中累積的 Exhaust
+        AddPile(source.deck);
+        AddPile(source.discardPile);
+        AddPile(source.Hand);
+        AddPile(source.exhaustPile);
+
         return new PlayerRunSnapshot
         {
             maxHP = source.maxHP,
             currentHP = source.currentHP,
             gold = source.gold,
-            deck = source.deck != null ? new List<CardBase>(source.deck.Where(card => card != null)) : new List<CardBase>(),
+            deck = mergedDeck,
+            
             relics = source.relics != null ? new List<CardBase>(source.relics.Where(card => card != null)) : new List<CardBase>(),
             exhaustPile = source.exhaustPile != null ? new List<CardBase>(source.exhaustPile.Where(card => card != null)) : new List<CardBase>()
         };

@@ -52,10 +52,27 @@ public class BattleTurnController               // 回合流程控制器：玩�
         GameEvents.RaiseTurnEnded();
         // 發送「回合結束」事件給其他系統（例如計數、遞減狀態等）
 
+        ApplyGrowthTrapDamage();
+        // 玩家回合結束時：處理水+木尖刺陷阱對敵人的傷害
+
         stateMachine.ChangeState(new EnemyTurnState(battleManager));
         // 狀態機切換到 EnemyTurnState，開始敵人回合
     }
 
+    private void ApplyGrowthTrapDamage()
+    {
+        if (battleManager.board == null) return;
+
+        var enemiesSnapshot = new List<Enemy>(enemies);
+        foreach (var enemy in enemiesSnapshot)
+        {
+            if (enemy == null) continue;
+
+            var tile = battleManager.board.GetTileAt(enemy.gridPosition);
+            tile?.TriggerGrowthTrap(enemy);
+        }
+    }
+    
     public void StartPlayerTurn()
     {
         handUIController.LockCardInteraction();

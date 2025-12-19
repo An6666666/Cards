@@ -650,14 +650,6 @@ public class Enemy : MonoBehaviour              // 敵人角色，繼承自 Mono
                 effect.OnStartOfTurn(this);  // 執行持續效果
             }
         }
-
-        // 成長陷阱效果照舊
-        Board board = FindObjectOfType<Board>();
-        if (board != null)
-        {
-            var tile = board.GetTileAt(gridPosition);
-            tile?.TriggerGrowthTrap(this);
-        }
     }
 
     public int BaseAttackDamage
@@ -678,7 +670,7 @@ public class Enemy : MonoBehaviour              // 敵人角色，繼承自 Mono
         return atkValue;
     }
 
-        // 決定下一回合的意圖（只算邏輯＋更新小圖）
+    // 決定下一回合的意圖（只算邏輯＋更新小圖）
     // 決定下一回合的意圖（只算邏輯＋更新小圖）
 public virtual void DecideNextIntent(Player player)
 {
