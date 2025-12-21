@@ -433,7 +433,9 @@ public class BattleManager : MonoBehaviour  // 戰鬥管理器，整場戰鬥的
         attackSelectionController = new AttackSelectionController(
             player,                                        // 玩家
             board,                                         // 棋盤（攻擊範圍高亮）
-            handUIController);                             // 用來在攻擊後更新手牌 UI
+            handUIController,
+            this // BattleManager 是 MonoBehaviour，可當 coroutine host
+            );                             // 用來在攻擊後更新手牌 UI
 
         rewardController = new BattleRewardController(
             this,                                          // BattleManager
