@@ -4,6 +4,8 @@ using System.Collections.Generic;                 // 引用泛型集合命名空
 using UnityEngine;                                 // 引用 Unity 核心功能
 using UnityEngine.Rendering;                      // 使用 SortingGroup 控制圖層排序
 using TMPro;
+using DG.Tweening;
+
 
 public class Enemy : MonoBehaviour              // 敵人角色，繼承自 MonoBehaviour
 {
@@ -53,12 +55,52 @@ public class Enemy : MonoBehaviour              // 敵人角色，繼承自 Mono
         [Header("動畫設定")]
     [SerializeField] private bool useAppearAnimation = true;
     [SerializeField] private float deathDestroyDelay = 0.6f;
+    [Header("Idle Overlays (W/H)")]
+[SerializeField] private GameObject idleWhiteObj; // 指到 W
+[SerializeField] private GameObject idleRedObj;   // 指到 H
+
+private bool isCardTargeted = false;
+
+public void SetCardTargeted(bool on)
+{
+    isCardTargeted = on;
+    RefreshIdleOverlays();
+}
+
+private bool IsBodyInIdle()
+{
+    EnsureAnimators();
+    if (spriteAnimator == null) return false;
+    if (isDead) return false;
+
+    return spriteAnimator
+        .GetCurrentAnimatorStateInfo(0)
+        .IsTag("Idle");
+}
+
+private void RefreshIdleOverlays()
+{
+    bool inIdle = IsBodyInIdle();
+
+    if (idleWhiteObj != null)
+        idleWhiteObj.SetActive(inIdle);
+
+    if (idleRedObj != null)
+        idleRedObj.SetActive(inIdle && isCardTargeted);
+}
+
+private void HideIdleOverlays()
+{
+    if (idleWhiteObj != null) idleWhiteObj.SetActive(false);
+    if (idleRedObj != null) idleRedObj.SetActive(false);
+}
 
     // Animator 參數 Hash（所有敵人共用）
     private static readonly int HashAppear = Animator.StringToHash("Appear");
     private static readonly int HashAttack = Animator.StringToHash("Attack");
     private static readonly int HashHit = Animator.StringToHash("Hit");
     private static readonly int HashIsDead = Animator.StringToHash("IsDead");
+    private static readonly int HashMove = Animator.StringToHash("Move");
 
     private bool hasAppeared = false;
     private bool isDead = false;
@@ -137,9 +179,24 @@ public class Enemy : MonoBehaviour              // 敵人角色，繼承自 Mono
         if (p != null && p.position == targetGridPos) return;
 
         gridPosition = targetGridPos;
-        transform.position = tile.transform.position;
+
+// ✅ 移動開始：鎖 Move
+SetMoveBool(true);
+
+// ✅ DOTween 平移
+transform.DOMove(tile.transform.position, 0.2f)
+    .SetEase(Ease.Linear)
+    .OnUpdate(() =>
+    {
+        UpdateSpriteSortingOrder(); // 移動中也更新排序（你專案需要）
+    })
+    .OnComplete(() =>
+    {
+        SetMoveBool(false);         // 移動結束：解鎖 Move
         UpdateSpriteSortingOrder();
         CaptureSpriteDefaults();
+    });
+
     }
 
     private void CacheSortingComponents()
@@ -186,14 +243,21 @@ public class Enemy : MonoBehaviour              // 敵人角色，繼承自 Mono
         if (spriteAnimator == null) return;
 
         hasAppeared = true;
+        HideIdleOverlays();
         spriteAnimator.SetTrigger(HashAppear);
+    }
+    protected void SetMoveBool(bool moving)
+    {
+        EnsureAnimators();
+        if (spriteAnimator == null || isDead) return;
+        spriteAnimator.SetBool(HashMove, moving);
     }
 
     protected void PlayAttackAnimation()
     {
         EnsureAnimators();
         if (spriteAnimator == null || isDead) return;
-
+        HideIdleOverlays();
         spriteAnimator.SetTrigger(HashAttack);
     }
 
@@ -201,7 +265,7 @@ public class Enemy : MonoBehaviour              // 敵人角色，繼承自 Mono
     {
         EnsureAnimators();
         if (spriteAnimator == null || isDead) return;
-
+        HideIdleOverlays();
         spriteAnimator.SetTrigger(HashHit);
     }
 
@@ -209,7 +273,7 @@ public class Enemy : MonoBehaviour              // 敵人角色，繼承自 Mono
     {
         EnsureAnimators();
         if (spriteAnimator == null) return;
-
+        HideIdleOverlays();
         spriteAnimator.SetBool(HashIsDead, true);
     }
 
@@ -233,6 +297,8 @@ public class Enemy : MonoBehaviour              // 敵人角色，繼承自 Mono
                 highlightAnimator = highlightFx.GetComponentInChildren<Animator>(true);
             }
         }
+    //if (spriteAnimator != null) Debug.Log($"[Enemy] spriteAnimator = {spriteAnimator.gameObject.name}", spriteAnimator);動畫判定DEBUG用
+    //if (highlightAnimator != null) Debug.Log($"[Enemy] highlightAnimator = {highlightAnimator.gameObject.name}", highlightAnimator);
     }
 
     private void SyncHighlightAnimation()
@@ -392,6 +458,7 @@ public class Enemy : MonoBehaviour              // 敵人角色，繼承自 Mono
             DecideNextIntent(cachedPlayer);
         }
     }
+    RefreshIdleOverlays();
     }
 
     protected virtual bool IsPlayerInRange(Player player)
@@ -425,6 +492,7 @@ public class Enemy : MonoBehaviour              // 敵人角色，繼承自 Mono
         if (bestPos != gridPosition)
             MoveToPosition(bestPos);
     }
+    
     protected virtual void Awake()                  // Awake 在物件建立時呼叫
     {
         currentHP = maxHP;                         // 同步當前生命值為最大值
@@ -442,6 +510,8 @@ public class Enemy : MonoBehaviour              // 敵人角色，繼承自 Mono
             }
             // 播出場動畫（如果有開）
         PlayAppearAnimation();
+        HideIdleOverlays();
+        RefreshIdleOverlays();
     }
 
     private void OnEnable()

@@ -8,7 +8,6 @@ using UnityEngine;
 public class Player : MonoBehaviour
 {
     [Header("手牌設定")]
-    [Tooltip("每回合起始抽牌數量，會在 Inspector 中顯示，可直接調整。")]
     public int baseHandCardCount = 5;
 
     public List<CardBase> relics = new List<CardBase>();
@@ -18,11 +17,26 @@ public class Player : MonoBehaviour
     private PlayerMovement movement;
     public PlayerBuffController buffs { get; private set; }
 
-    private PlayerStats Stats => stats != null ? stats : stats = GetComponent<PlayerStats>();
-    private PlayerDeckController DeckController => deckController != null ? deckController : deckController = GetComponent<PlayerDeckController>();
-    private PlayerMovement Movement => movement != null ? movement : movement = GetComponent<PlayerMovement>();
-    private PlayerBuffController Buffs => buffs != null ? buffs : buffs = GetComponent<PlayerBuffController>();
+    private PlayerAnimatorController animCtrl;
 
+    // =========================
+    // 快取元件
+    // =========================
+    private PlayerStats Stats => stats ??= GetComponent<PlayerStats>();
+    private PlayerDeckController DeckController => deckController ??= GetComponent<PlayerDeckController>();
+    private PlayerMovement Movement => movement ??= GetComponent<PlayerMovement>();
+
+    // =========================
+    // 對外動畫介面（唯一入口）
+    // =========================
+    public void PlayAttackAnim()  => animCtrl?.PlayAttack();
+    public void PlayWoundedAnim() => animCtrl?.PlayWounded();
+    public void SetMovingAnim(bool moving) => animCtrl?.SetMoving(moving);
+    public void SetDeadAnim(bool dead) => animCtrl?.SetDead(dead);
+
+    // =========================
+    // 狀態轉接
+    // =========================
     public int maxHP { get => Stats.maxHP; set => Stats.maxHP = value; }
     public int currentHP { get => Stats.currentHP; set => Stats.currentHP = value; }
     public int maxEnergy { get => Stats.maxEnergy; set => Stats.maxEnergy = value; }
@@ -35,19 +49,33 @@ public class Player : MonoBehaviour
         get => DeckController.Deck;
         set => DeckController.Deck = value ?? new List<CardBase>();
     }
+
     public List<CardBase> Hand => DeckController.Hand;
     public List<CardBase> discardPile => DeckController.DiscardPile;
     public List<CardBase> exhaustPile => DeckController.ExhaustPile;
-    public int exhaustCountThisTurn { get => DeckController.exhaustCountThisTurn; set => DeckController.exhaustCountThisTurn = value; }
+    public int exhaustCountThisTurn
+    {
+        get => DeckController.exhaustCountThisTurn;
+        set => DeckController.exhaustCountThisTurn = value;
+    }
 
-    public Vector2Int position { get => Movement.position; set => Movement.position = value; }
+    public Vector2Int position
+    {
+        get => Movement.position;
+        set => Movement.position = value;
+    }
 
+    // =========================
+    // Unity Lifecycle
+    // =========================
     private void Awake()
     {
         stats = GetComponent<PlayerStats>();
         deckController = GetComponent<PlayerDeckController>();
         movement = GetComponent<PlayerMovement>();
         buffs = GetComponent<PlayerBuffController>();
+
+        animCtrl = GetComponentInChildren<PlayerAnimatorController>(true);
 
         stats.Initialize(this, buffs);
         deckController.Initialize(this, buffs);
@@ -58,6 +86,9 @@ public class Player : MonoBehaviour
         }
     }
 
+    // =========================
+    // Turn Flow
+    // =========================
     public void StartTurn()
     {
         stats.StartTurn();
@@ -67,9 +98,7 @@ public class Player : MonoBehaviour
         foreach (CardBase r in relics)
         {
             if (r is Relic_KuMuShuQian kk)
-            {
                 kk.OnTurnStart(this);
-            }
         }
     }
 
@@ -81,34 +110,17 @@ public class Player : MonoBehaviour
             buffs.needRandomDiscardAtEnd = 0;
             for (int i = 0; i < n; i++)
             {
-                if (deckController.DiscardRandomCard(relics, false))
-                {
-                    continue;
-                }
-                else
-                {
+                if (!deckController.DiscardRandomCard(relics, false))
                     break;
-                }
             }
         }
 
         buffs.OnTurnEndReset(this);
     }
 
-    public void UseEnergy(int cost) => stats.UseEnergy(cost);
-
-    public int CalculateAttackDamage(int baseDamage) => stats.CalculateAttackDamage(baseDamage);
-
-    public void AddBlock(int amount) => stats.AddBlock(amount, relics);
-
-    public void TakeDamage(int dmg) => stats.TakeDamage(dmg);
-
-    public void TakeDamageDirect(int dmg) => stats.TakeDamageDirect(dmg);
-
-    public void TakeStatusDamage(int dmg) => stats.TakeStatusDamage(dmg);
-
-    public void AddGold(int amount) => stats.AddGold(amount);
-
+    // =========================
+    // Combat / Cards API
+    // =========================
     public void RemoveAllNegativeEffects()
     {
         buffs.RemoveAllNegativeEffects(this);
@@ -119,35 +131,37 @@ public class Player : MonoBehaviour
         buffs.RemoveEnemyNegativeEffects(this);
     }
 
-    public void DrawCards(int n) => deckController.DrawCards(n);
 
-    public int GetCardCostModifier(CardBase card) => deckController.GetCardCostModifier(card);
-
-    public void AddCardCostModifier(CardBase card, int modifier) => deckController.AddCardCostModifier(card, modifier);
-
-    public void ClearCardCostModifier(CardBase card) => deckController.ClearCardCostModifier(card);
-
-    public void ExhaustCard(CardBase card) => deckController.ExhaustCard(card);
-
+    public bool HasExhaustableCardInHand(CardBase excludedCard = null)
+    => deckController.HasExhaustableCardInHand(excludedCard);
+    // ===== Deck / Hand 轉接（BattleManager / 卡牌 / 遺物會用到）=====
     public void DrawNewHand(int count) => deckController.DrawNewHand(count);
-
     public void ReshuffleDiscardIntoDeck() => deckController.ReshuffleDiscardIntoDeck();
-
     public void ShuffleDeck() => deckController.ShuffleDeck();
 
-    public bool HasExhaustableCardInHand(CardBase excludedCard = null) => deckController.HasExhaustableCardInHand(excludedCard);
-
     public void DiscardCards(int n) => deckController.DiscardCards(n, relics);
-
     public bool DiscardOneCard() => deckController.DiscardOneCard(relics);
-
     public bool DiscardRandomCard() => deckController.DiscardRandomCard(relics);
 
-    public bool ExhaustRandomCardFromHand(CardBase excludedCard = null) => deckController.ExhaustRandomCardFromHand(excludedCard);
+    public bool ExhaustRandomCardFromHand(CardBase excludedCard = null)
+    => deckController.ExhaustRandomCardFromHand(excludedCard);
 
     public bool CheckExhaustPlan() => deckController.CheckExhaustPlan();
 
-    public void MoveToPosition(Vector2Int targetGridPos) => movement.MoveToPosition(targetGridPos);
+    public void UseEnergy(int cost) => stats.UseEnergy(cost);
+    public int CalculateAttackDamage(int baseDamage) => stats.CalculateAttackDamage(baseDamage);
+    public void AddBlock(int amount) => stats.AddBlock(amount, relics);
+    public void TakeDamage(int dmg) => stats.TakeDamage(dmg);
+    public void TakeDamageDirect(int dmg) => stats.TakeDamageDirect(dmg);
+    public void TakeStatusDamage(int dmg) => stats.TakeStatusDamage(dmg);
+    public void AddGold(int amount) => stats.AddGold(amount);
 
+    public void DrawCards(int n) => deckController.DrawCards(n);
+    public int GetCardCostModifier(CardBase card) => deckController.GetCardCostModifier(card);
+    public void AddCardCostModifier(CardBase card, int modifier) => deckController.AddCardCostModifier(card, modifier);
+    public void ClearCardCostModifier(CardBase card) => deckController.ClearCardCostModifier(card);
+    public void ExhaustCard(CardBase card) => deckController.ExhaustCard(card);
+
+    public void MoveToPosition(Vector2Int targetGridPos) => movement.MoveToPosition(targetGridPos);
     public void TeleportToPosition(Vector2Int targetPos) => movement.TeleportToPosition(targetPos);
 }
