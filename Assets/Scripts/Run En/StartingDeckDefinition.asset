@@ -1,0 +1,28 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6e3338d371aae2c499455166eeb78eb3, type: 3}
+  m_Name: StartingDeckDefinition
+  m_EditorClassIdentifier: 
+  copiesPerElement: 2
+  huWoZhenShenCopies: 4
+  huWoZhenShenCard: {fileID: 11400000, guid: 4b17aca886ce6ff488b11e95c1291b15, type: 2}
+  elementalCards:
+  - element: 0
+    card: {fileID: 11400000, guid: 11d3cc5377d2ef3459a4b4380becefff, type: 2}
+  - element: 1
+    card: {fileID: 11400000, guid: 4fd70894f3d5cb54388922c21a1e3c60, type: 2}
+  - element: 2
+    card: {fileID: 11400000, guid: a58c41531431ead4ebb45b0f3f038cbc, type: 2}
+  - element: 3
+    card: {fileID: 11400000, guid: 9a5a37cfe6c1216448cd26bb8d654d24, type: 2}
+  - element: 4
+    card: {fileID: 11400000, guid: 9aaf3c9fe05acb3468a4b7d995117dd5, type: 2}

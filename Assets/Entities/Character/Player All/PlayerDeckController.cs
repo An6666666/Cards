@@ -8,6 +8,8 @@ public class PlayerDeckController : MonoBehaviour
     [SerializeField] private List<CardBase> startingDeck = new List<CardBase>();
     [SerializeField] private List<CardBase> debugStartingDeck = new List<CardBase>();
     [SerializeField] private bool useDebugDeck = false;
+    [SerializeField] private StartingDeckDefinition startingDeckDefinition;
+
 
     private List<CardBase> deck = new List<CardBase>();
     private List<CardBase> hand = new List<CardBase>();
@@ -41,7 +43,7 @@ public class PlayerDeckController : MonoBehaviour
     
     private void InitializeDeckFromStartingLists()
     {
-        List<CardBase> selectedDeck = startingDeck;
+        List<CardBase> selectedDeck = ResolveStartingDeckFromSelection();
 
 #if UNITY_EDITOR
         if (useDebugDeck && debugStartingDeck != null && debugStartingDeck.Count > 0)
@@ -55,6 +57,34 @@ public class PlayerDeckController : MonoBehaviour
         discardPile.Clear();
         exhaustPile.Clear();
         cardCostModifiers.Clear();
+    }
+    
+    private List<CardBase> ResolveStartingDeckFromSelection()
+    {
+        if (StartingDeckSelection.TryGetSelectedElements(out IReadOnlyList<ElementType> selectedElements))
+        {
+            StartingDeckDefinition definitionToUse = startingDeckDefinition;
+            if (definitionToUse == null)
+            {
+                definitionToUse = Resources.Load<StartingDeckDefinition>("StartingDeckDefinition");
+            }
+
+            if (definitionToUse != null)
+            {
+                List<CardBase> built = definitionToUse.BuildDeck(selectedElements);
+                if (built.Count > 0)
+                {
+                    StartingDeckSelection.ClearSelection();
+                    return built;
+                }
+            }
+            else
+            {
+                Debug.LogWarning("PlayerDeckController: StartingDeckDefinition is missing; using default starting deck.");
+            }
+        }
+
+        return startingDeck;
     }
     
     public void StartTurn(int baseHandCardCount)

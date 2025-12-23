@@ -8480,7 +8480,8 @@ MonoBehaviour:
   - {fileID: 11400000, guid: bf7b25def5c8087448e32a965df46313, type: 2}
   - {fileID: 11400000, guid: 5e0f37164bedc0c40849be8d4a828656, type: 2}
   - {fileID: 11400000, guid: 293e02d9acc286446b6512a991161eaf, type: 2}
-  useDebugDeck: 1
+  useDebugDeck: 0
+  startingDeckDefinition: {fileID: 11400000, guid: 1ce8022936a74184fb5e02c6c0afbb04, type: 2}
   exhaustCountThisTurn: 0
 --- !u!114 &1848671832
 MonoBehaviour:

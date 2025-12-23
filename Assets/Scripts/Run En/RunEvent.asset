@@ -16,15 +16,15 @@ MonoBehaviour:
   title: "\u5947\u602A\u7684\u5996\u602A"
   description: "\u9047\u5230\u5947\u602A\u7684\u5996\u602A"
   options:
-  - optionLabel: "\u6276\u9664"
+  - optionLabel: "\u6276\u9664(\u7372\u5F975\u91D1\u5E63\uFF0C\u626310\u9EDE\u8840)"
     resultDescription: "\u5996\u602A\u5728\u88AB\u6276\u9664\u6700\u5F8C\u8A5B\u5492\u4E86\u4F60"
-    goldDelta: 0
+    goldDelta: 5
     hpDelta: -10
     rewardCards: []
     rewardRelics: []
-  - optionLabel: "\u6500\u8AC7"
+  - optionLabel: "\u6500\u8AC7(\u62634\u91D1\u5E63\uFF0C\u7372\u5F97\u4E00\u5F35\u5927\u71C3\u76E1\u8853\u51B0)"
     resultDescription: "\u5996\u602A\u8D08\u9001\u4E86\u79AE\u7269"
-    goldDelta: 0
+    goldDelta: -4
     hpDelta: 0
     rewardCards:
     - {fileID: 11400000, guid: 457225c57c6113a45b6c95acbbeb7819, type: 2}

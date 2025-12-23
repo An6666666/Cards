@@ -25,7 +25,6 @@ public class RunEventDefinition : ScriptableObject               // 這個類別
 public class RunEventOption
 {
     public string optionLabel;                                   // 按鈕上顯示的文字，例如「幫助他」「離開」
-    [TextArea] public string resultDescription;                  // 選完後要顯示的結果文字
     public int goldDelta;                                        // 金錢變化，可以是 +（給錢）或 -（扣錢）
     public int hpDelta;                                          // 血量變化，可以是 +（回復）或 -（受傷）
     public List<CardBase> rewardCards = new List<CardBase>();    // 選了這個選項後送的卡片清單
