@@ -85,11 +85,16 @@ GameObject:
   m_Component:
   - component: {fileID: 5663915136498497860}
   - component: {fileID: 2623102989936126004}
-  - component: {fileID: 3338435388162596576}
   - component: {fileID: 3988704918984983897}
   - component: {fileID: 2651050089951659055}
   - component: {fileID: 1067348645417831133}
   - component: {fileID: 5396741223268239126}
+  - component: {fileID: 3338435388162596576}
+  - component: {fileID: 5318362119922690159}
+  - component: {fileID: 4049866679477113874}
+  - component: {fileID: 4438781737537791598}
+  - component: {fileID: 911598095716012056}
+  - component: {fileID: 2519559047820428945}
   m_Layer: 5
   m_Name: CardPrefab
   m_TagString: Untagged
@@ -126,41 +131,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4596475076482105628}
   m_CullTransparentMesh: 1
---- !u!114 &3338435388162596576
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4596475076482105628}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9571566b52f008449b5b1f0a9dfe47cc, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  cardImage: {fileID: 9099820290413732922}
-  cardData: {fileID: 0}
-  originalParent: {fileID: 0}
-  draggingAlpha: 0.2
-  hoverMoveDistance: 80
-  hoverGlowImage: {fileID: 4058666933160878638}
-  hoverGlowColor: {r: 0.16078427, g: 0.972549, b: 0.9641703, a: 0.9019608}
-  hoverMoveDuration: 0.2
-  drawAnimationDuration: 1
-  drawStartScale: 0.5
-  drawAnimationEase: 9
-  returnMoveDuration: 0.2
-  hoverMoveEase: 6
-  returnMoveEase: 7
-  fadeDuration: 0.15
-  hoverGlowFadeDuration: 0.2
-  rewardHoverScale: 1.2
-  rewardHoverDuration: 0.15
-  rewardReturnDuration: 0.15
-  rewardHoverEase: 6
-  rewardReturnEase: 7
-  layoutElement: {fileID: 5396741223268239126}
-  interactable: 1
 --- !u!61 &3988704918984983897
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -282,6 +252,103 @@ MonoBehaviour:
   m_FlexibleWidth: -1
   m_FlexibleHeight: -1
   m_LayoutPriority: 1
+--- !u!114 &3338435388162596576
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4596475076482105628}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9571566b52f008449b5b1f0a9dfe47cc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  cardImage: {fileID: 9099820290413732922}
+  cardData: {fileID: 0}
+  originalParent: {fileID: 0}
+  layoutElement: {fileID: 5396741223268239126}
+--- !u!114 &5318362119922690159
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4596475076482105628}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 84697b7580ea9074d9cbfda6ec77da34, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  hoverMoveDistance: 80
+  hoverGlowImage: {fileID: 4058666933160878638}
+  hoverGlowColor: {r: 0.16078432, g: 0.9725491, b: 0.96470594, a: 0.8156863}
+  hoverMoveDuration: 0.2
+  hoverMoveEase: 6
+  hoverGlowFadeDuration: 0.2
+  rewardHoverScale: 1.2
+  rewardHoverDuration: 0.15
+  rewardReturnDuration: 0.15
+  rewardHoverEase: 6
+  rewardReturnEase: 7
+  returnMoveDuration: 0.2
+  returnMoveEase: 7
+--- !u!114 &4049866679477113874
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4596475076482105628}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f35b2abdceeb88c4d93ad67289341f06, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  draggingAlpha: 0.2
+--- !u!114 &4438781737537791598
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4596475076482105628}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a5c679707f40fab47a2493c804d6fd15, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  drawAnimationDuration: 1
+  drawStartScale: 0.5
+  drawAnimationEase: 9
+  returnMoveDuration: 0.2
+  returnMoveEase: 7
+  fadeDuration: 0.15
+--- !u!114 &911598095716012056
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4596475076482105628}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3022619a5d2c8da43b70d9e6ec166ce9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &2519559047820428945
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4596475076482105628}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4a99c89999f424347a70de1d4db4f9af, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  interactable: 1
 --- !u!1 &5392751586935578201
 GameObject:
   m_ObjectHideFlags: 0
