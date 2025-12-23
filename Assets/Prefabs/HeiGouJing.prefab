@@ -560,6 +560,8 @@ MonoBehaviour:
   spriteRoot: {fileID: 8275633406451967337}
   useAppearAnimation: 0
   deathDestroyDelay: 0.6
+  idleWhiteObj: {fileID: 0}
+  idleRedObj: {fileID: 0}
   sortingOrderBase: 0
   sortingOrderMultiplier: 100
   shakeDuration: 0.1

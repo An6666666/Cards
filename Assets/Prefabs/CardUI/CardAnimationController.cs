@@ -368,10 +368,12 @@ public class CardAnimationController : MonoBehaviour
             dragHandler.AllowDragging = cardUI.CurrentDisplayContext == CardUI.DisplayContext.Hand && allowDraggingBeforeDraw;
 
         bool shouldBeInteractable = interactableBeforeDraw;
+        if (raycastController != null && raycastController.Interactable)
+            shouldBeInteractable = true;
 
         var router = GetComponent<CardUseRouter>();
         bool isLocked = router != null && router.IsCardInteractionLocked();
-        shouldBeInteractable = interactableBeforeDraw && !isLocked;
+        shouldBeInteractable = shouldBeInteractable && !isLocked;
 
         raycastController?.SetInteractable(shouldBeInteractable);
 

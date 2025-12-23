@@ -156,7 +156,7 @@ private void HideIdleOverlays()
     public Sprite intentDefendSprite;
     public Sprite intentSkillSprite;
 
-        [Header("Intent Value (Attack Number)")]
+    [Header("Intent Value (Attack Number)")]
     [Tooltip("顯示攻擊數值用的 TextMeshPro (世界空間文字)")]
     public TMP_Text intentValueText;
 

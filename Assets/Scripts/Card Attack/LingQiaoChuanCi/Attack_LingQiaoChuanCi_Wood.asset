@@ -1,0 +1,36 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d3be9e3013f8dd74ab770bda837d7710, type: 3}
+  m_Name: Attack_LingQiaoChuanCi_Wood
+  m_EditorClassIdentifier: 
+  cardName: "\u9748\u5DE7\u7A7F\u523A\u6728"
+  cost: 1
+  description: "\u6728\u5143\u7D205\u9EDE\u55AE\u9AD4\u50B7\u5BB3\uFF0C\u7372\u5F974\u9EDE\u8B77\u7532"
+  cardImage: {fileID: 21300000, guid: 2803997e4e85d0247b930361cce80e91, type: 3}
+  exhaustOnUse: 0
+  shopPrice: 8
+  cardType: 0
+  rangeOffsets:
+  - {x: 2, y: 0}
+  - {x: -2, y: 0}
+  - {x: 1, y: 2}
+  - {x: 1, y: -2}
+  - {x: -1, y: 2}
+  - {x: -1, y: -2}
+  - {x: 4, y: 0}
+  - {x: -4, y: 0}
+  - {x: 0, y: 4}
+  - {x: 0, y: -4}
+  damage: 5
+  blockValue: 4
+  hitEffectPrefab: {fileID: 4707066954145857473, guid: 1ff751b8832b3da42af3757d9d065a97, type: 3}
+  elementType: 4

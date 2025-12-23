@@ -39,35 +39,6 @@ public class Attack_ZhenXun : CardBase
 #region P5-P10:進階攻擊卡
 
 /// <summary>
-/// 靈巧穿刺（若本回合有消耗，額外加傷）
-/// </summary>
-[CreateAssetMenu(fileName = "Attack_LingQiaoChuanCi", menuName = "Cards/Attack/靈巧穿刺")]
-public class Attack_LingQiaoChuanCi : CardBase
-{
-    [Header("數值設定")]
-    public int baseDamage = 6;
-    public int bonusDamageIfDiscard = 3;
-
-    private void OnEnable()
-    {
-        cardType = CardType.Attack;
-    }
-
-    public override void ExecuteEffect(Player player, Enemy enemy)
-    {
-         // 檢查本回合是否有卡片被消耗
-        bool hasExhausted = player.exhaustCountThisTurn > 0;
-        int totalDamage = baseDamage;
-        if (hasExhausted)
-        {
-            totalDamage += bonusDamageIfDiscard;
-        }
-        int dmg = player.CalculateAttackDamage(totalDamage);
-        enemy.TakeDamage(dmg);
-    }
-}
-
-/// <summary>
 /// 燃勁斬（先造成一次傷害；若能成功棄 1 張牌，再追加一次同等傷害）
 /// </summary>
 [CreateAssetMenu(fileName = "Attack_RanJinZhan", menuName = "Cards/Attack/燃勁斬")]

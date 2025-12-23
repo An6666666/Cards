@@ -6665,7 +6665,7 @@ MonoBehaviour:
   endTurnButton: {fileID: 2116894243}
   enemySpawnConfigs:
   - enemyPrefab: {fileID: 4204690724760053818, guid: 87fab54ae39d11f449187455258a17cc, type: 3}
-    count: 1
+    count: 0
   - enemyPrefab: {fileID: 4898516673341191513, guid: a09861f3a2ead1f4f876a9345a60088b, type: 3}
     count: 0
   - enemyPrefab: {fileID: 4591814044274373110, guid: e0d91408b43bec24ab02b0d2932a3dfc, type: 3}
@@ -6673,11 +6673,11 @@ MonoBehaviour:
   - enemyPrefab: {fileID: 7728357840837083407, guid: 6fb8d547b14a881468023f486a977e6b, type: 3}
     count: 0
   - enemyPrefab: {fileID: 8258485525033336925, guid: b1fbe62463006294b80e46474639e1f9, type: 3}
-    count: 0
+    count: 3
   - enemyPrefab: {fileID: 8896973269389346778, guid: 8e9ee8b5037fe5048ae8dc2cef4d967f, type: 3}
     count: 0
   - enemyPrefab: {fileID: 3762648908618512516, guid: cbb7c20ed40c0294daca78f7a8548c50, type: 3}
-    count: 1
+    count: 0
   - enemyPrefab: {fileID: 40532459971013023, guid: 5ecce71dfdd5e304fa13dac5018a9458, type: 3}
     count: 0
   playerStartPos: {x: 0, y: 0}
@@ -8468,7 +8468,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ec43d2a64345a704981db131db4084ef, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  startingDeck: []
+  startingDeck:
+  - {fileID: 11400000, guid: 11d3cc5377d2ef3459a4b4380becefff, type: 2}
   debugStartingDeck:
   - {fileID: 11400000, guid: 6e46d5e13429d2742a580e16ec745461, type: 2}
   - {fileID: 11400000, guid: 457225c57c6113a45b6c95acbbeb7819, type: 2}
@@ -8497,7 +8498,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   maxHP: 100
   currentHP: 0
-  maxEnergy: 3
+  maxEnergy: 20
   energy: 0
   block: 0
   gold: 98

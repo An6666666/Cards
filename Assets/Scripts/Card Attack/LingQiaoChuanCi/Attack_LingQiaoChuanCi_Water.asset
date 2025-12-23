@@ -1,0 +1,36 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a2ec8e1975d276440848149a451dfd04, type: 3}
+  m_Name: Attack_LingQiaoChuanCi_Water
+  m_EditorClassIdentifier: 
+  cardName: "\u9748\u5DE7\u7A7F\u523A\u6C34"
+  cost: 1
+  description: "\u6C34\u5143\u7D205\u9EDE\u55AE\u9AD4\u50B7\u5BB3\uFF0C\u7372\u5F974\u9EDE\u8B77\u7532"
+  cardImage: {fileID: 21300000, guid: ad272e8ad815b864abd2ef447abf8e1a, type: 3}
+  exhaustOnUse: 0
+  shopPrice: 8
+  cardType: 0
+  rangeOffsets:
+  - {x: 2, y: 0}
+  - {x: -2, y: 0}
+  - {x: 1, y: 2}
+  - {x: 1, y: -2}
+  - {x: -1, y: 2}
+  - {x: -1, y: -2}
+  - {x: 4, y: 0}
+  - {x: -4, y: 0}
+  - {x: 0, y: 4}
+  - {x: 0, y: -4}
+  damage: 5
+  blockValue: 4
+  hitEffectPrefab: {fileID: 7213305712601285595, guid: 1e8d195486e9d0340b3ca44c17f86d2d, type: 3}
+  elementType: 1

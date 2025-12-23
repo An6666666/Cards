@@ -1,0 +1,36 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7a6038f8ef1f12a4a923ad6890352bc5, type: 3}
+  m_Name: Attack_LingQiaoChuanCi_Ice
+  m_EditorClassIdentifier: 
+  cardName: "\u9748\u5DE7\u7A7F\u523A\u51B0"
+  cost: 1
+  description: "\u51B0\u5143\u7D205\u9EDE\u55AE\u9AD4\u50B7\u5BB3\uFF0C\u7372\u5F974\u9EDE\u8B77\u7532"
+  cardImage: {fileID: 21300000, guid: 29a7529db9b10d84bab28d8c59d1e4ec, type: 3}
+  exhaustOnUse: 0
+  shopPrice: 8
+  cardType: 0
+  rangeOffsets:
+  - {x: 2, y: 0}
+  - {x: -2, y: 0}
+  - {x: 1, y: 2}
+  - {x: 1, y: -2}
+  - {x: -1, y: 2}
+  - {x: -1, y: -2}
+  - {x: 4, y: 0}
+  - {x: -4, y: 0}
+  - {x: 0, y: 4}
+  - {x: 0, y: -4}
+  damage: 5
+  blockValue: 4
+  hitEffectPrefab: {fileID: 4240465587629466036, guid: 22c4e1732c23bbd4c8c7067b948cf6b5, type: 3}
+  elementType: 3
