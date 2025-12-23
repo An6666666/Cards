@@ -55,8 +55,9 @@ public class FireStrategy : DefaultElementalStrategy, IStartOfTurnEffect // 火�
                     if (en == defender) continue;                // 跳過本體（不處理自己）
                     if (Vector2Int.Distance(en.gridPosition, defender.gridPosition) <= 2.3f) // 若距離小於等於 2.3（視為相鄰）
                     {                                            // if 區塊開始
-                        en.TakeDamage(Mathf.CeilToInt(baseDamage * 0.5f)); // 相鄰敵人受到 0.5 倍基礎傷害
-                        en.AddElementTag(keep);                  // 附加火元素標記到相鄰敵人
+                        int spreadDmg = Mathf.CeilToInt(baseDamage * 0.5f); // 相鄰敵人受到 0.5 倍基礎傷害
+                        ApplyFireSpreadReaction(en, ref spreadDmg); // 依照現有元素觸發對應反應
+                        if (spreadDmg > 0) en.TakeDamage(spreadDmg); // 造成最終傷害
                     }                                            // if 區塊結束
                 }                                                // foreach 區塊結束
             }                                                    // if 區塊結束
@@ -76,6 +77,38 @@ public class FireStrategy : DefaultElementalStrategy, IStartOfTurnEffect // 火�
 
         return dmg;                                              // 回傳最終傷害
     }                                                            // 方法區塊結束
+
+    private void ApplyFireSpreadReaction(Enemy enemy, ref int dmg)
+    {
+        if (enemy.HasElement(ElementType.Water))
+        {
+            dmg = Mathf.CeilToInt(dmg * 1.5f);
+            enemy.RemoveElementTag(ElementType.Water);
+            enemy.AddElementTag(ElementType.Fire);
+        }
+        else if (enemy.HasElement(ElementType.Ice))
+        {
+            dmg = Mathf.CeilToInt(dmg * 1.5f);
+            enemy.RemoveElementTag(ElementType.Ice);
+            enemy.AddElementTag(ElementType.Fire);
+        }
+        else if (enemy.HasElement(ElementType.Wood))
+        {
+            enemy.burningTurns = 5;
+            enemy.AddElementTag(ElementType.Fire);
+            enemy.AddElementTag(ElementType.Wood);
+        }
+        else if (enemy.HasElement(ElementType.Thunder))
+        {
+            enemy.RemoveElementTag(ElementType.Thunder);
+            enemy.AddElementTag(ElementType.Fire);
+        }
+        else
+        {
+            enemy.AddElementTag(ElementType.Fire);
+        }
+    }
+    
     public void OnStartOfTurn(Enemy enemy)                       // 回合開始效果：火的燃燒 DOT（持續傷害）
     {                                                            // 方法區塊開始
         if (enemy.burningTurns > 0)                              // 若仍有燃燒回合數
@@ -166,8 +199,9 @@ public class ThunderStrategy : DefaultElementalStrategy          // 雷元素策
                     if (en == defender) continue;                // 跳過自己
                     if (Vector2Int.Distance(en.gridPosition, defender.gridPosition) <= 2.3f) // 相鄰判定
                     {                                            // if 區塊開始
-                        en.TakeDamage(Mathf.CeilToInt(baseDamage * 0.5f)); // 相鄰扣 0.5 倍
-                        en.AddElementTag(keep);                  // 相鄰附著雷元素
+                        int spreadDmg = Mathf.CeilToInt(baseDamage * 0.5f); // 相鄰扣 0.5 倍
+                        ApplyThunderSpreadReaction(en, ref spreadDmg);
+                        if (spreadDmg > 0) en.TakeDamage(spreadDmg);
                     }                                            // if 區塊結束
                 }                                                // foreach 區塊結束
             }                                                    // if 區塊結束
@@ -264,6 +298,39 @@ public class ThunderStrategy : DefaultElementalStrategy          // 雷元素策
 
         return dmg;                                              // 回傳最終傷害
     }                                                            // 方法區塊結束
+
+    private void ApplyThunderSpreadReaction(Enemy enemy, ref int dmg)
+    {
+        if (enemy.HasElement(ElementType.Water))
+        {
+            enemy.TakeDamage(dmg);
+            enemy.AddElementTag(ElementType.Thunder);
+            dmg = 0; // 已經處理傷害，避免重複
+        }
+        else if (enemy.HasElement(ElementType.Wood))
+        {
+            enemy.thunderstrike = true;
+            enemy.RemoveElementTag(ElementType.Wood);
+            enemy.RemoveElementTag(ElementType.Thunder);
+            dmg = 0; // 反應後不再套用 spread 傷害
+        }
+        else if (enemy.HasElement(ElementType.Ice))
+        {
+            enemy.superconduct = true;
+            enemy.RemoveElementTag(ElementType.Thunder);
+            enemy.RemoveElementTag(ElementType.Ice);
+            dmg = 0; // 反應後不再套用 spread 傷害
+        }
+        else if (enemy.HasElement(ElementType.Fire))
+        {
+            enemy.RemoveElementTag(ElementType.Fire);
+            enemy.AddElementTag(ElementType.Thunder);
+        }
+        else
+        {
+            enemy.AddElementTag(ElementType.Thunder);
+        }
+    }
 }                                                                // 類別區塊結束
 
 public class IceStrategy : DefaultElementalStrategy              // 冰元素策略
@@ -319,6 +386,16 @@ public class IceStrategy : DefaultElementalStrategy              // 冰元素策
             if (enemy == defender) continue;
             if (Vector2Int.Distance(enemy.gridPosition, defender.gridPosition) <= 2.3f)
             {
+                if (enemy.HasElement(ElementType.Water))
+                {
+                    bool freeze = true;
+                    if (enemy.isBoss && UnityEngine.Random.value < 0.5f)
+                        freeze = false;
+                    if (freeze) enemy.frozenTurns = 1;
+                    enemy.RemoveElementTag(ElementType.Ice);
+                    enemy.RemoveElementTag(ElementType.Water);
+                    continue;
+                }
                 enemy.AddElementTag(ElementType.Ice);
             }
         }
