@@ -59,6 +59,8 @@ public class Enemy : MonoBehaviour              // 敵人角色，繼承自 Mono
 [SerializeField] private GameObject idleWhiteObj; // 指到 W
 [SerializeField] private GameObject idleRedObj;   // 指到 H
 
+
+
 private bool isCardTargeted = false;
 
 public void SetCardTargeted(bool on)

@@ -1,71 +1,96 @@
-using System.Collections.Generic;            // 要用 Dictionary、List
-using TMPro;                                 // 用來抓 TMP_Text 顯示節點文字
+using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
 public class RunMapUI : MonoBehaviour
 {
     [Header("References")]
-    [SerializeField] private RunManager runManager;          // 引用你的核心 RunManager，用來拿地圖資料、問節點能不能點
-    [SerializeField] private RectTransform mapContainer;     // UI 上擺節點跟連線的父物件（通常是一個空的 RectTransform）
-    [SerializeField] private Button nodeButtonPrefab;        // 每一個節點要用的按鈕 Prefab
-    [SerializeField] private Image connectionLinePrefab;     // 節點之間的連線 Prefab（用 Image 來當線）
+    [SerializeField] private RunManager runManager;
+    [SerializeField] private RectTransform mapContainer;     // ScrollRect/Viewport/Content
+    [SerializeField] private Button nodeButtonPrefab;
+    [SerializeField] private Image connectionLinePrefab;
+
+    [Header("Scroll / BG")]
+    [SerializeField] private RectTransform viewport;         // ScrollRect 的 Viewport（有 Mask 那個）
+    [SerializeField] private RectTransform bgRect;           // BG 的 RectTransform（放在 Content 底下）
+
+    [Header("UI Panels")]
+    [SerializeField] private GameObject legendPanel;
 
     [Header("Layout")]
-    [SerializeField] private float floorSpacing = 200f;      // 一層跟一層之間的垂直距離
-    [SerializeField] private float nodeSpacing = 160f;       // 同一層節點之間的水平距離
-    [SerializeField] private float connectionThickness = 6f; // 連線的粗細
-    [SerializeField] private float horizontalPositionJitter = 40f; // 節點水平方向的隨機偏移
-    [SerializeField] private float verticalPositionJitter = 30f;   // 節點垂直方向的隨機偏移
-    [SerializeField] private float connectionAnchorJitter = 20f;   // 連線端點的手繪感偏移
+    [SerializeField] private float floorSpacing = 200f;
+    [SerializeField] private float nodeSpacing = 160f;
+    [SerializeField] private float connectionThickness = 6f;
+    [SerializeField] private float horizontalPositionJitter = 40f;
+    [SerializeField] private float verticalPositionJitter = 30f;
+    [SerializeField] private float connectionAnchorJitter = 20f;
+
+    [Header("Padding (控制上/下留白)")]
+    [SerializeField] private float topPadding = 120f;
+    [SerializeField] private float bottomPadding = 120f;
 
     [Header("Colors")]
-    [SerializeField] private Color defaultColor = Color.white;                    // 一般節點的顏色
-    [SerializeField] private Color completedColor = new Color(0.6f, 0.6f, 0.6f);  // 已經完成的節點顏色
-    [SerializeField] private Color currentColor = new Color(1f, 0.85f, 0.3f);     // 玩家目前所在節點顏色
-    [SerializeField] private Color lockedColor = new Color(0.5f, 0.5f, 0.5f);     // 還不能點的節點顏色
+    [SerializeField] private Color defaultColor = Color.white;
+    [SerializeField] private Color completedColor = new Color(0.6f, 0.6f, 0.6f);
+    [SerializeField] private Color currentColor = new Color(1f, 0.85f, 0.3f);
+    [SerializeField] private Color lockedColor = new Color(0.5f, 0.5f, 0.5f);
 
-    // 把每個 MapNodeData 對應到它的 RectTransform，之後畫連線要知道位置
+    [Header("Optional Roots")]
+    [SerializeField] private RectTransform nodesRoot;
+    [SerializeField] private RectTransform linesRoot;
+
+    [Header("Node Icons")]
+    [SerializeField] private Sprite battleIcon;
+    [SerializeField] private Sprite eliteIcon;
+    [SerializeField] private Sprite shopIcon;
+    [SerializeField] private Sprite restIcon;
+    [SerializeField] private Sprite eventIcon;
+    [SerializeField] private Sprite bossIcon;
+
+    private float _lastTopPadding;
+    private float _lastBottomPadding;
+
+
     private readonly Dictionary<MapNodeData, RectTransform> nodeRects = new Dictionary<MapNodeData, RectTransform>();
-
-    // 把每個 MapNodeData 對應到它的 Button，之後要更新顏色/可互動性會用到
     private readonly Dictionary<MapNodeData, Button> nodeButtons = new Dictionary<MapNodeData, Button>();
-    private float refreshTimer;  // 每隔一小段時間刷新節點狀態，避免每幀都跑
+    private float refreshTimer;
+    private bool _hasBuilt;
+private float _builtMinY;
+private float _builtMaxY;
+
+private float _currentShiftY;
+
 
     private void Awake()
     {
-        // 每次進場都直接抓當前的單例，避免殘留舊場景引用
         runManager = RunManager.Instance;
     }
 
     private void OnEnable()
     {
-        // 再保險一次，OnEnable 時也抓 RunManager（避免引用到被銷毀的場景內物件）
         runManager = RunManager.Instance;
 
         if (runManager != null)
         {
-            // 訂閱「地圖生成」事件，地圖一生成就重畫 UI
             runManager.MapGenerated += HandleMapGenerated;
-            // 訂閱「地圖狀態改變」事件（例如走到下一個節點）就刷新顏色/互動
             runManager.MapStateChanged += HandleMapStateChanged;
 
-            // 如果這時候 RunManager 已經有地圖了，直接畫一次
             if (runManager.MapFloors != null && runManager.MapFloors.Count > 0)
             {
                 HandleMapGenerated(runManager.MapFloors);
             }
             else
             {
-                // 沒有地圖就清空
                 ClearMap();
             }
         }
+        _lastTopPadding = topPadding;
+        _lastBottomPadding = bottomPadding;
     }
 
     private void OnDisable()
     {
-        // 解除事件訂閱，避免物件被關掉還一直收到事件
         if (runManager != null)
         {
             runManager.MapGenerated -= HandleMapGenerated;
@@ -75,122 +100,247 @@ public class RunMapUI : MonoBehaviour
 
     private void Update()
     {
-        // 每 0.25 秒刷新一次節點狀態，避免一直刷新造成負擔
+        if (!Mathf.Approximately(_lastTopPadding, topPadding) || !Mathf.Approximately(_lastBottomPadding, bottomPadding))
+        {
+            _lastTopPadding = topPadding;
+            _lastBottomPadding = bottomPadding;
+
+            if (runManager != null && runManager.MapFloors != null && runManager.MapFloors.Count > 0 && _hasBuilt)
+            {
+                if (nodesRoot != null) nodesRoot.anchoredPosition = Vector2.zero;
+                if (linesRoot != null) linesRoot.anchoredPosition = Vector2.zero;
+
+                ApplyPaddingAndResize(_builtMinY, _builtMaxY);
+            }
+
+            return;
+        }
+
         refreshTimer += Time.deltaTime;
         if (refreshTimer >= 0.25f)
         {
             refreshTimer = 0f;
             RefreshNodeStates();
+            RefreshLegendPanel();
         }
     }
 
-    // 收到「有一張新地圖生成了」的事件時呼叫
     private void HandleMapGenerated(IReadOnlyList<IReadOnlyList<MapNodeData>> floors)
     {
-        BuildMap(floors);      // 重新生成 UI
-        RefreshNodeStates();   // 再刷新一次互動與顏色
+        BuildMap(floors);
+        RefreshNodeStates();
+        RefreshLegendPanel();
     }
 
-    // 收到「地圖狀態有變（例如走到下一格）」的事件時呼叫
     private void HandleMapStateChanged()
     {
         RefreshNodeStates();
+        RefreshLegendPanel();
     }
 
-    // 把 mapContainer 底下的東西全部清掉
     private void ClearMap()
     {
         nodeButtons.Clear();
         nodeRects.Clear();
 
-        if (mapContainer == null)
-            return;
+        if (mapContainer == null) return;
 
-        // 從最後一個 child 開始刪，避免遍歷時數量變動問題
-        for (int i = mapContainer.childCount - 1; i >= 0; i--)
+        if (nodesRoot != null)
         {
-            Destroy(mapContainer.GetChild(i).gameObject);
+            for (int i = nodesRoot.childCount - 1; i >= 0; i--)
+                Destroy(nodesRoot.GetChild(i).gameObject);
+        }
+
+        if (linesRoot != null)
+        {
+            for (int i = linesRoot.childCount - 1; i >= 0; i--)
+                Destroy(linesRoot.GetChild(i).gameObject);
+        }
+
+        if (nodesRoot == null && linesRoot == null)
+        {
+            for (int i = mapContainer.childCount - 1; i >= 0; i--)
+            {
+                var child = mapContainer.GetChild(i);
+                // BG 不刪（如果 BG 是 Content 的子物件）
+                if (bgRect != null && child == bgRect) continue;
+                Destroy(child.gameObject);
+            }
         }
     }
 
-    // 根據 RunManager 給的 floors（多層節點）去生成 UI
-    private void BuildMap(IReadOnlyList<IReadOnlyList<MapNodeData>> floors)
+    private Sprite GetIcon(MapNodeType type)
     {
-        ClearMap(); // 先清空舊的
-
-        // 基本防呆：沒有容器、沒有 prefab、沒有資料就不做
-        if (mapContainer == null || nodeButtonPrefab == null || floors == null)
-            return;
-
-        int floorCount = floors.Count;
-        if (floorCount == 0)
-            return;
-
-        // 一層一層畫
-        for (int floorIndex = 0; floorIndex < floorCount; floorIndex++)
+        return type switch
         {
-            IReadOnlyList<MapNodeData> floorNodes = floors[floorIndex];
-            if (floorNodes == null || floorNodes.Count == 0)
-                continue;
+            MapNodeType.Battle => battleIcon,
+            MapNodeType.EliteBattle => eliteIcon,
+            MapNodeType.Shop => shopIcon,
+            MapNodeType.Rest => restIcon,
+            MapNodeType.Event => eventIcon,
+            MapNodeType.Boss => bossIcon,
+            _ => null
+        };
+    }
 
-            // 為了讓這一層置中，先算這層總寬度
-            float width = (floorNodes.Count - 1) * nodeSpacing;
-            for (int nodeIndex = 0; nodeIndex < floorNodes.Count; nodeIndex++)
-            {
-                MapNodeData node = floorNodes[nodeIndex];
-                // 生成一個節點按鈕
-                Button buttonInstance = Instantiate(nodeButtonPrefab, mapContainer);
-                buttonInstance.name = $"Node_{node.NodeId}";
+    private void BuildMap(IReadOnlyList<IReadOnlyList<MapNodeData>> floors)
+{
+    ClearMap();
 
-                // 抓它的 RectTransform 來定位
-                RectTransform buttonRect = buttonInstance.GetComponent<RectTransform>();
-                // 設定錨點與 pivot 到上方中間，方便用 anchoredPosition 定位置
-                buttonRect.anchorMin = new Vector2(0.5f, 1f);
-                buttonRect.anchorMax = new Vector2(0.5f, 1f);
-                buttonRect.pivot = new Vector2(0.5f, 0.5f);
+    if (mapContainer == null || nodeButtonPrefab == null || floors == null) return;
+    if (floors.Count == 0) return;
 
-                // 算這個節點的 X 位置：如果這層只有一個，就放 0；不然就從左到右排
-                float x = floorNodes.Count == 1 ? 0f : -width * 0.5f + nodeIndex * nodeSpacing;
-                // Y 位置是樓層 * 間距，往下排
-                float y = -floorIndex * floorSpacing;
+    // ✅ 讓 Content 用「上邊」當 0（需要你 Inspector pivot=Top）
+    // 這樣 y 往下就是負數，符合你現在節點 anchor(0.5,1) 的設計
 
-                float jitterX = horizontalPositionJitter > 0f ? UnityEngine.Random.Range(-horizontalPositionJitter, horizontalPositionJitter) : 0f;
-                float jitterY = verticalPositionJitter > 0f ? UnityEngine.Random.Range(-verticalPositionJitter, verticalPositionJitter) : 0f;
+    float minY = float.PositiveInfinity;  // 最低點（最負）
+    float maxY = float.NegativeInfinity;  // 最高點（最接近 0）
 
-                buttonRect.anchoredPosition = new Vector2(x + jitterX, y + jitterY);
+    for (int floorIndex = 0; floorIndex < floors.Count; floorIndex++)
+    {
+        var floorNodes = floors[floorIndex];
+        if (floorNodes == null || floorNodes.Count == 0) continue;
 
-                // 初始外觀（顏色 + 文字）設定
-                ConfigureButtonVisuals(buttonInstance, node);
+        float width = (floorNodes.Count - 1) * nodeSpacing;
 
-                // 加按鈕事件：點了這顆節點就去請 RunManager 處理
-                buttonInstance.onClick.AddListener(() => OnNodeClicked(node));
+        for (int nodeIndex = 0; nodeIndex < floorNodes.Count; nodeIndex++)
+        {
+            MapNodeData node = floorNodes[nodeIndex];
 
-                // 存起來之後要更新顏色、畫線要用
-                nodeButtons[node] = buttonInstance;
-                nodeRects[node] = buttonRect;
-            }
+            Transform nodeParent = nodesRoot != null ? nodesRoot : mapContainer;
+            Button buttonInstance = Instantiate(nodeButtonPrefab, nodeParent);
+            buttonInstance.name = $"Node_{node.NodeId}";
+
+            RectTransform buttonRect = buttonInstance.GetComponent<RectTransform>();
+            buttonRect.anchorMin = new Vector2(0.5f, 1f);
+            buttonRect.anchorMax = new Vector2(0.5f, 1f);
+            buttonRect.pivot = new Vector2(0.5f, 0.5f);
+
+            float x = (floorNodes.Count == 1) ? 0f : -width * 0.5f + nodeIndex * nodeSpacing;
+
+            // ✅ 關鍵：先不要套 topPadding（等全部生完再統一 shift）
+            float baseY = -(floorIndex * floorSpacing);
+
+            float jitterX = horizontalPositionJitter > 0f ? Random.Range(-horizontalPositionJitter, horizontalPositionJitter) : 0f;
+            float jitterY = verticalPositionJitter > 0f ? Random.Range(-verticalPositionJitter, verticalPositionJitter) : 0f;
+
+            Vector2 pos = new Vector2(x + jitterX, baseY + jitterY);
+            buttonRect.anchoredPosition = pos;
+
+            float halfH = buttonRect.rect.height * 0.5f;
+            minY = Mathf.Min(minY, pos.y - halfH);
+            maxY = Mathf.Max(maxY, pos.y + halfH);
+
+            ConfigureButtonVisuals(buttonInstance, node);
+            buttonInstance.onClick.AddListener(() => OnNodeClicked(node));
+
+            nodeButtons[node] = buttonInstance;
+            nodeRects[node] = buttonRect;
         }
+    }
 
-        // 全部節點都生完後才畫連線，這樣每個節點位置都知道了
+    // 先畫線
+ClearLines();
+CreateConnections();
+
+// ✅ 套 padding（對齊最高點到 -topPadding）
+ApplyPaddingAndResize(minY, maxY);
+_hasBuilt = true;
+
+}
+
+    private void ResizeContentAndBG(float minYAfterShift)
+{
+    if (mapContainer == null) return;
+
+    // ✅ Content 的頂端是 y=0
+    // 最低點是 minY（負數），底部要再留 bottomPadding
+    float contentHeight = (-minYAfterShift) + bottomPadding;
+
+    if (viewport != null)
+        contentHeight = Mathf.Max(contentHeight, viewport.rect.height);
+
+    mapContainer.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, contentHeight);
+
+    if (bgRect != null)
+    {
+        // ✅ BG 寬度建議用 stretch X（Inspector 做），這裡就不硬設寬
+        bgRect.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, contentHeight);
+
+        // 保證 BG 貼頂
+        bgRect.anchoredPosition = Vector2.zero;
+        bgRect.SetAsFirstSibling();
+    }
+}
+
+    // ✅ 建議：新增一個清線方法（避免 linesRoot 為 null 時線清不乾淨）
+private void ClearLines()
+{
+    if (linesRoot != null)
+    {
+        for (int i = linesRoot.childCount - 1; i >= 0; i--)
+            Destroy(linesRoot.GetChild(i).gameObject);
+        return;
+    }
+
+    // 如果你沒設 linesRoot，線是生在 mapContainer 底下
+    // 就把名字開頭是 "Line_" 的刪掉
+    if (mapContainer != null)
+    {
+        for (int i = mapContainer.childCount - 1; i >= 0; i--)
+        {
+            var go = mapContainer.GetChild(i).gameObject;
+            if (go.name.StartsWith("Line_"))
+                Destroy(go);
+        }
+    }
+}
+
+private void ApplyPaddingAndResize(float minY, float maxY)
+{
+    // 記住「原始」min/max（未套 padding 前）
+    _builtMinY = minY;
+    _builtMaxY = maxY;
+
+    // 最高點要到 -topPadding
+    float shiftY = (-topPadding) - maxY;
+
+    // ✅ 移動 root（優先），不要一顆顆移
+    if (nodesRoot != null)
+        nodesRoot.anchoredPosition += new Vector2(0f, shiftY);
+    else
+        ShiftAllNodes(shiftY);
+
+    if (linesRoot != null)
+        linesRoot.anchoredPosition += new Vector2(0f, shiftY);
+
+    // ✅ 因為線是用 anchoredPosition 算好的
+    // 如果你移動的是 root，線會跟著一起動，不必重畫
+    // 如果你是 ShiftAllNodes（一顆顆移），線就必須重畫
+    if (nodesRoot == null || linesRoot == null)
+    {
+        ClearLines();
         CreateConnections();
     }
 
-    // 依照 MapNodeData.NextNodes 去畫線
+    // 套完 shift 後的 minY
+    float minYAfterShift = minY + shiftY;
+
+    ResizeContentAndBG(minYAfterShift);
+}
+
     private void CreateConnections()
     {
-        if (connectionLinePrefab == null)
-            return;
+        if (connectionLinePrefab == null) return;
 
-        // 對每一個節點去看它連到哪些下一層節點
-        foreach (KeyValuePair<MapNodeData, Button> pair in nodeButtons)
+        foreach (var pair in nodeButtons)
         {
             MapNodeData node = pair.Key;
             if (!nodeRects.TryGetValue(node, out RectTransform startRect))
                 continue;
 
-            IReadOnlyList<MapNodeData> nextNodes = node.NextNodes;
-            if (nextNodes == null)
-                continue;
+            var nextNodes = node.NextNodes;
+            if (nextNodes == null) continue;
 
             for (int i = 0; i < nextNodes.Count; i++)
             {
@@ -198,124 +348,109 @@ public class RunMapUI : MonoBehaviour
                 if (!nodeRects.TryGetValue(nextNode, out RectTransform endRect))
                     continue;
 
-                // 生成一條線
-                Image lineInstance = Instantiate(connectionLinePrefab, mapContainer);
+                Transform lineParent = linesRoot != null ? linesRoot : mapContainer;
+                Image lineInstance = Instantiate(connectionLinePrefab, lineParent);
                 lineInstance.name = $"Line_{node.NodeId}_to_{nextNode.NodeId}";
 
                 RectTransform lineRect = lineInstance.rectTransform;
                 lineRect.anchorMin = new Vector2(0.5f, 1f);
                 lineRect.anchorMax = new Vector2(0.5f, 1f);
                 lineRect.pivot = new Vector2(0.5f, 0.5f);
-                // 讓連線繪製在節點下方，確保節點 UI 會顯示在最上層
-                lineRect.SetAsFirstSibling();
 
-                // 起點跟終點的位置
                 Vector2 start = startRect.anchoredPosition;
                 Vector2 end = endRect.anchoredPosition;
 
                 if (connectionAnchorJitter > 0f)
                 {
-                    Vector2 startJitter = UnityEngine.Random.insideUnitCircle * connectionAnchorJitter;
-                    Vector2 endJitter = UnityEngine.Random.insideUnitCircle * connectionAnchorJitter;
-                    start += startJitter;
-                    end += endJitter;
+                    start += Random.insideUnitCircle * connectionAnchorJitter;
+                    end += Random.insideUnitCircle * connectionAnchorJitter;
                 }
-                Vector2 direction = end - start;
-                float distance = direction.magnitude;
 
-                // 線的長度設成起點到終點的距離，寬度就是你設定的粗細
-                lineRect.sizeDelta = new Vector2(distance, connectionThickness);
-                // 把線放在起點跟終點的中間
-                lineRect.anchoredPosition = start + direction * 0.5f;
+                Vector2 dir = end - start;
+                float dist = dir.magnitude;
 
-                // 算出線的旋轉角度，讓它對準終點
-                float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
+                lineRect.sizeDelta = new Vector2(dist, connectionThickness);
+                lineRect.anchoredPosition = start + dir * 0.5f;
+
+                float angle = Mathf.Atan2(dir.y, dir.x) * Mathf.Rad2Deg;
                 lineRect.localRotation = Quaternion.Euler(0f, 0f, angle);
             }
         }
     }
 
-    // 初始時幫按鈕上色、填文字（戰鬥/商店/事件）
     private void ConfigureButtonVisuals(Button buttonInstance, MapNodeData node)
     {
-        if (buttonInstance == null || node == null)
-            return;
+        if (buttonInstance == null || node == null) return;
 
-        // 抓按鈕本體的 Image
-        Image image = buttonInstance.targetGraphic as Image;
-        if (image != null)
-        {
-            image.color = defaultColor;
-        }
+        Image frameImage = buttonInstance.targetGraphic as Image;
+        if (frameImage != null) frameImage.color = defaultColor;
 
-        // 看按鈕底下有沒有 TMP_Text，用來顯示節點類型
-        TMP_Text tmpText = buttonInstance.GetComponentInChildren<TMP_Text>();
-        if (tmpText != null)
+        // 找子 Image 當 icon（避免抓到 frame）
+        Image[] images = buttonInstance.GetComponentsInChildren<Image>(true);
+        Image iconImage = null;
+
+        for (int i = 0; i < images.Length; i++)
         {
-            tmpText.text = node.NodeType.ToString();
-        }
-        else
-        {
-            // 如果不是用 TextMeshPro，試試看舊的 Text
-            Text legacyText = buttonInstance.GetComponentInChildren<Text>();
-            if (legacyText != null)
+            if (images[i] != frameImage)
             {
-                legacyText.text = node.NodeType.ToString();
+                iconImage = images[i];
+                break;
             }
+        }
+
+        if (iconImage != null)
+        {
+            iconImage.sprite = GetIcon(node.NodeType);
+            iconImage.preserveAspect = true;
+            iconImage.enabled = iconImage.sprite != null;
         }
     }
 
-    // 根據現在 RunManager 的狀態，刷新每顆節點的顏色跟可互動性
     private void RefreshNodeStates()
     {
-        if (runManager == null)
-            return;
+        if (runManager == null) return;
 
-        foreach (KeyValuePair<MapNodeData, Button> pair in nodeButtons)
+        foreach (var pair in nodeButtons)
         {
             MapNodeData node = pair.Key;
             Button button = pair.Value;
-            if (button == null)
-                continue;
+            if (button == null) continue;
 
-            // 問 RunManager 這個節點現在能不能點
             bool isSelectable = runManager.IsNodeSelectable(node);
             button.interactable = isSelectable;
 
             Image image = button.targetGraphic as Image;
-            if (image != null)
-            {
-                // 目前所在節點
-                if (runManager.CurrentNode == node)
-                {
-                    image.color = currentColor;
-                }
-                // 已打過的節點
-                else if (node.IsCompleted)
-                {
-                    image.color = completedColor;
-                }
-                // 可以點的節點
-                else if (isSelectable)
-                {
-                    image.color = defaultColor;
-                }
-                // 其他都視為鎖住
-                else
-                {
-                    image.color = lockedColor;
-                }
-            }
+            if (image == null) continue;
+
+            if (runManager.CurrentNode == node) image.color = currentColor;
+            else if (node.IsCompleted) image.color = completedColor;
+            else if (isSelectable) image.color = defaultColor;
+            else image.color = lockedColor;
         }
     }
+    private void ShiftAllNodes(float shiftY)
+{
+    foreach (var kv in nodeRects)
+    {
+        if (kv.Value == null) continue;
+        kv.Value.anchoredPosition += new Vector2(0f, shiftY);
+    }
+}
 
-    // 按下某個節點按鈕時呼叫
+
+    private void RefreshLegendPanel()
+    {
+        if (legendPanel == null || runManager == null) return;
+
+        bool isInEvent = runManager.ActiveNode != null
+                         && runManager.ActiveNode.NodeType == MapNodeType.Event;
+
+        legendPanel.SetActive(!isInEvent);
+    }
+
     private void OnNodeClicked(MapNodeData node)
     {
-        if (runManager == null || node == null)
-            return;
-
-        // 交給 RunManager 去做真正的場景切換與流程控制
+        if (runManager == null || node == null) return;
         runManager.TryEnterNode(node);
     }
 }
