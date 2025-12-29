@@ -24,7 +24,7 @@ public class MapNodeData
     [SerializeField] private RunEncounterDefinition encounter;       // 如果是戰鬥節點，這裡放要打哪一場戰
     [SerializeField] private RunEventDefinition eventDefinition;     // 如果是事件節點，這裡放哪一個事件
     [SerializeField] private ShopInventoryDefinition shopInventory;  // 如果是商店節點，這裡放哪個商店清單
-    [SerializeField] private List<MapNodeData> nextNodes = new List<MapNodeData>(); // 這個節點連到下一層的哪些節點
+    [NonSerialized] private List<MapNodeData> nextNodes = new List<MapNodeData>(); // 這個節點連到下一層的哪些節點
 
     // 建構子：建立一個節點的時候一定要給 id、類型、所在樓層
     public MapNodeData(string id, MapNodeType type, int floor)
