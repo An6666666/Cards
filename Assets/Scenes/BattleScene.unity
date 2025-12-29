@@ -4780,16 +4780,16 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Content: {fileID: 624814839}
-  m_Horizontal: 1
+  m_Horizontal: 0
   m_Vertical: 1
-  m_MovementType: 1
+  m_MovementType: 2
   m_Elasticity: 0.1
   m_Inertia: 1
   m_DecelerationRate: 0.135
-  m_ScrollSensitivity: 1
+  m_ScrollSensitivity: 60
   m_Viewport: {fileID: 1507982737}
   m_HorizontalScrollbar: {fileID: 0}
-  m_VerticalScrollbar: {fileID: 1225913409}
+  m_VerticalScrollbar: {fileID: 0}
   m_HorizontalScrollbarVisibility: 2
   m_VerticalScrollbarVisibility: 2
   m_HorizontalScrollbarSpacing: -3
@@ -8468,8 +8468,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ec43d2a64345a704981db131db4084ef, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  startingDeck:
-  - {fileID: 11400000, guid: 11d3cc5377d2ef3459a4b4380becefff, type: 2}
+  startingDeck: []
   debugStartingDeck:
   - {fileID: 11400000, guid: 6e46d5e13429d2742a580e16ec745461, type: 2}
   - {fileID: 11400000, guid: 457225c57c6113a45b6c95acbbeb7819, type: 2}

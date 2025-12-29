@@ -9,6 +9,7 @@ using DG.Tweening;
 [RequireComponent(typeof(CardAnimationController))]
 [RequireComponent(typeof(CardUseRouter))]
 [RequireComponent(typeof(CardRaycastController))]
+[RequireComponent(typeof(CardInfoTooltip))]
 public class CardUI : MonoBehaviour
 {
     public enum DisplayContext
@@ -39,6 +40,7 @@ public class CardUI : MonoBehaviour
     private CardAnimationController animationController;
     private CardUseRouter useRouter;
     private CardRaycastController raycastController;
+    private CardInfoTooltip infoTooltip;
 
     public RectTransform RectTransform => rectTransform;
     public Canvas Canvas { get => canvas; set => canvas = value; }
@@ -46,6 +48,7 @@ public class CardUI : MonoBehaviour
     public Transform CanvasRoot => canvasRoot;
     public LayoutElement LayoutElement => layoutElement;
     public Camera MainCamera => mainCamera;
+    public CardInfoTooltip InfoTooltip => infoTooltip;
 
     public Vector2 OriginalAnchoredPosition { get; set; }
     public Vector3 OriginalLocalScale { get; private set; }
@@ -84,12 +87,14 @@ public class CardUI : MonoBehaviour
     {
         animationController?.HandleCardDisabled();
         hoverEffect?.HandleCardDisabled();
+        infoTooltip?.Hide();
     }
 
     private void OnDestroy()
     {
         animationController?.HandleCardDestroyed();
         hoverEffect?.HandleCardDestroyed();
+        infoTooltip?.Hide();
     }
 
     private void CacheControllers()
@@ -99,19 +104,22 @@ public class CardUI : MonoBehaviour
         animationController = GetComponent<CardAnimationController>();
         useRouter = GetComponent<CardUseRouter>();
         raycastController = GetComponent<CardRaycastController>();
+        infoTooltip = GetComponent<CardInfoTooltip>();
 
         hoverEffect.Initialize(this);
         dragHandler.Initialize(this, animationController, useRouter, raycastController, hoverEffect);
         animationController.Initialize(this, dragHandler, raycastController, hoverEffect);
         useRouter.Initialize(this);
         raycastController.Initialize(this, animationController);
+        infoTooltip?.Initialize(this);
     }
 
     public void SetupCard(CardBase data)
     {
         cardData = data;
         if (cardImage != null && data != null && data.cardImage != null)
-            cardImage.sprite = data.cardImage;
+        cardImage.sprite = data.cardImage;
+        infoTooltip?.SetCardData(data);
     }
 
     public void SetDisplayContext(DisplayContext context)
