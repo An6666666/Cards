@@ -5,6 +5,7 @@ using UnityEngine;                                 // 引用 Unity 核心功能
 using UnityEngine.Rendering;                      // 使用 SortingGroup 控制圖層排序
 using TMPro;
 using DG.Tweening;
+using UnityEngine.UI;
 
 
 public class Enemy : MonoBehaviour              // 敵人角色，繼承自 MonoBehaviour
@@ -160,7 +161,7 @@ private void HideIdleOverlays()
 
     [Header("Intent Value (Attack Number)")]
     [Tooltip("顯示攻擊數值用的 TextMeshPro (世界空間文字)")]
-    public TMP_Text intentValueText;
+    public Text intentValueText;
 
     [Tooltip("數字文字相對於圖示的位置偏移")]
     public Vector3 intentValueOffset = new Vector3(0.8f, 0.1f, 0f);  // 可之後再調

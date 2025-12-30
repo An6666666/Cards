@@ -30,47 +30,22 @@ public class Skill_ShenWei : CardBase
 }
 
 /// <summary>
-/// �F��_�� (��o1��q, �����J��z1�^�X + �I�[�p�q�ĪG)
+/// ���� (���^�X�ڤ���˴�b, �Y�h�H�Ҧ��i�@�Υ���)
 /// </summary>
-[CreateAssetMenu(fileName = "Skill_LingHunZhenDang", menuName = "Cards/Skill/�F��_��")]
-public class Skill_LingHunZhenDang : CardBase
+[CreateAssetMenu(fileName = "Skill_ShenJiang", menuName = "Cards/Skill/����")]
+public class Skill_ShenJiang : CardBase
 {
     private void OnEnable()
     {
         cardType = CardType.Skill;
     }
-
     public override void ExecuteEffect(Player player, Enemy enemy)
     {
-        // ��o1��q (��q�W���ݦۦ�޲z)
-        player.energy += 1;
-        // �O���a��z 1 �^�X => 改以方法增加玩家自身造成的虛弱層數
-        player.buffs.IncreaseWeakFromPlayer(1);
-
-
-        // ����W�I�[�p�q�ĪG => �i��� BattleManager �� GameManager ����
-        // GameManager.instance.isThunderPresent = true; (�̧A�]�p)
-
+        // ���^�X���˴�b
+        player.buffs.damageTakenRatio = 0.5f; // �����a���^�X�u��50%�ˮ`
+                                              // �U�^�X�i���m
     }
-
-    /// <summary>
-    /// ���� (���^�X�ڤ���˴�b, �Y�h�H�Ҧ��i�@�Υ���)
-    /// </summary>
-    [CreateAssetMenu(fileName = "Skill_ShenJiang", menuName = "Cards/Skill/����")]
-    public class Skill_ShenJiang : CardBase
-    {
-        private void OnEnable()
-        {
-            cardType = CardType.Skill;
-        }
-
-        public override void ExecuteEffect(Player player, Enemy enemy)
-        {
-            // ���^�X���˴�b
-            player.buffs.damageTakenRatio = 0.5f; // �����a���^�X�u��50%�ˮ`
-                                                  // �U�^�X�i���m
-        }
-    }
+    
 
     #endregion
 

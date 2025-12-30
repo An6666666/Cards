@@ -6667,19 +6667,19 @@ MonoBehaviour:
   - enemyPrefab: {fileID: 4204690724760053818, guid: 87fab54ae39d11f449187455258a17cc, type: 3}
     count: 1
   - enemyPrefab: {fileID: 4898516673341191513, guid: a09861f3a2ead1f4f876a9345a60088b, type: 3}
-    count: 1
+    count: 0
   - enemyPrefab: {fileID: 4591814044274373110, guid: e0d91408b43bec24ab02b0d2932a3dfc, type: 3}
-    count: 1
+    count: 0
   - enemyPrefab: {fileID: 7728357840837083407, guid: 6fb8d547b14a881468023f486a977e6b, type: 3}
-    count: 1
+    count: 0
   - enemyPrefab: {fileID: 8258485525033336925, guid: b1fbe62463006294b80e46474639e1f9, type: 3}
-    count: 1
+    count: 0
   - enemyPrefab: {fileID: 8896973269389346778, guid: 8e9ee8b5037fe5048ae8dc2cef4d967f, type: 3}
-    count: 1
+    count: 0
   - enemyPrefab: {fileID: 3762648908618512516, guid: cbb7c20ed40c0294daca78f7a8548c50, type: 3}
-    count: 1
+    count: 0
   - enemyPrefab: {fileID: 40532459971013023, guid: 5ecce71dfdd5e304fa13dac5018a9458, type: 3}
-    count: 1
+    count: 0
   playerStartPos: {x: 0, y: 0}
   guaranteedMovementCard: {fileID: 11400000, guid: 105c7f2659020eb478d2fc42c9d7276e, type: 2}
   allCardPool:
@@ -6729,6 +6729,8 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 7f7d6b20d27c4ee488fd366efed5fce3, type: 2}
   - {fileID: 11400000, guid: 9d0d809868f7c4c4c8e38ffad7b36899, type: 2}
   - {fileID: 11400000, guid: f64b7419d3d824a42a133bb4a9651876, type: 2}
+  - {fileID: 11400000, guid: 2c973e808ca2465468b72b07c400f451, type: 2}
+  - {fileID: 11400000, guid: ed8af5f3bf807bd4fb2318540cade604, type: 2}
   rewardUIPrefab: {fileID: 5461426028147158543, guid: 8923449bae0f2f3459534ea2b271150f, type: 3}
   cardUseDelay: 0
 --- !u!4 &1640340007 stripped
@@ -8363,7 +8365,7 @@ BoxCollider2D:
   m_IsTrigger: 0
   m_UsedByEffector: 0
   m_UsedByComposite: 0
-  m_Offset: {x: -1.6835194, y: 18.587793}
+  m_Offset: {x: -2.679803, y: 20.833658}
   m_SpriteTilingProperty:
     border: {x: 0.049999997, y: 0.049999997, z: 0.049999997, w: 0.049999997}
     pivot: {x: 0.5, y: 0.5}
@@ -8374,7 +8376,7 @@ BoxCollider2D:
     adaptiveTiling: 0
   m_AutoTiling: 0
   serializedVersion: 2
-  m_Size: {x: 23.699974, y: 37.61716}
+  m_Size: {x: 28.354307, y: 48.09786}
   m_EdgeRadius: 0
 --- !u!114 &1848671827
 MonoBehaviour:
@@ -8400,7 +8402,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: -0.56, z: 0}
-  m_LocalScale: {x: 0.07247991, y: 0.07247991, z: 0.07247991}
+  m_LocalScale: {x: 0.06158908, y: 0.06158908, z: 0.06158908}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1776428046}
@@ -8483,8 +8485,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ec43d2a64345a704981db131db4084ef, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  startingDeck:
-  - {fileID: 11400000, guid: c9694373a5d9a954d94bc7093fb98c53, type: 2}
+  startingDeck: []
   debugStartingDeck:
   - {fileID: 11400000, guid: 6e46d5e13429d2742a580e16ec745461, type: 2}
   - {fileID: 11400000, guid: 457225c57c6113a45b6c95acbbeb7819, type: 2}
