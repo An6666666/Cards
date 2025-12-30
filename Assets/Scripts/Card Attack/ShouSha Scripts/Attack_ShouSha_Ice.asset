@@ -1,0 +1,30 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5b4936ae7c13ceb40b42b7d3f87d61ba, type: 3}
+  m_Name: Attack_ShouSha_Ice
+  m_EditorClassIdentifier: 
+  cardName: "\u6536\u715E\u51B0"
+  cost: 1
+  description: "\u9020\u6210\u73A9\u5BB6\u7576\u524D\u8B77\u7532\u503C\u7684\u51B0\u5143\u7D20\u55AE\u9AD4\u50B7\u5BB3"
+  cardImage: {fileID: 21300000, guid: 644ab6876956b004a9ea02673916abbd, type: 3}
+  exhaustOnUse: 0
+  shopPrice: 8
+  cardType: 0
+  rangeOffsets:
+  - {x: 2, y: 0}
+  - {x: -2, y: 0}
+  - {x: 1, y: 2}
+  - {x: 1, y: -2}
+  - {x: -1, y: 2}
+  - {x: -1, y: -2}
+  hitEffectPrefab: {fileID: 4240465587629466036, guid: 22c4e1732c23bbd4c8c7067b948cf6b5, type: 3}
+  elementType: 3

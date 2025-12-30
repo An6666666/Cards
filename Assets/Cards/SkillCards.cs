@@ -77,26 +77,6 @@ public class Skill_LingHunZhenDang : CardBase
     #region �ޯ�P6-10�G�s�W�]�p
 
     /// <summary>
-    /// �����N�� (��2�i, ��2�i)
-    /// </summary>
-    [CreateAssetMenu(fileName = "Skill_BuMieYiZhi", menuName = "Cards/Skill/�����N��")]
-    public class Skill_BuMieYiZhi : CardBase
-    {
-        private void OnEnable()
-        {
-            cardType = CardType.Skill;
-        }
-
-        public override void ExecuteEffect(Player player, Enemy enemy)
-        {
-            // ��2
-            player.DrawCards(2);
-            // ��2
-            player.DiscardCards(2);
-        }
-    }
-
-    /// <summary>
     /// �j���@�� (��¦���m, �Y��P���p�e��P/�Τw��P, �h�B�~���m)
     /// </summary>
     [CreateAssetMenu(fileName = "Skill_QiangHuaHuDun", menuName = "Cards/Skill/�j���@��")]

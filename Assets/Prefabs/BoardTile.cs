@@ -136,11 +136,6 @@ public class BoardTile : MonoBehaviour
         {
             return;
         }
-
-        if (hasMiasma && miasmaDamage > 0)
-        {
-            player.TakeDamage(miasmaDamage);
-        }
     }
     
     private void UpdateElementIcons()

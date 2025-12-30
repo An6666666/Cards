@@ -49,6 +49,9 @@ public class BattleTurnController               // 回合流程控制器：玩�
         player.EndTurn();
         // 呼叫玩家自身的回合結束邏輯（重置 buff、處理結算等）
 
+        ApplyPlayerMiasmaDamage();
+        // 玩家回合結束時：若仍站在瘴氣格上，承受瘴氣傷害
+
         GameEvents.RaiseTurnEnded();
         // 發送「回合結束」事件給其他系統（例如計數、遞減狀態等）
 
@@ -73,6 +76,20 @@ public class BattleTurnController               // 回合流程控制器：玩�
         }
     }
     
+    private void ApplyPlayerMiasmaDamage()
+    {
+        if (battleManager.board == null) return;
+
+        var tile = battleManager.board.GetTileAt(player.position);
+        if (tile == null) return;
+
+        int damage = tile.MiasmaDamage;
+        if (damage > 0)
+        {
+            player.TakeDamage(damage);
+        }
+    }
+
     public void StartPlayerTurn()
     {
         handUIController.LockCardInteraction();
@@ -175,8 +192,16 @@ public class BattleTurnController               // 回合流程控制器：玩�
         yield return new WaitForSeconds(1f);
         // 再等 1 秒，給玩家觀察敵人動作完成的時間
 
-        player.block = 0;
-        // 敵方回合結束時：清除玩家 block（護盾）
+        if (!player.buffs.retainBlockNextTurn)
+        {
+            player.block = 0;
+            // 敵方回合結束時：清除玩家 block（護盾）
+        }
+        else
+        {
+            // 本回合觸發保留護甲，消耗標記以免持續生效到後續回合
+            player.buffs.retainBlockNextTurn = false;
+        }
 
         var enemiesAtTurnEnd = new List<Enemy>(enemies);
         // 再建快照，用於回合結束邏輯

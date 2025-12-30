@@ -16,6 +16,7 @@ public class PlayerBuffController : MonoBehaviour
     public int nextTurnAllAttackPlus = 0;
     public bool drawBlockedThisTurn = false;
     public int blockGainAtTurnEnd = 0;
+    public bool retainBlockNextTurn = false;
 
     [SerializeField, HideInInspector] private int weakFromEnemies = 0;
     [SerializeField, HideInInspector] private int bleedFromEnemies = 0;
@@ -26,6 +27,7 @@ public class PlayerBuffController : MonoBehaviour
         movementCostModify = 0;
         nextAttackCostModify = 0;
         drawBlockedThisTurn = false;
+        retainBlockNextTurn = false;
     }
 
     public void OnTurnEndReset(Player owner)
@@ -173,5 +175,6 @@ public class PlayerBuffController : MonoBehaviour
         bleedFromEnemies = 0;
         imprisonFromEnemies = 0;
         blockGainAtTurnEnd = 0;
+        retainBlockNextTurn = false;
     }
 }
