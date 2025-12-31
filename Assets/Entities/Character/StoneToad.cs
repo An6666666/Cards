@@ -26,8 +26,9 @@ public class StoneToad : Enemy      // 繼承自自訂的 Enemy 基底類別（�
     }
     
 #if UNITY_EDITOR
-    private void OnValidate()        // 在編輯器中變更序列化欄位時自動呼叫（不會在執行時呼叫）
+    protected override void OnValidate()        // 在編輯器中變更序列化欄位時自動呼叫（不會在執行時呼叫）
     {
+        base.OnValidate();
         ClampArmor();                // 保證編輯器中修改 armorCap/block 後仍滿足上限
     }
 #endif
@@ -44,7 +45,7 @@ public class StoneToad : Enemy      // 繼承自自訂的 Enemy 基底類別（�
         GainArmorFromHit();                     // 仍然觸發被動：被打就增加護甲（真傷也會加）
     }
 
-    protected override int CalculateAttackDamage() // 計算最終攻擊傷害（可被基底呼叫）
+    protected internal override int CalculateAttackDamage() // 計算最終攻擊傷害（可被基底呼叫）
     {
         ClampArmor();                            // 攻擊前再次確保護甲不超上限
         int damage = base.CalculateAttackDamage(); // 先拿到父類別計算的基礎值（可能含 Buff/Debuff）
@@ -52,7 +53,7 @@ public class StoneToad : Enemy      // 繼承自自訂的 Enemy 基底類別（�
         return Mathf.Max(0, damage);             // 保證不會出現負傷害
     }
 
-    protected override void MoveOneStepTowards(Player player) // 單回合的移動決策（朝向目標位置移動）
+    protected internal override void MoveOneStepTowards(Player player) // 單回合的移動決策（朝向目標位置移動）
     {
         if (player == null) return;             // 無玩家目標就不移動
 

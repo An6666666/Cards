@@ -23,7 +23,7 @@ public class FeiLuYao : Enemy
         base.Awake();
     }
 
-    protected override void MoveOneStepTowards(Player player)
+    protected internal override void MoveOneStepTowards(Player player)
     {
         // 飛顱妖不會移動
     }

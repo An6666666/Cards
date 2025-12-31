@@ -79,7 +79,7 @@ public class YingGeStone : Enemy                           // 定義一個繼承
         return false;                                      // 沒有被控場，這回合算是正常
     }
 
-    protected override void Die()                          // 覆寫死亡流程
+    protected internal override void Die()                          // 覆寫死亡流程
     {
         if (!notifiedOwnerOnDeath && owner != null)        // 如果還沒通知過，而且還有主人（YingGe）
         {

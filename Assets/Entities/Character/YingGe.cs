@@ -121,7 +121,7 @@ public class YingGe : Enemy
     }
 
     // 覆寫死亡流程，因為這個 Boss 有一次特殊復活
-    protected override void Die()
+    protected internal override void Die()
     {
         // 如果還沒觸發復活、而且也還沒復活過
         if (!resurrectionTriggered && !hasRespawned)
