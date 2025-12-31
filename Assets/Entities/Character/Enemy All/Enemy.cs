@@ -93,6 +93,7 @@ public class Enemy : MonoBehaviour
     [SerializeField] internal GameObject highlightFx;
     [Header("滑鼠懸停提示")]
     [SerializeField] internal GameObject hoverIndicator2D;
+    [SerializeField] internal float hoverIndicatorDelaySeconds = 0f;
 
     private bool isDead = false;
 
@@ -304,7 +305,7 @@ public class Enemy : MonoBehaviour
     {
         combat?.Die();
     }
-    
+
     protected virtual void Awake()
     {
         EnsureComponents();

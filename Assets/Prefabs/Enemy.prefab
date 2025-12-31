@@ -643,6 +643,7 @@ MonoBehaviour:
   intentValueOffset: {x: 0.8, y: 0.1, z: 0}
   highlightFx: {fileID: 9166670946117661}
   hoverIndicator2D: {fileID: 5961134971856058114}
+  hoverIndicatorDelaySeconds: 0.5
 --- !u!61 &1640596604778677189
 BoxCollider2D:
   m_ObjectHideFlags: 0

@@ -88,13 +88,19 @@ public class AttackSelectionController
     // =========================
     private IEnumerator AttackRoutine(Enemy e, float hitDelay)
     {
+        if (player == null || currentAttackCard == null || e == null)
+        yield break;
+
         // 播玩家攻擊動畫
         player.PlayAttackAnim();
 
         yield return new WaitForSeconds(hitDelay);
 
         // 真正執行攻擊效果
+        if (currentAttackCard != null)
         currentAttackCard.ExecuteEffect(player, e);
+        else
+        yield break;
 
         int finalCost = currentAttackCard.cost
                         + player.GetCardCostModifier(currentAttackCard)

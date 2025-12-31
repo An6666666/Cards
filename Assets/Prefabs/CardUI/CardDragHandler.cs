@@ -68,7 +68,7 @@ public class CardDragHandler : MonoBehaviour, IBeginDragHandler, IDragHandler, I
 
     public void OnDrag(PointerEventData eventData)
     {
-        if (!CanDrag()) return;
+        if (!isDragging || cardUI == null || cardUI.RectTransform == null) return;
 
         float scaleFactor = cardUI.Canvas != null ? cardUI.Canvas.scaleFactor : 1f;
         cardUI.RectTransform.anchoredPosition += eventData.delta / scaleFactor;
@@ -78,26 +78,7 @@ public class CardDragHandler : MonoBehaviour, IBeginDragHandler, IDragHandler, I
 
     public void OnEndDrag(PointerEventData eventData)
     {
-        if (!CanDrag()) return;
-
-        raycastController?.SetBlocksRaycasts(true);
-        isDragging = false;
-        if (activeDragCount > 0) activeDragCount--;
-
-        Vector2 worldPos = GetWorldPosition(eventData);
-        Collider2D hit = Physics2D.OverlapPoint(worldPos);
-
-        bool used = useRouter != null && useRouter.TryHandleDrop(cardUI.cardData, hit, worldPos);
-
-        if (used)
-        {
-            animationController?.HandleCardConsumed(placeholder);
-            placeholder = null;
-            return;
-        }
-
-        animationController?.ReturnToHand(placeholder, cardUI.originalParent, originalSiblingIndex);
-        placeholder = null;
+        CompleteDrag(eventData, null);
     }
 
     private void OnDisable()
@@ -109,6 +90,15 @@ public class CardDragHandler : MonoBehaviour, IBeginDragHandler, IDragHandler, I
         }
     }
     
+     private void LateUpdate()
+    {
+        if (!isDragging) return;
+
+        bool mouseReleased = !Input.GetMouseButton(0);
+        if (!mouseReleased) return;
+
+        CompleteDrag(null, Input.mousePosition);
+    }
     public void DestroyPlaceholder()
     {
         if (placeholder == null) return;
@@ -123,6 +113,31 @@ public class CardDragHandler : MonoBehaviour, IBeginDragHandler, IDragHandler, I
     {
         if (raycastController != null && !raycastController.Interactable) return false;
         return allowDragging && cardUI != null && cardUI.RectTransform != null;
+    }
+
+    private void CompleteDrag(PointerEventData eventData, Vector2? pointerOverride)
+    {
+        if (!isDragging) return;
+
+        raycastController?.SetBlocksRaycasts(true);
+        isDragging = false;
+        if (activeDragCount > 0) activeDragCount--;
+
+        Vector2 pointerPos = pointerOverride ?? (eventData != null ? eventData.position : Input.mousePosition);
+        Vector2 worldPos = GetWorldPosition(pointerPos);
+        Collider2D hit = Physics2D.OverlapPoint(worldPos);
+
+        bool used = useRouter != null && useRouter.TryHandleDrop(cardUI.cardData, hit, worldPos);
+
+        if (used)
+        {
+            animationController?.HandleCardConsumed(placeholder);
+            placeholder = null;
+            return;
+        }
+
+        animationController?.ReturnToHand(placeholder, cardUI.originalParent, originalSiblingIndex);
+        placeholder = null;
     }
 
     private void CreatePlaceholder()
@@ -160,5 +175,12 @@ public class CardDragHandler : MonoBehaviour, IBeginDragHandler, IDragHandler, I
         return targetCamera != null
             ? (Vector2)targetCamera.ScreenToWorldPoint(eventData.position)
             : eventData.position;
+    }
+    private Vector2 GetWorldPosition(Vector2 screenPosition)
+    {
+        Camera targetCamera = cardUI.MainCamera != null ? cardUI.MainCamera : Camera.main;
+        return targetCamera != null
+            ? (Vector2)targetCamera.ScreenToWorldPoint(screenPosition)
+            : screenPosition;
     }
 }
