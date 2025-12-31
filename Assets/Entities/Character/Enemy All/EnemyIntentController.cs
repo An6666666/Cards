@@ -7,6 +7,8 @@ public class EnemyIntentController : MonoBehaviour
     private Player cachedPlayer;
     private Vector2Int lastKnownPlayerPos;
     private bool hasLastKnownPlayerPos = false;
+    private int lastKnownFrozenTurns = int.MinValue;
+    private int lastKnownStunTurns = int.MinValue;
 
     public void Init(Enemy owner)
     {
@@ -20,6 +22,7 @@ public class EnemyIntentController : MonoBehaviour
         {
             lastKnownPlayerPos = cachedPlayer.position;
             hasLastKnownPlayerPos = true;
+            CacheStatusCounters();
             DecideNextIntent(cachedPlayer);
         }
     }
@@ -33,6 +36,7 @@ public class EnemyIntentController : MonoBehaviour
             {
                 lastKnownPlayerPos = cachedPlayer.position;
                 hasLastKnownPlayerPos = true;
+                CacheStatusCounters();
                 DecideNextIntent(cachedPlayer);
             }
         }
@@ -46,6 +50,18 @@ public class EnemyIntentController : MonoBehaviour
                 DecideNextIntent(cachedPlayer);
             }
         }
+
+        if (enemy != null)
+        {
+            bool statusChanged =
+                enemy.frozenTurns != lastKnownFrozenTurns ||
+                enemy.buffs.stun != lastKnownStunTurns;
+
+            if (statusChanged)
+            {
+                DecideNextIntent(cachedPlayer);
+            }
+        }
     }
 
     public void DecideNextIntent(Player player)
@@ -54,6 +70,7 @@ public class EnemyIntentController : MonoBehaviour
         if (player == null)
         {
             UpdateIntentIcon();
+            CacheStatusCounters();
             return;
         }
 
@@ -62,6 +79,7 @@ public class EnemyIntentController : MonoBehaviour
             enemy.nextIntent.type = EnemyIntentType.Idle;
             enemy.nextIntent.value = 0;
             UpdateIntentIcon();
+            CacheStatusCounters();
             return;
         }
 
@@ -70,6 +88,7 @@ public class EnemyIntentController : MonoBehaviour
             enemy.nextIntent.type = EnemyIntentType.Attack;
             enemy.nextIntent.value = enemy.CalculateAttackDamage();
             UpdateIntentIcon();
+            CacheStatusCounters();
             return;
         }
 
@@ -85,6 +104,7 @@ public class EnemyIntentController : MonoBehaviour
         }
 
         UpdateIntentIcon();
+        CacheStatusCounters();
     }
 
     public void UpdateIntentIcon()
@@ -136,5 +156,13 @@ public class EnemyIntentController : MonoBehaviour
                 enemy.intentValueText.gameObject.SetActive(false);
             }
         }
+    }
+
+    private void CacheStatusCounters()
+    {
+        if (enemy == null) return;
+
+        lastKnownFrozenTurns = enemy.frozenTurns;
+        lastKnownStunTurns = enemy.buffs != null ? enemy.buffs.stun : 0;
     }
 }

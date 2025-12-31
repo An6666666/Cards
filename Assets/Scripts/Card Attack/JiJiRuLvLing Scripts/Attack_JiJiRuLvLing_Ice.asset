@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7cc3ce35ce852e943a138ff3cbd7968b, type: 3}
   m_Name: Attack_JiJiRuLvLing_Ice
   m_EditorClassIdentifier: 
-  cardName: "\u51B0"
+  cardName: "\u6025\u6025\u5982\u5F8B\u4EE4\u51B0"
   cost: 1
   description: "\u51B0\u5143\u7D206\u9EDE\u55AE\u9AD4\u653B\u64CA"
   cardImage: {fileID: 21300000, guid: 3a74f62ed84fda544ace13568f2d1d25, type: 3}
@@ -27,4 +27,5 @@ MonoBehaviour:
   - {x: -1, y: 2}
   - {x: 1, y: 2}
   baseDamage: 6
+  elementType: 3
   iceEffectPrefab: {fileID: 4240465587629466036, guid: 22c4e1732c23bbd4c8c7067b948cf6b5, type: 3}

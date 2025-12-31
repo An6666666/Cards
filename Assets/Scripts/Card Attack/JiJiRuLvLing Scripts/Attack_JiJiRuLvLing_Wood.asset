@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e9b0fc78a86a85e49ac59963ce3f3874, type: 3}
   m_Name: Attack_JiJiRuLvLing_Wood
   m_EditorClassIdentifier: 
-  cardName: "\u6728"
+  cardName: "\u6025\u6025\u5982\u5F8B\u4EE4\u6728"
   cost: 1
   description: "\u6728\u5143\u7D206\u9EDE\u55AE\u9AD4\u653B\u64CA"
   cardImage: {fileID: 21300000, guid: b5f1692d845e9bd4eb618c715c8a141f, type: 3}
@@ -27,4 +27,5 @@ MonoBehaviour:
   - {x: -1, y: 2}
   - {x: 1, y: 2}
   baseDamage: 6
+  elementType: 4
   woodEffectPrefab: {fileID: 4707066954145857473, guid: 1ff751b8832b3da42af3757d9d065a97, type: 3}

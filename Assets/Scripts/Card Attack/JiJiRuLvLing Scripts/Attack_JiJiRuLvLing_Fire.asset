@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fe3a5d6a0a7d96a46ad16a347428730f, type: 3}
   m_Name: Attack_JiJiRuLvLing_Fire
   m_EditorClassIdentifier: 
-  cardName: "\u706B"
+  cardName: "\u6025\u6025\u5982\u5F8B\u4EE4\u706B"
   cost: 1
   description: "\u706B\u5143\u7D206\u9EDE\u55AE\u9AD4\u653B\u64CA"
   cardImage: {fileID: 21300000, guid: 57c0433b62c0931488b63a12e982e723, type: 3}
@@ -27,4 +27,5 @@ MonoBehaviour:
   - {x: -1, y: 2}
   - {x: 1, y: 2}
   baseDamage: 6
+  elementType: 0
   fireEffectPrefab: {fileID: 1989029431062447326, guid: c87e1ba5cfd7df84dababaa348de2a14, type: 3}

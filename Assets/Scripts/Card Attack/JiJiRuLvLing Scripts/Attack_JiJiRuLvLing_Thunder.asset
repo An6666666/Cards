@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2bca14fd92f4f164b9d17ad290c410b4, type: 3}
   m_Name: Attack_JiJiRuLvLing_Thunder
   m_EditorClassIdentifier: 
-  cardName: "\u96F7"
+  cardName: "\u6025\u6025\u5982\u5F8B\u4EE4\u96F7"
   cost: 1
   description: "\u96F7\u5143\u7D206\u9EDE\u55AE\u9AD4\u653B\u64CA"
   cardImage: {fileID: 21300000, guid: ddcd2bcf5c380574099215ec1f3a1eb7, type: 3}
@@ -27,4 +27,5 @@ MonoBehaviour:
   - {x: -1, y: 2}
   - {x: 1, y: 2}
   baseDamage: 6
+  elementType: 2
   thunderEffectPrefab: {fileID: 7817183967626856756, guid: e9a051f2c2db3154ebd288d46878136b, type: 3}

@@ -6665,7 +6665,7 @@ MonoBehaviour:
   endTurnButton: {fileID: 2116894243}
   enemySpawnConfigs:
   - enemyPrefab: {fileID: 4204690724760053818, guid: 87fab54ae39d11f449187455258a17cc, type: 3}
-    count: 1
+    count: 2
   - enemyPrefab: {fileID: 4898516673341191513, guid: a09861f3a2ead1f4f876a9345a60088b, type: 3}
     count: 0
   - enemyPrefab: {fileID: 4591814044274373110, guid: e0d91408b43bec24ab02b0d2932a3dfc, type: 3}
@@ -8487,17 +8487,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   startingDeck: []
   debugStartingDeck:
-  - {fileID: 11400000, guid: 6e46d5e13429d2742a580e16ec745461, type: 2}
-  - {fileID: 11400000, guid: 457225c57c6113a45b6c95acbbeb7819, type: 2}
-  - {fileID: 11400000, guid: 32277eccb8d3956468e42fc5b47021ea, type: 2}
-  - {fileID: 11400000, guid: 664f13210a5e2c848aa2479e3c84cace, type: 2}
-  - {fileID: 11400000, guid: d726acd4a0e501c459bd69bb79cf8a09, type: 2}
-  - {fileID: 11400000, guid: 69a0f11cbfbb26e498b55c8fd9783d21, type: 2}
-  - {fileID: 11400000, guid: 9dd79a8ebbf6a8b419f2e132fefe0222, type: 2}
-  - {fileID: 11400000, guid: bf7b25def5c8087448e32a965df46313, type: 2}
-  - {fileID: 11400000, guid: 5e0f37164bedc0c40849be8d4a828656, type: 2}
-  - {fileID: 11400000, guid: 293e02d9acc286446b6512a991161eaf, type: 2}
-  useDebugDeck: 0
+  - {fileID: 11400000, guid: 9a5a37cfe6c1216448cd26bb8d654d24, type: 2}
+  - {fileID: 11400000, guid: 4fd70894f3d5cb54388922c21a1e3c60, type: 2}
+  useDebugDeck: 1
   startingDeckDefinition: {fileID: 11400000, guid: 1ce8022936a74184fb5e02c6c0afbb04, type: 2}
   exhaustCountThisTurn: 0
 --- !u!114 &1848671832

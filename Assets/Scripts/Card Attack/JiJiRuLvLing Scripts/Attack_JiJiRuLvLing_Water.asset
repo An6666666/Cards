@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b96ca4ba888486247a79190dea9ca4c7, type: 3}
   m_Name: Attack_JiJiRuLvLing_Water
   m_EditorClassIdentifier: 
-  cardName: "\u6C34"
+  cardName: "\u6025\u6025\u5982\u5F8B\u4EE4\u6C34"
   cost: 1
   description: "\u6C34\u5143\u7D206\u9EDE\u55AE\u9AD4\u653B\u64CA"
   cardImage: {fileID: 21300000, guid: 996a9fcddec98dc46bfa04efede71cd1, type: 3}
@@ -27,4 +27,5 @@ MonoBehaviour:
   - {x: -1, y: 2}
   - {x: 1, y: 2}
   baseDamage: 6
+  elementType: 1
   waterEffectPrefab: {fileID: 7213305712601285595, guid: 1e8d195486e9d0340b3ca44c17f86d2d, type: 3}
