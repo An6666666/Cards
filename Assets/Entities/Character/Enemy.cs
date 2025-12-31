@@ -440,28 +440,38 @@ transform.DOMove(tile.transform.position, 0.2f)
         //         + intentValueOffset;
         // }
         if (cachedPlayer == null)
-    {
-        cachedPlayer = FindObjectOfType<Player>();
-        if (cachedPlayer != null)
         {
-            lastKnownPlayerPos = cachedPlayer.position;
-            hasLastKnownPlayerPos = true;
-            DecideNextIntent(cachedPlayer);
+            cachedPlayer = FindObjectOfType<Player>();
+            if (cachedPlayer != null)
+            {
+                lastKnownPlayerPos = cachedPlayer.position;
+                hasLastKnownPlayerPos = true;
+                DecideNextIntent(cachedPlayer);
+            }
         }
-    }
-    else
-    {
-        Vector2Int currentPlayerPos = cachedPlayer.position;
-        if (!hasLastKnownPlayerPos || currentPlayerPos != lastKnownPlayerPos)
+        else
         {
-            lastKnownPlayerPos = currentPlayerPos;
-            hasLastKnownPlayerPos = true;
+            Vector2Int currentPlayerPos = cachedPlayer.position;
+            if (!hasLastKnownPlayerPos || currentPlayerPos != lastKnownPlayerPos)
+            {
+                lastKnownPlayerPos = currentPlayerPos;
+                hasLastKnownPlayerPos = true;
 
-            // 只要玩家換格子，就重新算一次這隻敵人的 nextIntent
-            DecideNextIntent(cachedPlayer);
+                // 只要玩家換格子，就重新算一次這隻敵人的 nextIntent
+                DecideNextIntent(cachedPlayer);
+            }
         }
-    }
-    RefreshIdleOverlays();
+        RefreshIdleOverlays();
+
+        bool shouldRefreshHover =
+            isMouseOver ||
+            (hoverIndicator2D != null && hoverIndicator2D.activeSelf) ||
+            (hoverIndicator2D != null && CardDragHandler.IsAnyCardDragging);
+
+        if (shouldRefreshHover)
+        {
+            RefreshHoverIndicator();
+        }
     }
 
     protected virtual bool IsPlayerInRange(Player player)
@@ -524,9 +534,19 @@ transform.DOMove(tile.transform.position, 0.2f)
             CacheSortingComponents();
         }
         UpdateSpriteSortingOrder();
+        RefreshHoverIndicator();
+    }
+    
+    private void OnDisable()
+    {
+        isMouseOver = false;
+        RefreshHoverIndicator();
     }
 
     [SerializeField] private GameObject highlightFx;  // 高亮特效物件
+    [Header("滑鼠懸停提示")]
+    [SerializeField] private GameObject hoverIndicator2D;
+    private bool isMouseOver = false;
 
     public void SetHighlight(bool on)               // 控制高亮顯示
     {
@@ -545,6 +565,26 @@ transform.DOMove(tile.transform.position, 0.2f)
     {
         BattleManager bm = FindObjectOfType<BattleManager>();  // 找到 BattleManager
         bm.OnEnemyClicked(this);                   // 通知 BattleManager 有敵人被點擊
+    }
+
+    private void OnMouseEnter()
+    {
+        isMouseOver = true;
+        RefreshHoverIndicator();
+    }
+
+    private void OnMouseExit()
+    {
+        isMouseOver = false;
+        RefreshHoverIndicator();
+    }
+
+    private void RefreshHoverIndicator()
+    {
+        if (hoverIndicator2D != null)
+        {
+            hoverIndicator2D.SetActive(isMouseOver && !CardDragHandler.IsAnyCardDragging);
+        }
     }
 
     private Transform GetSpriteRoot()

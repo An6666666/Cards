@@ -7,6 +7,7 @@ public class CardDragHandler : MonoBehaviour, IBeginDragHandler, IDragHandler, I
     [Header("拖曳外觀")]
     [SerializeField, Range(0f, 1f)] private float draggingAlpha = 0.5f;
 
+    private static int activeDragCount = 0;
     private CardUI cardUI;
     private CardAnimationController animationController;
     private CardUseRouter useRouter;
@@ -19,6 +20,7 @@ public class CardDragHandler : MonoBehaviour, IBeginDragHandler, IDragHandler, I
     private Transform placeholder;
 
     public bool IsDragging => isDragging;
+    public static bool IsAnyCardDragging => activeDragCount > 0;
 
     public bool AllowDragging
     {
@@ -45,6 +47,7 @@ public class CardDragHandler : MonoBehaviour, IBeginDragHandler, IDragHandler, I
         if (!CanDrag()) return;
 
         isDragging = true;
+        activeDragCount++;
         hoverEffect?.ResetHoverInstant();
 
         cardUI.originalParent = transform.parent;
@@ -79,6 +82,7 @@ public class CardDragHandler : MonoBehaviour, IBeginDragHandler, IDragHandler, I
 
         raycastController?.SetBlocksRaycasts(true);
         isDragging = false;
+        if (activeDragCount > 0) activeDragCount--;
 
         Vector2 worldPos = GetWorldPosition(eventData);
         Collider2D hit = Physics2D.OverlapPoint(worldPos);
@@ -96,6 +100,15 @@ public class CardDragHandler : MonoBehaviour, IBeginDragHandler, IDragHandler, I
         placeholder = null;
     }
 
+    private void OnDisable()
+    {
+        if (isDragging)
+        {
+            isDragging = false;
+            if (activeDragCount > 0) activeDragCount--;
+        }
+    }
+    
     public void DestroyPlaceholder()
     {
         if (placeholder == null) return;
