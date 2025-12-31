@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
+using DG.Tweening;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
@@ -24,12 +25,19 @@ public class StartingElementSelectionUI : MonoBehaviour
 
     [Header("Visuals")]
     [SerializeField] private Color normalColor = Color.white;
-    [SerializeField] private Color selectedColor = new Color(1f, 0.85f, 0.3f);
+    [SerializeField] private Sprite selectionRingSprite;
+    [SerializeField] private Color selectionRingColor = Color.white;
+    [SerializeField] private float selectionRingDrawDuration = 0.45f;
+    [SerializeField] private float selectionRingHideDuration = 0.2f;
+    [SerializeField] private Vector2 selectionRingPadding = new Vector2(12f, 12f);
     [SerializeField] private Color startEnabledColor = new Color(0.2f, 0.6f, 0.2f);
     [SerializeField] private Color startDisabledColor = new Color(0.5f, 0.5f, 0.5f);
 
     private readonly List<ElementType> selectedElements = new List<ElementType>(3);
     private readonly Dictionary<ElementType, ElementButtonBinding> elementLookup = new Dictionary<ElementType, ElementButtonBinding>();
+    private readonly Dictionary<ElementType, Image> selectionRings = new Dictionary<ElementType, Image>();
+    private readonly Dictionary<ElementType, Tween> selectionTweens = new Dictionary<ElementType, Tween>();
+    private readonly Dictionary<ElementType, bool> selectionStates = new Dictionary<ElementType, bool>();
 
     private void Awake()
     {
@@ -49,6 +57,7 @@ public class StartingElementSelectionUI : MonoBehaviour
             if (!elementLookup.ContainsKey(binding.element))
             {
                 elementLookup.Add(binding.element, binding);
+                TryCreateSelectionRing(binding);
             }
         }
     }
@@ -87,7 +96,9 @@ public class StartingElementSelectionUI : MonoBehaviour
     {
         foreach (KeyValuePair<ElementType, ElementButtonBinding> pair in elementLookup)
         {
-            pair.Value.image.color = selectedElements.Contains(pair.Key) ? selectedColor : normalColor;
+            bool selected = selectedElements.Contains(pair.Key);
+            pair.Value.image.color = normalColor;
+            UpdateSelectionRing(pair.Key, selected);
         }
 
         bool ready = selectedElements.Count == 3;
@@ -100,6 +111,84 @@ public class StartingElementSelectionUI : MonoBehaviour
         {
             startButtonImage.color = ready ? startEnabledColor : startDisabledColor;
         }
+    }
+
+    private void TryCreateSelectionRing(ElementButtonBinding binding)
+    {
+        if (selectionRingSprite == null || selectionRings.ContainsKey(binding.element))
+            return;
+
+        GameObject ringObject = new GameObject("SelectionRing", typeof(RectTransform), typeof(CanvasRenderer), typeof(Image));
+        ringObject.transform.SetParent(binding.image.transform, false);
+
+        RectTransform rectTransform = ringObject.GetComponent<RectTransform>();
+        rectTransform.anchorMin = Vector2.zero;
+        rectTransform.anchorMax = Vector2.one;
+        rectTransform.offsetMin = -selectionRingPadding;
+        rectTransform.offsetMax = selectionRingPadding;
+
+        Image ringImage = ringObject.GetComponent<Image>();
+        ringImage.sprite = selectionRingSprite;
+        ringImage.type = Image.Type.Filled;
+        ringImage.fillMethod = Image.FillMethod.Radial90;
+        ringImage.fillAmount = 0f;
+        ringImage.color = selectionRingColor;
+        ringImage.raycastTarget = false;
+
+        ringObject.SetActive(false);
+        selectionRings[binding.element] = ringImage;
+    }
+
+    private void UpdateSelectionRing(ElementType element, bool selected)
+    {
+        if (!selectionRings.TryGetValue(element, out Image ringImage))
+        return;
+
+        if (selectionStates.TryGetValue(element, out bool previousSelected) && previousSelected == selected)
+        {
+            if (selected)
+            {
+                ringImage.gameObject.SetActive(true);
+                ringImage.fillAmount = 1f;
+            }
+            return;
+        }
+
+        if (selectionTweens.TryGetValue(element, out Tween tween))
+        {
+            tween.Kill(false);
+        }
+
+        float duration = selected ? selectionRingDrawDuration : selectionRingHideDuration;
+
+        if (selected)
+        {
+            ringImage.fillAmount = 0f;
+            ringImage.gameObject.SetActive(true);
+        }
+
+        selectionTweens[element] = ringImage
+            .DOFillAmount(selected ? 1f : 0f, duration)
+            .SetEase(selected ? Ease.OutCubic : Ease.InCubic)
+            .OnComplete(() =>
+            {
+                if (!selected)
+                {
+                    ringImage.gameObject.SetActive(false);
+                }
+            });
+        
+        selectionStates[element] = selected;
+    }
+
+    private void OnDestroy()
+    {
+        foreach (Tween tween in selectionTweens.Values)
+        {
+            tween?.Kill(false);
+        }
+
+        selectionTweens.Clear();
     }
 
     private void OnStartClicked()

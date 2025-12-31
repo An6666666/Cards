@@ -8489,7 +8489,7 @@ MonoBehaviour:
   debugStartingDeck:
   - {fileID: 11400000, guid: 9a5a37cfe6c1216448cd26bb8d654d24, type: 2}
   - {fileID: 11400000, guid: 4fd70894f3d5cb54388922c21a1e3c60, type: 2}
-  useDebugDeck: 1
+  useDebugDeck: 0
   startingDeckDefinition: {fileID: 11400000, guid: 1ce8022936a74184fb5e02c6c0afbb04, type: 2}
   exhaustCountThisTurn: 0
 --- !u!114 &1848671832
