@@ -73,6 +73,14 @@ public class BoardTile : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// 查詢目前攻擊預覽高亮是否啟用中
+    /// </summary>
+    public bool IsAttackHighlightActive()
+    {
+        return attackPreviewHighlightObject && attackPreviewHighlightObject.activeSelf;
+    }
+    
     /// 新增：元素處理
     public void AddElement(ElementType e)
     {
