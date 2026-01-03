@@ -7,10 +7,6 @@ public class YingGe : Enemy
     // 覆寫基底的屬性，讓這個 Boss 不會在每回合自動把護甲歸零
     public override bool ShouldResetBlockEachTurn => false;
 
-    [Header("Ying Ge Base Stats")]            // 在 Inspector 分類顯示：鷹鴿的基本數值
-    [SerializeField] private int startingMaxHP = 160;     // 初始最大血量
-    [SerializeField] private int startingBaseAttack = 18; // 初始基礎攻擊力
-
     [Header("Ying Ge Abilities")]             // 在 Inspector 分類顯示：鷹鴿的技能數值
     [SerializeField] private int armorPerTurn = 4;        // 每回合結束自動獲得的護甲量
     [SerializeField] private int miasmaDamage = 5;        // 瘴氣格子給玩家的傷害
@@ -56,8 +52,7 @@ public class YingGe : Enemy
     // Unity 生命週期：Awake，這裡做基本初始化
     protected override void Awake()
     {
-        maxHP = Mathf.Max(1, startingMaxHP);           // 把最大血量設定成 Inspector 的數值，至少為 1
-        BaseAttackDamage = Mathf.Max(0, startingBaseAttack); // 設定基礎攻擊力
+        enemyName = "鶯歌";
         isBoss = true;                                 // 標記這個敵人是 Boss
         battleManager = FindObjectOfType<BattleManager>(); // 找場上的 BattleManager
         base.Awake();                                  // 呼叫基底 Enemy 的 Awake 做原本的初始化

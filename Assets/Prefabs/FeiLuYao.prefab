@@ -495,7 +495,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 3.209697, y: 8.555379, z: 0}
-  m_LocalScale: {x: 7.7135367, y: 3.6070871, z: 0}
+  m_LocalScale: {x: 5.122714, y: 2.3955388, z: 0}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 8275633406451967337}
@@ -711,7 +711,7 @@ MonoBehaviour:
   buffs:
     stun: 0
   gridPosition: {x: 0, y: 0}
-  baseAttackDamage: 1
+  baseAttackDamage: 0
   attackRangeOffsets:
   - {x: -2, y: 0}
   - {x: 2, y: 0}
@@ -745,6 +745,7 @@ MonoBehaviour:
   intentValueOffset: {x: 0.8, y: 0.1, z: 0}
   highlightFx: {fileID: 153131917641067011}
   hoverIndicator2D: {fileID: 0}
+  hoverIndicatorDelaySeconds: 0
   weakDuration: 2
   bleedDuration: 2
   imprisonDuration: 1

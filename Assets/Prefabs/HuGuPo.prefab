@@ -494,8 +494,8 @@ Transform:
   m_GameObject: {fileID: 7920732420248158174}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 3.209697, y: 8.555379, z: 0}
-  m_LocalScale: {x: 7.7135367, y: 3.6070871, z: 0}
+  m_LocalPosition: {x: 5.4, y: 8.555379, z: 0}
+  m_LocalScale: {x: 8.122354, y: 3.7982626, z: 0}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 8275633406451967337}
@@ -653,6 +653,13 @@ GameObject:
   - component: {fileID: 7603518278215076845}
   - component: {fileID: 8896973269389346778}
   - component: {fileID: 3882783823866956878}
+  - component: {fileID: 4165281424294799910}
+  - component: {fileID: 2429521603140208934}
+  - component: {fileID: 7540131305423824017}
+  - component: {fileID: 653915508861457101}
+  - component: {fileID: 2734148729382076299}
+  - component: {fileID: 1225460322651460988}
+  - component: {fileID: 1841683551220647667}
   m_Layer: 0
   m_Name: HuGuPo
   m_TagString: Untagged
@@ -692,7 +699,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   enemyName: Slime
-  maxHP: 30
+  maxHP: 60
   currentHP: 0
   block: 0
   goldReward: 6
@@ -738,6 +745,7 @@ MonoBehaviour:
   intentValueOffset: {x: 0.8, y: 0.1, z: 0}
   highlightFx: {fileID: 0}
   hoverIndicator2D: {fileID: 0}
+  hoverIndicatorDelaySeconds: 0
   bleedDuration: 2
   imprisonDuration: 3
   imprisonCooldownTurns: 3
@@ -788,6 +796,90 @@ BoxCollider2D:
   serializedVersion: 2
   m_Size: {x: 88.09651, y: 37.09083}
   m_EdgeRadius: 0
+--- !u!114 &4165281424294799910
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8127814944662599423}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 147c94d554eccd3499c1323665c8e284, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &2429521603140208934
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8127814944662599423}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8e68b5633aaeacb4fa27b2f4c90edacc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &7540131305423824017
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8127814944662599423}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6f284df746d4b2c40a784c2174344b90, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &653915508861457101
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8127814944662599423}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f2900eab87fcac145970b92443fb97a0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &2734148729382076299
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8127814944662599423}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bfa066065bf1cc345a212629e8dd1a31, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &1225460322651460988
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8127814944662599423}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0caf1599c5cc5984fa395704370306a3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &1841683551220647667
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8127814944662599423}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 67607bdfab580684c8c9b8383fbb6544, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1001 &1817239499420612326
 PrefabInstance:
   m_ObjectHideFlags: 0

@@ -27,14 +27,12 @@ public class GouShe : Enemy               // 鉤蛇怪物類別，繼承自 Enem
 
     private Vector2Int storedGridBeforeHide;                     // 在消失前記錄的原來棋盤座標
     private SpriteRenderer[] cachedRenderers;                    // 快取身上所有 SpriteRenderer，方便一鍵隱藏/顯示
-    private EnemyElementStatusDisplay elementStatusDisplay;      // 🔴 新增：元素圖示控制元件的參考
+    private EnemyElementStatusDisplay elementStatusDisplay;      //  新增：元素圖示控制元件的參考
     private bool initialWaterPrepared = false;                   // 是否已經建立過初始水域區域
 
     protected override void Awake()
     {
         enemyName = "鉤蛇";          // 設定敵人名稱
-        maxHP = 60;                 // 最大生命值
-        BaseAttackDamage = 10;      // 基礎攻擊傷害
         base.Awake();               // 呼叫基底 Enemy.Awake() 做通用初始化
     }
 

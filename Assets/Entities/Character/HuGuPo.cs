@@ -30,8 +30,6 @@ public class HuGuPo : Enemy // 定義 HuGuPo 類別，繼承自 Enemy
     protected override void Awake()
     {
         enemyName = "虎姑婆"; // 設定敵人名稱
-        maxHP = 60; // 設定最大生命值
-        BaseAttackDamage = 10; // 設定基本攻擊傷害
         base.Awake(); // 呼叫父類別 Awake()
     }
 

@@ -373,8 +373,8 @@ Transform:
   m_GameObject: {fileID: 7976853016657536233}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 1.0933833, y: -0.22852485, z: 0}
-  m_LocalScale: {x: 0.4996838, y: 0.45958853, z: 0}
+  m_LocalPosition: {x: 1.012, y: -0.22852485, z: 0}
+  m_LocalScale: {x: 0.45826042, y: 0.421489, z: 0}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 4204498703709111305}
@@ -425,7 +425,7 @@ SpriteRenderer:
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
-  m_Size: {x: 16.96, y: 16.18}
+  m_Size: {x: 5, y: 5}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
@@ -524,7 +524,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   enemyName: Slime
-  maxHP: 30
+  maxHP: 40
   currentHP: 0
   block: 0
   goldReward: 3
@@ -570,6 +570,7 @@ MonoBehaviour:
   intentValueOffset: {x: 0.8, y: 0.1, z: 0}
   highlightFx: {fileID: 2026800559802484356}
   hoverIndicator2D: {fileID: 0}
+  hoverIndicatorDelaySeconds: 0
   sleepDuration: 3
   fixedDamage: 1
 --- !u!61 &1914408483948164483

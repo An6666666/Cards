@@ -12,11 +12,6 @@ public class DiNiu : Enemy
     protected override void Awake()
     {
         enemyName = "地牛";
-        maxHP = 40;
-
-        // 地牛本身沒有普通攻擊
-        BaseAttackDamage = 0;
-
         base.Awake();
         sleepTurnsRemaining = Mathf.Max(0, sleepDuration);
     }

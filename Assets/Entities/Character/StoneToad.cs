@@ -15,7 +15,6 @@ public class StoneToad : Enemy      // 繼承自自訂的 Enemy 基底類別（�
     protected override void Awake()  // 物件初始化（覆寫 Enemy.Awake）
     {
         enemyName = "石蟾蜍";        // 設定敵人顯示名稱
-        maxHP = 60;                  // 設定最大生命值
         base.Awake();                // 呼叫父類別 Awake（確保基底初始化完成）
         ClampArmor();                // 啟動時做一次護甲上限檢查
     }

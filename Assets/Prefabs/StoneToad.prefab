@@ -64,6 +64,13 @@ GameObject:
   - component: {fileID: 2677455845047386297}
   - component: {fileID: 2677471422651709777}
   - component: {fileID: 3762648908618512516}
+  - component: {fileID: 955509299258185597}
+  - component: {fileID: 7421129635156619734}
+  - component: {fileID: 1138735645455078066}
+  - component: {fileID: 5129204307140701654}
+  - component: {fileID: 2339807462660441474}
+  - component: {fileID: 4463986196110602622}
+  - component: {fileID: 2892738044695183999}
   m_Layer: 0
   m_Name: StoneToad
   m_TagString: Untagged
@@ -194,7 +201,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   enemyName: StonToad
   maxHP: 60
-  currentHP: 60
+  currentHP: 0
   block: 0
   goldReward: 6
   burningTurns: 0
@@ -250,10 +257,96 @@ MonoBehaviour:
   intentValueText: {fileID: 0}
   intentValueOffset: {x: 0.8, y: 0.1, z: 0}
   highlightFx: {fileID: 3497268538794539498}
+  hoverIndicator2D: {fileID: 0}
+  hoverIndicatorDelaySeconds: 0
   armorGainPerHit: 4
   preferredDistanceInSteps: 2
   maxMovementSteps: 2
   armorCap: 16
+--- !u!114 &955509299258185597
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 470693498580573215}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 147c94d554eccd3499c1323665c8e284, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &7421129635156619734
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 470693498580573215}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8e68b5633aaeacb4fa27b2f4c90edacc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &1138735645455078066
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 470693498580573215}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6f284df746d4b2c40a784c2174344b90, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &5129204307140701654
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 470693498580573215}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f2900eab87fcac145970b92443fb97a0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &2339807462660441474
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 470693498580573215}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bfa066065bf1cc345a212629e8dd1a31, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &4463986196110602622
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 470693498580573215}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0caf1599c5cc5984fa395704370306a3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &2892738044695183999
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 470693498580573215}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 67607bdfab580684c8c9b8383fbb6544, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &2176898823024035152
 GameObject:
   m_ObjectHideFlags: 0

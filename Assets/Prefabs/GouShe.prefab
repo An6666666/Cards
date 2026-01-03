@@ -111,8 +111,8 @@ Transform:
   m_GameObject: {fileID: 3304995361385958195}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 3.209697, y: 8.555379, z: 0}
-  m_LocalScale: {x: 7.7135367, y: 3.6070871, z: 0}
+  m_LocalPosition: {x: 21.3, y: 15.3, z: 0}
+  m_LocalScale: {x: 10.842823, y: 5.0704374, z: 0}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 8275633406451967337}
@@ -547,6 +547,13 @@ GameObject:
   - component: {fileID: 7603518278215076845}
   - component: {fileID: 7728357840837083407}
   - component: {fileID: 8062545072184826831}
+  - component: {fileID: 6514280002203336837}
+  - component: {fileID: 9124210355571672367}
+  - component: {fileID: 807464865139428879}
+  - component: {fileID: 4937566342000608495}
+  - component: {fileID: 6002496492494951505}
+  - component: {fileID: 778195299887821130}
+  - component: {fileID: 3886735481278721440}
   m_Layer: 0
   m_Name: GouShe
   m_TagString: Untagged
@@ -586,7 +593,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   enemyName: Slime
-  maxHP: 60
+  maxHP: 30
   currentHP: 0
   block: 0
   goldReward: 6
@@ -632,6 +639,7 @@ MonoBehaviour:
   intentValueOffset: {x: 0.8, y: 0.1, z: 0}
   highlightFx: {fileID: 0}
   hoverIndicator2D: {fileID: 0}
+  hoverIndicatorDelaySeconds: 0
   waterArmor: 2
   columnStrikeDamage: 10
   columnStrikeWeakDuration: 2
@@ -683,6 +691,90 @@ BoxCollider2D:
   serializedVersion: 2
   m_Size: {x: 93.40028, y: 35.28078}
   m_EdgeRadius: 0
+--- !u!114 &6514280002203336837
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8127814944662599423}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 147c94d554eccd3499c1323665c8e284, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &9124210355571672367
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8127814944662599423}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8e68b5633aaeacb4fa27b2f4c90edacc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &807464865139428879
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8127814944662599423}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6f284df746d4b2c40a784c2174344b90, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &4937566342000608495
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8127814944662599423}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f2900eab87fcac145970b92443fb97a0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &6002496492494951505
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8127814944662599423}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bfa066065bf1cc345a212629e8dd1a31, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &778195299887821130
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8127814944662599423}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0caf1599c5cc5984fa395704370306a3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &3886735481278721440
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8127814944662599423}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 67607bdfab580684c8c9b8383fbb6544, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &8460968895802072183
 GameObject:
   m_ObjectHideFlags: 0
@@ -949,7 +1041,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5949157722218524963, guid: aa327d458a92acc48ba8ff8e60ec1976, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 23.64
+      value: 39.1
       objectReference: {fileID: 0}
     - target: {fileID: 5949157722218524963, guid: aa327d458a92acc48ba8ff8e60ec1976, type: 3}
       propertyPath: m_LocalPosition.z

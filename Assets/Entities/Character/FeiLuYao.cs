@@ -18,8 +18,6 @@ public class FeiLuYao : Enemy
     protected override void Awake()
     {
         enemyName = "飛顱妖";
-        maxHP = 40;
-        BaseAttackDamage = 0;   // 沒有普通攻擊
         base.Awake();
     }
 
