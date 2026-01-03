@@ -787,6 +787,18 @@ MonoBehaviour:
   - {x: 1, y: -2}
   - {x: -1, y: 2}
   - {x: 1, y: 2}
+  - {x: 0, y: 4}
+  - {x: 0, y: -4}
+  - {x: -4, y: 0}
+  - {x: 4, y: 0}
+  - {x: 2, y: 4}
+  - {x: 2, y: -4}
+  - {x: -2, y: 4}
+  - {x: -2, y: -4}
+  - {x: 3, y: 2}
+  - {x: 3, y: -2}
+  - {x: -3, y: 2}
+  - {x: -3, y: -2}
   isBoss: 1
   spriteRoot: {fileID: 7030380687885745100}
   useAppearAnimation: 0
