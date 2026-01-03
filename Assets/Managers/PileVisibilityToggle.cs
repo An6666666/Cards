@@ -17,6 +17,8 @@ public class PileVisibilityToggle : MonoBehaviour
     private bool showingDeck = true;
     private Button toggleButton;
     private bool addedRuntimeListener;
+    private bool pilesAreNested;
+
 
     private void Awake()
     {
@@ -33,6 +35,7 @@ public class PileVisibilityToggle : MonoBehaviour
             addedRuntimeListener = true;
         }
 
+        pilesAreNested = ArePilesNested();
         InitializeStartingPile();
         UpdateLabel();
         UpdateCounters();
@@ -50,8 +53,8 @@ public class PileVisibilityToggle : MonoBehaviour
     {
         showingDeck = !showingDeck;
 
-        SetActive(deckPileObject, showingDeck);
-        SetActive(discardPileObject, !showingDeck);
+        ApplyVisibility(deckPileObject, showingDeck);
+        ApplyVisibility(discardPileObject, !showingDeck);
 
         UpdateLabel();
 
@@ -122,20 +125,40 @@ public class PileVisibilityToggle : MonoBehaviour
         }
 
         showingDeck = true;
-        SetActive(deckPileObject, true);
-        SetActive(discardPileObject, false);
+        ApplyVisibility(deckPileObject, true);
+        ApplyVisibility(discardPileObject, false);
     }
 
-    private static void SetActive(GameObject target, bool active)
+    private bool ArePilesNested()
     {
-        if (target != null)
+        if (deckPileObject == null || discardPileObject == null) return false;
+        var deckTransform = deckPileObject.transform;
+        var discardTransform = discardPileObject.transform;
+        return discardTransform.IsChildOf(deckTransform) || deckTransform.IsChildOf(discardTransform);
+    }
+
+    private void ApplyVisibility(GameObject target, bool visible)
+    {
+        if (target == null) return;
+
+        if (pilesAreNested)
         {
-            target.SetActive(active);
+            target.SetActive(true);
+            var cg = target.GetComponent<CanvasGroup>() ?? target.AddComponent<CanvasGroup>();
+            cg.alpha = visible ? 1f : 0f;
+            cg.blocksRaycasts = visible;
+            cg.interactable = visible;
+            return;
         }
+
+        target.SetActive(visible);
     }
 
     private static bool IsPileActive(GameObject target)
     {
-        return target != null && target.activeInHierarchy;
+        if (target == null) return false;
+        var cg = target.GetComponent<CanvasGroup>();
+        if (cg != null) return target.activeSelf && cg.alpha > 0.001f;
+        return target.activeSelf;
     }
 }
