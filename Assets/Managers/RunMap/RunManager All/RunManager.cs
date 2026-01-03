@@ -143,6 +143,8 @@ public class RunManager : MonoBehaviour
     private Player player;                                            // 目前這次 run 的玩家物件
     private PlayerRunSnapshot initialPlayerSnapshot;                  // 起始時候的玩家快照（方便死亡重開）
     private PlayerRunSnapshot currentRunSnapshot;                     // 當前 run 的玩家快照（每次戰鬥回來都會更新）
+    public PlayerRunSnapshot CurrentRunSnapshot => currentRunSnapshot;
+
 
     private RunMapGenerator mapGenerator;
     private RunMapConnector mapConnector;
