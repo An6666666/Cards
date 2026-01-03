@@ -67,7 +67,7 @@ public class DiNiu : Enemy
 
         List<Enemy> snapshot = new List<Enemy>(battleManager.enemies);
 
-        foreach (Enemy enemy in battleManager.enemies)
+        foreach (Enemy enemy in snapshot)
         {
             if (enemy == null || enemy == this)
             {

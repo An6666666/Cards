@@ -176,7 +176,7 @@ MonoBehaviour:
     m_Right: 0
     m_Top: 0
     m_Bottom: 0
-  m_ChildAlignment: 4
+  m_ChildAlignment: 0
   m_Spacing: 100
   m_ChildForceExpandWidth: 1
   m_ChildForceExpandHeight: 1
@@ -6306,21 +6306,21 @@ MonoBehaviour:
   endTurnButton: {fileID: 2116894243}
   enemySpawnConfigs:
   - enemyPrefab: {fileID: 4204690724760053818, guid: 87fab54ae39d11f449187455258a17cc, type: 3}
-    count: 0
+    count: 10
   - enemyPrefab: {fileID: 4898516673341191513, guid: a09861f3a2ead1f4f876a9345a60088b, type: 3}
-    count: 1
+    count: 0
   - enemyPrefab: {fileID: 4591814044274373110, guid: e0d91408b43bec24ab02b0d2932a3dfc, type: 3}
-    count: 1
+    count: 0
   - enemyPrefab: {fileID: 7728357840837083407, guid: 6fb8d547b14a881468023f486a977e6b, type: 3}
-    count: 1
+    count: 0
   - enemyPrefab: {fileID: 8258485525033336925, guid: b1fbe62463006294b80e46474639e1f9, type: 3}
-    count: 1
+    count: 0
   - enemyPrefab: {fileID: 8896973269389346778, guid: 8e9ee8b5037fe5048ae8dc2cef4d967f, type: 3}
-    count: 1
+    count: 0
   - enemyPrefab: {fileID: 3762648908618512516, guid: cbb7c20ed40c0294daca78f7a8548c50, type: 3}
-    count: 1
+    count: 0
   - enemyPrefab: {fileID: 40532459971013023, guid: 5ecce71dfdd5e304fa13dac5018a9458, type: 3}
-    count: 1
+    count: 0
   playerStartPos: {x: 0, y: 0}
   guaranteedMovementCard: {fileID: 11400000, guid: 105c7f2659020eb478d2fc42c9d7276e, type: 2}
   allCardPool:
@@ -8053,21 +8053,16 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   startingDeck: []
   debugStartingDeck:
-  - {fileID: 11400000, guid: 9a5a37cfe6c1216448cd26bb8d654d24, type: 2}
-  - {fileID: 11400000, guid: 4fd70894f3d5cb54388922c21a1e3c60, type: 2}
-  - {fileID: 11400000, guid: 4fd70894f3d5cb54388922c21a1e3c60, type: 2}
-  - {fileID: 11400000, guid: 4fd70894f3d5cb54388922c21a1e3c60, type: 2}
-  - {fileID: 11400000, guid: 4fd70894f3d5cb54388922c21a1e3c60, type: 2}
-  - {fileID: 11400000, guid: 4fd70894f3d5cb54388922c21a1e3c60, type: 2}
-  - {fileID: 11400000, guid: 4fd70894f3d5cb54388922c21a1e3c60, type: 2}
-  - {fileID: 11400000, guid: 4fd70894f3d5cb54388922c21a1e3c60, type: 2}
-  - {fileID: 11400000, guid: 4fd70894f3d5cb54388922c21a1e3c60, type: 2}
-  - {fileID: 11400000, guid: 4fd70894f3d5cb54388922c21a1e3c60, type: 2}
-  - {fileID: 11400000, guid: 4fd70894f3d5cb54388922c21a1e3c60, type: 2}
-  - {fileID: 11400000, guid: 4fd70894f3d5cb54388922c21a1e3c60, type: 2}
-  - {fileID: 11400000, guid: 4fd70894f3d5cb54388922c21a1e3c60, type: 2}
-  - {fileID: 11400000, guid: 4fd70894f3d5cb54388922c21a1e3c60, type: 2}
-  - {fileID: 11400000, guid: 4fd70894f3d5cb54388922c21a1e3c60, type: 2}
+  - {fileID: 11400000, guid: 6e46d5e13429d2742a580e16ec745461, type: 2}
+  - {fileID: 11400000, guid: 457225c57c6113a45b6c95acbbeb7819, type: 2}
+  - {fileID: 11400000, guid: 32277eccb8d3956468e42fc5b47021ea, type: 2}
+  - {fileID: 11400000, guid: 664f13210a5e2c848aa2479e3c84cace, type: 2}
+  - {fileID: 11400000, guid: d726acd4a0e501c459bd69bb79cf8a09, type: 2}
+  - {fileID: 11400000, guid: 293e02d9acc286446b6512a991161eaf, type: 2}
+  - {fileID: 11400000, guid: 69a0f11cbfbb26e498b55c8fd9783d21, type: 2}
+  - {fileID: 11400000, guid: 9dd79a8ebbf6a8b419f2e132fefe0222, type: 2}
+  - {fileID: 11400000, guid: bf7b25def5c8087448e32a965df46313, type: 2}
+  - {fileID: 11400000, guid: 5e0f37164bedc0c40849be8d4a828656, type: 2}
   useDebugDeck: 1
   startingDeckDefinition: {fileID: 11400000, guid: 1ce8022936a74184fb5e02c6c0afbb04, type: 2}
   exhaustCountThisTurn: 0

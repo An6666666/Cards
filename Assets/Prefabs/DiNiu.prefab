@@ -18,7 +18,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &7503680292423118502
 Transform:
   m_ObjectHideFlags: 0
@@ -373,8 +373,8 @@ Transform:
   m_GameObject: {fileID: 7976853016657536233}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 1.012, y: -0.22852485, z: 0}
-  m_LocalScale: {x: 0.45826042, y: 0.421489, z: 0}
+  m_LocalPosition: {x: 1.09, y: -0.22852485, z: 0}
+  m_LocalScale: {x: 0.49090907, y: 0.45151788, z: 0}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 4204498703709111305}
@@ -548,7 +548,7 @@ MonoBehaviour:
   spriteRoot: {fileID: 8275633406451967337}
   useAppearAnimation: 0
   deathDestroyDelay: 0.6
-  idleWhiteObj: {fileID: 0}
+  idleWhiteObj: {fileID: 8257399858107619659}
   idleRedObj: {fileID: 2026800559802484356}
   sortingOrderBase: 0
   sortingOrderMultiplier: 100
@@ -1045,7 +1045,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5949157722218524963, guid: aa327d458a92acc48ba8ff8e60ec1976, type: 3}
       propertyPath: m_LocalScale.y
-      value: 0.5253093
+      value: 0.75513214
       objectReference: {fileID: 0}
     - target: {fileID: 5949157722218524963, guid: aa327d458a92acc48ba8ff8e60ec1976, type: 3}
       propertyPath: m_LocalScale.z

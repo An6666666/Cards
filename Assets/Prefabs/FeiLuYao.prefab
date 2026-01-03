@@ -712,13 +712,7 @@ MonoBehaviour:
     stun: 0
   gridPosition: {x: 0, y: 0}
   baseAttackDamage: 0
-  attackRangeOffsets:
-  - {x: -2, y: 0}
-  - {x: 2, y: 0}
-  - {x: -1, y: -2}
-  - {x: 1, y: -2}
-  - {x: -1, y: 2}
-  - {x: 1, y: 2}
+  attackRangeOffsets: []
   isBoss: 0
   spriteRoot: {fileID: 8275633406451967337}
   useAppearAnimation: 0
@@ -1030,7 +1024,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5949157722218524963, guid: aa327d458a92acc48ba8ff8e60ec1976, type: 3}
       propertyPath: m_LocalScale.y
-      value: 0.5253093
+      value: 0.65663666
       objectReference: {fileID: 0}
     - target: {fileID: 5949157722218524963, guid: aa327d458a92acc48ba8ff8e60ec1976, type: 3}
       propertyPath: m_LocalScale.z

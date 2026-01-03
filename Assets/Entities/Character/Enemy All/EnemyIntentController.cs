@@ -22,8 +22,7 @@ public class EnemyIntentController : MonoBehaviour
         {
             lastKnownPlayerPos = cachedPlayer.position;
             hasLastKnownPlayerPos = true;
-            CacheStatusCounters();
-            DecideNextIntent(cachedPlayer);
+            RecalculateIntent(cachedPlayer);
         }
     }
 
@@ -36,8 +35,7 @@ public class EnemyIntentController : MonoBehaviour
             {
                 lastKnownPlayerPos = cachedPlayer.position;
                 hasLastKnownPlayerPos = true;
-                CacheStatusCounters();
-                DecideNextIntent(cachedPlayer);
+                RecalculateIntent(cachedPlayer);
             }
         }
         else
@@ -47,7 +45,7 @@ public class EnemyIntentController : MonoBehaviour
             {
                 lastKnownPlayerPos = currentPlayerPos;
                 hasLastKnownPlayerPos = true;
-                DecideNextIntent(cachedPlayer);
+                RecalculateIntent(cachedPlayer);
             }
         }
 
@@ -59,7 +57,7 @@ public class EnemyIntentController : MonoBehaviour
 
             if (statusChanged)
             {
-                DecideNextIntent(cachedPlayer);
+                RecalculateIntent(cachedPlayer);
             }
         }
     }
@@ -158,6 +156,14 @@ public class EnemyIntentController : MonoBehaviour
         }
     }
 
+    private void RecalculateIntent(Player player)
+    {
+        if (enemy == null) return;
+
+        enemy.DecideNextIntent(player);
+        CacheStatusCounters();
+    }
+    
     private void CacheStatusCounters()
     {
         if (enemy == null) return;

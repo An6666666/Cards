@@ -80,8 +80,17 @@ public class BattleHandUIController           // 戰鬥場景中「手牌 UI」�
         }
 
         if (handPanel is RectTransform handRect)                  // 若 handPanel 是 RectTransform（UI 容器）
+        {
             LayoutRebuilder.ForceRebuildLayoutImmediate(handRect);
             // 強制立即重建 Layout，讓卡片依 Layout Group 正確排列
+
+            for (int i = 0; i < createdCards.Count; i++)          // 重新記錄每張卡片的基準座標
+            {
+                var rt = createdCards[i]?.RectTransform;
+                if (rt != null)
+                    createdCards[i].OriginalAnchoredPosition = rt.anchoredPosition;
+            }
+        }
 
         if (playDrawAnimation)                                    // 如果這次需要播放「抽牌」動畫
         {

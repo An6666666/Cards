@@ -653,6 +653,13 @@ GameObject:
   - component: {fileID: 7603518278215076845}
   - component: {fileID: 8258485525033336925}
   - component: {fileID: 1436446763311578469}
+  - component: {fileID: -1252699247306342092}
+  - component: {fileID: 3252558486280643039}
+  - component: {fileID: 2968622750707835882}
+  - component: {fileID: 14329976442161488}
+  - component: {fileID: -2642445792404078151}
+  - component: {fileID: -6511633729302123768}
+  - component: {fileID: -6288997350024240777}
   m_Layer: 0
   m_Name: HeiGouJing
   m_TagString: Untagged
@@ -775,7 +782,7 @@ BoxCollider2D:
   m_IsTrigger: 0
   m_UsedByEffector: 0
   m_UsedByComposite: 0
-  m_Offset: {x: -3.156063, y: 13.14231}
+  m_Offset: {x: -0.10597992, y: 11.537708}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0, y: 0}
@@ -786,8 +793,92 @@ BoxCollider2D:
     adaptiveTiling: 0
   m_AutoTiling: 0
   serializedVersion: 2
-  m_Size: {x: 89.06933, y: 39.091614}
+  m_Size: {x: 61.6186, y: 28.750862}
   m_EdgeRadius: 0
+--- !u!114 &-1252699247306342092
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8127814944662599423}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 147c94d554eccd3499c1323665c8e284, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &3252558486280643039
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8127814944662599423}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8e68b5633aaeacb4fa27b2f4c90edacc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &2968622750707835882
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8127814944662599423}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6f284df746d4b2c40a784c2174344b90, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &14329976442161488
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8127814944662599423}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f2900eab87fcac145970b92443fb97a0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &-2642445792404078151
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8127814944662599423}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bfa066065bf1cc345a212629e8dd1a31, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &-6511633729302123768
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8127814944662599423}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0caf1599c5cc5984fa395704370306a3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &-6288997350024240777
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8127814944662599423}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 67607bdfab580684c8c9b8383fbb6544, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1001 &1817239499420612326
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -940,7 +1031,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5949157722218524963, guid: aa327d458a92acc48ba8ff8e60ec1976, type: 3}
       propertyPath: m_LocalScale.y
-      value: 0.5253093
+      value: 0.76169854
       objectReference: {fileID: 0}
     - target: {fileID: 5949157722218524963, guid: aa327d458a92acc48ba8ff8e60ec1976, type: 3}
       propertyPath: m_LocalScale.z

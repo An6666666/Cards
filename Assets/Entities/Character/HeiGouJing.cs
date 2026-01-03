@@ -25,8 +25,9 @@ public class HeiGouJing : Enemy                  // 黑狗精：繼承自 Enemy�
     private List<HeiGouJing> spawnedClones = new List<HeiGouJing>(); // 本體生成的分身清單（便於統一管理與回收）
 
 #if UNITY_EDITOR                                  // 僅在編輯器環境下編譯
-    private void OnValidate()                     // Inspector 變更時自動校正數值到安全範圍
+    protected override void OnValidate()          // Inspector 變更時自動校正數值到安全範圍
     {
+        base.OnValidate();                        // 先讓父類確保必要元件存在
         cloneSettings.count = Mathf.Max(0, cloneSettings.count);             // 分身數量下限0
         cloneSettings.maxHP = Mathf.Max(1, cloneSettings.maxHP);             // 分身血量下限1
         cloneSettings.baseAttackDamage = Mathf.Max(0, cloneSettings.baseAttackDamage); // 分身攻擊下限0
