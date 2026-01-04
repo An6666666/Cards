@@ -203,7 +203,7 @@ MonoBehaviour:
   maxHP: 60
   currentHP: 0
   block: 0
-  goldReward: 6
+  goldReward: 20
   burningTurns: 0
   frozenTurns: 0
   thunderstrike: 0

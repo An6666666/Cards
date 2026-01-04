@@ -702,7 +702,7 @@ MonoBehaviour:
   maxHP: 10
   currentHP: 0
   block: 0
-  goldReward: 2
+  goldReward: 4
   burningTurns: 0
   frozenTurns: 0
   thunderstrike: 0
