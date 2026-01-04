@@ -1,20 +1,29 @@
 using System.Collections.Generic;
+using UnityEngine;
 
 public static class StartingDeckSelection
 {
-    private static readonly List<ElementType> selectedElements = new List<ElementType>(3);
+    public const int DefaultMaxSelections = 3;
+
+    private static readonly List<ElementType> selectedElements = new List<ElementType>(DefaultMaxSelections);
 
     public static bool HasSelection => selectedElements.Count > 0;
 
-    public static void SetSelection(IEnumerable<ElementType> elements)
+    public static void SetSelection(IEnumerable<ElementType> elements, int maxSelections = DefaultMaxSelections)
     {
         selectedElements.Clear();
         if (elements == null)
             return;
 
+        maxSelections = Mathf.Max(1, maxSelections);
+        if (selectedElements.Capacity < maxSelections)
+        {
+            selectedElements.Capacity = maxSelections;
+        }
+
         foreach (ElementType element in elements)
         {
-            if (selectedElements.Count >= 3)
+            if (selectedElements.Count >= maxSelections)
                 break;
 
             if (!selectedElements.Contains(element))
