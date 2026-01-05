@@ -1,4 +1,5 @@
 using System.Collections.Generic; // 使用泛型集合（List、Queue、IEnumerable 等）
+using DG.Tweening; // DOTween 動畫（用於文字逐字顯示）
 using UnityEngine; // Unity 核心 API（MonoBehaviour、GameObject、SerializeField 等）
 using UnityEngine.UI; // Unity UI（Text、Button）
 
@@ -27,8 +28,14 @@ public class ElementSelectionGuideNPC : MonoBehaviour // 元素選擇教學 NPC�
 
     [Header("Options")] // Inspector 分組：選項
     [SerializeField] private bool hideBubbleWhenEmpty = true; // 當沒有內容時是否自動隱藏泡泡 UI
+    [Header("Typewriter")] // Inspector 分組：逐字動畫
+    [SerializeField, Min(0f)] private float typewriterDurationPerChar = 0.03f; // 單字元顯示時間（越大越慢）
+    [SerializeField, Min(0f)] private float minTypewriterDuration = 0.15f; // 最短顯示時間（避免太短）
+    [SerializeField] private Ease typewriterEase = Ease.Linear; // 逐字動畫的 Ease
 
     private readonly Queue<string> queuedLines = new Queue<string>(); // 目前待播放的對話佇列（先進先出）
+    private Tween dialogueTween; // 目前的逐字 tween
+    private bool isTyping; // 是否正在播放逐字動畫
 
     private void Awake() // Unity Awake：初始化事件訂閱與按鈕事件
     {
@@ -63,6 +70,11 @@ public class ElementSelectionGuideNPC : MonoBehaviour // 元素選擇教學 NPC�
         {
             nextButton.onClick.RemoveListener(ShowNextLine); // 移除 ShowNextLine 的 listener
         }
+
+        if (dialogueTween != null && dialogueTween.IsActive()) // 若有正在或已存在的 tween
+        {
+            dialogueTween.Kill(false); // 結束 tween
+        }
     }
 
     public void HandleElementSelected(ElementType element) // 當 UI 通知「某元素被選取」時呼叫
@@ -79,19 +91,42 @@ public class ElementSelectionGuideNPC : MonoBehaviour // 元素選擇教學 NPC�
         if (dialogueText == null) // 若沒有綁定文字元件
             return; // 無法顯示，直接返回
 
+        if (dialogueTween != null && dialogueTween.IsActive() && dialogueTween.IsPlaying()) // 若正在逐字播放
+        {
+            dialogueTween.Complete(); // 先完成當前文字
+            return; // 不往下切句
+        }
+
+        if (dialogueTween != null) // 若有舊 tween
+        {
+            dialogueTween.Kill(false); // 結束舊 tween
+            dialogueTween = null; // 清空參考
+            isTyping = false; // 重置狀態
+        }
         if (queuedLines.Count == 0) // 若佇列已經沒有句子了
         {
+            isTyping = false; // 確保狀態重置
             dialogueText.text = string.Empty; // 清空顯示文字
             UpdateBubbleVisibility(); // 依設定更新泡泡/按鈕可見性
             return; // 結束
         }
 
-        dialogueText.text = queuedLines.Dequeue(); // 從佇列取出下一句並顯示
-        UpdateBubbleVisibility(); // 更新泡泡/按鈕顯示狀態
+        PlayTypewriter(queuedLines.Dequeue()); // 逐字播放下一句
     }
 
     public void PlayLines(IEnumerable<string> lines) // 將一組句子放入佇列並從第一句開始播放
     {
+        if (dialogueTween != null) // 若有正在播放的舊對話
+        {
+            dialogueTween.Kill(false); // 直接結束
+            dialogueTween = null; // 清空參考
+            isTyping = false; // 重置狀態
+        }
+
+        if (dialogueText != null) // 清空舊文字
+        {
+            dialogueText.text = string.Empty;
+        }
         queuedLines.Clear(); // 清空舊的佇列（新對話會覆蓋舊對話）
         foreach (string line in lines) // 走訪每一句
         {
@@ -122,13 +157,32 @@ public class ElementSelectionGuideNPC : MonoBehaviour // 元素選擇教學 NPC�
         bool hasMoreLines = queuedLines.Count > 0; // 是否還有下一句可播
         if (nextButton != null) // 若下一句按鈕存在
         {
-            nextButton.gameObject.SetActive(hasMoreLines); // 有下一句才顯示按鈕，沒有就隱藏
+            bool canAdvanceOrSkip = hasMoreLines || isTyping; // 有下一句或正在逐字播放都顯示按鈕
+            nextButton.gameObject.SetActive(canAdvanceOrSkip); // 有下一句才顯示按鈕，沒有就隱藏
         }
 
         if (hideBubbleWhenEmpty && bubbleRoot != null) // 若啟用「沒內容就隱藏泡泡」且泡泡根物件存在
         {
-            bool hasContent = hasMoreLines || !string.IsNullOrEmpty(dialogueText?.text); // 有下一句或目前文字非空就算有內容
+            bool hasContent = hasMoreLines || isTyping || !string.IsNullOrEmpty(dialogueText?.text); // 有下一句、正在播放或目前文字非空就算有內容
             bubbleRoot.SetActive(hasContent); // 依是否有內容決定泡泡顯示/隱藏
         }
+    }
+
+    private void PlayTypewriter(string line) // 使用 DOTween 逐字顯示文字
+    {
+        isTyping = true; // 標記正在逐字播放
+        dialogueText.text = string.Empty; // 先清空
+
+        float duration = Mathf.Max(minTypewriterDuration, line.Length * typewriterDurationPerChar); // 根據字數決定動畫時間
+        dialogueTween = dialogueText // 對文字進行 tween
+            .DOText(line, duration, true, ScrambleMode.None) // 逐字顯示完整句子
+            .SetEase(typewriterEase) // 套用指定的 Ease
+            .OnComplete(() => // 播放完畢的回呼
+            {
+                isTyping = false; // 標記結束
+                UpdateBubbleVisibility(); // 更新按鈕/泡泡顯示
+            });
+
+        UpdateBubbleVisibility(); // 開始播放時立即刷新顯示狀態
     }
 }
