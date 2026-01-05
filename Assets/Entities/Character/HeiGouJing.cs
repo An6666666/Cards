@@ -1,194 +1,287 @@
-using System.Collections.Generic;                 // 引用泛型集合（List等）以管理分身清單
-using UnityEngine;                                // 引用 Unity API
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using DG.Tweening;
 
-public class HeiGouJing : Enemy                  // 黑狗精：繼承自 Enemy（共用血量、攻擊等基礎屬性與行為）
+public class HeiGouJing : Enemy
 {
-    [System.Serializable]                         // 讓內部結構可被序列化，顯示於 Inspector
-    private struct CloneSettings                  // 分身設定的資料群組（整理Inspector欄位）
+    [System.Serializable]
+    private struct CloneSettings
     {
-        [Min(0)] public int count;               // 分身數量（最小值0）
-        [Min(1)] public int maxHP;               // 分身最大生命（最小值1，避免0血無法存活）
-        [Min(0)] public int baseAttackDamage;    // 分身基礎攻擊（最小值0）
+        [Min(0)] public int count;
+        [Min(1)] public int maxHP;
+        [Min(0)] public int baseAttackDamage;
     }
 
-    [Header("黑狗精分身設定")]                     // Inspector 分組標題
+    [Header("黑狗精分身設定")]
     [SerializeField] private CloneSettings cloneSettings = new CloneSettings
     {
-        count = 2,                               // 預設分身數量：2
-        maxHP = 15,                              // 預設分身最大生命：15
-        baseAttackDamage = 5                     // 預設分身攻擊：5
+        count = 2,
+        maxHP = 15,
+        baseAttackDamage = 5
     };
 
-    private bool hasSplitTriggered = false;      // 是否已觸發過分裂（避免重複觸發）
-    private bool isClone = false;                // 這個實例是否為分身（true 表示分身）
-    private HeiGouJing originMain = null;        // 分身指向本體的參考（分身回報/銷毀時用）
-    private List<HeiGouJing> spawnedClones = new List<HeiGouJing>(); // 本體生成的分身清單（便於統一管理與回收）
+    [Header("Animator 參考")]
+    [SerializeField] private Animator bodyAnimator; // 指向真正播放 HeiGouJing_idle.controller 的 Animator
 
-#if UNITY_EDITOR                                  // 僅在編輯器環境下編譯
-    protected override void OnValidate()          // Inspector 變更時自動校正數值到安全範圍
+    private bool hasSplitTriggered = false;                 // 是否已觸發過分裂
+    private bool isClone = false;                           // 是否為分身
+    private HeiGouJing originMain = null;                   // 分身指向本體
+    private List<HeiGouJing> spawnedClones = new List<HeiGouJing>(); // 本體生成的分身清單
+    private bool hasBeenHitFlag = false;                    // 這個個體是否已完成「第一次受擊」狀態
+    private bool needPostSpawnHit = false;                  // 分身出生後要在下一幀強制播受擊（蓋掉出場）
+
+    private Coroutine markHitRoutine;
+
+#if UNITY_EDITOR
+    protected override void OnValidate()
     {
-        base.OnValidate();                        // 先讓父類確保必要元件存在
-        cloneSettings.count = Mathf.Max(0, cloneSettings.count);             // 分身數量下限0
-        cloneSettings.maxHP = Mathf.Max(1, cloneSettings.maxHP);             // 分身血量下限1
-        cloneSettings.baseAttackDamage = Mathf.Max(0, cloneSettings.baseAttackDamage); // 分身攻擊下限0
+        base.OnValidate();
+        cloneSettings.count = Mathf.Max(0, cloneSettings.count);
+        cloneSettings.maxHP = Mathf.Max(1, cloneSettings.maxHP);
+        cloneSettings.baseAttackDamage = Mathf.Max(0, cloneSettings.baseAttackDamage);
     }
 #endif
 
-    protected override void Awake()               // Unity 生命週期：初始化（在父類 Enemy.Awake 前後需注意順序）
+    protected override void Awake()
     {
-        enemyName = "黑狗精";                     // 設定敵人顯示名稱
-        base.Awake();                             // 呼叫父類 Awake（通常做屬性初始化/註冊等）
+        enemyName = "黑狗精";
+        base.Awake();
+
+        if (bodyAnimator == null) bodyAnimator = GetComponent<Animator>();
+        if (bodyAnimator == null) bodyAnimator = GetComponentInChildren<Animator>(true);
     }
 
-    public override void TakeDamage(int dmg)      // 受到一般傷害時的處理
+    private void Start()
     {
-        bool shouldSplit = ShouldTriggerSplit(dmg, false); // 預先判斷此擊是否應觸發分裂（一般傷害）
-        base.TakeDamage(dmg);                     // 先套用父類邏輯（包含扣血、格擋等）
-        if (shouldSplit && currentHP > 0)         // 若符合分裂條件且未被打死
-        {
-            TriggerSplit();                       // 觸發分裂（重置血量+瞬移+生分身）
-        }
+        // 只讓分身做一次「出生後強制受擊」
+        if (!isClone) return;
+        if (!needPostSpawnHit) return;
+
+        needPostSpawnHit = false;
+        StartCoroutine(PostSpawnForceFirstHit());
     }
 
-    public override void TakeTrueDamage(int dmg)  // 受到真實傷害時的處理（不經格擋）
+    public override void TakeDamage(int dmg)
     {
-        bool shouldSplit = ShouldTriggerSplit(dmg, true);  // 判斷真實傷害是否應觸發分裂
-        base.TakeTrueDamage(dmg);                 // 呼叫父類真實傷害處理
-        if (shouldSplit && currentHP > 0)         // 若符合分裂條件且仍存活
-        {
-            TriggerSplit();                       // 觸發分裂
-        }
+        bool shouldSplit = ShouldTriggerSplit(dmg, false);
+        int effectiveDamage = Mathf.Max(0, dmg - block);
+
+        base.TakeDamage(dmg);
+
+        if (effectiveDamage > 0 && currentHP > 0)
+            PlayHitAnimAndMarkFirst();
+
+        if (shouldSplit && currentHP > 0)
+            TriggerSplit();
     }
 
-    private bool ShouldTriggerSplit(int dmg, bool isTrueDamage) // 檢查這次受傷是否要觸發分裂
+    public override void TakeTrueDamage(int dmg)
     {
-        if (hasSplitTriggered || isClone || dmg <= 0)           // 已分裂過/這是分身/傷害<=0 → 不觸發
+        bool shouldSplit = ShouldTriggerSplit(dmg, true);
+
+        base.TakeTrueDamage(dmg);
+
+        if (dmg > 0 && currentHP > 0)
+            PlayHitAnimAndMarkFirst();
+
+        if (shouldSplit && currentHP > 0)
+            TriggerSplit();
+    }
+
+    private bool ShouldTriggerSplit(int dmg, bool isTrueDamage)
+    {
+        if (hasSplitTriggered || isClone || dmg <= 0)
             return false;
 
-        int effectiveDamage = isTrueDamage ? dmg : Mathf.Max(0, dmg - block); // 計算實際承受傷害（一般傷害扣掉block）
-        if (effectiveDamage <= 0)                             // 若被格擋吸收完，則不觸發
+        int effectiveDamage = isTrueDamage ? dmg : Mathf.Max(0, dmg - block);
+        if (effectiveDamage <= 0)
             return false;
 
-        int remainingHP = currentHP - effectiveDamage;        // 扣血後的剩餘生命
-        return remainingHP > 0;                               // 僅在「非致死」的情況才觸發分裂
+        int remainingHP = currentHP - effectiveDamage;
+        return remainingHP > 0;
     }
 
-    private void TriggerSplit()                    // 分裂行為本體：標記、回滿血、瞬移與產生分身
+    private void TriggerSplit()
     {
-        hasSplitTriggered = true;                  // 標記已分裂
-        currentHP = maxHP;                         // 回滿血（分裂後恢復戰力）
-        SpawnClonesAndTeleport();                  // 進行瞬移並在其他格生出分身
+        hasSplitTriggered = true;
+        currentHP = maxHP;
+        SpawnClonesAndTeleport();
     }
 
-    private void SpawnClonesAndTeleport()          // 找可用格 → 本體瞬移 → 依設定生成分身
+    private void SpawnClonesAndTeleport()
     {
-        Board board = FindObjectOfType<Board>();   // 取得棋盤（用於查詢座標、Tile等）
-        BattleManager battleManager = FindObjectOfType<BattleManager>(); // 取得戰鬥管理器（維護敵人清單）
-        if (board == null || battleManager == null) // 安全檢查（缺少必要系統就中止）
-            return;
+        Board board = FindObjectOfType<Board>();
+        BattleManager battleManager = FindObjectOfType<BattleManager>();
+        if (board == null || battleManager == null) return;
 
-        List<Vector2Int> availablePositions = board.GetAllPositions(); // 取得所有格座標（後續會過濾不可用）
-        Player player = FindObjectOfType<Player>(); // 找玩家（用於排除玩家所在格）
+        List<Vector2Int> availablePositions = board.GetAllPositions();
+
+        Player player = FindObjectOfType<Player>();
         if (player != null)
-        {
-            availablePositions.Remove(player.position);       // 移除玩家當前所在的網格（避免重疊）
-        }
+            availablePositions.Remove(player.position);
 
-        Enemy[] allEnemies = FindObjectsOfType<Enemy>();      // 找場上所有敵人
+        Enemy[] allEnemies = FindObjectsOfType<Enemy>();
         foreach (Enemy enemy in allEnemies)
         {
             if (enemy != null && enemy != this)
-            {
-                availablePositions.Remove(enemy.gridPosition); // 移除其他敵人所占用的格
-            }
+                availablePositions.Remove(enemy.gridPosition);
         }
 
-        availablePositions.Remove(gridPosition);               // 也移除自己目前所在格（避免瞬移回原地）
+        availablePositions.Remove(gridPosition);
 
-        if (availablePositions.Count == 0)                     // 若沒有空格可用就中止
-            return;
+        if (availablePositions.Count == 0) return;
 
-        Vector2Int newMainPos = PopRandomPosition(availablePositions); // 隨機挑一格做為本體的新位置
-        MoveToPosition(newMainPos);                           // 本體瞬移到新位置（請確保有更新佔位/動畫）
+        Vector3 originWorldPos = transform.position;
 
-        int clonesToSpawn = Mathf.Min(Mathf.Max(0, cloneSettings.count), availablePositions.Count); // 依剩餘空格量調整最終生成數
+        Vector2Int newMainPos = PopRandomPosition(availablePositions);
+        MoveToPosition(newMainPos);
+
+        int clonesToSpawn = Mathf.Min(Mathf.Max(0, cloneSettings.count), availablePositions.Count);
+
         for (int i = 0; i < clonesToSpawn; i++)
         {
-            Vector2Int clonePos = PopRandomPosition(availablePositions); // 為分身挑一個空格
-            BoardTile tile = board.GetTileAt(clonePos);                  // 取該格的Tile參考（以便拿世界座標/可走性）
-            if (tile == null)
-            {
-                continue;                                                // 找不到Tile就跳過
-            }
+            Vector2Int clonePos = PopRandomPosition(availablePositions);
+            BoardTile tile = board.GetTileAt(clonePos);
+            if (tile == null) continue;
 
-            HeiGouJing clone = Instantiate(this, tile.transform.position, Quaternion.identity); // 以「本體」為樣板生成一個分身實例
-            InitializeClone(clone, clonePos, battleManager);             // 初始化分身屬性、旗標、註冊到戰鬥
+            HeiGouJing clone = Instantiate(this, originWorldPos, Quaternion.identity);
+            InitializeClone(clone, clonePos, battleManager);
+
+            clone.transform
+                .DOMove(tile.transform.position, 0.25f)
+                .SetEase(Ease.OutQuad);
         }
     }
 
-    private void InitializeClone(HeiGouJing clone, Vector2Int clonePos, BattleManager battleManager) // 分身初始化
+    private void InitializeClone(HeiGouJing clone, Vector2Int clonePos, BattleManager battleManager)
     {
-        clone.hasSplitTriggered = true;                   // 分身不再允許觸發二次分裂
-        clone.isClone = true;                             // 標記此實例為分身
-        clone.originMain = this;                          // 分身回指向本體（銷毀時可回報）
-        clone.enemyName = "黑狗精分身";                  // 分身顯示名稱
-        clone.maxHP = Mathf.Max(1, cloneSettings.maxHP);  // 套用 clone 設定的最大生命（含下限保護）
-        clone.currentHP = clone.maxHP;                    // 分身生成時回滿血
-        clone.BaseAttackDamage = Mathf.Max(0, cloneSettings.baseAttackDamage); // 套用 clone 攻擊（含下限保護）
-        clone.block = 0;                                  // 分身初始格擋清零（避免繼承本體當前格擋）
-        clone.gridPosition = clonePos;                    // 設定分身的邏輯座標
-        clone.spawnedClones = new List<HeiGouJing>();     // 分身自身也擁有獨立清單（避免與本體共用狀態）
+        clone.hasSplitTriggered = true;                          // 分身不可再次分裂
+        clone.isClone = true;                                    // 標記為分身
+        clone.originMain = this;                                 // 指向本體
+        clone.enemyName = "黑狗精分身";
+
+        clone.maxHP = Mathf.Max(1, cloneSettings.maxHP);
+        clone.currentHP = clone.maxHP;
+        clone.BaseAttackDamage = Mathf.Max(0, cloneSettings.baseAttackDamage);
+        clone.block = 0;
+        clone.gridPosition = clonePos;
+
+        clone.spawnedClones = new List<HeiGouJing>();
         clone.SetHighlight(false);
 
-        if (!battleManager.enemies.Contains(clone))       // 確認未重複註冊
+        // 這裡是關鍵：分身是「新個體」，出生時強制當作「還沒受擊過」
+        // 這樣出生那一下 Hit 才會走 once_wounded，而不是 twice_wounded
+        clone.hasBeenHitFlag = false;
+
+        // 確保 clone 抓到正確 Animator
+        if (clone.bodyAnimator == null) clone.bodyAnimator = clone.GetComponentInChildren<Animator>(true);
+
+        if (clone.bodyAnimator != null)
         {
-            battleManager.enemies.Add(clone);             // 註冊到戰鬥管理器的敵人清單
+            clone.bodyAnimator.SetBool("HasBeenHit", false);     // 出生先固定走 once 分支
+            clone.bodyAnimator.ResetTrigger("Hit");
+            clone.bodyAnimator.ResetTrigger("Appear");           // 避免出場搶狀態
         }
 
-        RegisterClone(clone);                              // 本體把此分身加入自己的分身清單（便於回收管理）
+        // 註冊進 battleManager（讓分身進回合/AI/更新流程）
+        if (battleManager != null && !battleManager.enemies.Contains(clone))
+            battleManager.enemies.Add(clone);
+
+        // 本體記錄分身，方便本體死亡時回收
+        RegisterClone(clone);
+
+        // 讓分身在 Start 的下一幀強制播一次受擊（蓋掉通用出場動畫）
+        clone.needPostSpawnHit = true;
     }
 
-    private static Vector2Int PopRandomPosition(List<Vector2Int> positions) // 從清單中隨機取出一個座標並移除（不重複）
+    private IEnumerator PostSpawnForceFirstHit()
     {
-        int idx = Random.Range(0, positions.Count);       // 隨機索引
-        Vector2Int pos = positions[idx];                  // 取出座標
-        positions.RemoveAt(idx);                          // 從候選清單移除
-        return pos;                                       // 回傳該座標
+        // 等一幀：讓 Enemy.Start / OnEnable 之類通用流程先跑完（通常會觸發 Appear）
+        yield return null;
+
+        if (!isClone) yield break;
+        if (bodyAnimator == null) bodyAnimator = GetComponentInChildren<Animator>(true);
+        if (bodyAnimator == null) yield break;
+
+        // 分身出生目標：一定要播 once_wounded
+        hasBeenHitFlag = false;
+        bodyAnimator.SetBool("HasBeenHit", false);
+
+        bodyAnimator.ResetTrigger("Appear");
+        bodyAnimator.ResetTrigger("Hit");
+        bodyAnimator.SetTrigger("Hit"); // Any State → once_wounded（Hit + HasBeenHit=false）
+
+        // 再等一幀：讓受擊轉場吃到一次之後，把分身標記為已受擊，之後才會播 twice_wounded
+        yield return null;
+
+        hasBeenHitFlag = true;
+        bodyAnimator.SetBool("HasBeenHit", true);
     }
 
-    private void RegisterClone(HeiGouJing clone)          // 將分身加入本體的分身清單（去重）
+    private void PlayHitAnimAndMarkFirst()
     {
-        if (!spawnedClones.Contains(clone))               // 若尚未收錄
+        if (bodyAnimator == null) return;
+
+        bool wasHitBefore = hasBeenHitFlag;
+
+        bodyAnimator.SetBool("HasBeenHit", wasHitBefore);
+        bodyAnimator.ResetTrigger("Hit");
+        bodyAnimator.SetTrigger("Hit");
+
+        // 第一次受擊：下一幀才把狀態改成「已受擊」，避免轉場判定混亂
+        if (!wasHitBefore)
         {
-            spawnedClones.Add(clone);                     // 加入管理
+            if (markHitRoutine != null) StopCoroutine(markHitRoutine);
+            markHitRoutine = StartCoroutine(MarkHasBeenHitNextFrame());
         }
     }
 
-    private void UnregisterClone(HeiGouJing clone)        // 從本體的分身清單中移除指定分身
+    private IEnumerator MarkHasBeenHitNextFrame()
     {
-        spawnedClones.Remove(clone);                      // 移除（若不存在則無事發生）
+        yield return null;
+
+        hasBeenHitFlag = true;
+        if (bodyAnimator != null)
+            bodyAnimator.SetBool("HasBeenHit", true);
     }
 
-    private void OnDestroy()                              // 當此物件被銷毀時（可能是本體或分身）
+    private static Vector2Int PopRandomPosition(List<Vector2Int> positions)
     {
-        if (isClone)                                      // 如果是分身
+        int idx = Random.Range(0, positions.Count);
+        Vector2Int pos = positions[idx];
+        positions.RemoveAt(idx);
+        return pos;
+    }
+
+    private void RegisterClone(HeiGouJing clone)
+    {
+        if (!spawnedClones.Contains(clone))
+            spawnedClones.Add(clone);
+    }
+
+    private void UnregisterClone(HeiGouJing clone)
+    {
+        spawnedClones.Remove(clone);
+    }
+
+    private void OnDestroy()
+    {
+        if (isClone)
         {
-            if (originMain != null)                       // 且仍有指向本體
-            {
-                originMain.UnregisterClone(this);         // 通知本體把我從清單移除
-            }
-            return;                                       // 分身到此結束（不處理其他分身）
+            if (originMain != null)
+                originMain.UnregisterClone(this);
+            return;
         }
 
-        // 若是本體被銷毀：一併回收自己所生成的分身（避免留下孤兒物件）
         foreach (var clone in spawnedClones)
         {
             if (clone != null)
             {
-                clone.originMain = null;                  // 斷開分身對本體的引用
-                Destroy(clone.gameObject);                // 銷毀分身實體
+                clone.originMain = null;
+                Destroy(clone.gameObject);
             }
         }
-        spawnedClones.Clear();                            // 清空分身管理清單
+        spawnedClones.Clear();
     }
 }

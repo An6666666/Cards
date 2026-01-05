@@ -227,6 +227,8 @@ public class Enemy : MonoBehaviour
         set => baseAttackDamage = Mathf.Max(0, value);
     }
 
+    
+
     protected virtual int GetBaseAttackDamage()
     {
         return Mathf.Max(0, baseAttackDamage);

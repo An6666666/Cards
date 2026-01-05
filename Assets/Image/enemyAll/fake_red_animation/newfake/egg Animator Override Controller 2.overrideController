@@ -1,0 +1,13 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!221 &22100000
+AnimatorOverrideController:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: egg Animator Override Controller 2
+  m_Controller: {fileID: 9100000, guid: 0ef2f1cca0bc3dc42a84bf1663e43721, type: 2}
+  m_Clips:
+  - m_OriginalClip: {fileID: 7400000, guid: 30d3a4e6599dcdf408fcb5adabbc9480, type: 2}
+    m_OverrideClip: {fileID: 7400000, guid: 83900809ef4b10d4e9dc7da30b585f48, type: 2}

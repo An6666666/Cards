@@ -1,0 +1,13 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!221 &22100000
+AnimatorOverrideController:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: cow Animator Override Controller 1
+  m_Controller: {fileID: 9100000, guid: 39c922659dfad6e4490d9710892772b4, type: 2}
+  m_Clips:
+  - m_OriginalClip: {fileID: 7400000, guid: a5d3ebdc53918784e9a82c65e6905090, type: 2}
+    m_OverrideClip: {fileID: 7400000, guid: 83900809ef4b10d4e9dc7da30b585f48, type: 2}
