@@ -12,11 +12,11 @@ EditorBuildSettings:
     path: Assets/Scenes/TitleScene.unity
     guid: 73ad15aa2402a914aa3773fb98129cf2
   - enabled: 1
-    path: Assets/Scenes/TutorialScene.unity
-    guid: 5ef16a69bec10f646a928caadee18db3
-  - enabled: 1
     path: Assets/Scenes/ElementSelectScene.unity
     guid: ee5a9d4f6a530014ea8cbf0b739ace40
+  - enabled: 1
+    path: Assets/Scenes/ElementSelectScene 1.unity
+    guid: 40b20678b8b824c4f9ae5004b7a011d3
   - enabled: 1
     path: Assets/Scenes/RunScene.unity
     guid: 601c3919baa6a61408cbf66ce57ff640

@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic; // 使用泛型集合（List、Dictionary 等）
 using UnityEngine; // Unity 核心命名空間
 using DG.Tweening; // DOTween 動畫 tween 功能
@@ -35,6 +36,7 @@ public class StartingElementSelectionUI : MonoBehaviour // 起始元素選擇介
     [SerializeField] private Vector2 selectionRingPadding = new Vector2(12f, 12f); // 選擇環相對按鈕圖示的內外邊距
     [SerializeField] private Color startEnabledColor = new Color(0.2f, 0.6f, 0.2f); // 可開始時開始按鈕顏色（偏綠）
     [SerializeField] private Color startDisabledColor = new Color(0.5f, 0.5f, 0.5f); // 不可開始時開始按鈕顏色（灰色）
+    public event Action<ElementType> ElementSelected;
 
     private readonly List<ElementType> selectedElements = new List<ElementType>(3); // 已選取的元素清單（最多 3 個）
     private readonly Dictionary<ElementType, ElementButtonBinding> elementLookup = new Dictionary<ElementType, ElementButtonBinding>(); // 元素 -> 綁定資料 的查表字典
@@ -95,6 +97,7 @@ public class StartingElementSelectionUI : MonoBehaviour // 起始元素選擇介
         else if (selectedElements.Count < requiredSelections)
         {
             selectedElements.Add(element); // 就加入選取
+            ElementSelected?.Invoke(element);
         }
 
         RefreshButtonStates(); // 每次變更選取後刷新 UI 狀態
