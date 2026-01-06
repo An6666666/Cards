@@ -67,33 +67,32 @@ public class PlayerStats : MonoBehaviour
     }
 
     public void TakeDamage(int dmg)
-{
-    int incoming = dmg;
-    if (buffController.weak > 0) incoming += 2;
-
-    int reduced = incoming - buffController.meleeDamageReduce;
-    if (reduced < 0) reduced = 0;
-
-    float realDmgF = reduced * buffController.damageTakenRatio;
-    int realDmg = Mathf.CeilToInt(realDmgF);
-
-    int remain = realDmg - block;
-    if (remain > 0)
     {
-        block = 0;
-        currentHP -= remain;
+        int incoming = dmg;
+        if (buffController.weak > 0) incoming += 2;
 
-        // 先把血量夾到 0
-        if (currentHP < 0) currentHP = 0;
+        int reduced = incoming - buffController.meleeDamageReduce;
+        if (reduced < 0) reduced = 0;
 
-        //只要有扣到 HP（remain>0）就播受傷
-        owner?.PlayWoundedAnim();
+        float realDmgF = reduced * buffController.damageTakenRatio;
+        int realDmg = Mathf.CeilToInt(realDmgF);
+
+        int remain = realDmg - block;
+        if (remain > 0)
+        {
+            block = 0;
+            currentHP -= remain;
+
+            HandleFatalDamage();
+
+            //只要有扣到 HP（remain>0）就播受傷
+            owner?.PlayWoundedAnim();
+        }
+        else
+        {
+            block -= realDmg;
+        }
     }
-    else
-    {
-        block -= realDmg;
-    }
-}
 
 
     public void TakeDamageDirect(int dmg)
@@ -105,7 +104,7 @@ public class PlayerStats : MonoBehaviour
         }
 
         currentHP -= incoming;
-        if (currentHP <= 0) currentHP = 0;
+        HandleFatalDamage();
     }
 
     public void TakeStatusDamage(int dmg)
@@ -134,15 +133,29 @@ public class PlayerStats : MonoBehaviour
         if (remaining > 0)
         {
             currentHP -= remaining;
-            if (currentHP < 0)
-            {
-                currentHP = 0;
-            }
+            HandleFatalDamage();
         }
     }
 
     public void AddGold(int amount)
     {
         gold += amount;
+    }
+    private void HandleFatalDamage()
+    {
+        if (currentHP > 0)
+        {
+            return;
+        }
+
+        if (buffController != null && buffController.TryConsumeGuardianSpiritCharge(owner))
+        {
+            return;
+        }
+
+        if (currentHP < 0)
+        {
+            currentHP = 0;
+        }
     }
 }

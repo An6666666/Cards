@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 public class PlayerBuffController : MonoBehaviour
@@ -17,6 +18,7 @@ public class PlayerBuffController : MonoBehaviour
     public bool drawBlockedThisTurn = false;
     public int blockGainAtTurnEnd = 0;
     public bool retainBlockNextTurn = false;
+    private readonly List<GuardianSpiritCharge> guardianSpiritCharges = new List<GuardianSpiritCharge>();
 
     [SerializeField, HideInInspector] private int weakFromEnemies = 0;
     [SerializeField, HideInInspector] private int bleedFromEnemies = 0;
@@ -28,6 +30,68 @@ public class PlayerBuffController : MonoBehaviour
         nextAttackCostModify = 0;
         drawBlockedThisTurn = false;
         retainBlockNextTurn = false;
+    }
+
+    public void AddGuardianSpiritCharge(CardBase sourceCard, int blockGain)
+    {
+        if (sourceCard == null)
+        {
+            return;
+        }
+
+        guardianSpiritCharges.Add(new GuardianSpiritCharge
+        {
+            sourceCard = sourceCard,
+            blockGain = Mathf.Max(0, blockGain)
+        });
+    }
+
+    public bool TryConsumeGuardianSpiritCharge(Player owner)
+    {
+        if (owner == null || guardianSpiritCharges.Count == 0)
+        {
+            return false;
+        }
+
+        GuardianSpiritCharge charge = guardianSpiritCharges[0];
+        guardianSpiritCharges.RemoveAt(0);
+
+        owner.currentHP = Mathf.Max(1, owner.currentHP);
+
+        if (charge.blockGain > 0)
+        {
+            owner.AddBlock(charge.blockGain);
+        }
+
+        if (charge.sourceCard != null)
+        {
+            RemoveCardFromAllPiles(owner, charge.sourceCard);
+        }
+
+        return true;
+    }
+
+    public void RemoveCardFromAllPiles(Player owner, CardBase card)
+    {
+        if (owner == null || card == null)
+        {
+            return;
+        }
+
+        RemoveCardFromPile(owner.deck, card);
+        RemoveCardFromPile(owner.Hand, card);
+        RemoveCardFromPile(owner.discardPile, card);
+        RemoveCardFromPile(owner.exhaustPile, card);
+    }
+
+    private static void RemoveCardFromPile(List<CardBase> pile, CardBase card)
+    {
+        if (pile == null || card == null)
+        {
+            return;
+        }
+
+        pile.RemoveAll(c => ReferenceEquals(c, card));
     }
 
     public void OnTurnEndReset(Player owner)
@@ -176,5 +240,12 @@ public class PlayerBuffController : MonoBehaviour
         imprisonFromEnemies = 0;
         blockGainAtTurnEnd = 0;
         retainBlockNextTurn = false;
+        guardianSpiritCharges.Clear();
+    }
+
+    private struct GuardianSpiritCharge
+    {
+        public CardBase sourceCard;
+        public int blockGain;
     }
 }

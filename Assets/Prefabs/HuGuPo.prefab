@@ -743,7 +743,7 @@ MonoBehaviour:
   intentSkillSprite: {fileID: 21300000, guid: 2d3ae498f0f56334196de7e569e74672, type: 3}
   intentValueText: {fileID: 0}
   intentValueOffset: {x: 0.8, y: 0.1, z: 0}
-  highlightFx: {fileID: 0}
+  highlightFx: {fileID: 5292752513400009935}
   hoverIndicator2D: {fileID: 0}
   hoverIndicatorDelaySeconds: 0
   bleedDuration: 2
@@ -783,7 +783,7 @@ BoxCollider2D:
   m_IsTrigger: 0
   m_UsedByEffector: 0
   m_UsedByComposite: 0
-  m_Offset: {x: 2.3246384, y: 13.407237}
+  m_Offset: {x: 3.3213425, y: 14.3394165}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0, y: 0}
@@ -794,7 +794,7 @@ BoxCollider2D:
     adaptiveTiling: 0
   m_AutoTiling: 0
   serializedVersion: 2
-  m_Size: {x: 88.09651, y: 37.09083}
+  m_Size: {x: 99.65831, y: 40.073807}
   m_EdgeRadius: 0
 --- !u!114 &4165281424294799910
 MonoBehaviour:

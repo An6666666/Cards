@@ -1205,6 +1205,7 @@ MonoBehaviour:
   defaultShopInventory: {fileID: 11400000, guid: ccc2e199ec64b5242bff3f0f57551a60, type: 2}
   eventPool:
   - {fileID: 11400000, guid: 6839a1818d2963e4a80b5028db4dea5f, type: 2}
+  - {fileID: 11400000, guid: c6a80d82fbac77a43ad8b61481f582a9, type: 2}
   autoGenerateOnStart: 1
   connectionNeighborWindow: 3
   maxOutgoingPerNode: 4

@@ -1,0 +1,23 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 13ec2dbed0138aa41bee209376e36bd4, type: 3}
+  m_Name: Skill_WeiLingZhou
+  m_EditorClassIdentifier: 
+  cardName: "\u885B\u9748\u5492"
+  cost: 1
+  description: "\u9019\u5F35\u724C\u5F9E\u724C\u5EAB\u4E2D\u79FB\u9664\uFF0C\u7372\u5F97\u751F\u547D\u503C\u5C07\u964D\u81F3
+    0\u6642\uFF0C\u6539\u70BA\u964D\u81F3 1\uFF0C\u4E26\u589E\u52A010\u9EDE\u8B77\u7532\uFF0C\u89F8\u767C\u5F8C\u6D88\u8017\u6B64\u6548\u679C\u3002"
+  cardImage: {fileID: 21300000, guid: 2374a0131b4821b4daaa9631d4e5d272, type: 3}
+  exhaustOnUse: 1
+  shopPrice: 30
+  cardType: 1
+  blockOnTrigger: 10

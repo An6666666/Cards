@@ -22,13 +22,13 @@ MonoBehaviour:
     rewardCards:
     - {fileID: 11400000, guid: 6473b4799ec8542459f85042836e0f0e, type: 2}
     rewardRelics: []
-  - optionLabel: "\u9748\u9B42\u9707\u76EA"
+  - optionLabel: "\u9748\u9B42\u9707\u76EA(\u7372\u5F97\u9748\u9B42\u9707\u76EA(\u6280\u80FD\u724C)\uFF0C\u62637\u91D1\u5E63)"
     goldDelta: -7
     hpDelta: 0
     rewardCards:
-    - {fileID: 0}
+    - {fileID: 11400000, guid: ed8af5f3bf807bd4fb2318540cade604, type: 2}
     rewardRelics: []
-  - optionLabel: 
+  - optionLabel: "\u96E2\u958B"
     goldDelta: 0
     hpDelta: 0
     rewardCards: []
