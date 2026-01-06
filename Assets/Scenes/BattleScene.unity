@@ -6704,11 +6704,11 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 2733580285815805351, guid: eacfe748df31fe649bac4cba447f47e8, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 1
+      value: 1.008
       objectReference: {fileID: 0}
     - target: {fileID: 2733580285815805351, guid: eacfe748df31fe649bac4cba447f47e8, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 2
+      value: 1.99
       objectReference: {fileID: 0}
     - target: {fileID: 2733580285815805351, guid: eacfe748df31fe649bac4cba447f47e8, type: 3}
       propertyPath: m_LocalPosition.z
@@ -8106,7 +8106,7 @@ BoxCollider2D:
   m_IsTrigger: 0
   m_UsedByEffector: 0
   m_UsedByComposite: 0
-  m_Offset: {x: -2.679803, y: 20.833658}
+  m_Offset: {x: -0.6830063, y: 20.511595}
   m_SpriteTilingProperty:
     border: {x: 0.049999997, y: 0.049999997, z: 0.049999997, w: 0.049999997}
     pivot: {x: 0.5, y: 0.5}
@@ -8117,7 +8117,7 @@ BoxCollider2D:
     adaptiveTiling: 0
   m_AutoTiling: 0
   serializedVersion: 2
-  m_Size: {x: 28.354307, y: 48.09786}
+  m_Size: {x: 40.33509, y: 52.34911}
   m_EdgeRadius: 0
 --- !u!114 &1848671827
 MonoBehaviour:
@@ -8176,21 +8176,16 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   startingDeck: []
   debugStartingDeck:
-  - {fileID: 11400000, guid: 11d3cc5377d2ef3459a4b4380becefff, type: 2}
-  - {fileID: 11400000, guid: 9a5a37cfe6c1216448cd26bb8d654d24, type: 2}
-  - {fileID: 11400000, guid: a58c41531431ead4ebb45b0f3f038cbc, type: 2}
-  - {fileID: 11400000, guid: 4fd70894f3d5cb54388922c21a1e3c60, type: 2}
-  - {fileID: 11400000, guid: 9aaf3c9fe05acb3468a4b7d995117dd5, type: 2}
+  - {fileID: 11400000, guid: 6e46d5e13429d2742a580e16ec745461, type: 2}
+  - {fileID: 11400000, guid: 457225c57c6113a45b6c95acbbeb7819, type: 2}
+  - {fileID: 11400000, guid: 32277eccb8d3956468e42fc5b47021ea, type: 2}
+  - {fileID: 11400000, guid: 664f13210a5e2c848aa2479e3c84cace, type: 2}
+  - {fileID: 11400000, guid: d726acd4a0e501c459bd69bb79cf8a09, type: 2}
   - {fileID: 11400000, guid: 293e02d9acc286446b6512a991161eaf, type: 2}
   - {fileID: 11400000, guid: 69a0f11cbfbb26e498b55c8fd9783d21, type: 2}
   - {fileID: 11400000, guid: 9dd79a8ebbf6a8b419f2e132fefe0222, type: 2}
   - {fileID: 11400000, guid: bf7b25def5c8087448e32a965df46313, type: 2}
   - {fileID: 11400000, guid: 5e0f37164bedc0c40849be8d4a828656, type: 2}
-  - {fileID: 11400000, guid: 6473b4799ec8542459f85042836e0f0e, type: 2}
-  - {fileID: 11400000, guid: 4b17aca886ce6ff488b11e95c1291b15, type: 2}
-  - {fileID: 11400000, guid: 4b17aca886ce6ff488b11e95c1291b15, type: 2}
-  - {fileID: 11400000, guid: 4b17aca886ce6ff488b11e95c1291b15, type: 2}
-  - {fileID: 11400000, guid: 4b17aca886ce6ff488b11e95c1291b15, type: 2}
   useDebugDeck: 1
   startingDeckDefinition: {fileID: 11400000, guid: 1ce8022936a74184fb5e02c6c0afbb04, type: 2}
   exhaustCountThisTurn: 0

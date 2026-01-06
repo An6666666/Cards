@@ -93,6 +93,8 @@ public class MapNodeData
 // 這是整個跑團流程的核心控制器
 public class RunManager : MonoBehaviour
 {
+    private const int RestHealAmount = 30;
+
     // 單例，讓別的場景也能直接 RunManager.Instance 拿到
     public static RunManager Instance { get; private set; }
 
@@ -100,6 +102,7 @@ public class RunManager : MonoBehaviour
     [SerializeField] private string runSceneName = "RunScene";       // 地圖場景名稱
     [SerializeField] private string battleSceneName = "BattleScene"; // 戰鬥場景名稱
     [SerializeField] private string shopSceneName = "ShopScene";     // 商店場景名稱
+    [SerializeField] private string deathReturnSceneName = "";       // 玩家死亡後要回到的場景名稱（預設回地圖）
     [SerializeField] private RunEventUIManager eventUIManager;        // 事件彈窗管理器
 
     [Header("Map Generation")]
@@ -186,7 +189,7 @@ public class RunManager : MonoBehaviour
             minBranchingNodesPerFloor: minBranchingNodesPerFloor,
             maxBranchingNodesPerFloor: maxBranchingNodesPerFloor,
             featureFlags: generationFeatureFlags);
-        sceneRouter = new RunSceneRouter(runSceneName, battleSceneName, shopSceneName);
+        sceneRouter = new RunSceneRouter(runSceneName, battleSceneName, shopSceneName, deathReturnSceneName);
         eventResolver = new RunEventResolver(eventUIManager);
     }
 
@@ -312,6 +315,7 @@ public class RunManager : MonoBehaviour
         }
         else if (node.NodeType == MapNodeType.Rest)
         {
+            ApplyRestEffect();
             CompleteActiveNodeWithoutBattle();
         }
         else
@@ -368,7 +372,7 @@ public class RunManager : MonoBehaviour
     public void HandleBattleDefeat()
     {
         ResetRun();     // 把整個 run 重置
-        sceneRouter.LoadRunScene(); // 回到地圖場景重新開始
+        sceneRouter.LoadDeathReturnScene(); // 回到設定的場景（預設地圖）重新開始
     }
 
     // 戰鬥 / 商店 / 事件做完，要回到地圖時呼叫這個
@@ -420,5 +424,49 @@ public class RunManager : MonoBehaviour
             return;
 
         snapshot.ApplyTo(target);
+    }
+    private void ApplyRestEffect()
+    {
+        if (player != null)
+        {
+            int healedHP = Mathf.Clamp(player.currentHP + RestHealAmount, 0, player.maxHP);
+            player.currentHP = healedHP;
+            currentRunSnapshot = PlayerRunSnapshot.Capture(player);
+            eventResolver.CurrentRunSnapshot = currentRunSnapshot;
+            return;
+        }
+
+        EnsureCurrentRunSnapshot();
+        if (currentRunSnapshot == null)
+            return;
+
+        int clampedHp = Mathf.Clamp(currentRunSnapshot.currentHP + RestHealAmount, 0, currentRunSnapshot.maxHP);
+        currentRunSnapshot.currentHP = clampedHp;
+        eventResolver.CurrentRunSnapshot = currentRunSnapshot;
+    }
+
+    private void EnsureCurrentRunSnapshot()
+    {
+        if (currentRunSnapshot != null)
+            return;
+
+        if (player != null)
+        {
+            currentRunSnapshot = PlayerRunSnapshot.Capture(player);
+            return;
+        }
+
+        if (initialPlayerSnapshot != null)
+        {
+            currentRunSnapshot = initialPlayerSnapshot.Clone();
+            return;
+        }
+
+        currentRunSnapshot = new PlayerRunSnapshot
+        {
+            deck = new List<CardBase>(),
+            relics = new List<CardBase>(),
+            exhaustPile = new List<CardBase>()
+        };
     }
 }

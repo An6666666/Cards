@@ -909,7 +909,7 @@ MonoBehaviour:
   nextSceneName: ElementSelectScene
   newSceneName: ElementSelectScene 1
   startButton: {fileID: 763773432}
-  newButton: {fileID: 0}
+  newButton: {fileID: 443978317}
   quitButton: {fileID: 1788322919}
 --- !u!4 &1141297844
 Transform:

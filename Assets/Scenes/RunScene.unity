@@ -2377,7 +2377,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &1731840767
 RectTransform:
   m_ObjectHideFlags: 0
@@ -2736,9 +2736,9 @@ MonoBehaviour:
   bgRect: {fileID: 861074493}
   legendPanel: {fileID: 69363365}
   floorSpacing: 200
-  nodeSpacing: 300
+  nodeSpacing: 250
   connectionThickness: 8
-  horizontalPositionJitter: 60
+  horizontalPositionJitter: 55
   verticalPositionJitter: 40
   connectionAnchorJitter: 20
   topPadding: 0
