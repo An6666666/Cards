@@ -2,6 +2,40 @@ using System.Collections;                     // 引用非泛型集合命名空�
 using System.Collections.Generic;             // 引用泛型集合命名空間（如 List<T>、Dictionary<TKey,TValue>）
 using UnityEngine;                            // 引用 Unity 的核心 API（如 MonoBehaviour、GameObject、Mathf 等）
 
+internal static class ElementReactionOrderHelper
+{
+    public static ElementType? GetLatestReactiveTag(Enemy defender, ElementType[] candidates)
+    {
+        if (defender == null || candidates == null || candidates.Length == 0)
+        {
+            return null;
+        }
+
+        foreach (var tag in defender.GetElementTagsByRecentOrder())
+        {
+            if (Contains(candidates, tag))
+            {
+                return tag;
+            }
+        }
+
+        return null;
+    }
+
+    private static bool Contains(ElementType[] candidates, ElementType tag)
+    {
+        for (int i = 0; i < candidates.Length; i++)
+        {
+            if (candidates[i] == tag)
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+}
+
 public interface IElementalStrategy            // 宣告元素策略介面：定義所有元素計算傷害時必須實作的方法
 {                                              // 介面區塊開始
     int CalculateDamage(Player attacker, Enemy defender, int baseDamage); // 計算傷害的方法：輸入攻擊者、被攻擊者與基礎傷害，回傳實際傷害值
@@ -25,25 +59,29 @@ public class FireStrategy : DefaultElementalStrategy, IStartOfTurnEffect // 火�
     {                                          // 方法區塊開始
         int dmg = baseDamage;                  // 先以基礎傷害為起點，之後依反應再修正
 
-        if (defender.HasElement(ElementType.Water))              // 若防守者身上有水元素
+        ElementType? latestReactive = ElementReactionOrderHelper.GetLatestReactiveTag(
+        defender,
+        new[] { ElementType.Water, ElementType.Ice, ElementType.Wood, ElementType.Thunder });
+
+        if (latestReactive == ElementType.Water)              // 若防守者身上有水元素
         {                                                        // if 區塊開始
             dmg = Mathf.CeilToInt(baseDamage * 1.5f);            // 火遇水：提高傷害 1.5 倍並無條件進位
             defender.RemoveElementTag(ElementType.Water);        // 移除水標記
             defender.AddElementTag(ElementType.Fire);            // 新增火標記（表示被火附著）
         }                                                        // if 區塊結束
-        else if (defender.HasElement(ElementType.Ice))           // 否則若有冰元素
+        else if (latestReactive == ElementType.Ice)           // 否則若有冰元素
         {                                                        // else if 區塊開始
             dmg = Mathf.CeilToInt(baseDamage * 1.5f);            // 火融冰：同樣 1.5 倍傷害
             defender.RemoveElementTag(ElementType.Ice);          // 移除冰標記
             defender.AddElementTag(ElementType.Fire);            // 加上火標記
         }                                                        // else if 區塊結束
-        else if (defender.HasElement(ElementType.Wood))          // 若有木元素
+        else if (latestReactive == ElementType.Wood)          // 若有木元素
         {                                                        // else if 區塊開始
             defender.burningTurns = 5;                           // 點燃木頭：設定燃燒持續 5 回合
             defender.AddElementTag(ElementType.Fire);            // 加上火標記（燃燒來源）
             defender.AddElementTag(ElementType.Wood);            // 保留木標記（表示木仍存在，被火影響）
         }                                                        // else if 區塊結束
-        else if (defender.HasElement(ElementType.Thunder))       // 若有雷元素
+        else if (latestReactive == ElementType.Thunder)       // 若有雷元素
         {                                                        // else if 區塊開始
             ElementType keep = ElementType.Fire;                 // 反應後保留的元素：火
             ElementType remove = ElementType.Thunder;            // 反應後要移除的元素：雷
@@ -80,25 +118,29 @@ public class FireStrategy : DefaultElementalStrategy, IStartOfTurnEffect // 火�
 
     private void ApplyFireSpreadReaction(Enemy enemy, ref int dmg)
     {
-        if (enemy.HasElement(ElementType.Water))
+        ElementType? latestReactive = ElementReactionOrderHelper.GetLatestReactiveTag(
+        enemy,
+        new[] { ElementType.Water, ElementType.Ice, ElementType.Wood, ElementType.Thunder });
+
+        if (latestReactive == ElementType.Water)
         {
             dmg = Mathf.CeilToInt(dmg * 1.5f);
             enemy.RemoveElementTag(ElementType.Water);
             enemy.AddElementTag(ElementType.Fire);
         }
-        else if (enemy.HasElement(ElementType.Ice))
+        else if (latestReactive == ElementType.Ice)
         {
             dmg = Mathf.CeilToInt(dmg * 1.5f);
             enemy.RemoveElementTag(ElementType.Ice);
             enemy.AddElementTag(ElementType.Fire);
         }
-        else if (enemy.HasElement(ElementType.Wood))
+        else if (latestReactive == ElementType.Wood)
         {
             enemy.burningTurns = 5;
             enemy.AddElementTag(ElementType.Fire);
             enemy.AddElementTag(ElementType.Wood);
         }
-        else if (enemy.HasElement(ElementType.Thunder))
+        else if (latestReactive == ElementType.Thunder)
         {
             enemy.RemoveElementTag(ElementType.Thunder);
             enemy.AddElementTag(ElementType.Fire);
@@ -130,13 +172,17 @@ public class WaterStrategy : DefaultElementalStrategy            // 水元素策
     {                                                            // 方法區塊開始
         int dmg = baseDamage;                                    // 基礎傷害起點
 
-        if (defender.HasElement(ElementType.Fire))               // 水剋火：若對方有火
+        ElementType? latestReactive = ElementReactionOrderHelper.GetLatestReactiveTag(
+        defender,
+        new[] { ElementType.Fire, ElementType.Ice });
+
+        if (latestReactive == ElementType.Fire)               // 水剋火：若對方有火
         {                                                        // if 區塊開始
             dmg = Mathf.CeilToInt(baseDamage * 1.5f);            // 傷害 1.5 倍
             defender.RemoveElementTag(ElementType.Fire);         // 移除火標記
             defender.AddElementTag(ElementType.Water);           // 加上水標記
         }                                                        // if 區塊結束
-        else if (defender.HasElement(ElementType.Ice))           // 水 + 冰：凍結判定
+        else if (latestReactive == ElementType.Ice)           // 水 + 冰：凍結判定
         {                                                        // else if 區塊開始
             bool freeze = true;                                  // 預設會凍結
             if (defender.isBoss && UnityEngine.Random.value < 0.5f) // 若是 Boss，有 50% 免疫凍結（隨機）
@@ -178,7 +224,10 @@ public class ThunderStrategy : DefaultElementalStrategy          // 雷元素策
         Board board = GameObject.FindObjectOfType<Board>();      // 快取場上的棋盤
         Enemy[] allEnemies = GameObject.FindObjectsOfType<Enemy>(); // 快取所有敵人，避免重複搜尋
 
-         bool defenderHasWaterTag = defender.HasElement(ElementType.Water); // 防守者是否帶有水元素標籤
+        ElementType? latestReactive = ElementReactionOrderHelper.GetLatestReactiveTag(
+        defender,
+        new[] { ElementType.Fire, ElementType.Water, ElementType.Ice, ElementType.Wood });
+        bool defenderHasWaterTag = defender.HasElement(ElementType.Water); // 防守者是否帶有水元素標籤
         bool defenderOnWaterTile = false;                        // 防守者腳下的格子是否帶有水元素
 
         if (board != null)                                       // 需要棋盤資訊才能檢查格子元素
@@ -187,7 +236,7 @@ public class ThunderStrategy : DefaultElementalStrategy          // 雷元素策
             defenderOnWaterTile = defenderTile != null && defenderTile.HasElement(ElementType.Water); // 判斷格子是否帶水
         }
 
-        if (defender.HasElement(ElementType.Fire))               // 雷 + 火：擴散到周圍（與火類似，但元素交換不同）
+        if (latestReactive == ElementType.Fire)               // 雷 + 火：擴散到周圍（與火類似，但元素交換不同）
         {                                                        // if 區塊開始
             ElementType keep = ElementType.Thunder;              // 保留雷
             ElementType remove = ElementType.Fire;               // 移除火
@@ -208,7 +257,7 @@ public class ThunderStrategy : DefaultElementalStrategy          // 雷元素策
             defender.RemoveElementTag(remove);                   // 移除本體火
             defender.AddElementTag(keep);                        // 本體加雷
         }                                                        // if 區塊結束
-        else if (defenderHasWaterTag || defenderOnWaterTile)     // 雷 + 水：導電擴散，判斷敵人是否帶水或站在水格
+        else if (latestReactive == ElementType.Water || (latestReactive == null && defenderOnWaterTile))     // 雷 + 水：導電擴散，判斷敵人是否帶水或站在水格
         {                                                        // else if 區塊開始
             if (board != null)                                   // 需要棋盤資訊才能追蹤水元素連鎖
             {                                                    // if 區塊開始
@@ -265,19 +314,11 @@ public class ThunderStrategy : DefaultElementalStrategy          // 雷元素策
                         en.TakeDamage(baseDamage);               // 造成基礎傷害
                 }                                                // foreach 區塊結束
             }                                                    // else 區塊結束
-            defender.AddElementTag(ElementType.Thunder);         // 本體附著雷
+            defender.AddElementTag(ElementType.Thunder); // 以導電結果為主，若沒有其他反應則附著雷
         }                                                        // else if 區塊結束
-        else if (defender.HasElement(ElementType.Wood))          // 雷 + 木：觸發雷擊 double 狀態
+        else if (TryApplyThunderReactionWithoutWater(defender, false, latestReactive, ref dmg)) // 先檢查冰/木組合（依最新附著順序）
         {                                                        // else if 區塊開始
-            defender.thunderstrike = true;                       // 設定雷擊加倍旗標
-            defender.RemoveElementTag(ElementType.Wood);         // 移除木
-            defender.RemoveElementTag(ElementType.Thunder);      // 移除雷（反應後消失）
-        }                                                        // else if 區塊結束
-        else if (defender.HasElement(ElementType.Ice))           // 雷 + 冰：觸發超導（增加固定傷害）
-        {                                                        // else if 區塊開始
-            defender.superconduct = true;                        // 打開超導旗標
-            defender.RemoveElementTag(ElementType.Thunder);      // 移除雷
-            defender.RemoveElementTag(ElementType.Ice);          // 移除冰
+            // 反應處理已在 helper 內完成
         }                                                        // else if 區塊結束
         else                                                     // 沒有特別反應
         {                                                        // else 區塊開始
@@ -301,35 +342,67 @@ public class ThunderStrategy : DefaultElementalStrategy          // 雷元素策
 
     private void ApplyThunderSpreadReaction(Enemy enemy, ref int dmg)
     {
-        if (enemy.HasElement(ElementType.Water))
+        ElementType? latestReactive = ElementReactionOrderHelper.GetLatestReactiveTag(
+        enemy,
+        new[] { ElementType.Fire, ElementType.Water, ElementType.Ice, ElementType.Wood });
+
+        if (latestReactive == ElementType.Water)
         {
             enemy.TakeDamage(dmg);
-            enemy.AddElementTag(ElementType.Thunder);
             dmg = 0; // 已經處理傷害，避免重複
+            bool reacted = TryApplyThunderReactionWithoutWater(enemy, true, latestReactive, ref dmg); // 水導電後檢查冰/木
+            if (!reacted) enemy.AddElementTag(ElementType.Thunder); // 無反應才附著雷
+            return;
         }
-        else if (enemy.HasElement(ElementType.Wood))
-        {
-            enemy.thunderstrike = true;
-            enemy.RemoveElementTag(ElementType.Wood);
-            enemy.RemoveElementTag(ElementType.Thunder);
-            dmg = 0; // 反應後不再套用 spread 傷害
-        }
-        else if (enemy.HasElement(ElementType.Ice))
-        {
-            enemy.superconduct = true;
-            enemy.RemoveElementTag(ElementType.Thunder);
-            enemy.RemoveElementTag(ElementType.Ice);
-            dmg = 0; // 反應後不再套用 spread 傷害
-        }
-        else if (enemy.HasElement(ElementType.Fire))
+        if (latestReactive == ElementType.Fire)
         {
             enemy.RemoveElementTag(ElementType.Fire);
             enemy.AddElementTag(ElementType.Thunder);
+            return;
         }
-        else
+        if (TryApplyThunderReactionWithoutWater(enemy, true, latestReactive, ref dmg))
         {
-            enemy.AddElementTag(ElementType.Thunder);
+            return;
         }
+
+        if (dmg == 0) return;
+
+        enemy.AddElementTag(ElementType.Thunder);
+    }
+
+    /// <summary>
+    /// 處理雷元素與非水元素（冰或木）的組合反應。
+    /// </summary>
+    /// <param name="target">要處理的目標敵人。</param>
+    /// <param name="zeroDamageOnReact">若發生反應，是否將當前傷害歸零（spread 版本需要）。</param>
+    /// <param name="latestReactive">外部已計算好的最新可反應元素，若為 null 則在此計算。</param>
+    /// <param name="dmg">傳入的傷害引用，視情況可能被重設。</param>
+    /// <returns>若有發生反應則回傳 true。</returns>
+    private static bool TryApplyThunderReactionWithoutWater(Enemy target, bool zeroDamageOnReact, ElementType? latestReactive, ref int dmg)
+    {
+        ElementType? reactive = latestReactive ?? ElementReactionOrderHelper.GetLatestReactiveTag(
+        target,
+        new[] { ElementType.Ice, ElementType.Wood });
+
+        if (reactive == ElementType.Ice)
+        {
+            target.superconduct = true;
+            target.RemoveElementTag(ElementType.Thunder);
+            target.RemoveElementTag(ElementType.Ice);
+            if (zeroDamageOnReact) dmg = 0;
+            return true;
+        }
+
+        if (reactive == ElementType.Wood)
+        {
+            target.thunderstrike = true;
+            target.RemoveElementTag(ElementType.Wood);
+            target.RemoveElementTag(ElementType.Thunder);
+            if (zeroDamageOnReact) dmg = 0;
+            return true;
+        }
+
+        return false;
     }
 }                                                                // 類別區塊結束
 
@@ -339,13 +412,17 @@ public class IceStrategy : DefaultElementalStrategy              // 冰元素策
     {                                                            // 方法區塊開始
         int dmg = baseDamage;                                    // 基礎傷害
 
-        if (defender.HasElement(ElementType.Fire))               // 冰 + 火：互剋（實作為 1.5 倍並覆蓋火）
+        ElementType? latestReactive = ElementReactionOrderHelper.GetLatestReactiveTag(
+        defender,
+        new[] { ElementType.Fire, ElementType.Water, ElementType.Thunder });
+
+        if (latestReactive == ElementType.Fire)               // 冰 + 火：互剋（實作為 1.5 倍並覆蓋火）
         {                                                        // if 區塊開始
             dmg = Mathf.CeilToInt(baseDamage * 1.5f);            // 1.5 倍傷害
             defender.RemoveElementTag(ElementType.Fire);         // 移除火
             defender.AddElementTag(ElementType.Ice);             // 附著冰
         }                                                        // if 區塊結束
-        else if (defender.HasElement(ElementType.Water))         // 冰 + 水：凍結機率判定
+        else if (latestReactive == ElementType.Water)         // 冰 + 水：凍結機率判定
         {                                                        // else if 區塊開始
             bool freeze = true;                                  // 預設凍結
             if (defender.isBoss && UnityEngine.Random.value < 0.5f) // Boss 有 50% 免疫
@@ -354,7 +431,7 @@ public class IceStrategy : DefaultElementalStrategy              // 冰元素策
             defender.RemoveElementTag(ElementType.Ice);          // 清除冰
             defender.RemoveElementTag(ElementType.Water);        // 清除水
         }                                                        // else if 區塊結束
-        else if (defender.HasElement(ElementType.Thunder))       // 冰 + 雷：超導
+        else if (latestReactive == ElementType.Thunder)       // 冰 + 雷：超導
         {                                                        // else if 區塊開始
             defender.superconduct = true;                        // 開啟超導
             defender.RemoveElementTag(ElementType.Thunder);      // 移除雷
@@ -386,7 +463,18 @@ public class IceStrategy : DefaultElementalStrategy              // 冰元素策
             if (enemy == defender) continue;
             if (Vector2Int.Distance(enemy.gridPosition, defender.gridPosition) <= 2.3f)
             {
-                if (enemy.HasElement(ElementType.Water))
+                ElementType? latestReactive = ElementReactionOrderHelper.GetLatestReactiveTag(
+                enemy,
+                new[] { ElementType.Fire, ElementType.Water, ElementType.Thunder });
+
+                if (latestReactive == ElementType.Thunder)
+                {
+                    enemy.superconduct = true;
+                    enemy.RemoveElementTag(ElementType.Thunder);
+                    enemy.RemoveElementTag(ElementType.Ice);
+                    continue;
+                }
+                if (latestReactive == ElementType.Water)
                 {
                     bool freeze = true;
                     if (enemy.isBoss && UnityEngine.Random.value < 0.5f)
@@ -394,6 +482,12 @@ public class IceStrategy : DefaultElementalStrategy              // 冰元素策
                     if (freeze) enemy.frozenTurns = 1;
                     enemy.RemoveElementTag(ElementType.Ice);
                     enemy.RemoveElementTag(ElementType.Water);
+                    continue;
+                }
+                if (latestReactive == ElementType.Fire)
+                {
+                    enemy.RemoveElementTag(ElementType.Fire);
+                    enemy.AddElementTag(ElementType.Ice);
                     continue;
                 }
                 enemy.AddElementTag(ElementType.Ice);
@@ -409,13 +503,17 @@ public class WoodStrategy : DefaultElementalStrategy             // 木元素策
     {                                                            // 方法區塊開始
         int dmg = baseDamage;                                    // 基礎傷害
 
-        if (defender.HasElement(ElementType.Fire))               // 木 + 火：引燃木頭（燃燒）
+        ElementType? latestReactive = ElementReactionOrderHelper.GetLatestReactiveTag(
+        defender,
+        new[] { ElementType.Fire, ElementType.Thunder });
+
+        if (latestReactive == ElementType.Fire)               // 木 + 火：引燃木頭（燃燒）
         {                                                        // if 區塊開始
             defender.burningTurns = 5;                           // 設定 5 回合燃燒
             defender.AddElementTag(ElementType.Fire);            // 附著火
             defender.AddElementTag(ElementType.Wood);            // 保留木（表示燃燒木頭）
         }                                                        // if 區塊結束
-        else if (defender.HasElement(ElementType.Thunder))       // 木 + 雷：雷擊加倍狀態
+        else if (latestReactive == ElementType.Thunder)       // 木 + 雷：雷擊加倍狀態
         {                                                        // else if 區塊開始
             defender.thunderstrike = true;                       // 開啟雷擊加倍
             defender.RemoveElementTag(ElementType.Wood);         // 移除木

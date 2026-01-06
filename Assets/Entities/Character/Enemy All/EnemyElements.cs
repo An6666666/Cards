@@ -5,6 +5,7 @@ public class EnemyElements : MonoBehaviour
 {
     private Enemy enemy;
     private HashSet<ElementType> elementTags = new HashSet<ElementType>();
+    private readonly List<ElementType> elementOrder = new List<ElementType>(); // 紀錄元素附著的先後順序（後加入的在尾端）
 
     public void Init(Enemy owner)
     {
@@ -18,8 +19,19 @@ public class EnemyElements : MonoBehaviour
 
     public void AddElementTag(ElementType e)
     {
-        if (elementTags.Add(e))
+        bool addedNew = elementTags.Add(e);
+
+        // 重新調整加入順序，確保最新附著的元素在列表尾端
+        elementOrder.Remove(e);
+        elementOrder.Add(e);
+
+        if (addedNew)
         {
+            enemy?.RaiseElementTagsChanged();
+        }
+        else
+        {
+            // 即便元素已存在，重設附著時間也可能影響反應優先度，通知 UI 更新
             enemy?.RaiseElementTagsChanged();
         }
     }
@@ -28,6 +40,7 @@ public class EnemyElements : MonoBehaviour
     {
         if (elementTags.Remove(e))
         {
+            elementOrder.Remove(e);
             enemy?.RaiseElementTagsChanged();
         }
     }
@@ -35,6 +48,17 @@ public class EnemyElements : MonoBehaviour
     public IEnumerable<ElementType> GetElementTags()
     {
         return elementTags;
+    }
+
+    /// <summary>
+    /// 依照附著順序（最新在前）回傳元素列表，供反應判斷使用。
+    /// </summary>
+    public IEnumerable<ElementType> GetElementTagsByRecentOrder()
+    {
+        for (int i = elementOrder.Count - 1; i >= 0; i--)
+        {
+            yield return elementOrder[i];
+        }
     }
 
     public int ApplyElementalAttack(ElementType e, int baseDamage, Player player)
@@ -60,10 +84,14 @@ public class EnemyElements : MonoBehaviour
     public void SetInitialTags(IEnumerable<ElementType> existing)
     {
         elementTags.Clear();
+        elementOrder.Clear();
         if (existing == null) return;
         foreach (var tag in existing)
         {
-            elementTags.Add(tag);
+            if (elementTags.Add(tag))
+            {
+                elementOrder.Add(tag);
+            }
         }
     }
 }

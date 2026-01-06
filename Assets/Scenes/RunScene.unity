@@ -1183,6 +1183,7 @@ MonoBehaviour:
   runSceneName: RunScene
   battleSceneName: BattleScene
   shopSceneName: ShopScene
+  deathReturnSceneName: TitleScene
   eventUIManager: {fileID: 1731840768}
   floorCount: 16
   minNodesPerFloor: 3

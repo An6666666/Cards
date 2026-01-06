@@ -211,6 +211,11 @@ public class Enemy : MonoBehaviour
         return elements != null ? elements.GetElementTags() : Array.Empty<ElementType>();
     }
 
+    public IEnumerable<ElementType> GetElementTagsByRecentOrder()
+    {
+        return elements != null ? elements.GetElementTagsByRecentOrder() : Array.Empty<ElementType>();
+    }
+    
     public int ApplyElementalAttack(ElementType e, int baseDamage, Player player)
     {
         return elements != null ? elements.ApplyElementalAttack(e, baseDamage, player) : baseDamage;
