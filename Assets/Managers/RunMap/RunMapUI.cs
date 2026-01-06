@@ -56,10 +56,10 @@ public class RunMapUI : MonoBehaviour
     private readonly Dictionary<MapNodeData, Button> nodeButtons = new Dictionary<MapNodeData, Button>();
     private float refreshTimer;
     private bool _hasBuilt;
-private float _builtMinY;
-private float _builtMaxY;
+    private float _builtMinY;
+    private float _builtMaxY;
 
-private float _currentShiftY;
+    private float _currentShiftY;
 
 
     private void Awake()

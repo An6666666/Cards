@@ -82,6 +82,7 @@ public class PlayerStatusPanel_Text : MonoBehaviour
         AddIntEffect(positive, "近戰傷害減免", buffs.meleeDamageReduce);
         AddIntEffect(positive, "回合結束獲得格擋", buffs.blockGainAtTurnEnd);
         AddBoolEffect(positive, "格擋保留到下回合", buffs.retainBlockNextTurn);
+        AddGuardianSpiritEffect(positive);
 
         // ====== Mixed modifiers (depends on sign) ======
         AddSignedIntEffect(positive, negative, "下次攻擊耗能", buffs.nextAttackCostModify, positiveWhenNegative: true);
@@ -136,6 +137,16 @@ public class PlayerStatusPanel_Text : MonoBehaviour
     {
         if (onlyIfNotDefault && Mathf.Approximately(value, defaultValue) && !showZeroEffects) return;
         list.Add($"{name} {value.ToString($"F{floatDigits}")}");
+    }
+
+    private void AddGuardianSpiritEffect(List<string> list)
+    {
+        if (buffs == null) return;
+        int count = buffs.GuardianSpiritChargeCount;
+        if (!showZeroEffects && count == 0) return;
+
+        string blockText = buffs.GuardianSpiritBlockGain > 0 ? $"（觸發獲得護甲 {buffs.GuardianSpiritBlockGain}）" : string.Empty;
+        list.Add($"免死 {count}{blockText}");
     }
 
     private int TryGetInt(object obj, params string[] possibleNames)

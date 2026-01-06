@@ -1180,26 +1180,26 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fe999cc78060d0249994d9aef84e95d2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  mapConfig: {fileID: 11400000, guid: ab15ed3f57170314081206fb9065f520, type: 2}
-  runSceneName: RunScene
+  mapConfig: {fileID: 11400000, guid: 3c2e523bade44b54aa2b48dd23ceda68, type: 2}
+  runSceneName: RunScene 1
   battleSceneName: BattleScene
   shopSceneName: ShopScene
   deathReturnSceneName: TitleScene
   eventUIManager: {fileID: 1731840768}
-  floorCount: 16
-  minNodesPerFloor: 3
-  maxNodesPerFloor: 6
-  eventRate: 0.14
-  shopRate: 0.14
-  eliteBattleRate: 0.09
-  shopMin: 2
-  shopMax: 3
-  eliteMin: 3
-  eliteMax: 3
-  restMin: 4
-  restMax: 6
-  eventRatioMin: 0.2
-  eventRatioMax: 0.25
+  floorCount: 6
+  minNodesPerFloor: 1
+  maxNodesPerFloor: 1
+  eventRate: 0
+  shopRate: 0
+  eliteBattleRate: 0
+  shopMin: 0
+  shopMax: 0
+  eliteMin: 0
+  eliteMax: 0
+  restMin: 0
+  restMax: 0
+  eventRatioMin: 0
+  eventRatioMax: 0
   encounterPool: {fileID: 11400000, guid: edfdd0303848fe24c94cb125f349ba8f, type: 2}
   eliteEncounterPool: {fileID: 11400000, guid: 21dfd7dd61a961c41855a6e99449ef9e, type: 2}
   bossEncounter: {fileID: 11400000, guid: aff795c95d3c974499abd8f9c35a3897, type: 2}
@@ -2743,8 +2743,8 @@ MonoBehaviour:
   floorSpacing: 200
   nodeSpacing: 250
   connectionThickness: 8
-  horizontalPositionJitter: 55
-  verticalPositionJitter: 40
+  horizontalPositionJitter: 0
+  verticalPositionJitter: 0
   connectionAnchorJitter: 20
   topPadding: 0
   bottomPadding: 100
@@ -2768,12 +2768,12 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1849751274}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0.15300179, y: 0.20479965, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: -959.9235, y: -539.8976, z: 0}
+  m_LocalScale: {x: 0.5, y: 0.5, z: 0.5}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 0}
+  m_Father: {fileID: 2121037502}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &1849751277
 MonoBehaviour:
@@ -3312,6 +3312,7 @@ RectTransform:
   - {fileID: 1019978389}
   - {fileID: 1817618044}
   - {fileID: 1483272441}
+  - {fileID: 1849751276}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
@@ -3400,5 +3401,4 @@ SceneRoots:
   m_Roots:
   - {fileID: 660933916}
   - {fileID: 550176399}
-  - {fileID: 1849751276}
   - {fileID: 2121037502}

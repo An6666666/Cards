@@ -124,28 +124,38 @@ public class RunMapGenerator
         List<NodeSlot> availableSlots = CollectConfigurableSlots(map);
         Dictionary<MapNodeData, List<MapNodeData>> predecessors = BuildPredecessorMap(map);
         var slotContext = new SlotAssignmentContext(map, constraints, availableSlots, predecessors);
-        int remainingSlots = availableSlots.Count;
 
         var allocator = new RunMapSlotAllocator();
+        var fixedCounts = allocator.ApplyFixedFloorRules(slotContext, clamped.FixedFloorRules);
+        int remainingSlots = slotContext.AvailableSlots.Count;
 
         int shopSlots = Mathf.Min(allocator.GetSlotCount(clamped.ShopMin, clamped.ShopMax, remainingSlots), remainingSlots);
+        if (fixedCounts.TryGetValue(MapNodeType.Shop, out int fixedShops))
+            shopSlots = Mathf.Max(0, shopSlots - fixedShops);
         remainingSlots -= shopSlots;
 
         int eliteSlots = Mathf.Min(allocator.GetSlotCount(clamped.EliteMin, clamped.EliteMax, remainingSlots), remainingSlots);
+        if (fixedCounts.TryGetValue(MapNodeType.EliteBattle, out int fixedElites))
+            eliteSlots = Mathf.Max(0, eliteSlots - fixedElites);
         remainingSlots -= eliteSlots;
 
         int restSlots = Mathf.Min(allocator.GetSlotCount(clamped.RestMin, clamped.RestMax, remainingSlots), remainingSlots);
+        if (fixedCounts.TryGetValue(MapNodeType.Rest, out int fixedRests))
+            restSlots = Mathf.Max(0, restSlots - fixedRests);
         remainingSlots -= restSlots;
 
         int eventSlots = Mathf.Clamp(
             Mathf.RoundToInt(remainingSlots * UnityEngine.Random.Range(clamped.EventRatioMin, clamped.EventRatioMax)),
             0,
             remainingSlots);
+        if (fixedCounts.TryGetValue(MapNodeType.Event, out int fixedEvents))
+            eventSlots = Mathf.Max(0, eventSlots - fixedEvents);
         remainingSlots -= eventSlots;
 
         allocator.AllocateSlots(slotContext, shopSlots, eliteSlots, restSlots, eventSlots);
 
         ApplyNodePayloads(map, encounterPool, elitePool, bossEncounter, defaultShop, eventPool);
+        ValidateFixedFloorRules(map, clamped.FixedFloorRules);
     }
 
     public void AllocateSlotsAcrossMapAfterConnections(
@@ -363,8 +373,9 @@ public class RunMapGenerator
         public float EventRatioMin { get; }
         public float EventRatioMax { get; }
         public NodeTypeConstraints TypeConstraints { get; }
+        public IReadOnlyList<FixedFloorNodeRule> FixedFloorRules { get; }
 
-        public static SlotAllocationSettings Default => new SlotAllocationSettings(2, 3, 2, 4, 4, 6, 0.2f, 0.25f, NodeTypeConstraints.Default);
+        public static SlotAllocationSettings Default => new SlotAllocationSettings(2, 3, 2, 4, 4, 6, 0.2f, 0.25f, NodeTypeConstraints.Default, Array.Empty<FixedFloorNodeRule>());
 
         public SlotAllocationSettings(
             int shopMin,
@@ -375,7 +386,8 @@ public class RunMapGenerator
             int restMax,
             float eventRatioMin,
             float eventRatioMax,
-            NodeTypeConstraints? typeConstraints = null)
+            NodeTypeConstraints? typeConstraints = null,
+            IReadOnlyList<FixedFloorNodeRule> fixedFloorRules = null)
         {
             ShopMin = shopMin;
             ShopMax = shopMax;
@@ -386,6 +398,7 @@ public class RunMapGenerator
             EventRatioMin = eventRatioMin;
             EventRatioMax = eventRatioMax;
             TypeConstraints = typeConstraints ?? NodeTypeConstraints.Default;
+            FixedFloorRules = fixedFloorRules ?? Array.Empty<FixedFloorNodeRule>();
         }
 
         public SlotAllocationSettings GetClamped()
@@ -401,8 +414,35 @@ public class RunMapGenerator
             float eventMax = Mathf.Clamp(EventRatioMax, eventMin, 1f);
 
             NodeTypeConstraints clampedConstraints = TypeConstraints.GetClamped();
+            List<FixedFloorNodeRule> clampedRules = FixedFloorRules == null
+                ? new List<FixedFloorNodeRule>()
+                : FixedFloorRules
+                    .Where(r => r.FloorIndex >= 0)
+                    .ToList();
 
-            return new SlotAllocationSettings(shopMin, shopMax, eliteMin, eliteMax, restMin, restMax, eventMin, eventMax, clampedConstraints);
+            return new SlotAllocationSettings(shopMin, shopMax, eliteMin, eliteMax, restMin, restMax, eventMin, eventMax, clampedConstraints, clampedRules);
+        }
+    }
+    private void ValidateFixedFloorRules(RunMap map, IReadOnlyList<FixedFloorNodeRule> rules)
+    {
+        if (rules == null || rules.Count == 0 || map?.Floors == null)
+            return;
+
+        foreach (FixedFloorNodeRule rule in rules)
+        {
+            if (rule.FloorIndex < 0 || rule.FloorIndex >= map.Floors.Count)
+                continue;
+
+            List<MapNodeData> floorNodes = map.Floors[rule.FloorIndex];
+            if (floorNodes == null || floorNodes.Count == 0)
+                continue;
+
+            bool allMatch = floorNodes.All(n => n != null && n.NodeType == rule.NodeType);
+            if (!allMatch)
+            {
+                throw new InvalidOperationException(
+                    $"FixedFloorRule validation failed at floor {rule.FloorIndex}: expected {rule.NodeType} for all nodes.");
+            }
         }
     }
 }

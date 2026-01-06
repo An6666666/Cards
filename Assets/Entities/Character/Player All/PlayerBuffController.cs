@@ -19,6 +19,8 @@ public class PlayerBuffController : MonoBehaviour
     public int blockGainAtTurnEnd = 0;
     public bool retainBlockNextTurn = false;
     private readonly List<GuardianSpiritCharge> guardianSpiritCharges = new List<GuardianSpiritCharge>();
+    public int GuardianSpiritChargeCount => guardianSpiritCharges.Count;
+    public int GuardianSpiritBlockGain => guardianSpiritCharges.Count > 0 ? guardianSpiritCharges[0].blockGain : 0;
 
     [SerializeField, HideInInspector] private int weakFromEnemies = 0;
     [SerializeField, HideInInspector] private int bleedFromEnemies = 0;

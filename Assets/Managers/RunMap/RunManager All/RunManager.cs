@@ -97,7 +97,8 @@ public class RunManager : MonoBehaviour
 
     // 單例，讓別的場景也能直接 RunManager.Instance 拿到
     public static RunManager Instance { get; private set; }
-
+    [Header("Config Assets")]
+    [SerializeField] private RunMapConfig mapConfig;
     [Header("Scene Names")]
     [SerializeField] private string runSceneName = "RunScene";       // 地圖場景名稱
     [SerializeField] private string battleSceneName = "BattleScene"; // 戰鬥場景名稱
@@ -138,6 +139,8 @@ public class RunManager : MonoBehaviour
     [SerializeField, Range(1, 4)] private int minConnectedSourcesPerRow = 3;
     [SerializeField, Range(1, 3)] private int minBranchingNodesPerFloor = 1;
     [SerializeField, Range(1, 3)] private int maxBranchingNodesPerFloor = 3;
+    [SerializeField] private int backtrackAllowance = 1;
+    [SerializeField] private int minDistinctTargetsPerFloor = 2;
     private readonly List<List<MapNodeData>> mapFloors = new List<List<MapNodeData>>(); // 存每一層的節點
     private MapNodeData currentNode;                                  // 玩家目前所在的節點
     private MapNodeData activeNode;                                   // 正在進行中的節點（正在戰鬥/商店/事件）
@@ -175,20 +178,8 @@ public class RunManager : MonoBehaviour
         Instance = this;
         DontDestroyOnLoad(gameObject); // 場景切換時不要把我刪掉
 
-        RunMapGenerationFeatureFlags generationFeatureFlags = RunMapGenerationFeatureFlags.Default;
-        mapGenerator = new RunMapGenerator(floorVarianceChance, featureFlags: generationFeatureFlags);
-        mapConnector = new RunMapConnector(
-            connectionNeighborWindow,
-            maxOutgoingPerNode,
-            minConnectedSourcesPerRow: minConnectedSourcesPerRow,
-            backtrackAllowance: 1,
-            connectionDensity: connectionDensity,
-            minIncomingPerTarget: minIncomingPerTarget,
-            minDistinctSourcesToBoss: minDistinctSourcesToBoss,
-            longLinkChance: longLinkChance,
-            minBranchingNodesPerFloor: minBranchingNodesPerFloor,
-            maxBranchingNodesPerFloor: maxBranchingNodesPerFloor,
-            featureFlags: generationFeatureFlags);
+        BuildMapSystemsFromConfig(mapConfig);
+
         sceneRouter = new RunSceneRouter(runSceneName, battleSceneName, shopSceneName, deathReturnSceneName);
         eventResolver = new RunEventResolver(eventUIManager);
     }
@@ -229,20 +220,13 @@ public class RunManager : MonoBehaviour
     // 產生一張新的 run 地圖
     public void GenerateNewRun()
     {
-        var slotSettings = new RunMapGenerator.SlotAllocationSettings(
-            shopMin,
-            shopMax,
-            eliteMin,
-            eliteMax,
-            restMin,
-            restMax,
-            eventRatioMin,
-            eventRatioMax);
+        RunMapGenerator.SlotAllocationSettings slotSettings = GetActiveSlotSettings();
+        RunMapLayoutSettings layoutSettings = GetActiveLayoutSettings();
 
         RunMap map = mapGenerator.Generate(
-            floorCount,
-            minNodesPerFloor,
-            maxNodesPerFloor,
+            layoutSettings.FloorCount,
+            layoutSettings.MinNodesPerFloor,
+            layoutSettings.MaxNodesPerFloor,
             encounterPool,
             eliteEncounterPool,
             bossEncounter,
@@ -251,13 +235,16 @@ public class RunManager : MonoBehaviour
             slotSettings);
 
         mapConnector.BuildConnections(map);
+        Debug.Log($"[RunMap] FixedFloorRules = {slotSettings.FixedFloorRules?.Count ?? 0}");
         mapGenerator.AllocateSlotsAcrossMapAfterConnections(
             map,
             encounterPool,
             eliteEncounterPool,
             bossEncounter,
             defaultShopInventory,
-            eventPool);
+            eventPool,
+            slotSettings);
+
         mapFloors.Clear();
         mapFloors.AddRange(map.Floors);
         currentNode = null;     // 還沒選起始節點
@@ -468,5 +455,94 @@ public class RunManager : MonoBehaviour
             relics = new List<CardBase>(),
             exhaustPile = new List<CardBase>()
         };
+    }
+    public void ApplyMapConfig(RunMapConfig config, bool regenerate = true)
+    {
+        mapConfig = config;
+        BuildMapSystemsFromConfig(mapConfig);
+        if (regenerate)
+        {
+            GenerateNewRun();
+        }
+    }
+
+    private RunMapLayoutSettings GetActiveLayoutSettings()
+    {
+        if (mapConfig != null)
+            return mapConfig.Layout;
+
+        return new RunMapLayoutSettings(
+            floorCount,
+            minNodesPerFloor,
+            maxNodesPerFloor,
+            floorVarianceChance);
+    }
+
+    private RunMapConnectionSettings GetActiveConnectionSettings()
+    {
+        if (mapConfig != null)
+            return mapConfig.ConnectionSettings;
+
+        return new RunMapConnectionSettings(
+            connectionNeighborWindow,
+            maxOutgoingPerNode,
+            minConnectedSourcesPerRow,
+            backtrackAllowance,
+            connectionDensity,
+            minIncomingPerTarget,
+            minDistinctSourcesToBoss,
+            longLinkChance,
+            minDistinctTargetsPerFloor,
+            minBranchingNodesPerFloor,
+            maxBranchingNodesPerFloor);
+    }
+
+    private RunMapGenerator.SlotAllocationSettings GetActiveSlotSettings()
+    {
+        if (mapConfig != null)
+            return mapConfig.GetSlotAllocationSettings();
+
+        return new RunMapGenerator.SlotAllocationSettings(
+            shopMin,
+            shopMax,
+            eliteMin,
+            eliteMax,
+            restMin,
+            restMax,
+            eventRatioMin,
+            eventRatioMax,
+            NodeTypeConstraints.Default);
+    }
+
+    private void BuildMapSystemsFromConfig(RunMapConfig config)
+    {
+        RunMapGenerationFeatureFlags generationFeatureFlags = config != null
+            ? config.GetFeatureFlags()
+            : RunMapGenerationFeatureFlags.Default;
+
+        RunMapLayoutSettings layoutSettings = config != null
+            ? config.Layout
+            : new RunMapLayoutSettings(
+                floorCount,
+                minNodesPerFloor,
+                maxNodesPerFloor,
+                floorVarianceChance);
+
+        RunMapConnectionSettings connectionSettings = GetActiveConnectionSettings();
+
+        mapGenerator = new RunMapGenerator(layoutSettings.FloorVarianceChance, featureFlags: generationFeatureFlags);
+        mapConnector = new RunMapConnector(
+            connectionSettings.ConnectionNeighborWindow,
+            connectionSettings.MaxOutgoingPerNode,
+            minConnectedSourcesPerRow: connectionSettings.MinConnectedSourcesPerRow,
+            backtrackAllowance: connectionSettings.BacktrackAllowance,
+            connectionDensity: connectionSettings.ConnectionDensity,
+            minIncomingPerTarget: connectionSettings.MinIncomingPerTarget,
+            minDistinctSourcesToBoss: connectionSettings.MinDistinctSourcesToBoss,
+            longLinkChance: connectionSettings.LongLinkChance,
+            minDistinctTargetsPerFloor: connectionSettings.MinDistinctTargetsPerFloor,
+            minBranchingNodesPerFloor: connectionSettings.MinBranchingNodesPerFloor,
+            maxBranchingNodesPerFloor: connectionSettings.MaxBranchingNodesPerFloor,
+            featureFlags: generationFeatureFlags);
     }
 }

@@ -393,7 +393,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   requiredSelections: 5
-  runSceneName: RunScene
+  runSceneName: RunScene 1
   titleText: {fileID: 0}
   elementButtons:
   - element: 0

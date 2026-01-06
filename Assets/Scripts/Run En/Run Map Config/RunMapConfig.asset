@@ -1,0 +1,59 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e241d18b51d28a840945c0bf18f4b663, type: 3}
+  m_Name: RunMapConfig
+  m_EditorClassIdentifier: 
+  layout:
+    floorCount: 16
+    minNodesPerFloor: 3
+    maxNodesPerFloor: 6
+    floorVarianceChance: 0.25
+  slotAllocation:
+    shopMin: 2
+    shopMax: 3
+    eliteMin: 3
+    eliteMax: 4
+    restMin: 4
+    restMax: 6
+    eventRatioMin: 0.2
+    eventRatioMax: 0.25
+    typeConstraints:
+      eliteMinFloorOffset: 4
+      eliteMaxFloorOffsetFromBoss: 2
+      shopMinFloorOffset: 2
+      shopMaxFloorOffsetFromBoss: 3
+      eventMinFloorOffset: 1
+      eventMaxFloorOffsetFromBoss: 2
+      restMinFloorOffset: 2
+      restMaxFloorOffsetFromBoss: 1
+      eliteMinGap: 3
+      shopMinGap: 3
+      restMinGap: 2
+      forbidConsecutiveElite: 1
+      forbidConsecutiveShop: 1
+      forbidConsecutiveRest: 1
+      maxConsecutiveEvents: 0
+    fixedFloorRules: []
+  connectionSettings:
+    connectionNeighborWindow: 3
+    maxOutgoingPerNode: 4
+    minConnectedSourcesPerRow: 3
+    backtrackAllowance: 1
+    connectionDensity: 1.5
+    minIncomingPerTarget: 1
+    minDistinctSourcesToBoss: 3
+    longLinkChance: 0.2
+    minDistinctTargetsPerFloor: 2
+    minBranchingNodesPerFloor: 2
+    maxBranchingNodesPerFloor: 3
+  enableEliteStartFloorFix: 1
+  enableMinSideMergesPerFloorFix: 0

@@ -6,7 +6,41 @@ using UnityEngine;
 internal class RunMapSlotAllocator
 {
     private readonly RunMapSlotScoring scoring = new RunMapSlotScoring();
+    public Dictionary<MapNodeType, int> ApplyFixedFloorRules(
+        SlotAssignmentContext context,
+        IReadOnlyList<FixedFloorNodeRule> rules)
+    {
+        var placedCounts = new Dictionary<MapNodeType, int>();
+        if (rules == null || rules.Count == 0 || context?.AvailableSlots == null)
+            return placedCounts;
 
+        var groupedRules = rules.GroupBy(r => r.FloorIndex);
+        foreach (IGrouping<int, FixedFloorNodeRule> ruleGroup in groupedRules)
+        {
+            int floorIndex = ruleGroup.Key;
+            MapNodeType nodeType = ruleGroup.First().NodeType;
+            bool hasConflict = ruleGroup.Any(r => r.NodeType != nodeType);
+            if (hasConflict)
+                throw new InvalidOperationException($"FixedFloorRules conflict at floor {floorIndex}: multiple node types specified.");
+
+            List<NodeSlot> floorSlots = context.AvailableSlots
+                .Where(s => s.FloorIndex == floorIndex)
+                .ToList();
+
+            if (floorSlots.Count == 0)
+                continue;
+
+            foreach (NodeSlot slot in floorSlots)
+            {
+                SetSlotType(context, slot, nodeType);
+                if (!placedCounts.ContainsKey(nodeType))
+                    placedCounts[nodeType] = 0;
+                placedCounts[nodeType]++;
+            }
+        }
+
+        return placedCounts;
+    }
     public int GetSlotCount(int min, int max, int remaining)
     {
         if (remaining <= 0)

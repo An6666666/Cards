@@ -1,0 +1,71 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e241d18b51d28a840945c0bf18f4b663, type: 3}
+  m_Name: RunMapConfig 1
+  m_EditorClassIdentifier: 
+  layout:
+    floorCount: 6
+    minNodesPerFloor: 1
+    maxNodesPerFloor: 1
+    floorVarianceChance: 0
+  slotAllocation:
+    shopMin: 0
+    shopMax: 0
+    eliteMin: 0
+    eliteMax: 0
+    restMin: 0
+    restMax: 0
+    eventRatioMin: 0
+    eventRatioMax: 0
+    typeConstraints:
+      eliteMinFloorOffset: 0
+      eliteMaxFloorOffsetFromBoss: 0
+      shopMinFloorOffset: 0
+      shopMaxFloorOffsetFromBoss: 0
+      eventMinFloorOffset: 0
+      eventMaxFloorOffsetFromBoss: 0
+      restMinFloorOffset: 0
+      restMaxFloorOffsetFromBoss: 0
+      eliteMinGap: 0
+      shopMinGap: 0
+      restMinGap: 0
+      forbidConsecutiveElite: 0
+      forbidConsecutiveShop: 0
+      forbidConsecutiveRest: 0
+      maxConsecutiveEvents: 1
+    fixedFloorRules:
+    - floorIndex: 0
+      nodeType: 0
+    - floorIndex: 1
+      nodeType: 1
+    - floorIndex: 2
+      nodeType: 3
+    - floorIndex: 3
+      nodeType: 2
+    - floorIndex: 4
+      nodeType: 4
+    - floorIndex: 5
+      nodeType: 5
+  connectionSettings:
+    connectionNeighborWindow: 1
+    maxOutgoingPerNode: 1
+    minConnectedSourcesPerRow: 1
+    backtrackAllowance: 1
+    connectionDensity: 1
+    minIncomingPerTarget: 1
+    minDistinctSourcesToBoss: 1
+    longLinkChance: 0
+    minDistinctTargetsPerFloor: 1
+    minBranchingNodesPerFloor: 1
+    maxBranchingNodesPerFloor: 1
+  enableEliteStartFloorFix: 0
+  enableMinSideMergesPerFloorFix: 0
