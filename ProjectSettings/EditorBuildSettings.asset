@@ -21,6 +21,9 @@ EditorBuildSettings:
     path: Assets/Scenes/RunScene.unity
     guid: 601c3919baa6a61408cbf66ce57ff640
   - enabled: 1
+    path: Assets/Scenes/RunScene 1.unity
+    guid: deef010d953dfd04388d0d2310bf9b6d
+  - enabled: 1
     path: Assets/Scenes/BattleScene.unity
     guid: 1a43d4c717cde314688b95317e9fecfa
   - enabled: 1

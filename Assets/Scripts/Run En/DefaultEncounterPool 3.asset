@@ -10,9 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 1f36336aad719c548920a1e5f420a9ff, type: 3}
-  m_Name: DefaultEncounterPool
+  m_Name: DefaultEncounterPool 3
   m_EditorClassIdentifier: 
   encounters:
-  - {fileID: 11400000, guid: f04356927be3c8b4985b6aae08aa2269, type: 2}
-  - {fileID: 11400000, guid: b09652e01d4761b42bd7445664ac0381, type: 2}
-  - {fileID: 11400000, guid: 7bb2b3725b4cd6d4a9d671179e9cfb6b, type: 2}
+  - {fileID: 11400000, guid: 3a9292d1750b9bc4c828a8369f0800cd, type: 2}

@@ -165,7 +165,8 @@ public class RunManager : MonoBehaviour
 
     public event Action<IReadOnlyList<IReadOnlyList<MapNodeData>>> MapGenerated; // 生成新地圖時通知 UI
     public event Action MapStateChanged;                              // 地圖狀態（完成/可選節點）變動時通知
-
+    public event Action<MapNodeData> NodeEntered;                     // 進入某個節點時通知（商店/事件/戰鬥等）
+    public event Action<MapNodeData> NodeCompleted;                   // 完成某個節點時通知
     private void Awake()
     {
         // 確保只有一個 RunManager，重複的就刪掉
@@ -289,6 +290,7 @@ public class RunManager : MonoBehaviour
             return false;
 
         activeNode = node;     // 標記現在正在這個節點
+        NodeEntered?.Invoke(node);
         if (node.NodeType == MapNodeType.Event)
         {
             eventResolver.CurrentRunSnapshot = currentRunSnapshot;
@@ -339,7 +341,7 @@ public class RunManager : MonoBehaviour
         {
             runCompleted = true;    // 如果這個是 Boss，那 run 結束
         }
-
+        NodeCompleted?.Invoke(activeNode);
         MapStateChanged?.Invoke();
     }
 
@@ -352,6 +354,7 @@ public class RunManager : MonoBehaviour
         activeNode.MarkCompleted();
         currentNode = activeNode;
         activeNode = null;
+        NodeCompleted?.Invoke(currentNode);
         MapStateChanged?.Invoke();
     }
 

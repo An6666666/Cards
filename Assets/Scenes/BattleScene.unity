@@ -8180,9 +8180,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   startingDeck: []
-  debugStartingDeck:
-  - {fileID: 11400000, guid: 675db593d8b11c84f91cdab4e4c31c32, type: 2}
-  useDebugDeck: 1
+  debugStartingDeck: []
+  useDebugDeck: 0
   startingDeckDefinition: {fileID: 11400000, guid: 1ce8022936a74184fb5e02c6c0afbb04, type: 2}
   exhaustCountThisTurn: 0
 --- !u!114 &1848671832
