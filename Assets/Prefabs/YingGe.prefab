@@ -728,6 +728,7 @@ GameObject:
   - component: {fileID: 3945304856318151892}
   - component: {fileID: 6700974606263415254}
   - component: {fileID: 2126415412755473861}
+  - component: {fileID: 8894018105968935768}
   m_Layer: 0
   m_Name: YingGe
   m_TagString: Untagged
@@ -963,6 +964,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 67607bdfab580684c8c9b8383fbb6544, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &8894018105968935768
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8450242803261364583}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 154c5d78b25adbe468ee1d015b349283, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  panel: {fileID: 0}
 --- !u!1001 &5541819428935891966
 PrefabInstance:
   m_ObjectHideFlags: 0

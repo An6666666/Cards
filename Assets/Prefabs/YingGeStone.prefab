@@ -622,6 +622,7 @@ GameObject:
   - component: {fileID: 2743454688817561360}
   - component: {fileID: 1543745919097840034}
   - component: {fileID: 5243383997460953792}
+  - component: {fileID: 430416585681183940}
   m_Layer: 0
   m_Name: YingGeStone
   m_TagString: Untagged
@@ -838,6 +839,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 67607bdfab580684c8c9b8383fbb6544, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &430416585681183940
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7957746337728162191}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 154c5d78b25adbe468ee1d015b349283, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  panel: {fileID: 0}
 --- !u!1 &8016246575106738376
 GameObject:
   m_ObjectHideFlags: 0

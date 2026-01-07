@@ -554,6 +554,7 @@ GameObject:
   - component: {fileID: 6002496492494951505}
   - component: {fileID: 778195299887821130}
   - component: {fileID: 3886735481278721440}
+  - component: {fileID: 6954649603764732538}
   m_Layer: 0
   m_Name: GouShe
   m_TagString: Untagged
@@ -775,6 +776,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 67607bdfab580684c8c9b8383fbb6544, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &6954649603764732538
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8127814944662599423}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 154c5d78b25adbe468ee1d015b349283, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  panel: {fileID: 0}
 --- !u!1 &8460968895802072183
 GameObject:
   m_ObjectHideFlags: 0

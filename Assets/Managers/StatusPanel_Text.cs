@@ -3,7 +3,7 @@ using System.Text;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class PlayerStatusPanel_Text : MonoBehaviour
+public class StatusPanel_Text : MonoBehaviour
 {
     [Header("UI")]
     [SerializeField] private Text statsText;
@@ -15,47 +15,57 @@ public class PlayerStatusPanel_Text : MonoBehaviour
     [SerializeField] private int floatDigits = 2;
 
     private Player player;
+    private Enemy enemy;
     private PlayerBuffController buffs;
 
     private void Awake()
     {
-        FindRefs();
-        Refresh();
+        Hide(); // 一開始先隱藏，等 hover 再顯示
     }
 
     private void Update()
     {
-        if (player == null || buffs == null)
-            FindRefs();
-
-        if (player == null || buffs == null)
-            return;
-
-        Refresh();
-    }
-
-    private void FindRefs()
-    {
-        player = FindObjectOfType<Player>();
-        if (player == null) return;
-
-        buffs = player.GetComponent<PlayerBuffController>();
-        if (buffs == null) buffs = player.GetComponentInChildren<PlayerBuffController>();
+        // 如果你希望「數值有變就即時更新」，保留這行即可
+        if (player != null || enemy != null)
+            Refresh();
     }
 
     private void Refresh()
     {
+            // 沒目標就不要顯示
+        if (player == null && enemy == null)
+        {
+            Hide();
+            return;
+        }
         // ====== Stats ======
         if (statsText != null)
         {
             var sb = new StringBuilder();
-            //sb.AppendLine($"血量：{player.currentHP}/{player.maxHP}");
-            //sb.AppendLine($"能量：{TryGetInt(player, "energy", "currentEnergy", "Energy")}");
-            sb.AppendLine($"防禦：{TryGetInt(player, "block", "Block")}");
-            sb.AppendLine($"金幣：{player.gold}");
+
+            // 目標是玩家
+            if (player != null)
+            {
+                sb.AppendLine($"防禦：{TryGetInt(player, "block", "Block")}");
+                sb.AppendLine($"金幣：{player.gold}");
+            }
+            // 目標是敵人（沒有 gold 就不顯示）
+            else if (enemy != null)
+            {
+                sb.AppendLine($"防禦：{TryGetInt(enemy, "block", "Block")}");
+            }
+
             statsText.text = sb.ToString();
         }
 
+        // ====== Buff/Debuff ======
+    // 如果不是玩家（沒有 buffs），就顯示「無」或直接清空
+    if (buffs == null)
+    {
+        if (buffsText != null) buffsText.text = "正面效果：\n無";
+        if (debuffsText != null) debuffsText.text = "負面效果：\n無";
+        return;
+    }
         var positive = new List<string>();
         var negative = new List<string>();
 
@@ -82,7 +92,6 @@ public class PlayerStatusPanel_Text : MonoBehaviour
         AddIntEffect(positive, "近戰傷害減免", buffs.meleeDamageReduce);
         AddIntEffect(positive, "回合結束獲得格擋", buffs.blockGainAtTurnEnd);
         AddBoolEffect(positive, "格擋保留到下回合", buffs.retainBlockNextTurn);
-        AddGuardianSpiritEffect(positive);
 
         // ====== Mixed modifiers (depends on sign) ======
         AddSignedIntEffect(positive, negative, "下次攻擊耗能", buffs.nextAttackCostModify, positiveWhenNegative: true);
@@ -95,6 +104,53 @@ public class PlayerStatusPanel_Text : MonoBehaviour
 
         if (debuffsText != null)
             debuffsText.text = BuildListText("負面效果", negative);
+    }
+
+    private void Show()
+    {
+        gameObject.SetActive(true);
+    }
+
+    private void Hide()
+    {
+        gameObject.SetActive(false);
+    }
+
+    public void SetTarget(GameObject target)
+    {
+        if (target == null)
+        {
+            ClearTarget();
+            return;
+        }
+
+        // 先清掉舊目標
+        player = null;
+        enemy = null;
+        buffs = null;
+
+        // 抓 Player / Enemy
+        player = target.GetComponent<Player>();
+        enemy  = target.GetComponent<Enemy>();
+
+        // 只有玩家才有 buffs（你目前是這樣設計）
+        if (player != null)
+        {
+            buffs = player.GetComponent<PlayerBuffController>();
+            if (buffs == null) buffs = player.GetComponentInChildren<PlayerBuffController>();
+        }
+
+        Show();     // 把面板打開
+        Refresh();  // 立刻刷新一次
+    }
+
+    public void ClearTarget()
+    {
+        player = null;
+        enemy = null;
+        buffs = null;
+
+        Hide();
     }
 
     // ---------- Helpers ----------
@@ -137,16 +193,6 @@ public class PlayerStatusPanel_Text : MonoBehaviour
     {
         if (onlyIfNotDefault && Mathf.Approximately(value, defaultValue) && !showZeroEffects) return;
         list.Add($"{name} {value.ToString($"F{floatDigits}")}");
-    }
-
-    private void AddGuardianSpiritEffect(List<string> list)
-    {
-        if (buffs == null) return;
-        int count = buffs.GuardianSpiritChargeCount;
-        if (!showZeroEffects && count == 0) return;
-
-        string blockText = buffs.GuardianSpiritBlockGain > 0 ? $"（觸發獲得護甲 {buffs.GuardianSpiritBlockGain}）" : string.Empty;
-        list.Add($"免死 {count}{blockText}");
     }
 
     private int TryGetInt(object obj, params string[] possibleNames)
