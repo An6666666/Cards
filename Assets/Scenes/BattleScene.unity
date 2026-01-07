@@ -6204,7 +6204,6 @@ GameObject:
   m_Component:
   - component: {fileID: 1627674791}
   - component: {fileID: 1627674792}
-  - component: {fileID: 1627674793}
   m_Layer: 0
   m_Name: BattleManager
   m_TagString: Untagged
@@ -6326,23 +6325,6 @@ MonoBehaviour:
   - {fileID: 11400000, guid: ed8af5f3bf807bd4fb2318540cade604, type: 2}
   rewardUIPrefab: {fileID: 5461426028147158543, guid: 8923449bae0f2f3459534ea2b271150f, type: 3}
   cardUseDelay: 0
---- !u!114 &1627674793
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1627674790}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f40e91121d629fd4f856509008191090, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  statsText: {fileID: 307930578}
-  buffsText: {fileID: 2106348144}
-  debuffsText: {fileID: 2099825721}
-  showZeroEffects: 0
-  floatDigits: 2
 --- !u!4 &1640340007 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 2733580285815805351, guid: eacfe748df31fe649bac4cba447f47e8, type: 3}
@@ -7056,6 +7038,7 @@ GameObject:
   - component: {fileID: 1723863390}
   - component: {fileID: 1723863388}
   - component: {fileID: 1723863387}
+  - component: {fileID: 1723863391}
   m_Layer: 0
   m_Name: UIManager
   m_TagString: Untagged
@@ -7160,6 +7143,23 @@ MonoBehaviour:
   deckContent: {fileID: 624814839}
   discardContent: {fileID: 1009879734}
   cardItemPrefab: {fileID: 8599590451376640417, guid: 9a34f8b649df81049bc71deaf4cb859e, type: 3}
+--- !u!114 &1723863391
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1723863384}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 70cd91df344b9624eb64abf07e2caf58, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  statsText: {fileID: 307930578}
+  buffsText: {fileID: 2106348144}
+  debuffsText: {fileID: 2099825721}
+  showZeroEffects: 0
+  floatDigits: 2
 --- !u!1 &1739577228
 GameObject:
   m_ObjectHideFlags: 0
@@ -8072,6 +8072,7 @@ GameObject:
   - component: {fileID: 1848671832}
   - component: {fileID: 1848671831}
   - component: {fileID: 1848671830}
+  - component: {fileID: 1848671834}
   m_Layer: 0
   m_Name: Player
   m_TagString: Untagged
@@ -8232,6 +8233,19 @@ MonoBehaviour:
   weakFromEnemies: 0
   bleedFromEnemies: 0
   imprisonFromEnemies: 0
+--- !u!114 &1848671834
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1848671825}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 154c5d78b25adbe468ee1d015b349283, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  panel: {fileID: 1723863391}
 --- !u!4 &1871164232 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 2733580285815805351, guid: eacfe748df31fe649bac4cba447f47e8, type: 3}

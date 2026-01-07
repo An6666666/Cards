@@ -660,6 +660,7 @@ GameObject:
   - component: {fileID: -6688756062985285764}
   - component: {fileID: -1814301861362633510}
   - component: {fileID: 8717464552377220386}
+  - component: {fileID: 2195493136730743533}
   m_Layer: 0
   m_Name: FeiLuYao
   m_TagString: Untagged
@@ -872,6 +873,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 67607bdfab580684c8c9b8383fbb6544, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &2195493136730743533
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8127814944662599423}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 154c5d78b25adbe468ee1d015b349283, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  panel: {fileID: 0}
 --- !u!1001 &1817239499420612326
 PrefabInstance:
   m_ObjectHideFlags: 0
