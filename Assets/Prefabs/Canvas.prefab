@@ -234,7 +234,7 @@ MonoBehaviour:
   m_FallbackScreenDPI: 96
   m_DefaultSpriteDPI: 96
   m_DynamicPixelsPerUnit: 1
-  m_PresetInfoIsWorld: 1
+  m_PresetInfoIsWorld: 0
 --- !u!114 &3083492825591039813
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -307,6 +307,9 @@ MonoBehaviour:
   enemy: {fileID: 0}
   hp_fill: {fileID: 0}
   hpText: {fileID: 0}
+  digitSprites: []
+  digitImages: []
+  digitSpriteRenderers: []
 --- !u!1 &7784709225623370576
 GameObject:
   m_ObjectHideFlags: 0

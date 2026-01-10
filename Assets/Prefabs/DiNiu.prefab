@@ -486,6 +486,7 @@ GameObject:
   - component: {fileID: -1010894590871352608}
   - component: {fileID: -2249172156637469226}
   - component: {fileID: 6041634734600703630}
+  - component: {fileID: 309210571357157475}
   m_Layer: 0
   m_Name: DiNiu
   m_TagString: Untagged
@@ -566,6 +567,9 @@ MonoBehaviour:
   highlightFx: {fileID: 2026800559802484356}
   hoverIndicator2D: {fileID: 0}
   hoverIndicatorDelaySeconds: 0
+  skillDescription: "\u4E3B\u52D5\u6280\u80FD\uFF1A\n\u5168\u5834\u9707\u64CA\uFF1A\u5C0D\u5168\u5834\u6240\u6709\u4EBA\u56FA\u5B9A\u9020\u6210
+    1 \u9EDE\u50B7\u5BB3\u3002\n\u88AB\u52D5\u6280\u80FD\uFF1A\n\u958B\u5834\u6C89\u77613\u56DE\u5408
+    \u6C89\u7761\u671F\u9593 \u4E0D\u79FB\u52D5\u3001\u4E0D\u653B\u64CA\u3001\u4E0D\u767C\u52D5\u6280\u80FD\u3002"
   sleepDuration: 3
   fixedDamage: 1
 --- !u!61 &1914408483948164483
@@ -710,6 +714,24 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   panel: {fileID: 0}
+--- !u!114 &309210571357157475
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8127814944662599423}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5779d0dde00cdd84cb0924b842e41344, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  visualRoot: {fileID: 0}
+  faceRightByDefault: 0
+  leftOffset: {x: -45.21, y: 16.76, z: 0}
+  rightOffset: {x: 39.63, y: 16.96, z: 0}
+  verticalDeadZone: 1.56
+  flipHysteresis: 0.05
 --- !u!1 &8257399858107619659
 GameObject:
   m_ObjectHideFlags: 0

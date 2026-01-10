@@ -558,6 +558,7 @@ GameObject:
   - component: {fileID: 8586565896607497605}
   - component: {fileID: -196178578639001899}
   - component: {fileID: 1138707790757810258}
+  - component: {fileID: 7920133622561383203}
   m_Layer: 0
   m_Name: Enemy
   m_TagString: Untagged
@@ -645,6 +646,7 @@ MonoBehaviour:
   highlightFx: {fileID: 9166670946117661}
   hoverIndicator2D: {fileID: 5961134971856058114}
   hoverIndicatorDelaySeconds: 0.5
+  skillDescription: "\u4E3B\u52D5\u6280\u80FD\uFF1A\u7121\n\u88AB\u52D5\u6280\u80FD\uFF1A\u7121"
 --- !u!61 &1640596604778677189
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -787,6 +789,24 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   panel: {fileID: 0}
+--- !u!114 &7920133622561383203
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8450242803261364583}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5779d0dde00cdd84cb0924b842e41344, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  visualRoot: {fileID: 0}
+  faceRightByDefault: 0
+  leftOffset: {x: -2.67, y: 2.18, z: 0}
+  rightOffset: {x: 2.16, y: 2.04, z: 0}
+  verticalDeadZone: 1.1
+  flipHysteresis: 0.05
 --- !u!1 &8688454629902297060
 GameObject:
   m_ObjectHideFlags: 0

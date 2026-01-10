@@ -494,7 +494,7 @@ Transform:
   m_GameObject: {fileID: 7920732420248158174}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 5.4, y: 8.555379, z: 0}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 8.122354, y: 3.7982626, z: 0}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -661,6 +661,7 @@ GameObject:
   - component: {fileID: 1225460322651460988}
   - component: {fileID: 1841683551220647667}
   - component: {fileID: 6515365303492296421}
+  - component: {fileID: 4612100733422658324}
   m_Layer: 0
   m_Name: HuGuPo
   m_TagString: Untagged
@@ -747,6 +748,10 @@ MonoBehaviour:
   highlightFx: {fileID: 5292752513400009935}
   hoverIndicator2D: {fileID: 0}
   hoverIndicatorDelaySeconds: 0
+  skillDescription: "\u4E3B\u52D5\u6280\u80FD\uFF1A\n\u7981\u932E\uFF08\u51B7\u537B\uFF1A3\uFF09\uFF1A\u5C0D\u73A9\u5BB6\u65BD\u52A0
+    \u7981\u932E2\u56DE\u5408\u3002\n\u885D\u649E\u64CA\u9000\uFF08\u51B7\u537B\uFF1A4\uFF09\u82E5\u73A9\u5BB6\u8655\u65BC\u7981\u932E\uFF0C\u672C\u56DE\u5408\u84C4\u529B\u4E26\u9396\u5B9A\u73A9\u5BB6\u4F4D\u7F6E\uFF08\u9AD8\u4EAE\u63D0\u793A\uFF09\uFF1B\u4E0B\u4E00\u56DE\u5408\u885D\u5411\u9396\u5B9A\u683C\uFF0C\u82E5\u73A9\u5BB6\u4ECD\u5728\u8A72\u683C\uFF0C\u9020\u6210
+    15 \u50B7\u5BB3\u4E26\u5C07\u73A9\u5BB6\u649E\u98DB\u5230\u53CD\u65B9\u54111\u683C\u3002\n\u88AB\u52D5\u6280\u80FD\uFF1A\n\u653B\u64CA\u73A9\u5BB6\u6642\uFF0C\u4F7F\u73A9\u5BB6\u9032\u5165
+    \u6D41\u88402\u56DE\u5408\u3002"
   bleedDuration: 2
   imprisonDuration: 3
   imprisonCooldownTurns: 3
@@ -894,6 +899,24 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   panel: {fileID: 0}
+--- !u!114 &4612100733422658324
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8127814944662599423}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5779d0dde00cdd84cb0924b842e41344, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  visualRoot: {fileID: 3504711868724639503}
+  faceRightByDefault: 0
+  leftOffset: {x: 4.88, y: 8.36, z: 0}
+  rightOffset: {x: -13.63, y: 7.97, z: 0}
+  verticalDeadZone: 0.15
+  flipHysteresis: 0.05
 --- !u!1001 &1817239499420612326
 PrefabInstance:
   m_ObjectHideFlags: 0

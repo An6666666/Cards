@@ -9,7 +9,6 @@ public class HuGuPo : Enemy // 定義 HuGuPo 類別，繼承自 Enemy
     [SerializeField] private int imprisonCooldownTurns = 3; // 禁錮技能冷卻回合需求
     [SerializeField] private int chargeCooldownTurns = 4; // 蓄力衝撞技能冷卻回合數
     [SerializeField] private int chargeDamage = 15; // 衝撞造成的傷害
-
     private int imprisonCooldownCounter = 0; // 禁錮技能當前冷卻累積
     private int chargeCooldownCounter = 0; // 蓄力衝撞技能當前冷卻累積
 
