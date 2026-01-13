@@ -11,7 +11,7 @@ public class YingGeStone : Enemy                           // 定義一個繼承
 
     protected override void Awake()                        // 覆寫 Enemy 的 Awake，在物件生成時做初始化
     {
-        enemyName = "鶯歌石";                              // 設定這個敵人的名稱（顯示用）
+        enemyName = "鸚哥石";                              // 設定這個敵人的名稱（顯示用）
         base.Awake();                                      // 呼叫父類別 Enemy 的 Awake，執行既有初始化流程
     }
 

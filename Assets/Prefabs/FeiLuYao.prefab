@@ -740,8 +740,6 @@ MonoBehaviour:
   intentValueText: {fileID: 0}
   intentValueOffset: {x: 0.8, y: 0.1, z: 0}
   highlightFx: {fileID: 153131917641067011}
-  hoverIndicator2D: {fileID: 0}
-  hoverIndicatorDelaySeconds: 0
   skillDescription: "\u4E3B\u52D5\u6280\u80FD\uFF1A\n\u8A5B\u5492\u62BD\u53D6\uFF1A\u5728\u5996\u602A\u56DE\u5408\uFF0C\u5F9E
     \u865B\u5F312\u56DE\u5408\uFF0F\u6D41\u88402\u56DE\u5408\uFF0F\u7981\u932E1\u56DE\u5408
     \u4E2D\u96A8\u6A5F\u9644\u52A0 1 \u7A2E\u5230\u73A9\u5BB6\u8EAB\u4E0A\u3002\n\u88AB\u52D5\u6280\u80FD\uFF1A\n\u98DB\u9871\u5996\u4E0D\u6703\u79FB\u52D5\u3002"
@@ -764,7 +762,7 @@ BoxCollider2D:
   m_ExcludeLayers:
     serializedVersion: 2
     m_Bits: 0
-  m_LayerOverridePriority: 0
+  m_LayerOverridePriority: 1
   m_ForceSendLayers:
     serializedVersion: 2
     m_Bits: 4294967295

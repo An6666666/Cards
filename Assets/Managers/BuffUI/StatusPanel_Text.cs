@@ -18,10 +18,19 @@ public class StatusPanel_Text : MonoBehaviour
     private Player player;
     private Enemy enemy;
     private PlayerBuffController buffs;
+    private bool refreshQueued;
 
     private void Awake()
     {
         Hide(); // 一開始先隱藏，等 hover 再顯示
+    }
+
+    private void OnEnable()
+    {
+        if (!refreshQueued) return;
+
+        refreshQueued = false;
+        StartCoroutine(RefreshNextFrame());
     }
 
     private void Update()
@@ -164,7 +173,14 @@ public class StatusPanel_Text : MonoBehaviour
 
         Show();     // 把面板打開
         Refresh();  // 立刻刷新一次
-        StartCoroutine(RefreshNextFrame());
+        if (isActiveAndEnabled)
+        {
+            StartCoroutine(RefreshNextFrame());
+        }
+        else
+        {
+            refreshQueued = true;
+        }
     }
 
     public void ClearTarget()
@@ -172,6 +188,7 @@ public class StatusPanel_Text : MonoBehaviour
         player = null;
         enemy = null;
         buffs = null;
+        refreshQueued = false;
 
         Hide();
     }

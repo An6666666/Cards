@@ -1,4 +1,3 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -6,7 +5,6 @@ public class EnemyMouseInteractor : MonoBehaviour
 {
     private Enemy enemy;
     private bool isMouseOver = false;
-    private Coroutine hoverIndicatorCoroutine;
     private readonly List<BoardTile> hoverRangeTiles = new List<BoardTile>();
     private readonly Dictionary<BoardTile, bool> hoverRangePreviousStates = new Dictionary<BoardTile, bool>();
 
@@ -23,7 +21,6 @@ public class EnemyMouseInteractor : MonoBehaviour
     public void HandleOnDisable()
     {
         isMouseOver = false;
-        StopHoverIndicatorCoroutine();
         RefreshHoverIndicator();
     }
 
@@ -36,14 +33,12 @@ public class EnemyMouseInteractor : MonoBehaviour
     public void HandleMouseEnter()
     {
         isMouseOver = true;
-        StartHoverIndicatorCoroutine();
         RefreshHoverIndicator();
     }
 
     public void HandleMouseExit()
     {
         isMouseOver = false;
-        StopHoverIndicatorCoroutine();
         RefreshHoverIndicator();
     }
 
@@ -53,76 +48,37 @@ public class EnemyMouseInteractor : MonoBehaviour
 
         if (!shouldShow)
         {
-            StopHoverIndicatorCoroutine();
-
             HideHoverEffects();
 
             return;
         }
 
-        if (enemy.hoverIndicatorDelaySeconds <= 0f)
         ShowHoverEffects();
-        else if (!IsHoverEffectActive() && hoverIndicatorCoroutine == null)
-        StartHoverIndicatorCoroutine();
     }
 
     public bool ShouldRefreshHover()
     {
         bool hasActiveEffect =
-        (enemy.hoverIndicator2D != null && enemy.hoverIndicator2D.activeSelf) ||
         hoverRangeTiles.Count > 0;
 
         return isMouseOver ||
-        hoverIndicatorCoroutine != null ||
         hasActiveEffect ||
         (CardDragHandler.IsAnyCardDragging && hasActiveEffect);
-    }
-    private IEnumerator ShowHoverIndicatorAfterDelay()
-    {
-        if (enemy.hoverIndicatorDelaySeconds > 0f)
-            yield return new WaitForSeconds(enemy.hoverIndicatorDelaySeconds);
-
-        hoverIndicatorCoroutine = null;
-
-        if (isMouseOver && !CardDragHandler.IsAnyCardDragging)
-        ShowHoverEffects();
-    }
-
-    private void StartHoverIndicatorCoroutine()
-    {
-        StopHoverIndicatorCoroutine();
-        hoverIndicatorCoroutine = StartCoroutine(ShowHoverIndicatorAfterDelay());
-    }
-
-    private void StopHoverIndicatorCoroutine()
-    {
-        if (hoverIndicatorCoroutine != null)
-        {
-            StopCoroutine(hoverIndicatorCoroutine);
-            hoverIndicatorCoroutine = null;
-        }
     }
 
     private void ShowHoverEffects()
     {
-        if (enemy.hoverIndicator2D != null && !enemy.hoverIndicator2D.activeSelf)
-            enemy.hoverIndicator2D.SetActive(true);
-
         HighlightAttackRange();
     }
 
     private void HideHoverEffects()
     {
-        if (enemy.hoverIndicator2D != null && enemy.hoverIndicator2D.activeSelf)
-            enemy.hoverIndicator2D.SetActive(false);
-
         ClearAttackRangeHighlights();
     }
 
     private bool IsHoverEffectActive()
     {
-        return (enemy.hoverIndicator2D != null && enemy.hoverIndicator2D.activeSelf) ||
-            hoverRangeTiles.Count > 0;
+        return hoverRangeTiles.Count > 0;
     }
 
     private void HighlightAttackRange()

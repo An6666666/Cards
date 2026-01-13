@@ -92,8 +92,6 @@ public class Enemy : MonoBehaviour
 
     [SerializeField] internal GameObject highlightFx;
     [Header("滑鼠懸停提示")]
-    [SerializeField] internal GameObject hoverIndicator2D;
-    [SerializeField] internal float hoverIndicatorDelaySeconds = 0f;
     [TextArea(2, 6)]
     public string skillDescription;
     private bool isDead = false;

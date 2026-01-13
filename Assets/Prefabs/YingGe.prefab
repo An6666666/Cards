@@ -826,8 +826,6 @@ MonoBehaviour:
   intentValueText: {fileID: 0}
   intentValueOffset: {x: 0.8, y: 0.1, z: 0}
   highlightFx: {fileID: 0}
-  hoverIndicator2D: {fileID: 0}
-  hoverIndicatorDelaySeconds: 0
   skillDescription: "\u4E3B\u52D5\u6280\u80FD\uFF1A\n\u7634\u6C23\u6295\u653E\uFF08\u958B\u5834\uFF09\u6230\u9B25\u958B\u59CB\u6642\u96A8\u6A5F\u653E\u7F6E
     2 \u500B\u7634\u6C23\u4E2D\u5FC3\uFF0C\u6C59\u67D3\u4E2D\u5FC3\u683C\u8207\u5468\u570D\u76F8\u9130\u683C\uFF1B\u73A9\u5BB6\u8E29\u5230\u7634\u6C23\u53D7\u5230
     5 \u50B7\u5BB3\u3002\n\u4E09\u5217\u8F5F\u70B8\uFF08\u51B7\u537B\uFF1A4\uFF09\uFF1A\u66AB\u6642\u6D88\u5931\u4E26\u9AD8\u4EAE\u73A9\u5BB6\u6240\u5728\u5217\u53CA\u4E0A\u4E0B\u76F8\u9130\u5217\uFF0C\u5C0D\u5176\u9020\u6210
@@ -858,7 +856,7 @@ BoxCollider2D:
   m_ExcludeLayers:
     serializedVersion: 2
     m_Bits: 0
-  m_LayerOverridePriority: 0
+  m_LayerOverridePriority: 1
   m_ForceSendLayers:
     serializedVersion: 2
     m_Bits: 4294967295
