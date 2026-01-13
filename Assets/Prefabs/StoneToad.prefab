@@ -211,8 +211,6 @@ MonoBehaviour:
   thunderstrike: 0
   superconduct: 0
   hasBerserk: 0
-  buffs:
-    stun: 0
   gridPosition: {x: 0, y: 0}
   baseAttackDamage: 1
   attackRangeOffsets:
@@ -234,7 +232,7 @@ MonoBehaviour:
   - {x: 3, y: -2}
   - {x: -3, y: 2}
   - {x: -3, y: -2}
-  isBoss: 0
+  isBoss: 1
   spriteRoot: {fileID: 5048898058832816598}
   useAppearAnimation: 1
   deathDestroyDelay: 0.6

@@ -138,7 +138,7 @@ public class GouShe : Enemy               // 鉤蛇怪物類別，繼承自 Enem
     {
         if (frozenTurns > 0)         // 若目前有凍結回合
         {
-            frozenTurns--;          // 減少一回合
+            SetFrozenTurns(Mathf.Max(0, frozenTurns - 1));
             return true;            // 回合直接結束（這回合不能動）
         }
 

@@ -710,8 +710,6 @@ MonoBehaviour:
   thunderstrike: 0
   superconduct: 0
   hasBerserk: 0
-  buffs:
-    stun: 0
   gridPosition: {x: 0, y: 0}
   baseAttackDamage: 10
   attackRangeOffsets:
@@ -785,7 +783,7 @@ BoxCollider2D:
   m_IsTrigger: 0
   m_UsedByEffector: 0
   m_UsedByComposite: 0
-  m_Offset: {x: -1.1474724, y: 8.839159}
+  m_Offset: {x: -1.1474724, y: 10.681714}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0, y: 0}
@@ -796,7 +794,7 @@ BoxCollider2D:
     adaptiveTiling: 0
   m_AutoTiling: 0
   serializedVersion: 2
-  m_Size: {x: 68.1482, y: 32.117332}
+  m_Size: {x: 68.1482, y: 28.432222}
   m_EdgeRadius: 0
 --- !u!114 &-1252699247306342092
 MonoBehaviour:

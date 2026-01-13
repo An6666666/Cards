@@ -40,6 +40,7 @@ public class Enemy : MonoBehaviour
     public bool isBoss = false;
 
     public event Action<Enemy> ElementTagsChanged;
+    public event System.Action OnStatusChanged;
 
     [SerializeField] internal Transform spriteRoot;
 
@@ -274,11 +275,30 @@ public class Enemy : MonoBehaviour
         sorting?.UpdateNow();
     }
 
+    public void RaiseStatusChanged()
+    {
+        OnStatusChanged?.Invoke();
+    }
+
+    public void SetBurningTurns(int turns)
+    {
+        if (burningTurns == turns) return;
+        burningTurns = turns;
+        RaiseStatusChanged();
+    }
+
+    public void SetFrozenTurns(int turns)
+    {
+        if (frozenTurns == turns) return;
+        frozenTurns = turns;
+        RaiseStatusChanged();
+    }
+
     public virtual void EnemyAction(Player player)
     {
         if (frozenTurns > 0)
         {
-            frozenTurns--;
+            SetFrozenTurns(Mathf.Max(0, frozenTurns - 1));
             return;
         }
         if (IsPlayerInRange(player))

@@ -138,7 +138,7 @@ public class YingGe : Enemy
     {
         if (frozenTurns > 0)             // 還有冰凍回合
         {
-            frozenTurns--;               // 減少一回合
+            SetFrozenTurns(Mathf.Max(0, frozenTurns - 1));               // 減少一回合
             return true;                 // 這回合結束
         }
 

@@ -96,6 +96,9 @@ public class AttackSelectionController
 
         yield return new WaitForSeconds(hitDelay);
 
+        if (player == null || currentAttackCard == null || e == null)
+            yield break;
+
         // 真正執行攻擊效果
         if (e != null)
         {

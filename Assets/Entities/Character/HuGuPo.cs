@@ -71,7 +71,7 @@ public class HuGuPo : Enemy // 定義 HuGuPo 類別，繼承自 Enemy
     {
         if (frozenTurns > 0) // 若冰凍中
         {
-            frozenTurns--; // 冰凍回合遞減
+             SetFrozenTurns(Mathf.Max(0, frozenTurns - 1)); // 冰凍回合遞減
             IncrementCooldowns(false, false); // 冰凍時冷卻仍要累加
             return true; // 本回合無法行動
         }

@@ -523,8 +523,6 @@ MonoBehaviour:
   thunderstrike: 0
   superconduct: 0
   hasBerserk: 0
-  buffs:
-    stun: 0
   gridPosition: {x: 0, y: 0}
   baseAttackDamage: 10
   attackRangeOffsets:
@@ -543,7 +541,7 @@ MonoBehaviour:
   sortingOrderBase: 0
   sortingOrderMultiplier: 100
   shakeDuration: 0.4
-  shakeMagnitude: 2
+  shakeMagnitude: 1.5
   scaleMultiplier: 1.1
   canMove: 1
   nextIntent:
@@ -592,7 +590,7 @@ BoxCollider2D:
   m_IsTrigger: 0
   m_UsedByEffector: 0
   m_UsedByComposite: 0
-  m_Offset: {x: -0.11090851, y: 1.192317}
+  m_Offset: {x: -0.11090851, y: 1.5282643}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0, y: 0}
@@ -603,7 +601,7 @@ BoxCollider2D:
     adaptiveTiling: 0
   m_AutoTiling: 0
   serializedVersion: 2
-  m_Size: {x: 4.3727903, y: 4.9226174}
+  m_Size: {x: 4.3727903, y: 4.2507234}
   m_EdgeRadius: 0
 --- !u!114 &-350563150848068263
 MonoBehaviour:

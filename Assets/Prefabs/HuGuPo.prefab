@@ -132,7 +132,7 @@ Transform:
   m_GameObject: {fileID: 4294074775068039766}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -37.3, y: 27.6, z: 0}
+  m_LocalPosition: {x: -41.3, y: 35.9, z: 0}
   m_LocalScale: {x: 12, y: 6, z: 0}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -494,7 +494,7 @@ Transform:
   m_GameObject: {fileID: 7920732420248158174}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 0, y: 9.6, z: 0}
   m_LocalScale: {x: 8.122354, y: 3.7982626, z: 0}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -710,8 +710,6 @@ MonoBehaviour:
   thunderstrike: 0
   superconduct: 0
   hasBerserk: 0
-  buffs:
-    stun: 0
   gridPosition: {x: 0, y: 0}
   baseAttackDamage: 10
   attackRangeOffsets:
@@ -721,7 +719,7 @@ MonoBehaviour:
   - {x: 1, y: -2}
   - {x: -1, y: 2}
   - {x: 1, y: 2}
-  isBoss: 0
+  isBoss: 1
   spriteRoot: {fileID: 8275633406451967337}
   useAppearAnimation: 0
   deathDestroyDelay: 0.6
@@ -787,7 +785,7 @@ BoxCollider2D:
   m_IsTrigger: 0
   m_UsedByEffector: 0
   m_UsedByComposite: 0
-  m_Offset: {x: -1.1934433, y: 7.0121255}
+  m_Offset: {x: -0.68362236, y: 15.714073}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0, y: 0}
@@ -798,7 +796,7 @@ BoxCollider2D:
     adaptiveTiling: 0
   m_AutoTiling: 0
   serializedVersion: 2
-  m_Size: {x: 90.62874, y: 41.81248}
+  m_Size: {x: 97.76628, y: 38.236343}
   m_EdgeRadius: 0
 --- !u!114 &4165281424294799910
 MonoBehaviour:
@@ -968,11 +966,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8645717498181915281, guid: 5eb938b8b8628764cad6aaa8a1e732ea, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -33.7
+      value: -43.4
       objectReference: {fileID: 0}
     - target: {fileID: 8645717498181915281, guid: 5eb938b8b8628764cad6aaa8a1e732ea, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 21.9
+      value: 28.1
       objectReference: {fileID: 0}
     - target: {fileID: 8645717498181915281, guid: 5eb938b8b8628764cad6aaa8a1e732ea, type: 3}
       propertyPath: m_LocalPosition.z
@@ -1078,7 +1076,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5949157722218524963, guid: aa327d458a92acc48ba8ff8e60ec1976, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 28.31
+      value: 34.7
       objectReference: {fileID: 0}
     - target: {fileID: 5949157722218524963, guid: aa327d458a92acc48ba8ff8e60ec1976, type: 3}
       propertyPath: m_LocalPosition.z

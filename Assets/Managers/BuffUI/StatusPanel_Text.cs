@@ -52,7 +52,7 @@ public class StatusPanel_Text : MonoBehaviour
 
     private void Refresh()
     {
-            // 沒目標就不要顯示
+        // 沒目標就不要顯示
         if (player == null && enemy == null)
         {
             Hide();
@@ -73,10 +73,10 @@ public class StatusPanel_Text : MonoBehaviour
             else if (enemy != null)
             {   
                 sb.AppendLine($"名稱：{enemy.enemyName}");
-                // ✅ 敵人血量開回來（Enemy 你先前程式看起來也有 currentHP / maxHP）
+                // 敵人血量開回來（Enemy 你先前程式看起來也有 currentHP / maxHP）
                 sb.AppendLine($"血量：{enemy.currentHP}/{enemy.maxHP}");
                 sb.AppendLine($"防禦：{TryGetInt(enemy, "block", "Block")}");
-                // ✅ 新增：附加元素（你要把 GetEnemyElementText 寫出來）
+                // 新增：附加元素（你要把 GetEnemyElementText 寫出來）
                 sb.AppendLine($"元素：{GetEnemyElementText(enemy)}");
             }
 
@@ -84,64 +84,57 @@ public class StatusPanel_Text : MonoBehaviour
         }
 
         // ========== Skill / Element ==========
-    if (skillText != null)
-    {
-        if (enemy != null)
+        if (skillText != null)
         {
-            string skill = GetEnemySkillDesc(enemy);
+            if (enemy != null)
+            {
+                string skill = GetEnemySkillDesc(enemy);
 
-            skillText.text =
-                $"{skill}";
+                skillText.text =
+                    $"{skill}";
+            }
+            else
+            {
+                // 玩家要不要顯示技能看你；不需要就顯示空或「無」
+                skillText.text = "";
+            }
         }
-        else
-        {
-            // 玩家要不要顯示技能看你；不需要就顯示空或「無」
-            skillText.text = "";
-        }
-    }
 
 
         // ====== Buff/Debuff ======
-    // 如果不是玩家（沒有 buffs），就顯示「無」或直接清空
-    if (buffs == null)
-    {
-        if (buffsText != null) buffsText.text = "正面效果：\n無";
-        if (debuffsText != null) debuffsText.text = "負面效果：\n無";
-        return;
-    }
         var positive = new List<string>();
         var negative = new List<string>();
-    if (buffs != null)
-    {
-        // ====== Debuffs (negative) ======
-        AddIntEffect(negative, "虛弱", buffs.weak);
-        AddIntEffect(negative, "流血", buffs.bleed);
-        AddIntEffect(negative, "禁錮", buffs.imprison);
+        if (player != null && buffs != null)
+        {
+            // ====== Debuffs (negative) ======
+            AddIntEffect(negative, "虛弱", buffs.weak);
+            AddIntEffect(negative, "流血", buffs.bleed);
+            AddIntEffect(negative, "禁錮", buffs.imprison);
 
-        // 這個在你 Inspector 是 int（0/1 或次數），用 int 顯示
-        AddIntEffect(negative, "回合結束隨機棄牌", buffs.needRandomDiscardAtEnd);
+            // 這個在你 Inspector 是 int（0/1 或次數），用 int 顯示
+            AddIntEffect(negative, "回合結束隨機棄牌", buffs.needRandomDiscardAtEnd);
 
-        AddBoolEffect(negative, "本回合抽牌被阻止", buffs.drawBlockedThisTurn);
+            AddBoolEffect(negative, "本回合抽牌被阻止", buffs.drawBlockedThisTurn);
 
-        // damageTakenRatio 預設 1，≠1 才顯示
-        AddFloatEffect(negative, "受到傷害倍率", buffs.damageTakenRatio, onlyIfNotDefault: true, defaultValue: 1f);
+            // damageTakenRatio 預設 1，≠1 才顯示
+            AddFloatEffect(negative, "受到傷害倍率", buffs.damageTakenRatio, onlyIfNotDefault: true, defaultValue: 1f);
 
-        // 下次受傷增加：通常是負面（如果你其實設計成正面就移到 positive）
-        AddIntEffect(negative, "下次受傷增加", buffs.nextDamageTakenUp);
+            // 下次受傷增加：通常是負面（如果你其實設計成正面就移到 positive）
+            AddIntEffect(negative, "下次受傷增加", buffs.nextDamageTakenUp);
 
-        // ====== Buffs (positive) ======
-        AddIntEffect(positive, "下次攻擊+傷", buffs.nextAttackPlus);
-        AddIntEffect(positive, "下回合全攻擊+傷", buffs.nextTurnAllAttackPlus);
+            // ====== Buffs (positive) ======
+            AddIntEffect(positive, "下次攻擊+傷", buffs.nextAttackPlus);
+            AddIntEffect(positive, "下回合全攻擊+傷", buffs.nextTurnAllAttackPlus);
 
-        AddIntEffect(positive, "近戰傷害減免", buffs.meleeDamageReduce);
-        AddIntEffect(positive, "回合結束獲得格擋", buffs.blockGainAtTurnEnd);
-        AddBoolEffect(positive, "格擋保留到下回合", buffs.retainBlockNextTurn);
+            AddIntEffect(positive, "近戰傷害減免", buffs.meleeDamageReduce);
+            AddIntEffect(positive, "回合結束獲得格擋", buffs.blockGainAtTurnEnd);
+            AddBoolEffect(positive, "格擋保留到下回合", buffs.retainBlockNextTurn);
 
-        // ====== Mixed modifiers (depends on sign) ======
-        AddSignedIntEffect(positive, negative, "下次攻擊耗能", buffs.nextAttackCostModify, positiveWhenNegative: true);
-        AddSignedIntEffect(positive, negative, "移動耗能", buffs.movementCostModify, positiveWhenNegative: true);
-        AddSignedIntEffect(positive, negative, "下回合抽牌", buffs.nextTurnDrawChange, positiveWhenNegative: false);
-    }
+            // ====== Mixed modifiers (depends on sign) ======
+            AddSignedIntEffect(positive, negative, "下次攻擊耗能", buffs.nextAttackCostModify, positiveWhenNegative: true);
+            AddSignedIntEffect(positive, negative, "移動耗能", buffs.movementCostModify, positiveWhenNegative: true);
+            AddSignedIntEffect(positive, negative, "下回合抽牌", buffs.nextTurnDrawChange, positiveWhenNegative: false);
+        }
         if (enemy != null)
         {
             AddIntEffect(negative, "燃燒", enemy.burningTurns);
@@ -153,6 +146,12 @@ public class StatusPanel_Text : MonoBehaviour
 
         if (debuffsText != null)
             debuffsText.text = BuildListText("負面效果", negative);
+
+        if (enemy != null)
+        {
+            lastKnownBurningTurns = enemy.burningTurns;
+            lastKnownFrozenTurns = enemy.frozenTurns;
+        }
     }
 
     private void Show()
@@ -175,7 +174,7 @@ public class StatusPanel_Text : MonoBehaviour
 
         // 先清掉舊目標
         player = null;
-        enemy = null;
+        SubscribeToEnemy(null);
         buffs = null;
 
         // 抓 Player / Enemy
@@ -183,9 +182,11 @@ public class StatusPanel_Text : MonoBehaviour
         if (player == null)
             player = target.GetComponentInParent<Player>();
 
-        enemy = target.GetComponent<Enemy>();
-        if (enemy == null)
-            enemy = target.GetComponentInParent<Enemy>();
+        var newEnemy = target.GetComponent<Enemy>();
+        if (newEnemy == null)
+            newEnemy = target.GetComponentInParent<Enemy>();
+        SubscribeToEnemy(newEnemy);
+
 
         if (enemy != null)
         {
@@ -215,13 +216,35 @@ public class StatusPanel_Text : MonoBehaviour
     public void ClearTarget()
     {
         player = null;
-        enemy = null;
+        SubscribeToEnemy(null);
         buffs = null;
         refreshQueued = false;
         lastKnownBurningTurns = 0;
         lastKnownFrozenTurns = 0;
 
         Hide();
+    }
+
+    private void OnDisable()
+    {
+        SubscribeToEnemy(null);
+    }
+
+    private void SubscribeToEnemy(Enemy newEnemy)
+    {
+        if (enemy == newEnemy) return;
+
+        if (enemy != null)
+        {
+            enemy.OnStatusChanged -= Refresh;
+        }
+
+        enemy = newEnemy;
+
+        if (enemy != null)
+        {
+            enemy.OnStatusChanged += Refresh;
+        }
     }
 
     // ---------- Helpers ----------

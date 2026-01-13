@@ -77,7 +77,7 @@ public class FireStrategy : DefaultElementalStrategy, IStartOfTurnEffect // 火�
         }                                                        // else if 區塊結束
         else if (latestReactive == ElementType.Wood)          // 若有木元素
         {                                                        // else if 區塊開始
-            defender.burningTurns = 5;                           // 點燃木頭：設定燃燒持續 5 回合
+            defender.SetBurningTurns(5);                         // 點燃木頭：設定燃燒持續 5 回合
             defender.AddElementTag(ElementType.Fire);            // 加上火標記（燃燒來源）
             defender.AddElementTag(ElementType.Wood);            // 保留木標記（表示木仍存在，被火影響）
         }                                                        // else if 區塊結束
@@ -136,7 +136,7 @@ public class FireStrategy : DefaultElementalStrategy, IStartOfTurnEffect // 火�
         }
         else if (latestReactive == ElementType.Wood)
         {
-            enemy.burningTurns = 5;
+            enemy.SetBurningTurns(5);
             enemy.AddElementTag(ElementType.Fire);
             enemy.AddElementTag(ElementType.Wood);
         }
@@ -157,6 +157,7 @@ public class FireStrategy : DefaultElementalStrategy, IStartOfTurnEffect // 火�
         {                                                        // if 區塊開始
             enemy.TakeDamage(2);                                 // 每回合固定扣 2 點傷害
             enemy.burningTurns--;                                // 燃燒回合數 -1
+            enemy.RaiseStatusChanged();
             if (enemy.burningTurns == 0)                         // 若燃燒剛好結束
             {                                                    // if 區塊開始
                 enemy.RemoveElementTag(ElementType.Fire);        // 移除火標記
@@ -187,7 +188,7 @@ public class WaterStrategy : DefaultElementalStrategy            // 水元素策
             bool freeze = true;                                  // 預設會凍結
             if (defender.isBoss && UnityEngine.Random.value < 0.5f) // 若是 Boss，有 50% 免疫凍結（隨機）
                 freeze = false;                                  // 設定不凍結
-            if (freeze) defender.frozenTurns = 1;                // 若要凍結，設定凍結 1 回合
+            if (freeze) defender.SetFrozenTurns(1);              // 若要凍結，設定凍結 1 回合
             defender.RemoveElementTag(ElementType.Ice);          // 清除冰標記
             defender.RemoveElementTag(ElementType.Water);        // 清除水標記（反應後兩者皆消失）
         }                                                        // else if 區塊結束
@@ -427,7 +428,7 @@ public class IceStrategy : DefaultElementalStrategy              // 冰元素策
             bool freeze = true;                                  // 預設凍結
             if (defender.isBoss && UnityEngine.Random.value < 0.5f) // Boss 有 50% 免疫
                 freeze = false;                                  // 改為不凍結
-            if (freeze) defender.frozenTurns = 1;                // 凍結 1 回合
+            if (freeze) defender.SetFrozenTurns(1);              // 凍結 1 回合
             defender.RemoveElementTag(ElementType.Ice);          // 清除冰
             defender.RemoveElementTag(ElementType.Water);        // 清除水
         }                                                        // else if 區塊結束
@@ -479,7 +480,7 @@ public class IceStrategy : DefaultElementalStrategy              // 冰元素策
                     bool freeze = true;
                     if (enemy.isBoss && UnityEngine.Random.value < 0.5f)
                         freeze = false;
-                    if (freeze) enemy.frozenTurns = 1;
+                    if (freeze) enemy.SetFrozenTurns(1);
                     enemy.RemoveElementTag(ElementType.Ice);
                     enemy.RemoveElementTag(ElementType.Water);
                     continue;
@@ -509,7 +510,7 @@ public class WoodStrategy : DefaultElementalStrategy             // 木元素策
 
         if (latestReactive == ElementType.Fire)               // 木 + 火：引燃木頭（燃燒）
         {                                                        // if 區塊開始
-            defender.burningTurns = 5;                           // 設定 5 回合燃燒
+            defender.SetBurningTurns(5);                         // 設定 5 回合燃燒
             defender.AddElementTag(ElementType.Fire);            // 附著火
             defender.AddElementTag(ElementType.Wood);            // 保留木（表示燃燒木頭）
         }                                                        // if 區塊結束

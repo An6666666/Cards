@@ -30,7 +30,7 @@ public class FeiLuYao : Enemy
     {
         if (frozenTurns > 0)
         {
-            frozenTurns--;
+            SetFrozenTurns(Mathf.Max(0, frozenTurns - 1));
             return;
         }
 

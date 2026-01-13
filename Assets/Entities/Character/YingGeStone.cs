@@ -64,7 +64,7 @@ public class YingGeStone : Enemy                           // 定義一個繼承
     {
         if (frozenTurns > 0)                               // 如果還有凍結回合
         {
-            frozenTurns--;                                 // 扣掉一回合
+            SetFrozenTurns(Mathf.Max(0, frozenTurns - 1));                                 // 扣掉一回合
             return true;                                   // 表示這回合被凍住了
         }
 
