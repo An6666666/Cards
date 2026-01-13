@@ -225,7 +225,6 @@ public class Enemy : MonoBehaviour
         elements?.ProcessPlayerTurnEnd();
     }
 
-
     public int BaseAttackDamage
     {
         get => baseAttackDamage;

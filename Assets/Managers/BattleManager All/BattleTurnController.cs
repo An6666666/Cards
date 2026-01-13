@@ -104,7 +104,7 @@ public class BattleTurnController               // 回合流程控制器：玩�
             }
         }
     }
-    
+
     public void StartPlayerTurn()
     {
         handUIController.LockCardInteraction();
@@ -122,6 +122,9 @@ public class BattleTurnController               // 回合流程控制器：玩�
 
         handUIController.UpdateEnergyUI();
         // 更新 UI 上顯示的能量數字
+
+        player.buffs.TickDebuffsOnPlayerTurnStart();
+        // 玩家回合開始：扣減 debuff 回合數，避免敵人意圖與實際行為不同步
 
         processingPlayerTurnStart = true;
         // 標記：開始執行「玩家回合開始」流程

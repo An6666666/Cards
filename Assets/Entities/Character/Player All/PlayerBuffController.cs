@@ -109,7 +109,10 @@ public class PlayerBuffController : MonoBehaviour
         {
             owner.TakeStatusDamage(3);
         }
-
+        drawBlockedThisTurn = false;
+    }
+        public void TickDebuffsOnPlayerTurnStart()
+        {
         if (weak > 0)
         {
             weak--;
@@ -148,7 +151,6 @@ public class PlayerBuffController : MonoBehaviour
                 }
             }
         }
-        drawBlockedThisTurn = false;
     }
 
     public bool CanMove()
@@ -193,9 +195,9 @@ public class PlayerBuffController : MonoBehaviour
 
     public void ApplyWeakFromEnemy(int duration)
     {
-        duration = Mathf.Max(0, duration);
-        weak = Mathf.Max(weak, duration);
-        weakFromEnemies = Mathf.Max(weakFromEnemies, Mathf.Min(duration, weak));
+        int storedDuration = GetStoredDebuffDuration(duration);
+        weak = Mathf.Max(weak, storedDuration);
+        weakFromEnemies = Mathf.Max(weakFromEnemies, Mathf.Min(storedDuration, weak));
     }
 
     public void IncreaseWeakFromPlayer(int amount)
@@ -210,16 +212,16 @@ public class PlayerBuffController : MonoBehaviour
 
     public void ApplyBleedFromEnemy(int duration)
     {
-        duration = Mathf.Max(0, duration);
-        bleed = Mathf.Max(bleed, duration);
-        bleedFromEnemies = Mathf.Max(bleedFromEnemies, Mathf.Min(duration, bleed));
+        int storedDuration = GetStoredDebuffDuration(duration);
+        bleed = Mathf.Max(bleed, storedDuration);
+        bleedFromEnemies = Mathf.Max(bleedFromEnemies, Mathf.Min(storedDuration, bleed));
     }
 
     public void ApplyImprisonFromEnemy(int duration)
     {
-        duration = Mathf.Max(0, duration);
-        imprison = Mathf.Max(imprison, duration);
-        imprisonFromEnemies = Mathf.Max(imprisonFromEnemies, Mathf.Min(duration, imprison));
+        int storedDuration = GetStoredDebuffDuration(duration);
+        imprison = Mathf.Max(imprison, storedDuration);
+        imprisonFromEnemies = Mathf.Max(imprisonFromEnemies, Mathf.Min(storedDuration, imprison));
     }
 
     public void ResetAll()
@@ -249,5 +251,14 @@ public class PlayerBuffController : MonoBehaviour
     {
         public CardBase sourceCard;
         public int blockGain;
+    }
+    private static int GetStoredDebuffDuration(int duration)
+    {
+        duration = Mathf.Max(0, duration);
+        if (duration > 0)
+        {
+            duration += 1;
+        }
+        return duration;
     }
 }

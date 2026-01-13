@@ -6331,7 +6331,7 @@ MonoBehaviour:
   endTurnButton: {fileID: 2116894243}
   enemySpawnConfigs:
   - enemyPrefab: {fileID: 4204690724760053818, guid: 87fab54ae39d11f449187455258a17cc, type: 3}
-    count: 1
+    count: 0
   - enemyPrefab: {fileID: 4898516673341191513, guid: a09861f3a2ead1f4f876a9345a60088b, type: 3}
     count: 0
   - enemyPrefab: {fileID: 4591814044274373110, guid: e0d91408b43bec24ab02b0d2932a3dfc, type: 3}
@@ -8195,7 +8195,7 @@ BoxCollider2D:
   m_IsTrigger: 0
   m_UsedByEffector: 0
   m_UsedByComposite: 0
-  m_Offset: {x: -0.6830063, y: 20.511595}
+  m_Offset: {x: -1.1398445, y: 21.729767}
   m_SpriteTilingProperty:
     border: {x: 0.049999997, y: 0.049999997, z: 0.049999997, w: 0.049999997}
     pivot: {x: 0.5, y: 0.5}
@@ -8206,8 +8206,8 @@ BoxCollider2D:
     adaptiveTiling: 0
   m_AutoTiling: 0
   serializedVersion: 2
-  m_Size: {x: 40.33509, y: 52.34911}
-  m_EdgeRadius: 0
+  m_Size: {x: 2.2672155, y: 16.412994}
+  m_EdgeRadius: 1.07
 --- !u!114 &1848671827
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -8280,7 +8280,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 4b17aca886ce6ff488b11e95c1291b15, type: 2}
   - {fileID: 11400000, guid: 4b17aca886ce6ff488b11e95c1291b15, type: 2}
   - {fileID: 11400000, guid: 4b17aca886ce6ff488b11e95c1291b15, type: 2}
-  useDebugDeck: 1
+  useDebugDeck: 0
   startingDeckDefinition: {fileID: 11400000, guid: 1ce8022936a74184fb5e02c6c0afbb04, type: 2}
   exhaustCountThisTurn: 0
 --- !u!114 &1848671832
