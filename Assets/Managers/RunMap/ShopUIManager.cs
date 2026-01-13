@@ -382,7 +382,7 @@ public class ShopUIManager : MonoBehaviour
 
         int removalCost = inventory.CardRemovalCost;
         if (removalCostText != null)
-            removalCostText.text = $"移除一張卡片需要 {removalCost} 金幣";
+            removalCostText.text = $"移除一張卡片需要 {removalCost} ";
 
         int total = player.deck.Count;
         int perPage = Mathf.Max(1, removalPerPage);
@@ -620,7 +620,7 @@ public class ShopUIManager : MonoBehaviour
     private void RefreshGoldDisplay()
     {
         if (goldText != null && player != null)
-            goldText.text = $"金幣：{player.gold}";
+            goldText.text = $"{player.gold}";
     }
 
     private void ShowMessage(string text)
@@ -776,7 +776,7 @@ public class ShopUIManager : MonoBehaviour
             textSetter(titleText, EqualityComparer<TText>.Default.Equals(titleText, priceText) ? $"{title} - {price} 金幣" : title);
 
         if (!EqualityComparer<TText>.Default.Equals(priceText, default) && !EqualityComparer<TText>.Default.Equals(priceText, titleText))
-            textSetter(priceText, $"{price} 金幣");
+            textSetter(priceText, $"{price} ");
 
         if (!EqualityComparer<TText>.Default.Equals(descriptionText, default))
         {

@@ -99,8 +99,8 @@ public class BattleTurnController               // 回合流程控制器：玩�
             handUIController.SetEndTurnButtonInteractable(true);
         // 若戰鬥已開始，則啟用「結束回合」按鈕
 
-        player.energy = player.maxEnergy;
-        // 回合開始：重置能量到最大值
+        player.energy = player.maxEnergy;// 回合開始：重置能量到最大值
+        EnergyUIBus.RefreshAll(player.energy, player.maxEnergy);
 
         UIEventBus.RaiseEnergyState(new EnergySnapshot(player.energy, player.maxEnergy));
         // 確保能量 UI 在新回合時刷新到最新數值與透明度

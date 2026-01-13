@@ -217,8 +217,8 @@ Transform:
   m_GameObject: {fileID: 3800146583944074746}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 31, y: 2.169999, z: 0}
-  m_LocalScale: {x: 15.036077, y: 10.254131, z: 17.874166}
+  m_LocalPosition: {x: -19.800003, y: 7.6000004, z: 0}
+  m_LocalScale: {x: 3.1, y: 3, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 8610105907043483664}
@@ -264,7 +264,7 @@ SpriteRenderer:
   m_SortingLayerID: 253976321
   m_SortingLayer: 7
   m_SortingOrder: 3
-  m_Sprite: {fileID: 21300000, guid: 06845288537637c4b9d6b85474ad4fdc, type: 3}
+  m_Sprite: {fileID: 21300000, guid: fe57066456a8500489668ae00b21044e, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -745,7 +745,7 @@ BoxCollider2D:
   m_IsTrigger: 0
   m_UsedByEffector: 0
   m_UsedByComposite: 0
-  m_Offset: {x: -0.049785614, y: 1.7200942}
+  m_Offset: {x: -0.0041236877, y: 1.6592419}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0, y: 0}
@@ -756,7 +756,7 @@ BoxCollider2D:
     adaptiveTiling: 0
   m_AutoTiling: 0
   serializedVersion: 2
-  m_Size: {x: 17.1418, y: 6.145817}
+  m_Size: {x: 15.589268, y: 6.024112}
   m_EdgeRadius: 0
 --- !u!114 &6019559265414920320
 MonoBehaviour:
@@ -854,7 +854,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 154c5d78b25adbe468ee1d015b349283, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  panel: {fileID: 0}
 --- !u!114 &680455677730063604
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -989,19 +988,19 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 266629851796375414, guid: aa327d458a92acc48ba8ff8e60ec1976, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 51.7
+      value: -2.8
       objectReference: {fileID: 0}
     - target: {fileID: 266629851796375414, guid: aa327d458a92acc48ba8ff8e60ec1976, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 2.169999
+      value: 7.6000004
       objectReference: {fileID: 0}
     - target: {fileID: 5227435389389655221, guid: aa327d458a92acc48ba8ff8e60ec1976, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 41.13999
+      value: -11.6
       objectReference: {fileID: 0}
     - target: {fileID: 5227435389389655221, guid: aa327d458a92acc48ba8ff8e60ec1976, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 2.169999
+      value: 7.6
       objectReference: {fileID: 0}
     - target: {fileID: 5856414769113194564, guid: aa327d458a92acc48ba8ff8e60ec1976, type: 3}
       propertyPath: m_Name

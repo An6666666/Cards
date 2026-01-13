@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic; // 使用泛型集合（List、Dictionary 等）
+using System.Text;
 using UnityEngine; // Unity 核心命名空間
 using DG.Tweening; // DOTween 動畫 tween 功能
 using UnityEngine.SceneManagement; // 場景切換功能
@@ -18,6 +19,7 @@ public class StartingElementSelectionUI : MonoBehaviour // 起始元素選擇介
     [Header("Selection")]
     [Min(1)]
     [SerializeField] private int requiredSelections = 3;
+
     [Header("Navigation")] // Inspector 分組：導航/場景切換
     [SerializeField] private string runSceneName = "RunScene"; // 按下開始後要載入的場景名稱
 
@@ -36,7 +38,53 @@ public class StartingElementSelectionUI : MonoBehaviour // 起始元素選擇介
     [SerializeField] private Vector2 selectionRingPadding = new Vector2(12f, 12f); // 選擇環相對按鈕圖示的內外邊距
     [SerializeField] private Color startEnabledColor = new Color(0.2f, 0.6f, 0.2f); // 可開始時開始按鈕顏色（偏綠）
     [SerializeField] private Color startDisabledColor = new Color(0.5f, 0.5f, 0.5f); // 不可開始時開始按鈕顏色（灰色）
+
     public event Action<ElementType> ElementSelected;
+
+    // =========================
+    // ✅ Left Info Panel (新增)
+    // =========================
+    [Header("Left Info Panel")]
+    [SerializeField] private Text leftInfoText; // 左邊顯示說明的 Text（Inspector 拖進來）
+
+    [System.Serializable]
+    public class ElementInfo
+    {
+        public ElementType element;
+        [TextArea(2, 6)] public string description; // 單元素解說
+    }
+
+    [System.Serializable]
+    public class ReactionInfo
+    {
+        public ElementType a;
+        public ElementType b;
+        public string title; // 反應名稱（例如 汽化/融化/導電… 可不填）
+        [TextArea(2, 8)] public string description; // 反應解說（需要 a+b 都選到才顯示）
+    }
+
+    [SerializeField] private List<ElementInfo> elementInfoTable = new List<ElementInfo>();
+    [SerializeField] private List<ReactionInfo> reactionInfoTable = new List<ReactionInfo>();
+
+    private readonly Dictionary<ElementType, string> elementDescLookup = new Dictionary<ElementType, string>();
+    private readonly Dictionary<ReactionKey, ReactionInfo> reactionLookup = new Dictionary<ReactionKey, ReactionInfo>();
+
+    private struct ReactionKey : IEquatable<ReactionKey>
+    {
+        public ElementType x;
+        public ElementType y;
+
+        public ReactionKey(ElementType a, ElementType b)
+        {
+            // 讓 (火,水) 與 (水,火) 視為同一組（忽略順序）
+            if ((int)a <= (int)b) { x = a; y = b; }
+            else { x = b; y = a; }
+        }
+
+        public bool Equals(ReactionKey other) => x == other.x && y == other.y;
+        public override bool Equals(object obj) => obj is ReactionKey other && Equals(other);
+        public override int GetHashCode() => ((int)x * 397) ^ (int)y;
+    }
 
     private readonly List<ElementType> selectedElements = new List<ElementType>(3); // 已選取的元素清單（最多 3 個）
     private readonly Dictionary<ElementType, ElementButtonBinding> elementLookup = new Dictionary<ElementType, ElementButtonBinding>(); // 元素 -> 綁定資料 的查表字典
@@ -51,9 +99,17 @@ public class StartingElementSelectionUI : MonoBehaviour // 起始元素選擇介
         {
             selectedElements.Capacity = requiredSelections;
         }
+
         BuildLookup(); // 建立 elementLookup，並生成每個元素的選擇環
         WireUpButtons(); // 綁定每個元素按鈕與開始按鈕的 onClick 事件
+
+        // ✅ 新增：建立左邊說明查表（不影響原本功能）
+        BuildInfoLookup();
+
         RefreshButtonStates(); // 依目前 selectedElements 刷新 UI（選擇環、開始按鈕可用狀態）
+
+        // ✅ 新增：初始化左邊文字
+        UpdateLeftInfoPanel();
     }
 
     private void BuildLookup() // 建立元素按鈕的查表與選擇環
@@ -85,7 +141,6 @@ public class StartingElementSelectionUI : MonoBehaviour // 起始元素選擇介
             startButton.onClick.RemoveAllListeners(); // 移除舊事件（避免重複）
             startButton.onClick.AddListener(OnStartClicked); // 綁定開始行為
         }
-
     }
 
     private void ToggleElement(ElementType element) // 切換某元素的選取狀態
@@ -101,6 +156,9 @@ public class StartingElementSelectionUI : MonoBehaviour // 起始元素選擇介
         }
 
         RefreshButtonStates(); // 每次變更選取後刷新 UI 狀態
+
+        // ✅ 新增：同步更新左邊文字（不影響原本功能）
+        UpdateLeftInfoPanel();
     }
 
     private void RefreshButtonStates() // 刷新所有按鈕狀態與開始按鈕狀態
@@ -150,10 +208,26 @@ public class StartingElementSelectionUI : MonoBehaviour // 起始元素選擇介
         selectionRings[binding.element] = ringImage; // 記錄到字典：元素 -> 選擇環 Image
     }
 
+    private string ElementToZh(object elementEnumOrString)
+    {
+        if (elementEnumOrString == null) return "無";
+        string key = elementEnumOrString.ToString();
+
+        return key switch
+        {
+            "Wood" => "木",
+            "Water" => "水",
+            "Fire" => "火",
+            "Thunder" => "雷",
+            "Ice" => "冰",
+            _ => key, // 其他就原樣
+        };
+    }
+
     private void UpdateSelectionRing(ElementType element, bool selected) // 更新某元素的選擇環顯示/隱藏動畫
     {
         if (!selectionRings.TryGetValue(element, out Image ringImage)) // 若此元素沒有選擇環
-        return; // 就不處理（注意：此行縮排是原本就這樣）
+            return;
 
         if (selectionStates.TryGetValue(element, out bool previousSelected) && previousSelected == selected) // 若選取狀態沒有變
         {
@@ -178,36 +252,143 @@ public class StartingElementSelectionUI : MonoBehaviour // 起始元素選擇介
             ringImage.gameObject.SetActive(true); // 先打開物件才能看到動畫
         }
 
-        selectionTweens[element] = ringImage // 把這次 tween 記錄到字典（之後可 Kill）
-            .DOFillAmount(selected ? 1f : 0f, duration) // 以 fillAmount 做動畫：選取到 1，取消到 0
-            .SetEase(selected ? Ease.OutCubic : Ease.InCubic) // 選取用 OutCubic，取消用 InCubic（手感不同）
-            .OnComplete(() => // 動畫結束時回呼
+        selectionTweens[element] = ringImage
+            .DOFillAmount(selected ? 1f : 0f, duration)
+            .SetEase(selected ? Ease.OutCubic : Ease.InCubic)
+            .OnComplete(() =>
             {
-                if (!selected) // 若是取消選取
+                if (!selected)
                 {
-                    ringImage.gameObject.SetActive(false); // 動畫收回後再關閉物件
+                    ringImage.gameObject.SetActive(false);
                 }
             });
-        
-        selectionStates[element] = selected; // 記錄最新狀態（供下次判斷是否需要重播）
+
+        selectionStates[element] = selected;
     }
 
     private void OnDestroy() // 物件銷毀時清理 tween，避免 DOTween 留下引用
     {
-        foreach (Tween tween in selectionTweens.Values) // 逐一取出所有 tween
+        foreach (Tween tween in selectionTweens.Values)
         {
-            tween?.Kill(false); // 若 tween 存在就 Kill
+            tween?.Kill(false);
         }
-
-        selectionTweens.Clear(); // 清空字典
+        selectionTweens.Clear();
     }
 
     private void OnStartClicked() // 點擊「開始」按鈕時的行為
     {
         if (selectedElements.Count != requiredSelections)
-            return; // 直接返回（不允許開始）
+            return;
 
         StartingDeckSelection.SetSelection(selectedElements, requiredSelections);
-        SceneManager.LoadScene(runSceneName); // 載入 RunScene（進入遊戲主流程）
+        SceneManager.LoadScene(runSceneName);
     }
+
+    // =========================
+    // ✅ Left Info Panel methods
+    // =========================
+    private void BuildInfoLookup()
+    {
+        elementDescLookup.Clear();
+        reactionLookup.Clear();
+
+        foreach (var info in elementInfoTable)
+        {
+            if (info == null) continue;
+            if (!elementDescLookup.ContainsKey(info.element))
+                elementDescLookup.Add(info.element, info.description ?? "");
+        }
+
+        foreach (var r in reactionInfoTable)
+        {
+            if (r == null) continue;
+            var key = new ReactionKey(r.a, r.b);
+            if (!reactionLookup.ContainsKey(key))
+                reactionLookup.Add(key, r);
+        }
+    }
+
+    private void UpdateLeftInfoPanel()
+    {
+        if (leftInfoText == null) return;
+
+        if (selectedElements.Count == 0)
+        {
+            leftInfoText.text = "請選擇元素";
+            return;
+        }
+
+        string ToZh(ElementType e)
+        {
+            return e switch
+            {
+                ElementType.Wood => "木",
+                ElementType.Water => "水",
+                ElementType.Fire => "火",
+                ElementType.Thunder => "雷",
+                ElementType.Ice => "冰",
+                _ => e.ToString()
+            };
+        }
+
+        var sb = new StringBuilder();
+
+        // ===== 單元素 =====
+        sb.AppendLine("【元素】");
+        sb.AppendLine();
+
+        for (int i = 0; i < selectedElements.Count; i++)
+        {
+            var e = selectedElements[i];
+
+            sb.AppendLine($"- {ToZh(e)}");
+
+            if (elementDescLookup.TryGetValue(e, out var desc) && !string.IsNullOrWhiteSpace(desc))
+                sb.AppendLine($"  {desc}");
+            else
+                sb.AppendLine("  （尚未設定解說）");
+
+            sb.AppendLine(); // ✅ 每個元素項目後空一行（更好讀、名稱+說明靠近）
+        }
+
+        // ===== 反應：兩個都選到才顯示 =====
+        sb.AppendLine("【元素反應】");
+        sb.AppendLine();
+
+        bool hasAnyReaction = false;
+
+        for (int i = 0; i < selectedElements.Count; i++)
+        {
+            for (int j = i + 1; j < selectedElements.Count; j++)
+            {
+                var a = selectedElements[i];
+                var b = selectedElements[j];
+
+                var key = new ReactionKey(a, b);
+                if (reactionLookup.TryGetValue(key, out var r) && r != null)
+                {
+                    hasAnyReaction = true;
+
+                    // 顯示標題：有 title 用 title，沒有就用「木 + 水」這種
+                    string defaultTitle = $"{ToZh(a)} + {ToZh(b)}";
+                    string title = string.IsNullOrWhiteSpace(r.title) ? defaultTitle : r.title;
+
+                    sb.AppendLine($"- {title}");
+
+                    if (!string.IsNullOrWhiteSpace(r.description))
+                        sb.AppendLine($"  {r.description}");
+                    else
+                        sb.AppendLine("  （尚未設定解說）");
+
+                    sb.AppendLine(); // ✅ 每個反應項目後空一行
+                }
+            }
+        }
+
+        if (!hasAnyReaction)
+            sb.AppendLine("（尚未形成反應）");
+
+        leftInfoText.text = sb.ToString();
+    }
+
 }
