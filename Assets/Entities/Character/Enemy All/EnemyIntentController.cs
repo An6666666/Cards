@@ -8,7 +8,6 @@ public class EnemyIntentController : MonoBehaviour
     private Vector2Int lastKnownPlayerPos;
     private bool hasLastKnownPlayerPos = false;
     private int lastKnownFrozenTurns = int.MinValue;
-    private int lastKnownStunTurns = int.MinValue;
 
     public void Init(Enemy owner)
     {
@@ -52,8 +51,7 @@ public class EnemyIntentController : MonoBehaviour
         if (enemy != null)
         {
             bool statusChanged =
-                enemy.frozenTurns != lastKnownFrozenTurns ||
-                enemy.buffs.stun != lastKnownStunTurns;
+                enemy.frozenTurns != lastKnownFrozenTurns;
 
             if (statusChanged)
             {
@@ -72,7 +70,7 @@ public class EnemyIntentController : MonoBehaviour
             return;
         }
 
-        if (enemy.frozenTurns > 0 || enemy.buffs.stun > 0)
+        if (enemy.frozenTurns > 0)
         {
             enemy.nextIntent.type = EnemyIntentType.Idle;
             enemy.nextIntent.value = 0;
@@ -169,6 +167,5 @@ public class EnemyIntentController : MonoBehaviour
         if (enemy == null) return;
 
         lastKnownFrozenTurns = enemy.frozenTurns;
-        lastKnownStunTurns = enemy.buffs != null ? enemy.buffs.stun : 0;
     }
 }

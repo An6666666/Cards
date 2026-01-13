@@ -19,6 +19,9 @@ public class StatusPanel_Text : MonoBehaviour
     private Enemy enemy;
     private PlayerBuffController buffs;
     private bool refreshQueued;
+    private int lastKnownBurningTurns;
+    private int lastKnownFrozenTurns;
+
 
     private void Awake()
     {
@@ -36,6 +39,15 @@ public class StatusPanel_Text : MonoBehaviour
     private void Update()
     {
         // 不再每幀 Refresh（避免反射一直跑）
+        if (enemy == null) return;
+
+        if (enemy.burningTurns != lastKnownBurningTurns ||
+            enemy.frozenTurns != lastKnownFrozenTurns)
+        {
+            lastKnownBurningTurns = enemy.burningTurns;
+            lastKnownFrozenTurns = enemy.frozenTurns;
+            Refresh();
+        }
     }
 
     private void Refresh()
@@ -99,7 +111,8 @@ public class StatusPanel_Text : MonoBehaviour
     }
         var positive = new List<string>();
         var negative = new List<string>();
-
+    if (buffs != null)
+    {
         // ====== Debuffs (negative) ======
         AddIntEffect(negative, "虛弱", buffs.weak);
         AddIntEffect(negative, "流血", buffs.bleed);
@@ -128,7 +141,12 @@ public class StatusPanel_Text : MonoBehaviour
         AddSignedIntEffect(positive, negative, "下次攻擊耗能", buffs.nextAttackCostModify, positiveWhenNegative: true);
         AddSignedIntEffect(positive, negative, "移動耗能", buffs.movementCostModify, positiveWhenNegative: true);
         AddSignedIntEffect(positive, negative, "下回合抽牌", buffs.nextTurnDrawChange, positiveWhenNegative: false);
-
+    }
+        if (enemy != null)
+        {
+            AddIntEffect(negative, "燃燒", enemy.burningTurns);
+            AddIntEffect(negative, "冰凍", enemy.frozenTurns);
+        }
         // ====== Output ======
         if (buffsText != null)
             buffsText.text = BuildListText("正面效果", positive);
@@ -162,7 +180,18 @@ public class StatusPanel_Text : MonoBehaviour
 
         // 抓 Player / Enemy
         player = target.GetComponent<Player>();
-        enemy  = target.GetComponent<Enemy>();
+        if (player == null)
+            player = target.GetComponentInParent<Player>();
+
+        enemy = target.GetComponent<Enemy>();
+        if (enemy == null)
+            enemy = target.GetComponentInParent<Enemy>();
+
+        if (enemy != null)
+        {
+            lastKnownBurningTurns = enemy.burningTurns;
+            lastKnownFrozenTurns = enemy.frozenTurns;
+        }
 
         // 只有玩家才有 buffs（你目前是這樣設計）
         if (player != null)
@@ -189,6 +218,8 @@ public class StatusPanel_Text : MonoBehaviour
         enemy = null;
         buffs = null;
         refreshQueued = false;
+        lastKnownBurningTurns = 0;
+        lastKnownFrozenTurns = 0;
 
         Hide();
     }

@@ -34,7 +34,7 @@ public class HuGuPo : Enemy // 定義 HuGuPo 類別，繼承自 Enemy
 
     public override void EnemyAction(Player player)
     {
-        if (HandleFrozenOrStunned()) // 若處於冰凍或暈眩，處理後直接結束行動
+        if (HandleFrozen()) // 若處於冰凍，處理後直接結束行動
         {
             return;
         }
@@ -67,7 +67,7 @@ public class HuGuPo : Enemy // 定義 HuGuPo 類別，繼承自 Enemy
         IncrementCooldowns(skipImprisonIncrement, skipChargeIncrement); // 最後累加冷卻
     }
 
-    private bool HandleFrozenOrStunned()
+    private bool HandleFrozen()
     {
         if (frozenTurns > 0) // 若冰凍中
         {
@@ -76,14 +76,7 @@ public class HuGuPo : Enemy // 定義 HuGuPo 類別，繼承自 Enemy
             return true; // 本回合無法行動
         }
 
-        if (buffs.stun > 0) // 若暈眩中
-        {
-            buffs.stun--; // 暈眩回合遞減
-            IncrementCooldowns(false, false); // 暈眩時冷卻仍要累加
-            return true; // 本回合無法行動
-        }
-
-        return false; // 未冰凍/暈眩 → 可以繼續行動
+        return false; // 未冰凍 → 可以繼續行動
     }
 
     private void PerformAttackOrMoveWithBleed(Player player)

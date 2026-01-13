@@ -52,7 +52,7 @@ public class YingGe : Enemy
     // Unity 生命週期：Awake，這裡做基本初始化
     protected override void Awake()
     {
-        enemyName = "鶯歌";
+        enemyName = "鸚哥";
         isBoss = true;                                 // 標記這個敵人是 Boss
         battleManager = FindObjectOfType<BattleManager>(); // 找場上的 BattleManager
         base.Awake();                                  // 呼叫基底 Enemy 的 Awake 做原本的初始化
@@ -133,18 +133,12 @@ public class YingGe : Enemy
         FinalizeDeath();
     }
 
-    // 處理冰凍、暈眩這類控場回合消耗，回傳 true 表示這回合不能動
+    // 處理冰凍這類控場回合消耗，回傳 true 表示這回合不能動
     private bool HandleCrowdControl()
     {
         if (frozenTurns > 0)             // 還有冰凍回合
         {
             frozenTurns--;               // 減少一回合
-            return true;                 // 這回合結束
-        }
-
-        if (buffs.stun > 0)              // 還有暈眩回合
-        {
-            buffs.stun--;                // 減少一回合
             return true;                 // 這回合結束
         }
 

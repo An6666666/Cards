@@ -34,12 +34,6 @@ public class FeiLuYao : Enemy
             return;
         }
 
-        if (buffs.stun > 0)
-        {
-            buffs.stun--;
-            return;
-        }
-
         if (player == null)
         {
             return;
@@ -98,8 +92,8 @@ public class FeiLuYao : Enemy
             return;
         }
 
-        // 被冰凍 / 暈眩 → Idle
-        if (frozenTurns > 0 || buffs.stun > 0)
+        // 被冰凍 → Idle
+        if (frozenTurns > 0)
         {
             nextIntent.type = EnemyIntentType.Idle;
             nextIntent.value = 0;

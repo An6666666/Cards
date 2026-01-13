@@ -41,7 +41,7 @@ public class YingGeStone : Enemy                           // 定義一個繼承
 
     public override void EnemyAction(Player player)        // 覆寫敵人的行動邏輯
     {
-        ProcessCrowdControl();                             // 這顆石頭本身沒有攻擊行為，只會處理凍結/暈眩的回合扣減
+        ProcessCrowdControl();                             // 這顆石頭本身沒有攻擊行為，只會處理凍結回合扣減
     }
 
     public override void ProcessTurnStart()                // 每回合開始時會被呼叫
@@ -60,18 +60,12 @@ public class YingGeStone : Enemy                           // 定義一個繼承
         }
     }
 
-    private bool ProcessCrowdControl()                     // 處理被冰凍或暈眩的情況，回傳這回合是否被控制
+    private bool ProcessCrowdControl()                     // 處理被冰凍的情況，回傳這回合是否被控制
     {
         if (frozenTurns > 0)                               // 如果還有凍結回合
         {
             frozenTurns--;                                 // 扣掉一回合
             return true;                                   // 表示這回合被凍住了
-        }
-
-        if (buffs.stun > 0)                                // 如果還有暈眩回合
-        {
-            buffs.stun--;                                  // 扣掉一回合
-            return true;                                   // 表示這回合被暈眩了
         }
 
         return false;                                      // 沒有被控場，這回合算是正常

@@ -24,7 +24,6 @@ public class Enemy : MonoBehaviour
     public bool superconduct = false;
 
     public bool hasBerserk = false;
-    public EnemyBuffs buffs = new EnemyBuffs();
     public Vector2Int gridPosition;
 
     [Header("攻擊設定")]
@@ -185,11 +184,6 @@ public class Enemy : MonoBehaviour
         combat?.ReduceBlock(amount);
     }
 
-    public void DispelBuff(int count)
-    {
-        buffs.ClearSomeBuff(count);
-    }
-
     public bool HasElement(ElementType e)
     {
         return elements != null && elements.HasElement(e);
@@ -285,11 +279,6 @@ public class Enemy : MonoBehaviour
         if (frozenTurns > 0)
         {
             frozenTurns--;
-            return;
-        }
-        if (buffs.stun > 0)
-        {
-            buffs.stun--;
             return;
         }
         if (IsPlayerInRange(player))
@@ -424,15 +413,5 @@ public class Enemy : MonoBehaviour
     public void SetMoveBool(bool moving)
     {
         visual?.SetMoveBool(moving);
-    }
-}
-
-[System.Serializable]
-public class EnemyBuffs
-{
-    public int stun = 0;
-    public void ClearSomeBuff(int count)
-    {
-        stun = Mathf.Max(0, stun - count);
     }
 }

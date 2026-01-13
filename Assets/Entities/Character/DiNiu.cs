@@ -31,12 +31,6 @@ public class DiNiu : Enemy
             return;
         }
 
-        if (buffs.stun > 0)
-        {
-            buffs.stun--;
-            return;
-        }
-
         if (sleepingThisTurn)
         {
             // 這回合在睡，不做事
@@ -89,8 +83,8 @@ public class DiNiu : Enemy
             return;
         }
 
-        // 被冰凍 / 暈眩 → 一律 Idle
-        if (frozenTurns > 0 || buffs.stun > 0)
+        // 被冰凍 → 一律 Idle
+        if (frozenTurns > 0)
         {
             nextIntent.type = EnemyIntentType.Idle;
             nextIntent.value = 0;

@@ -49,7 +49,7 @@ public class GouShe : Enemy               // 鉤蛇怪物類別，繼承自 Enem
 
     public override void EnemyAction(Player player)
     {
-        if (HandleFrozenOrStunned())   // 若有凍結或暈眩狀態，處理回合消耗後直接結束行動
+        if (HandleFrozen())   // 若有凍結狀態，處理回合消耗後直接結束行動
         {
             return;
         }
@@ -88,7 +88,7 @@ public class GouShe : Enemy               // 鉤蛇怪物類別，繼承自 Enem
             return;
         }
 
-        if (frozenTurns > 0 || buffs.stun > 0)   // 若下回合會被凍結或暈眩
+        if (frozenTurns > 0)   // 若下回合會被凍結
         {
             nextIntent.type = EnemyIntentType.Idle;   // 意圖顯示為無行動
             nextIntent.value = 0;
@@ -134,7 +134,7 @@ public class GouShe : Enemy               // 鉤蛇怪物類別，繼承自 Enem
         UpdateIntentIcon();                    // 最後更新意圖圖示
     }
 
-    private bool HandleFrozenOrStunned()
+    private bool HandleFrozen()
     {
         if (frozenTurns > 0)         // 若目前有凍結回合
         {
@@ -142,13 +142,7 @@ public class GouShe : Enemy               // 鉤蛇怪物類別，繼承自 Enem
             return true;            // 回合直接結束（這回合不能動）
         }
 
-        if (buffs.stun > 0)         // 若目前有暈眩回合
-        {
-            buffs.stun--;           // 減少一回合
-            return true;            // 回合直接結束
-        }
-
-        return false;               // 沒有凍結或暈眩，可以正常行動
+        return false;               // 沒有凍結，可以正常行動
     }
 
     private void ApplyWaterArmorIfOnTile()
