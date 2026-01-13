@@ -78,8 +78,8 @@ public class FireStrategy : DefaultElementalStrategy, IPlayerEndTurnEffect // �
         else if (latestReactive == ElementType.Wood)          // 若有木元素
         {                                                        // else if 區塊開始
             defender.SetBurningTurns(5);                         // 點燃木頭：設定燃燒持續 5 回合
+            defender.RemoveElementTag(ElementType.Wood);         // 燃燒後木材被消耗
             defender.AddElementTag(ElementType.Fire);            // 加上火標記（燃燒來源）
-            defender.AddElementTag(ElementType.Wood);            // 保留木標記（表示木仍存在，被火影響）
         }                                                        // else if 區塊結束
         else if (latestReactive == ElementType.Thunder)       // 若有雷元素
         {                                                        // else if 區塊開始
@@ -137,8 +137,8 @@ public class FireStrategy : DefaultElementalStrategy, IPlayerEndTurnEffect // �
         else if (latestReactive == ElementType.Wood)
         {
             enemy.SetBurningTurns(5);
+            enemy.RemoveElementTag(ElementType.Wood);
             enemy.AddElementTag(ElementType.Fire);
-            enemy.AddElementTag(ElementType.Wood);
         }
         else if (latestReactive == ElementType.Thunder)
         {
@@ -160,8 +160,7 @@ public class FireStrategy : DefaultElementalStrategy, IPlayerEndTurnEffect // �
             enemy.RaiseStatusChanged();
             if (enemy.burningTurns == 0)                         // 若燃燒剛好結束
             {                                                    // if 區塊開始
-                enemy.RemoveElementTag(ElementType.Fire);        // 移除火標記
-                enemy.RemoveElementTag(ElementType.Wood);        // 同時移除木標記（因為燃燒結束，木不再維持燃燒狀態）
+                enemy.RemoveElementTag(ElementType.Wood);        // 燃燒結束後只清除木標記
             }                                                    // if 區塊結束
         }                                                        // if 區塊結束
     }                                                            // 方法區塊結束
@@ -181,6 +180,7 @@ public class WaterStrategy : DefaultElementalStrategy            // 水元素策
         {                                                        // if 區塊開始
             dmg = Mathf.CeilToInt(baseDamage * 1.5f);            // 傷害 1.5 倍
             defender.RemoveElementTag(ElementType.Fire);         // 移除火標記
+            defender.SetBurningTurns(0);                         // 受到水傷害時清除燃燒
             defender.AddElementTag(ElementType.Water);           // 加上水標記
         }                                                        // if 區塊結束
         else if (latestReactive == ElementType.Ice)           // 水 + 冰：凍結判定
@@ -421,6 +421,7 @@ public class IceStrategy : DefaultElementalStrategy              // 冰元素策
         {                                                        // if 區塊開始
             dmg = Mathf.CeilToInt(baseDamage * 1.5f);            // 1.5 倍傷害
             defender.RemoveElementTag(ElementType.Fire);         // 移除火
+            defender.SetBurningTurns(0);                         // 受到冰傷害時清除燃燒
             defender.AddElementTag(ElementType.Ice);             // 附著冰
         }                                                        // if 區塊結束
         else if (latestReactive == ElementType.Water)         // 冰 + 水：凍結機率判定
@@ -511,8 +512,8 @@ public class WoodStrategy : DefaultElementalStrategy             // 木元素策
         if (latestReactive == ElementType.Fire)               // 木 + 火：引燃木頭（燃燒）
         {                                                        // if 區塊開始
             defender.SetBurningTurns(5);                         // 設定 5 回合燃燒
+            defender.RemoveElementTag(ElementType.Wood);         // 燃燒後木材被消耗
             defender.AddElementTag(ElementType.Fire);            // 附著火
-            defender.AddElementTag(ElementType.Wood);            // 保留木（表示燃燒木頭）
         }                                                        // if 區塊結束
         else if (latestReactive == ElementType.Thunder)       // 木 + 雷：雷擊加倍狀態
         {                                                        // else if 區塊開始
