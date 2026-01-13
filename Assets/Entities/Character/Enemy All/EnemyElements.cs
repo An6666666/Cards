@@ -69,14 +69,19 @@ public class EnemyElements : MonoBehaviour
 
     public void ProcessTurnStart()
     {
+        // 目前元素效果沒有在回合開始觸發，保留此方法供未來擴充。
+    }
+
+    public void ProcessPlayerTurnEnd()
+    {
         var tagsCopy = new List<ElementType>(elementTags);
         foreach (var tag in tagsCopy)
         {
             var strat = ElementalStrategyProvider.Get(tag);
 
-            if (strat is IStartOfTurnEffect effect)
+            if (strat is IPlayerEndTurnEffect effect)
             {
-                effect.OnStartOfTurn(enemy);
+                effect.OnPlayerEndTurn(enemy);
             }
         }
     }

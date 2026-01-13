@@ -38,12 +38,13 @@ public class HuGuPo : Enemy // 定義 HuGuPo 類別，繼承自 Enemy
         {
             return;
         }
-
+        DecideNextIntent(player);
         bool skipImprisonIncrement = false; // 是否跳過禁錮技能冷卻累加
         bool skipChargeIncrement = false; // 是否跳過衝撞技能冷卻累加
 
         if (ProcessChargeMovement(player)) // 若正在執行衝撞移動
         {
+            DecideNextIntent(player);
             skipChargeIncrement = true; // 當回合不累加衝撞冷卻
             IncrementCooldowns(skipImprisonIncrement, skipChargeIncrement); // 更新冷卻
             return;
@@ -51,6 +52,7 @@ public class HuGuPo : Enemy // 定義 HuGuPo 類別，繼承自 Enemy
 
         if (TryStartCharge(player)) // 嘗試開始蓄力衝撞
         {
+            DecideNextIntent(player);
             skipChargeIncrement = true; // 已啟動衝撞 → 不累加衝撞冷卻
             IncrementCooldowns(skipImprisonIncrement, skipChargeIncrement); // 更新冷卻
             return;
@@ -58,6 +60,7 @@ public class HuGuPo : Enemy // 定義 HuGuPo 類別，繼承自 Enemy
 
         if (TryUseImprison(player)) // 嘗試對玩家施展禁錮
         {
+            DecideNextIntent(player);
             skipImprisonIncrement = true; // 已施展禁錮 → 不累加該冷卻
             IncrementCooldowns(skipImprisonIncrement, skipChargeIncrement); // 更新冷卻
             return;
@@ -65,6 +68,69 @@ public class HuGuPo : Enemy // 定義 HuGuPo 類別，繼承自 Enemy
 
         PerformAttackOrMoveWithBleed(player); // 若上述皆未觸發，則進行普通攻擊或靠近玩家
         IncrementCooldowns(skipImprisonIncrement, skipChargeIncrement); // 最後累加冷卻
+    }
+
+    public override void DecideNextIntent(Player player)
+    {
+        if (player == null)
+        {
+            nextIntent.type = EnemyIntentType.Idle;
+            nextIntent.value = 0;
+            UpdateIntentIcon();
+            return;
+        }
+
+        if (frozenTurns > 0)
+        {
+            nextIntent.type = EnemyIntentType.Idle;
+            nextIntent.value = 0;
+            UpdateIntentIcon();
+            return;
+        }
+
+        if (isPreparingCharge)
+        {
+            nextIntent.type = EnemyIntentType.Skill;
+            nextIntent.value = chargeDamage;
+            UpdateIntentIcon();
+            return;
+        }
+
+        bool canStartCharge = player.buffs.imprison > 0 && chargeCooldownCounter >= chargeCooldownTurns;
+        if (canStartCharge)
+        {
+            nextIntent.type = EnemyIntentType.Skill;
+            nextIntent.value = chargeDamage;
+            UpdateIntentIcon();
+            return;
+        }
+
+        bool canImprison = player.buffs.imprison <= 0 && imprisonCooldownCounter >= imprisonCooldownTurns;
+        if (canImprison)
+        {
+            nextIntent.type = EnemyIntentType.Skill;
+            nextIntent.value = 0;
+            UpdateIntentIcon();
+            return;
+        }
+
+        if (IsPlayerInRange(player))
+        {
+            nextIntent.type = EnemyIntentType.Attack;
+            nextIntent.value = CalculateAttackDamage();
+        }
+        else if (canMove)
+        {
+            nextIntent.type = EnemyIntentType.Move;
+            nextIntent.value = 0;
+        }
+        else
+        {
+            nextIntent.type = EnemyIntentType.Idle;
+            nextIntent.value = 0;
+        }
+
+        UpdateIntentIcon();
     }
 
     private bool HandleFrozen()

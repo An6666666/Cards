@@ -40,9 +40,9 @@ public interface IElementalStrategy            // 宣告元素策略介面：定
 {                                              // 介面區塊開始
     int CalculateDamage(Player attacker, Enemy defender, int baseDamage); // 計算傷害的方法：輸入攻擊者、被攻擊者與基礎傷害，回傳實際傷害值
 }                                              // 介面區塊結束
-public interface IStartOfTurnEffect            // 宣告回合開始效果介面：某些元素有「回合開始時」要處理的效果
+public interface IPlayerEndTurnEffect          // 宣告玩家回合結束效果介面：某些元素有「玩家回合結束時」要處理的效果
 {                                              // 介面區塊開始
-    void OnStartOfTurn(Enemy enemy);           // 在敵人回合開始時呼叫，用來處理持續性狀態（如燃燒扣血）
+    void OnPlayerEndTurn(Enemy enemy);         // 在玩家回合結束時呼叫，用來處理持續性狀態（如燃燒扣血）
 }                                              // 介面區塊結束
 
 public class DefaultElementalStrategy : IElementalStrategy // 預設元素策略實作：不做任何加成或特效，單純回傳原傷害
@@ -53,7 +53,7 @@ public class DefaultElementalStrategy : IElementalStrategy // 預設元素策略
     }                                          // 方法區塊結束
 }                                              // 類別區塊結束
 
-public class FireStrategy : DefaultElementalStrategy, IStartOfTurnEffect // 火元素策略：繼承預設策略並實作回合開始效果
+public class FireStrategy : DefaultElementalStrategy, IPlayerEndTurnEffect // 火元素策略：繼承預設策略並實作玩家回合結束效果
 {                                              // 類別區塊開始
     public override int CalculateDamage(Player attacker, Enemy defender, int baseDamage) // 覆寫傷害計算：火元素的特殊反應處理
     {                                          // 方法區塊開始
@@ -151,7 +151,7 @@ public class FireStrategy : DefaultElementalStrategy, IStartOfTurnEffect // 火�
         }
     }
     
-    public void OnStartOfTurn(Enemy enemy)                       // 回合開始效果：火的燃燒 DOT（持續傷害）
+    public void OnPlayerEndTurn(Enemy enemy)                     // 玩家回合結束效果：火的燃燒 DOT（持續傷害）
     {                                                            // 方法區塊開始
         if (enemy.burningTurns > 0)                              // 若仍有燃燒回合數
         {                                                        // if 區塊開始

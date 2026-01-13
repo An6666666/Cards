@@ -52,6 +52,9 @@ public class BattleTurnController               // 回合流程控制器：玩�
         ApplyPlayerMiasmaDamage();
         // 玩家回合結束時：若仍站在瘴氣格上，承受瘴氣傷害
 
+        ApplyEnemyEndTurnEffects();
+        // 玩家回合結束時：觸發敵人身上的回合結束效果（例如燃燒）
+
         GameEvents.RaiseTurnEnded();
         // 發送「回合結束」事件給其他系統（例如計數、遞減狀態等）
 
@@ -90,6 +93,18 @@ public class BattleTurnController               // 回合流程控制器：玩�
         }
     }
 
+    private void ApplyEnemyEndTurnEffects()
+    {
+        var enemiesSnapshot = new List<Enemy>(enemies);
+        foreach (var enemy in enemiesSnapshot)
+        {
+            if (enemy != null)
+            {
+                enemy.ProcessPlayerTurnEnd();
+            }
+        }
+    }
+    
     public void StartPlayerTurn()
     {
         handUIController.LockCardInteraction();

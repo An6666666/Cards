@@ -220,6 +220,12 @@ public class Enemy : MonoBehaviour
         elements?.ProcessTurnStart();
     }
 
+    public virtual void ProcessPlayerTurnEnd()
+    {
+        elements?.ProcessPlayerTurnEnd();
+    }
+
+
     public int BaseAttackDamage
     {
         get => baseAttackDamage;
