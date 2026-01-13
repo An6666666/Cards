@@ -623,6 +623,7 @@ GameObject:
   - component: {fileID: 1543745919097840034}
   - component: {fileID: 5243383997460953792}
   - component: {fileID: 430416585681183940}
+  - component: {fileID: 680455677730063604}
   m_Layer: 0
   m_Name: YingGeStone
   m_TagString: Untagged
@@ -709,6 +710,8 @@ MonoBehaviour:
   highlightFx: {fileID: 0}
   hoverIndicator2D: {fileID: 0}
   hoverIndicatorDelaySeconds: 0
+  skillDescription: "\u4E3B\u52D5\u6280\u80FD\uFF1A\n\u4E0D\u6B7B\u91CD\u751F\uFF1A2
+    \u56DE\u5408\u5F8C\u539F\u5730\u6EFF\u8840\u5FA9\u6D3B\u70BA\u9DAF\u6B4C\u3002\n\u88AB\u52D5\u6280\u80FD\uFF1A\u7121"
   baseTurnsToWait: 2
 --- !u!61 &408368999658656319
 BoxCollider2D:
@@ -852,6 +855,24 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   panel: {fileID: 0}
+--- !u!114 &680455677730063604
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7957746337728162191}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5779d0dde00cdd84cb0924b842e41344, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  visualRoot: {fileID: 0}
+  faceRightByDefault: 0
+  leftOffset: {x: 17.8, y: 2.44, z: 0}
+  rightOffset: {x: -17.95, y: 2.49, z: 0}
+  verticalDeadZone: 0.15
+  flipHysteresis: 0.05
 --- !u!1 &8016246575106738376
 GameObject:
   m_ObjectHideFlags: 0

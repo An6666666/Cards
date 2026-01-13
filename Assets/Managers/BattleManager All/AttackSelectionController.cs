@@ -97,10 +97,19 @@ public class AttackSelectionController
         yield return new WaitForSeconds(hitDelay);
 
         // 真正執行攻擊效果
-        if (currentAttackCard != null)
-        currentAttackCard.ExecuteEffect(player, e);
+        if (e != null)
+        {
+            // 讓玩家面向這次出牌的目標（左右翻面）
+            FaceUtils.Face(player.gameObject, e.transform);
+
+            // 真正執行卡片效果
+            currentAttackCard.ExecuteEffect(player, e);
+        }
         else
+        {
         yield break;
+        }
+
 
         int finalCost = currentAttackCard.cost
                         + player.GetCardCostModifier(currentAttackCard)

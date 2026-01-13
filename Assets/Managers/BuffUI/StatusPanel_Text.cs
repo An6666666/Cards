@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Text;
 using UnityEngine;
 using UnityEngine.UI;
@@ -6,9 +6,10 @@ using UnityEngine.UI;
 public class StatusPanel_Text : MonoBehaviour
 {
     [Header("UI")]
-    [SerializeField] private Text statsText;
-    [SerializeField] private Text buffsText;
-    [SerializeField] private Text debuffsText;
+    [SerializeField] private Text statsText;     // 基本屬性（血量、格擋、金幣等）
+    [SerializeField] private Text buffsText;     // 正面BUFF
+    [SerializeField] private Text debuffsText;   // 負面BUFF
+    [SerializeField] private Text skillText;     // 技能
 
     [Header("Options")]
     [SerializeField] private bool showZeroEffects = false;
@@ -25,9 +26,7 @@ public class StatusPanel_Text : MonoBehaviour
 
     private void Update()
     {
-        // 如果你希望「數值有變就即時更新」，保留這行即可
-        if (player != null || enemy != null)
-            Refresh();
+        // 不再每幀 Refresh（避免反射一直跑）
     }
 
     private void Refresh()
@@ -45,18 +44,41 @@ public class StatusPanel_Text : MonoBehaviour
 
             // 目標是玩家
             if (player != null)
-            {
+            {   
                 sb.AppendLine($"防禦：{TryGetInt(player, "block", "Block")}");
                 sb.AppendLine($"金幣：{player.gold}");
             }
             // 目標是敵人（沒有 gold 就不顯示）
             else if (enemy != null)
-            {
+            {   
+                sb.AppendLine($"名稱：{enemy.enemyName}");
+                // ✅ 敵人血量開回來（Enemy 你先前程式看起來也有 currentHP / maxHP）
+                sb.AppendLine($"血量：{enemy.currentHP}/{enemy.maxHP}");
                 sb.AppendLine($"防禦：{TryGetInt(enemy, "block", "Block")}");
+                // ✅ 新增：附加元素（你要把 GetEnemyElementText 寫出來）
+                sb.AppendLine($"元素：{GetEnemyElementText(enemy)}");
             }
 
             statsText.text = sb.ToString();
         }
+
+        // ========== Skill / Element ==========
+    if (skillText != null)
+    {
+        if (enemy != null)
+        {
+            string skill = GetEnemySkillDesc(enemy);
+
+            skillText.text =
+                $"{skill}";
+        }
+        else
+        {
+            // 玩家要不要顯示技能看你；不需要就顯示空或「無」
+            skillText.text = "";
+        }
+    }
+
 
         // ====== Buff/Debuff ======
     // 如果不是玩家（沒有 buffs），就顯示「無」或直接清空
@@ -142,6 +164,7 @@ public class StatusPanel_Text : MonoBehaviour
 
         Show();     // 把面板打開
         Refresh();  // 立刻刷新一次
+        StartCoroutine(RefreshNextFrame());
     }
 
     public void ClearTarget()
@@ -195,6 +218,14 @@ public class StatusPanel_Text : MonoBehaviour
         list.Add($"{name} {value.ToString($"F{floatDigits}")}");
     }
 
+    private System.Collections.IEnumerator RefreshNextFrame()
+    {
+        yield return null;                 // 下一幀
+        Refresh();
+        yield return new WaitForSeconds(0.05f); // 再等一下（給 tween/狀態同步時間）
+        Refresh();
+    }
+
     private int TryGetInt(object obj, params string[] possibleNames)
     {
         if (obj == null) return 0;
@@ -212,4 +243,143 @@ public class StatusPanel_Text : MonoBehaviour
         }
         return 0;
     }
+
+    private string GetEnemyElementText(Enemy e)
+    {
+        if (e == null) return "無";
+
+        // 以你現有的「元素 icon 顯示」系統為準
+        var display = e.GetComponentInChildren<EnemyElementStatusDisplay>(true);
+        if (display == null) return "無";
+
+        var list = new List<string>();
+
+        // 這裡的字串請用你 Hierarchy 看到的實際名稱
+        var fire = display.transform.Find("Fire Icon");
+        if (fire != null && fire.gameObject.activeInHierarchy) list.Add("火");
+
+        var wood = display.transform.Find("Wood Icon");
+        if (wood != null && wood.gameObject.activeInHierarchy) list.Add("木");
+
+        var water = display.transform.Find("Water Icon");
+        if (water != null && water.gameObject.activeInHierarchy) list.Add("水");
+
+        var thunder = display.transform.Find("Thunder Icon");
+        if (thunder != null && thunder.gameObject.activeInHierarchy) list.Add("雷");
+
+        var ice = display.transform.Find("Ice Icon");
+        if (ice != null && ice.gameObject.activeInHierarchy) list.Add("冰");
+
+        if (list.Count == 0) return "無";
+        return string.Join(" + ", list);
+    }
+
+    private bool TryGetElementFromMember(System.Reflection.MemberInfo member, Enemy e, out string value)
+    {
+        value = null;
+        if (member == null) return false;
+
+        object raw = null;
+        switch (member)
+        {
+            case System.Reflection.FieldInfo f:
+                raw = f.GetValue(e);
+                break;
+            case System.Reflection.PropertyInfo p:
+                raw = p.GetValue(e);
+                break;
+        }
+
+        if (raw == null) return false;
+
+        if (raw is string s && !string.IsNullOrEmpty(s))
+        {
+            value = s;
+            return true;
+        }
+
+        var rawType = raw.GetType();
+        if (rawType.IsEnum)
+        {
+            value = raw.ToString();
+            return true;
+        }
+
+        return false;
+    }
+
+    private string GetEnemySkillDesc(Enemy e)
+    {
+        if (e == null) return "（無）";
+
+        // 先讀 Enemy 自己的欄位（最快最穩）
+        var desc = TryGetString(e, "skillDescription", "SkillDescription");
+        if (!string.IsNullOrEmpty(desc)) return desc;
+
+        // 退回你原本 skillData / attackCard
+        var t = e.GetType();
+        object skillData = GetMemberValue(t, e, "skillData");
+        if (TryGetDescription(skillData, out var d)) return d;
+
+        object attackCard = GetMemberValue(t, e, "attackCard");
+        if (TryGetDescription(attackCard, out d)) return d;
+
+    return "（未設定）";
+    }
+
+    private string TryGetString(object obj, params string[] possibleNames)
+    {
+        if (obj == null) return null;
+        var t = obj.GetType();
+
+        foreach (var n in possibleNames)
+        {
+            var f = t.GetField(n);
+            if (f != null && f.FieldType == typeof(string))
+                return (string)f.GetValue(obj);
+
+            var p = t.GetProperty(n);
+            if (p != null && p.PropertyType == typeof(string))
+                return (string)p.GetValue(obj);
+        }
+        return null;
+    }
+    private object GetMemberValue(System.Type t, object obj, string name)
+    {
+        var f = t.GetField(name);
+        if (f != null) return f.GetValue(obj);
+
+        var p = t.GetProperty(name);
+        if (p != null) return p.GetValue(obj);
+
+        return null;
+    }
+
+    private bool TryGetDescription(object source, out string desc)
+    {
+        desc = null;
+        if (source == null) return false;
+
+        var t = source.GetType();
+        var f = t.GetField("description");
+        if (f != null && f.FieldType == typeof(string))
+        {
+            desc = (string)f.GetValue(source);
+            return !string.IsNullOrEmpty(desc);
+        }
+
+        var p = t.GetProperty("description");
+        if (p != null && p.PropertyType == typeof(string))
+        {
+            desc = (string)p.GetValue(source);
+            return !string.IsNullOrEmpty(desc);
+        }
+
+        return false;
+    }
+
+        
 }
+
+
+

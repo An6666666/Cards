@@ -729,6 +729,7 @@ GameObject:
   - component: {fileID: 6700974606263415254}
   - component: {fileID: 2126415412755473861}
   - component: {fileID: 8894018105968935768}
+  - component: {fileID: -8696178140808948748}
   m_Layer: 0
   m_Name: YingGe
   m_TagString: Untagged
@@ -827,6 +828,12 @@ MonoBehaviour:
   highlightFx: {fileID: 0}
   hoverIndicator2D: {fileID: 0}
   hoverIndicatorDelaySeconds: 0
+  skillDescription: "\u4E3B\u52D5\u6280\u80FD\uFF1A\n\u7634\u6C23\u6295\u653E\uFF08\u958B\u5834\uFF09\u6230\u9B25\u958B\u59CB\u6642\u96A8\u6A5F\u653E\u7F6E
+    2 \u500B\u7634\u6C23\u4E2D\u5FC3\uFF0C\u6C59\u67D3\u4E2D\u5FC3\u683C\u8207\u5468\u570D\u76F8\u9130\u683C\uFF1B\u73A9\u5BB6\u8E29\u5230\u7634\u6C23\u53D7\u5230
+    5 \u50B7\u5BB3\u3002\n\u4E09\u5217\u8F5F\u70B8\uFF08\u51B7\u537B\uFF1A4\uFF09\uFF1A\u66AB\u6642\u6D88\u5931\u4E26\u9AD8\u4EAE\u73A9\u5BB6\u6240\u5728\u5217\u53CA\u4E0A\u4E0B\u76F8\u9130\u5217\uFF0C\u5C0D\u5176\u9020\u6210
+    15 \u50B7\u5BB3\uFF0C\u7D50\u675F\u5F8C\u56DE\u5230\u96A8\u6A5F\u683C\u3002\n\u88AB\u52D5\u6280\u80FD\uFF1A\n\u6BCF\u56DE\u5408\u81EA\u52D5\u7372\u5F97
+    +4 \u8B77\u7532\u3002\n\u7576 HP \u6B78\u96F6\u6642\uFF0C\u539F\u5730\u751F\u6210
+    100HP \u7684\u9DAF\u6B4C\u77F3\uFF1B2 \u56DE\u5408\u5F8C\u539F\u5730\u6EFF\u8840\u5FA9\u6D3B\u3002"
   armorPerTurn: 4
   miasmaDamage: 5
   miasmaCenters: 2
@@ -977,6 +984,24 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   panel: {fileID: 0}
+--- !u!114 &-8696178140808948748
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8450242803261364583}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5779d0dde00cdd84cb0924b842e41344, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  visualRoot: {fileID: 0}
+  faceRightByDefault: 0
+  leftOffset: {x: 7.61, y: 1.29, z: 0}
+  rightOffset: {x: -8.4, y: 1.29, z: 0}
+  verticalDeadZone: 0.01
+  flipHysteresis: 0.05
 --- !u!1001 &5541819428935891966
 PrefabInstance:
   m_ObjectHideFlags: 0

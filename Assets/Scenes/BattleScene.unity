@@ -1180,8 +1180,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0.5}
   m_AnchorMax: {x: 1, y: 0.5}
-  m_AnchoredPosition: {x: 4.8930664, y: 192}
-  m_SizeDelta: {x: -9.7859, y: 75}
+  m_AnchoredPosition: {x: 4.8930664, y: 286}
+  m_SizeDelta: {x: -9.7859, y: 139.4356}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &307930578
 MonoBehaviour:
@@ -1216,7 +1216,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: "\u9632\u79A6\uFF1A0\n\u91D1\u5E63\uFF1A0"
+  m_Text: "\u540D\u7A31\uFF1A\u7121\n\u9632\u79A6\uFF1A0\n\u91D1\u5E63\uFF1A0\n\u5143\u7D20\uFF1A\u7121"
 --- !u!222 &307930579
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -4237,6 +4237,85 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: eacfe748df31fe649bac4cba447f47e8, type: 3}
+--- !u!1 &1247226868
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1247226869}
+  - component: {fileID: 1247226871}
+  - component: {fileID: 1247226870}
+  m_Layer: 5
+  m_Name: skillText
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &1247226869
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1247226868}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1662162774}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0, y: 0.5}
+  m_AnchorMax: {x: 1, y: 0.5}
+  m_AnchoredPosition: {x: 4.8930664, y: -218.91}
+  m_SizeDelta: {x: -9.7859, y: 284.82}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &1247226870
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1247226868}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5f7201a12d95ffc409449d95f23cf332, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Material: {fileID: 0}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_RaycastTarget: 1
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  m_FontData:
+    m_Font: {fileID: 10102, guid: 0000000000000000e000000000000000, type: 0}
+    m_FontSize: 23
+    m_FontStyle: 0
+    m_BestFit: 0
+    m_MinSize: 2
+    m_MaxSize: 40
+    m_Alignment: 0
+    m_AlignByGeometry: 0
+    m_RichText: 1
+    m_HorizontalOverflow: 0
+    m_VerticalOverflow: 0
+    m_LineSpacing: 1
+  m_Text: "\u4E3B\u52D5\u6280\u80FD\uFF1A\u7121\n\u88AB\u52D5\u6280\u80FD\uFF1A\u7121"
+--- !u!222 &1247226871
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1247226868}
+  m_CullTransparentMesh: 1
 --- !u!1 &1258721785
 GameObject:
   m_ObjectHideFlags: 0
@@ -6252,20 +6331,22 @@ MonoBehaviour:
   endTurnButton: {fileID: 2116894243}
   enemySpawnConfigs:
   - enemyPrefab: {fileID: 4204690724760053818, guid: 87fab54ae39d11f449187455258a17cc, type: 3}
-    count: 2
+    count: 1
   - enemyPrefab: {fileID: 4898516673341191513, guid: a09861f3a2ead1f4f876a9345a60088b, type: 3}
-    count: 0
+    count: 1
   - enemyPrefab: {fileID: 4591814044274373110, guid: e0d91408b43bec24ab02b0d2932a3dfc, type: 3}
-    count: 0
+    count: 1
   - enemyPrefab: {fileID: 7728357840837083407, guid: 6fb8d547b14a881468023f486a977e6b, type: 3}
-    count: 0
+    count: 1
   - enemyPrefab: {fileID: 8258485525033336925, guid: b1fbe62463006294b80e46474639e1f9, type: 3}
-    count: 0
+    count: 1
   - enemyPrefab: {fileID: 8896973269389346778, guid: 8e9ee8b5037fe5048ae8dc2cef4d967f, type: 3}
-    count: 0
+    count: 1
   - enemyPrefab: {fileID: 3762648908618512516, guid: cbb7c20ed40c0294daca78f7a8548c50, type: 3}
-    count: 0
+    count: 1
   - enemyPrefab: {fileID: 40532459971013023, guid: 5ecce71dfdd5e304fa13dac5018a9458, type: 3}
+    count: 1
+  - enemyPrefab: {fileID: 5009010696390418974, guid: ef95fb2219afd6e4193794239db46df1, type: 3}
     count: 0
   playerStartPos: {x: 0, y: 0}
   guaranteedMovementCard: {fileID: 11400000, guid: 105c7f2659020eb478d2fc42c9d7276e, type: 2}
@@ -6428,12 +6509,13 @@ RectTransform:
   - {fileID: 307930577}
   - {fileID: 2106348143}
   - {fileID: 2099825720}
+  - {fileID: 1247226869}
   m_Father: {fileID: 1772713544}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 800, y: 308.51788}
-  m_SizeDelta: {x: -1600, y: -617.0359}
+  m_AnchoredPosition: {x: 800, y: 178.68329}
+  m_SizeDelta: {x: -1600, y: -357.3667}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1662162775
 MonoBehaviour:
@@ -7158,6 +7240,7 @@ MonoBehaviour:
   statsText: {fileID: 307930578}
   buffsText: {fileID: 2106348144}
   debuffsText: {fileID: 2099825721}
+  skillText: {fileID: 1247226870}
   showZeroEffects: 0
   floatDigits: 2
 --- !u!1 &1739577228
@@ -8181,8 +8264,23 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   startingDeck: []
-  debugStartingDeck: []
-  useDebugDeck: 0
+  debugStartingDeck:
+  - {fileID: 11400000, guid: 11d3cc5377d2ef3459a4b4380becefff, type: 2}
+  - {fileID: 11400000, guid: 9a5a37cfe6c1216448cd26bb8d654d24, type: 2}
+  - {fileID: 11400000, guid: a58c41531431ead4ebb45b0f3f038cbc, type: 2}
+  - {fileID: 11400000, guid: 4fd70894f3d5cb54388922c21a1e3c60, type: 2}
+  - {fileID: 11400000, guid: 9aaf3c9fe05acb3468a4b7d995117dd5, type: 2}
+  - {fileID: 11400000, guid: e434476cf2d87324293de76e2dfcd00c, type: 2}
+  - {fileID: 11400000, guid: 7e5c92169c1be294c96c31c5c0ee7785, type: 2}
+  - {fileID: 11400000, guid: 1f89fc7fedee8f448aaca880364f9290, type: 2}
+  - {fileID: 11400000, guid: 0f6835f2302109647a1d992613f60640, type: 2}
+  - {fileID: 11400000, guid: 1e7fb32b8c725cb499b8dfc2fa0ec402, type: 2}
+  - {fileID: 11400000, guid: 6473b4799ec8542459f85042836e0f0e, type: 2}
+  - {fileID: 11400000, guid: 4b17aca886ce6ff488b11e95c1291b15, type: 2}
+  - {fileID: 11400000, guid: 4b17aca886ce6ff488b11e95c1291b15, type: 2}
+  - {fileID: 11400000, guid: 4b17aca886ce6ff488b11e95c1291b15, type: 2}
+  - {fileID: 11400000, guid: 4b17aca886ce6ff488b11e95c1291b15, type: 2}
+  useDebugDeck: 1
   startingDeckDefinition: {fileID: 11400000, guid: 1ce8022936a74184fb5e02c6c0afbb04, type: 2}
   exhaustCountThisTurn: 0
 --- !u!114 &1848671832
@@ -8199,7 +8297,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   maxHP: 100
   currentHP: 0
-  maxEnergy: 3
+  maxEnergy: 5
   energy: 0
   block: 0
   gold: 0
@@ -9354,8 +9452,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0.5}
   m_AnchorMax: {x: 1, y: 0.5}
-  m_AnchoredPosition: {x: 4.8930664, y: -114.5}
-  m_SizeDelta: {x: -9.7859, y: 229}
+  m_AnchoredPosition: {x: 4.8930664, y: 19}
+  m_SizeDelta: {x: -9.7859, y: 172.9518}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &2099825721
 MonoBehaviour:
@@ -9433,8 +9531,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0.5}
   m_AnchorMax: {x: 1, y: 0.5}
-  m_AnchoredPosition: {x: 4.8930664, y: 80}
-  m_SizeDelta: {x: -9.7859, y: 150}
+  m_AnchoredPosition: {x: 4.8930664, y: 160.49261}
+  m_SizeDelta: {x: -9.7859, y: 103.0248}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &2106348144
 MonoBehaviour:

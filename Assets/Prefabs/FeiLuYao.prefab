@@ -661,6 +661,7 @@ GameObject:
   - component: {fileID: -1814301861362633510}
   - component: {fileID: 8717464552377220386}
   - component: {fileID: 2195493136730743533}
+  - component: {fileID: 5644591553854379996}
   m_Layer: 0
   m_Name: FeiLuYao
   m_TagString: Untagged
@@ -741,6 +742,9 @@ MonoBehaviour:
   highlightFx: {fileID: 153131917641067011}
   hoverIndicator2D: {fileID: 0}
   hoverIndicatorDelaySeconds: 0
+  skillDescription: "\u4E3B\u52D5\u6280\u80FD\uFF1A\n\u8A5B\u5492\u62BD\u53D6\uFF1A\u5728\u5996\u602A\u56DE\u5408\uFF0C\u5F9E
+    \u865B\u5F312\u56DE\u5408\uFF0F\u6D41\u88402\u56DE\u5408\uFF0F\u7981\u932E1\u56DE\u5408
+    \u4E2D\u96A8\u6A5F\u9644\u52A0 1 \u7A2E\u5230\u73A9\u5BB6\u8EAB\u4E0A\u3002\n\u88AB\u52D5\u6280\u80FD\uFF1A\n\u98DB\u9871\u5996\u4E0D\u6703\u79FB\u52D5\u3002"
   weakDuration: 2
   bleedDuration: 2
   imprisonDuration: 1
@@ -886,6 +890,24 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   panel: {fileID: 0}
+--- !u!114 &5644591553854379996
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8127814944662599423}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5779d0dde00cdd84cb0924b842e41344, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  visualRoot: {fileID: 0}
+  faceRightByDefault: 0
+  leftOffset: {x: 0, y: 2.5, z: 0}
+  rightOffset: {x: -1.88, y: 2.5, z: 0}
+  verticalDeadZone: 0.15
+  flipHysteresis: 0.05
 --- !u!1001 &1817239499420612326
 PrefabInstance:
   m_ObjectHideFlags: 0

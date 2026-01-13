@@ -72,6 +72,7 @@ GameObject:
   - component: {fileID: 4463986196110602622}
   - component: {fileID: 2892738044695183999}
   - component: {fileID: 3548126464085011898}
+  - component: {fileID: -4629864448189848621}
   m_Layer: 0
   m_Name: StoneToad
   m_TagString: Untagged
@@ -88,7 +89,7 @@ Transform:
   m_GameObject: {fileID: 470693498580573215}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: -0.57, z: 0}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 0.66412, y: 0.66412, z: 0}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -260,6 +261,10 @@ MonoBehaviour:
   highlightFx: {fileID: 3497268538794539498}
   hoverIndicator2D: {fileID: 0}
   hoverIndicatorDelaySeconds: 0
+  skillDescription: "\u4E3B\u52D5\u6280\u80FD\uFF1A\u7121\n\u88AB\u52D5\u6280\u80FD\uFF1A\n\u6BCF\u53D7\u5230
+    1 \u6B21\u653B\u64CA\uFF0C\u7372\u5F97 +4 \u8B77\u7532\u3002\n\u653B\u64CA\u6642\uFF0C\u984D\u5916\u9020\u6210
+    \u7576\u56DE\u5408\u81EA\u8EAB\u8B77\u7532\u503C \u7684\u50B7\u5BB3\u3002\n\u6BCF\u56DE\u5408\u53EF\u79FB\u52D5
+    1\uFF5E2 \u683C"
   armorGainPerHit: 4
   preferredDistanceInSteps: 2
   maxMovementSteps: 2
@@ -361,6 +366,24 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   panel: {fileID: 0}
+--- !u!114 &-4629864448189848621
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 470693498580573215}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5779d0dde00cdd84cb0924b842e41344, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  visualRoot: {fileID: 0}
+  faceRightByDefault: 0
+  leftOffset: {x: 0, y: 1.63, z: 0}
+  rightOffset: {x: 0, y: 1.4, z: 0}
+  verticalDeadZone: 0.15
+  flipHysteresis: 0.05
 --- !u!1 &2176898823024035152
 GameObject:
   m_ObjectHideFlags: 0

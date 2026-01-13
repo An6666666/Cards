@@ -234,8 +234,12 @@ public class BattleManager : MonoBehaviour  // 戰鬥管理器，整場戰鬥的
             return false;
         }
 
-        Enemy target = enemies.Find(e => e != null && e.currentHP > 0);
+        Enemy target = enemies.Find(e => e != null && e.currentHP > 0); 
         // 這裡簡單選擇第一個仍存活的敵人作為目標（若卡片沒自己處理目標）
+        if (target != null)
+        {
+            FaceUtils.Face(player.gameObject, target.transform);        // 再面向
+        }
 
         cardData.ExecuteEffect(player, target);
         // 執行卡片效果，由卡本身實作（增加護甲、造成傷害、上狀態等）
