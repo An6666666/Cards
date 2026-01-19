@@ -283,7 +283,6 @@ public class ThunderStrategy : DefaultElementalStrategy          // 雷元素策
                     foreach (var tile in neighbors)              // 檢查每個鄰居
                     {                                            // foreach 區塊開始
                         Vector2Int pos = tile.gridPosition;      // 鄰居座標
-                        if (visited.Contains(pos)) continue;     // 已處理則跳過
 
                         enemyByPos.TryGetValue(pos, out Enemy occupant); // 試著找到該格子的敵人
                         bool tileHasWater = tile.HasElement(ElementType.Water); // 格子是否有水標籤
@@ -292,7 +291,7 @@ public class ThunderStrategy : DefaultElementalStrategy          // 雷元素策
                         if (!tileHasWater && !enemyHasWater)     // 若格子與敵人都沒有水標籤
                             continue;                            // 不進入連鎖
 
-                        visited.Add(pos);                        // 標記為已拜訪
+                        if (!visited.Add(pos)) continue;         // 已處理則跳過
                         pending.Enqueue(pos);                    // 加入待處理佇列，繼續擴散
 
                         if (occupant != null && occupant != defender) // 只對其他敵人造成傷害
@@ -303,6 +302,8 @@ public class ThunderStrategy : DefaultElementalStrategy          // 雷元素策
                 foreach (var target in chainTargets)             // 對所有連鎖目標造成傷害
                 {                                                // foreach 區塊開始
                     target.TakeDamage(baseDamage);               // 造成等同基礎值的傷害
+                    target.RemoveElementTag(ElementType.Water);  // 導電後移除水，避免無限反應
+                    target.AddElementTag(ElementType.Thunder);   // 連鎖目標附著雷元素
                 }                                                // foreach 區塊結束
             }                                                    // if 區塊結束
             else                                                 // 若場上無棋盤資訊
@@ -312,9 +313,13 @@ public class ThunderStrategy : DefaultElementalStrategy          // 雷元素策
                     if (en == defender) continue;                // 跳過自己
                     bool adjacent = Vector2Int.Distance(en.gridPosition, defender.gridPosition) <= 2.3f; // 是否相鄰
                     if (adjacent && en.HasElement(ElementType.Water)) // 僅當敵人身上有水標籤
+                    {
                         en.TakeDamage(baseDamage);               // 造成基礎傷害
+                        en.RemoveElementTag(ElementType.Water);  // 導電後移除水，避免無限反應
+                    }
                 }                                                // foreach 區塊結束
             }                                                    // else 區塊結束
+            defender.RemoveElementTag(ElementType.Water);         // 導電結算後清除水標記
             defender.AddElementTag(ElementType.Thunder); // 以導電結果為主，若沒有其他反應則附著雷
         }                                                        // else if 區塊結束
         else if (TryApplyThunderReactionWithoutWater(defender, false, latestReactive, ref dmg)) // 先檢查冰/木組合（依最新附著順序）
@@ -350,6 +355,7 @@ public class ThunderStrategy : DefaultElementalStrategy          // 雷元素策
         if (latestReactive == ElementType.Water)
         {
             enemy.TakeDamage(dmg);
+            enemy.RemoveElementTag(ElementType.Water);
             dmg = 0; // 已經處理傷害，避免重複
             bool reacted = TryApplyThunderReactionWithoutWater(enemy, true, latestReactive, ref dmg); // 水導電後檢查冰/木
             if (!reacted) enemy.AddElementTag(ElementType.Thunder); // 無反應才附著雷
