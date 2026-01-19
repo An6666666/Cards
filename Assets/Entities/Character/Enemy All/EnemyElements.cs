@@ -25,6 +25,8 @@ public class EnemyElements : MonoBehaviour
         elementOrder.Remove(e);
         elementOrder.Add(e);
 
+        ResolveWaterWoodConflict();
+
         if (addedNew)
         {
             enemy?.RaiseElementTagsChanged();
@@ -36,6 +38,26 @@ public class EnemyElements : MonoBehaviour
         }
     }
 
+    private void ResolveWaterWoodConflict()
+    {
+        if (!elementTags.Contains(ElementType.Water) || !elementTags.Contains(ElementType.Wood))
+        {
+            return;
+        }
+
+        int waterIndex = elementOrder.IndexOf(ElementType.Water);
+        int woodIndex = elementOrder.IndexOf(ElementType.Wood);
+
+        if (waterIndex < woodIndex)
+        {
+            RemoveElementTag(ElementType.Water);
+        }
+        else if (woodIndex < waterIndex)
+        {
+            RemoveElementTag(ElementType.Wood);
+        }
+    }
+    
     public void RemoveElementTag(ElementType e)
     {
         if (elementTags.Remove(e))

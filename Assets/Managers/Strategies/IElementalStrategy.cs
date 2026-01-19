@@ -94,7 +94,6 @@ public class FireStrategy : DefaultElementalStrategy, IPlayerEndTurnEffect // �
                     if (Vector2Int.Distance(en.gridPosition, defender.gridPosition) <= 2.3f) // 若距離小於等於 2.3（視為相鄰）
                     {                                            // if 區塊開始
                         int spreadDmg = Mathf.CeilToInt(baseDamage * 0.5f); // 相鄰敵人受到 0.5 倍基礎傷害
-                        ApplyFireSpreadReaction(en, ref spreadDmg); // 依照現有元素觸發對應反應
                         if (spreadDmg > 0) en.TakeDamage(spreadDmg); // 造成最終傷害
                     }                                            // if 區塊結束
                 }                                                // foreach 區塊結束
@@ -199,6 +198,12 @@ public class WaterStrategy : DefaultElementalStrategy            // 水元素策
 
         ApplyElementToTiles(defender, ElementType.Water);        // 將水元素標記擴散到格子
 
+        if (defender.thunderstrike)                              // 若防守者有「雷擊加倍」狀態（thunderstrike）
+        {                                                        // if 區塊開始
+            dmg *= 2;                                            // 傷害加倍
+            defender.thunderstrike = false;                      // 使用後清除狀態，避免下次再觸發
+        }                                                        // if 區塊結束
+
         return dmg;                                              // 回傳最終傷害
     }                                                            // 方法區塊結束
 
@@ -250,7 +255,6 @@ public class ThunderStrategy : DefaultElementalStrategy          // 雷元素策
                     if (Vector2Int.Distance(en.gridPosition, defender.gridPosition) <= 2.3f) // 相鄰判定
                     {                                            // if 區塊開始
                         int spreadDmg = Mathf.CeilToInt(baseDamage * 0.5f); // 相鄰扣 0.5 倍
-                        ApplyThunderSpreadReaction(en, ref spreadDmg);
                         if (spreadDmg > 0) en.TakeDamage(spreadDmg);
                     }                                            // if 區塊結束
                 }                                                // foreach 區塊結束
@@ -301,9 +305,11 @@ public class ThunderStrategy : DefaultElementalStrategy          // 雷元素策
 
                 foreach (var target in chainTargets)             // 對所有連鎖目標造成傷害
                 {                                                // foreach 區塊開始
-                    target.TakeDamage(baseDamage);               // 造成等同基礎值的傷害
+                    int chainDmg = baseDamage;                   // 連鎖的基礎傷害
                     target.RemoveElementTag(ElementType.Water);  // 導電後移除水，避免無限反應
-                    target.AddElementTag(ElementType.Thunder);   // 連鎖目標附著雷元素
+                    bool reacted = TryApplyThunderReactionWithoutWater(target, false, null, ref chainDmg); // 檢查冰/木反應
+                    if (chainDmg > 0) target.TakeDamage(chainDmg); // 造成等同基礎值的傷害
+                    if (!reacted) target.AddElementTag(ElementType.Thunder); // 無反應才附著雷元素
                 }                                                // foreach 區塊結束
             }                                                    // if 區塊結束
             else                                                 // 若場上無棋盤資訊
@@ -322,7 +328,7 @@ public class ThunderStrategy : DefaultElementalStrategy          // 雷元素策
             defender.RemoveElementTag(ElementType.Water);         // 導電結算後清除水標記
             defender.AddElementTag(ElementType.Thunder); // 以導電結果為主，若沒有其他反應則附著雷
         }                                                        // else if 區塊結束
-        else if (TryApplyThunderReactionWithoutWater(defender, false, latestReactive, ref dmg)) // 先檢查冰/木組合（依最新附著順序）
+        else if (TryApplyThunderReactionWithoutWater(defender, false, null, ref dmg)) // 先檢查冰/木組合（依最新附著順序）
         {                                                        // else if 區塊開始
             // 反應處理已在 helper 內完成
         }                                                        // else if 區塊結束
@@ -354,10 +360,8 @@ public class ThunderStrategy : DefaultElementalStrategy          // 雷元素策
 
         if (latestReactive == ElementType.Water)
         {
-            enemy.TakeDamage(dmg);
             enemy.RemoveElementTag(ElementType.Water);
-            dmg = 0; // 已經處理傷害，避免重複
-            bool reacted = TryApplyThunderReactionWithoutWater(enemy, true, latestReactive, ref dmg); // 水導電後檢查冰/木
+            bool reacted = TryApplyThunderReactionWithoutWater(enemy, false, null, ref dmg); // 水導電後檢查冰/木
             if (!reacted) enemy.AddElementTag(ElementType.Thunder); // 無反應才附著雷
             return;
         }
@@ -367,7 +371,7 @@ public class ThunderStrategy : DefaultElementalStrategy          // 雷元素策
             enemy.AddElementTag(ElementType.Thunder);
             return;
         }
-        if (TryApplyThunderReactionWithoutWater(enemy, true, latestReactive, ref dmg))
+        if (TryApplyThunderReactionWithoutWater(enemy, false, null, ref dmg))
         {
             return;
         }
@@ -381,7 +385,7 @@ public class ThunderStrategy : DefaultElementalStrategy          // 雷元素策
     /// 處理雷元素與非水元素（冰或木）的組合反應。
     /// </summary>
     /// <param name="target">要處理的目標敵人。</param>
-    /// <param name="zeroDamageOnReact">若發生反應，是否將當前傷害歸零（spread 版本需要）。</param>
+    /// <param name="zeroDamageOnReact">若發生反應，是否將當前傷害歸零。</param>
     /// <param name="latestReactive">外部已計算好的最新可反應元素，若為 null 則在此計算。</param>
     /// <param name="dmg">傳入的傷害引用，視情況可能被重設。</param>
     /// <returns>若有發生反應則回傳 true。</returns>

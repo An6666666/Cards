@@ -50,15 +50,6 @@ public class EnemyElementStatusDisplay : MonoBehaviour
     private bool spriteLookupDirty = true;                  // 當 Inspector 配置改變時，標記需要重建查表
     private Enemy subscribedEnemy;                          // 目前已訂閱事件的 Enemy（用於退訂）
 
-    private static readonly ElementType[] DisplayOrder =
-    {
-        ElementType.Fire,     // 顯示順序：火
-        ElementType.Water,    // → 水
-        ElementType.Thunder,  // → 雷
-        ElementType.Ice,      // → 冰
-        ElementType.Wood      // → 木
-    };
-
     private void Reset()
     {
         enemy = GetComponentInParent<Enemy>();  // 預設從父物件自動抓 Enemy
@@ -202,8 +193,6 @@ public class EnemyElementStatusDisplay : MonoBehaviour
             return;
         }
 
-        // 依固定顯示順序排序（維持 UI 一致性）
-        tags.Sort((a, b) => GetDisplayIndex(a).CompareTo(GetDisplayIndex(b)));
         HashSet<ElementType> desired = new HashSet<ElementType>(tags); // 期望顯示的集合
 
         bool animate = animateWithDOTween && Application.isPlaying; // 僅在遊戲執行中啟用動畫
@@ -467,18 +456,5 @@ public class EnemyElementStatusDisplay : MonoBehaviour
 
         renderer.sortingLayerName = sortingLayerName; // 指定 Sorting Layer
         renderer.sortingOrder = baseSortingOrder + index; // 依索引遞增，確保左右圖示不互蓋
-    }
-
-    private static int GetDisplayIndex(ElementType type)
-    {
-        for (int i = 0; i < DisplayOrder.Length; i++)
-        {
-            if (DisplayOrder[i] == type)
-            {
-                return i;                       // 回傳對應的顯示順位
-            }
-        }
-
-        return int.MaxValue;                    // 未定義的元素放到最後
     }
 }
