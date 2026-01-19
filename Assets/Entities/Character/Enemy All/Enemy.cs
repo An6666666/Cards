@@ -20,9 +20,8 @@ public class Enemy : MonoBehaviour
 
     public int burningTurns = 0;
     public int frozenTurns = 0;
-    public bool thunderstrike = false;
     public bool superconduct = false;
-
+    public int chargedCount = 0;
     public bool hasBerserk = false;
     public Vector2Int gridPosition;
 
@@ -167,11 +166,13 @@ public class Enemy : MonoBehaviour
 
     public virtual void TakeDamage(int dmg)
     {
+        ApplyChargedEffect(ref dmg);
         combat?.TakeDamage(dmg);
     }
 
     public virtual void TakeTrueDamage(int dmg)
     {
+        ApplyChargedEffect(ref dmg);
         combat?.TakeTrueDamage(dmg);
     }
 
@@ -208,6 +209,24 @@ public class Enemy : MonoBehaviour
     public IEnumerable<ElementType> GetElementTagsByRecentOrder()
     {
         return elements != null ? elements.GetElementTagsByRecentOrder() : Array.Empty<ElementType>();
+    }
+    
+    private void ApplyChargedEffect(ref int dmg)
+    {
+        if (chargedCount <= 0) return;
+        chargedCount--;
+        RaiseStatusChanged();
+        if (chargedCount == 0 && dmg > 0)
+        {
+            dmg = Mathf.CeilToInt(dmg * 2f);
+        }
+    }
+
+    public void SetChargedCount(int count)
+    {
+        if (chargedCount == count) return;
+        chargedCount = count;
+        RaiseStatusChanged();
     }
     
     public int ApplyElementalAttack(ElementType e, int baseDamage, Player player)

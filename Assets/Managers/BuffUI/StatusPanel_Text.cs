@@ -21,6 +21,7 @@ public class StatusPanel_Text : MonoBehaviour
     private bool refreshQueued;
     private int lastKnownBurningTurns;
     private int lastKnownFrozenTurns;
+    private int lastKnownChargedCount;
 
 
     private void Awake()
@@ -42,10 +43,12 @@ public class StatusPanel_Text : MonoBehaviour
         if (enemy == null) return;
 
         if (enemy.burningTurns != lastKnownBurningTurns ||
-            enemy.frozenTurns != lastKnownFrozenTurns)
+            enemy.frozenTurns != lastKnownFrozenTurns ||
+            enemy.chargedCount != lastKnownChargedCount)
         {
             lastKnownBurningTurns = enemy.burningTurns;
             lastKnownFrozenTurns = enemy.frozenTurns;
+            lastKnownChargedCount = enemy.chargedCount;
             Refresh();
         }
     }
@@ -139,6 +142,7 @@ public class StatusPanel_Text : MonoBehaviour
         {
             AddIntEffect(negative, "燃燒", enemy.burningTurns);
             AddIntEffect(negative, "冰凍", enemy.frozenTurns);
+            AddIntEffect(negative, "雷擊蓄力", enemy.chargedCount);
         }
         // ====== Output ======
         if (buffsText != null)
@@ -151,6 +155,7 @@ public class StatusPanel_Text : MonoBehaviour
         {
             lastKnownBurningTurns = enemy.burningTurns;
             lastKnownFrozenTurns = enemy.frozenTurns;
+            lastKnownChargedCount = enemy.chargedCount;
         }
     }
 
@@ -192,6 +197,7 @@ public class StatusPanel_Text : MonoBehaviour
         {
             lastKnownBurningTurns = enemy.burningTurns;
             lastKnownFrozenTurns = enemy.frozenTurns;
+            lastKnownChargedCount = enemy.chargedCount;
         }
 
         // 只有玩家才有 buffs（你目前是這樣設計）
@@ -221,6 +227,7 @@ public class StatusPanel_Text : MonoBehaviour
         refreshQueued = false;
         lastKnownBurningTurns = 0;
         lastKnownFrozenTurns = 0;
+        lastKnownChargedCount = 0;
 
         Hide();
     }
@@ -447,10 +454,5 @@ public class StatusPanel_Text : MonoBehaviour
         }
 
         return false;
-    }
-
-        
+    }  
 }
-
-
-

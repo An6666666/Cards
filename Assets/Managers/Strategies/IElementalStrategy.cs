@@ -106,12 +106,6 @@ public class FireStrategy : DefaultElementalStrategy, IPlayerEndTurnEffect // �
             defender.AddElementTag(ElementType.Fire);            // 單純附著火元素
         }                                                        // else 區塊結束
 
-        if (defender.thunderstrike)                              // 若防守者有「雷擊加倍」狀態（thunderstrike）
-        {                                                        // if 區塊開始
-            dmg *= 2;                                            // 傷害加倍
-            defender.thunderstrike = false;                      // 使用後清除狀態，避免下次再觸發
-        }                                                        // if 區塊結束
-
         return dmg;                                              // 回傳最終傷害
     }                                                            // 方法區塊結束
 
@@ -198,12 +192,6 @@ public class WaterStrategy : DefaultElementalStrategy            // 水元素策
 
         ApplyElementToTiles(defender, ElementType.Water);        // 將水元素標記擴散到格子
 
-        if (defender.thunderstrike)                              // 若防守者有「雷擊加倍」狀態（thunderstrike）
-        {                                                        // if 區塊開始
-            dmg *= 2;                                            // 傷害加倍
-            defender.thunderstrike = false;                      // 使用後清除狀態，避免下次再觸發
-        }                                                        // if 區塊結束
-
         return dmg;                                              // 回傳最終傷害
     }                                                            // 方法區塊結束
 
@@ -226,17 +214,33 @@ public class ThunderStrategy : DefaultElementalStrategy          // 雷元素策
 {                                                                // 類別區塊開始
     public override int CalculateDamage(Player attacker, Enemy defender, int baseDamage) // 覆寫雷元素傷害計算
     {                                                            // 方法區塊開始
-        int dmg = baseDamage;                                    // 基礎傷害
         Board board = GameObject.FindObjectOfType<Board>();      // 快取場上的棋盤
         Enemy[] allEnemies = GameObject.FindObjectsOfType<Enemy>(); // 快取所有敵人，避免重複搜尋
+        int dmg = ResolveThunderHit(attacker, defender, baseDamage, HitContext.Direct, board, allEnemies); // 共用邏輯
+
+        return dmg;                                              // 回傳最終傷害
+    }                                                            // 方法區塊結束
+
+    private enum HitContext
+    {
+        Direct,
+        Chain
+    }
+
+    private int ResolveThunderHit(Player attacker, Enemy defender, int baseDamage, HitContext context, Board board, Enemy[] allEnemies)
+    {
+        int dmg = baseDamage;                                    // 基礎傷害
+        bool isChain = context == HitContext.Chain;              // 是否為連鎖命中
+
+        if (isChain)                                             // 連鎖命中先移除水，避免 BFS 套 BFS
+        defender.RemoveElementTag(ElementType.Water);        // 導電後移除水，避免無限反應
 
         ElementType? latestReactive = ElementReactionOrderHelper.GetLatestReactiveTag(
         defender,
         new[] { ElementType.Fire, ElementType.Water, ElementType.Ice, ElementType.Wood });
-        bool defenderHasWaterTag = defender.HasElement(ElementType.Water); // 防守者是否帶有水元素標籤
         bool defenderOnWaterTile = false;                        // 防守者腳下的格子是否帶有水元素
 
-        if (board != null)                                       // 需要棋盤資訊才能檢查格子元素
+        if (board != null && !isChain)                           // 需要棋盤資訊才能檢查格子元素
         {
             BoardTile defenderTile = board.GetTileAt(defender.gridPosition); // 取得當前格子
             defenderOnWaterTile = defenderTile != null && defenderTile.HasElement(ElementType.Water); // 判斷格子是否帶水
@@ -305,11 +309,7 @@ public class ThunderStrategy : DefaultElementalStrategy          // 雷元素策
 
                 foreach (var target in chainTargets)             // 對所有連鎖目標造成傷害
                 {                                                // foreach 區塊開始
-                    int chainDmg = baseDamage;                   // 連鎖的基礎傷害
-                    target.RemoveElementTag(ElementType.Water);  // 導電後移除水，避免無限反應
-                    bool reacted = TryApplyThunderReactionWithoutWater(target, false, null, ref chainDmg); // 檢查冰/木反應
-                    if (chainDmg > 0) target.TakeDamage(chainDmg); // 造成等同基礎值的傷害
-                    if (!reacted) target.AddElementTag(ElementType.Thunder); // 無反應才附著雷元素
+                    ResolveThunderHit(attacker, target, baseDamage, HitContext.Chain, board, allEnemies);
                 }                                                // foreach 區塊結束
             }                                                    // if 區塊結束
             else                                                 // 若場上無棋盤資訊
@@ -336,21 +336,18 @@ public class ThunderStrategy : DefaultElementalStrategy          // 雷元素策
         {                                                        // else 區塊開始
             defender.AddElementTag(ElementType.Thunder);         // 單純附著雷
         }                                                        // else 區塊結束
-
-        if (defender.thunderstrike)                              // 若雷擊狀態生效
-        {                                                        // if 區塊開始
-            dmg *= 2;                                            // 傷害加倍
-            defender.thunderstrike = false;                      // 清除雷擊狀態
-        }                                                        // if 區塊結束
-
+        
         if (defender.superconduct)                               // 若超導狀態生效
         {                                                        // if 區塊開始
             dmg += 6;                                            // 額外加 6 點固定傷害
             defender.superconduct = false;                       // 清除超導狀態
         }                                                        // if 區塊結束
 
-        return dmg;                                              // 回傳最終傷害
-    }                                                            // 方法區塊結束
+        if (isChain && dmg > 0)                                  // 連鎖命中才直接扣血
+        defender.TakeDamage(dmg);                            // 造成等同基礎值的傷害
+
+        return dmg;
+    }
 
     private void ApplyThunderSpreadReaction(Enemy enemy, ref int dmg)
     {
@@ -406,9 +403,9 @@ public class ThunderStrategy : DefaultElementalStrategy          // 雷元素策
 
         if (reactive == ElementType.Wood)
         {
-            target.thunderstrike = true;
             target.RemoveElementTag(ElementType.Wood);
             target.RemoveElementTag(ElementType.Thunder);
+            target.SetChargedCount(2);
             if (zeroDamageOnReact) dmg = 0;
             return true;
         }
@@ -525,11 +522,11 @@ public class WoodStrategy : DefaultElementalStrategy             // 木元素策
             defender.RemoveElementTag(ElementType.Wood);         // 燃燒後木材被消耗
             defender.AddElementTag(ElementType.Fire);            // 附著火
         }                                                        // if 區塊結束
-        else if (latestReactive == ElementType.Thunder)       // 木 + 雷：雷擊加倍狀態
+        else if (latestReactive == ElementType.Thunder)       // 木 + 雷：蓄力狀態
         {                                                        // else if 區塊開始
-            defender.thunderstrike = true;                       // 開啟雷擊加倍
             defender.RemoveElementTag(ElementType.Wood);         // 移除木
             defender.RemoveElementTag(ElementType.Thunder);      // 移除雷
+            defender.SetChargedCount(2);                         // 設定蓄力次數
         }                                                        // else if 區塊結束
         else                                                     // 沒有特殊組合
         {                                                        // else 區塊開始
@@ -537,12 +534,6 @@ public class WoodStrategy : DefaultElementalStrategy             // 木元素策
         }                                                        // else 區塊結束
 
         ApplyElementToTiles(defender, ElementType.Wood);         // 將木元素標記擴散到格子
-
-        if (defender.thunderstrike)                              // 若雷擊狀態存在
-        {                                                        // if 區塊開始
-            dmg *= 2;                                            // 傷害加倍
-            defender.thunderstrike = false;                      // 清除狀態
-        }                                                        // if 區塊結束
 
         return dmg;                                              // 回傳傷害
     }                                                            // 方法區塊結束
