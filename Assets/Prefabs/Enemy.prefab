@@ -523,6 +523,7 @@ MonoBehaviour:
   frozenTurns: 0
   superconduct: 0
   chargedCount: 0
+  frostStacks: 0
   hasBerserk: 0
   gridPosition: {x: 0, y: 0}
   baseAttackDamage: 10
@@ -620,7 +621,7 @@ BoxCollider2D:
   m_ExcludeLayers:
     serializedVersion: 2
     m_Bits: 0
-  m_LayerOverridePriority: 0
+  m_LayerOverridePriority: 1
   m_ForceSendLayers:
     serializedVersion: 2
     m_Bits: 4294967295

@@ -22,7 +22,7 @@ public class StatusPanel_Text : MonoBehaviour
     private int lastKnownBurningTurns;
     private int lastKnownFrozenTurns;
     private int lastKnownChargedCount;
-
+    private int lastKnownFrostStacks;
 
     private void Awake()
     {
@@ -44,11 +44,13 @@ public class StatusPanel_Text : MonoBehaviour
 
         if (enemy.burningTurns != lastKnownBurningTurns ||
             enemy.frozenTurns != lastKnownFrozenTurns ||
-            enemy.chargedCount != lastKnownChargedCount)
+            enemy.chargedCount != lastKnownChargedCount ||
+            enemy.frostStacks != lastKnownFrostStacks)
         {
             lastKnownBurningTurns = enemy.burningTurns;
             lastKnownFrozenTurns = enemy.frozenTurns;
             lastKnownChargedCount = enemy.chargedCount;
+            lastKnownFrostStacks = enemy.frostStacks;
             Refresh();
         }
     }
@@ -142,7 +144,8 @@ public class StatusPanel_Text : MonoBehaviour
         {
             AddIntEffect(negative, "燃燒", enemy.burningTurns);
             AddIntEffect(negative, "冰凍", enemy.frozenTurns);
-            AddIntEffect(negative, "雷擊蓄力", enemy.chargedCount);
+            AddIntEffect(negative, "雷擊", enemy.chargedCount);
+            AddIntEffect(negative, "結霜", enemy.frostStacks);
         }
         // ====== Output ======
         if (buffsText != null)
@@ -156,6 +159,7 @@ public class StatusPanel_Text : MonoBehaviour
             lastKnownBurningTurns = enemy.burningTurns;
             lastKnownFrozenTurns = enemy.frozenTurns;
             lastKnownChargedCount = enemy.chargedCount;
+            lastKnownFrostStacks = enemy.frostStacks;
         }
     }
 
@@ -198,6 +202,7 @@ public class StatusPanel_Text : MonoBehaviour
             lastKnownBurningTurns = enemy.burningTurns;
             lastKnownFrozenTurns = enemy.frozenTurns;
             lastKnownChargedCount = enemy.chargedCount;
+            lastKnownFrostStacks = enemy.frostStacks;
         }
 
         // 只有玩家才有 buffs（你目前是這樣設計）
@@ -228,6 +233,7 @@ public class StatusPanel_Text : MonoBehaviour
         lastKnownBurningTurns = 0;
         lastKnownFrozenTurns = 0;
         lastKnownChargedCount = 0;
+        lastKnownFrostStacks = 0;
 
         Hide();
     }
@@ -288,6 +294,12 @@ public class StatusPanel_Text : MonoBehaviour
     {
         if (!showZeroEffects && !enabled) return;
         list.Add(name);
+    }
+
+    private void AddStackEffect(List<string> list, string name, int value)
+    {
+        if (!showZeroEffects && value == 0) return;
+        list.Add($"{name} x{value}");
     }
 
     private void AddFloatEffect(List<string> list, string name, float value, bool onlyIfNotDefault, float defaultValue)

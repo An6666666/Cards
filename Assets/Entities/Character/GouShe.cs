@@ -21,7 +21,8 @@ public class GouShe : Enemy               // 鉤蛇怪物類別，繼承自 Enem
 
     private int columnStrikeCooldownRemaining = 0;               // 目前距離直線打擊可用還剩幾回合冷卻
     private bool columnStrikePending = false;                    // 是否已經進入「直線打擊準備完成，等待發動」狀態
-    private int columnStrikeTargetColumn = 0;                    // 要攻擊的目標欄位（x 座標）
+    private readonly HashSet<int> columnStrikeTargetColumns = new HashSet<int>();
+    // 要攻擊的目標欄位（x 座標），可包含多條直線
     private readonly List<BoardTile> columnStrikeHighlightedTiles = new List<BoardTile>();
     // 被標記為即將被直線打擊的格子清單，用來之後清除高亮
 
@@ -213,12 +214,16 @@ public class GouShe : Enemy               // 鉤蛇怪物類別，繼承自 Enem
             return false;
         }
 
-        List<Vector2Int> columnPositions = new List<Vector2Int>(); // 用來記錄與玩家同一欄位的所有格子座標
+        List<Vector2Int> columnPositions = new List<Vector2Int>(); // 用來記錄目標直線的所有格子座標
+        columnStrikeTargetColumns.Clear();
+        columnStrikeTargetColumns.Add(player.position.x);
+        columnStrikeTargetColumns.Add(player.position.x - 1);
+        columnStrikeTargetColumns.Add(player.position.x + 1);
         foreach (Vector2Int pos in board.GetAllPositions())        // 走訪棋盤上所有位置
         {
-            if (pos.x == player.position.x)                        // 若該位置的 x 與玩家位置的 x 相同
+            if (columnStrikeTargetColumns.Contains(pos.x))          // 若該位置的 x 在目標欄位中
             {
-                columnPositions.Add(pos);                          // 加入同一欄位清單
+                columnPositions.Add(pos);                          // 加入目標直線清單
             }
         }
 
@@ -240,7 +245,6 @@ public class GouShe : Enemy               // 鉤蛇怪物類別，繼承自 Enem
         }
 
         storedGridBeforeHide = gridPosition;                       // 記錄消失前的原本座標
-        columnStrikeTargetColumn = player.position.x;              // 設定要打擊的目標欄位
         columnStrikePending = true;                                // 標記為「已準備好，下回合發動」
         SetHidden(true);                                           // 把自己隱藏（SpriteRenderer.enabled = false）
         SetHighlight(false);                                       // 關閉自身的選取高亮
@@ -251,7 +255,7 @@ public class GouShe : Enemy               // 鉤蛇怪物類別，繼承自 Enem
 
     private void ResolveColumnStrike(Player player)
     {
-        bool playerHit = player != null && player.position.x == columnStrikeTargetColumn;
+        bool playerHit = player != null && columnStrikeTargetColumns.Contains(player.position.x);
         // 判斷玩家目前是否仍然站在被鎖定的欄位上
 
         if (playerHit)
@@ -269,7 +273,7 @@ public class GouShe : Enemy               // 鉤蛇怪物類別，繼承自 Enem
         SetForceHideIntent(false);                                    // 回到場上時，意圖再次顯示
 
         columnStrikePending = false;                                  // 不再處於待發動狀態
-        columnStrikeTargetColumn = 0;                                 // 清空目標欄位
+        columnStrikeTargetColumns.Clear();                            // 清空目標欄位
         columnStrikeCooldownRemaining = columnStrikeCooldownTurns;    // 重置技能冷卻
     }
 

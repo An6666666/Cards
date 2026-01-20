@@ -19,6 +19,7 @@ public class EnemyCombat : MonoBehaviour
     {
         if (enemy == null) return;
 
+        dmg = ApplyFrostBonus(dmg);
         enemy.Visual.PlayHitShake();
 
         int remain = dmg - enemy.block;
@@ -48,6 +49,7 @@ public class EnemyCombat : MonoBehaviour
     {
         if (enemy == null) return;
 
+        dmg = ApplyFrostBonus(dmg);
         enemy.Visual.PlayHitShake();
 
         enemy.currentHP -= dmg;
@@ -75,6 +77,13 @@ public class EnemyCombat : MonoBehaviour
         if (enemy.block < 0) enemy.block = 0;
     }
 
+    public void HandleEnemyTurnEnd()
+    {
+        if (enemy == null) return;
+        if (enemy.frostStacks <= 0) return;
+        enemy.SetFrostStacks(enemy.frostStacks - 1);
+    }
+
     public void Die()
     {
         if (enemy == null || enemy.IsDead) return;
@@ -91,5 +100,13 @@ public class EnemyCombat : MonoBehaviour
         }
 
         Destroy(enemy.gameObject, enemy.DeathDestroyDelay);
+    }
+
+    private int ApplyFrostBonus(int dmg)
+    {
+        if (dmg <= 0 || enemy == null || enemy.frostStacks <= 0)
+            return dmg;
+
+        return dmg + enemy.frostStacks * 2;
     }
 }

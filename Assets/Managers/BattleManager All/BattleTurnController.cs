@@ -230,6 +230,14 @@ public class BattleTurnController               // 回合流程控制器：玩�
             // 若敵人設定為「每回合重置 block」，則把敵人護盾也清零
         }
 
+        foreach (var e in enemiesAtTurnEnd)
+        {
+            if (e != null)
+            {
+                e.ProcessEnemyTurnEnd();
+            }
+        }
+        
         stateMachine.ChangeState(new PlayerTurnState(battleManager));
         // 回合結束後，切回 PlayerTurnState，重新輪到玩家
 

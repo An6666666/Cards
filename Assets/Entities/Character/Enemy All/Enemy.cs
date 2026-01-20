@@ -22,6 +22,7 @@ public class Enemy : MonoBehaviour
     public int frozenTurns = 0;
     public bool superconduct = false;
     public int chargedCount = 0;
+    public int frostStacks = 0;
     public bool hasBerserk = false;
     public Vector2Int gridPosition;
 
@@ -228,7 +229,21 @@ public class Enemy : MonoBehaviour
         chargedCount = count;
         RaiseStatusChanged();
     }
-    
+
+    public void AddFrostStacks(int amount)
+    {
+        if (amount <= 0) return;
+        SetFrostStacks(Mathf.Min(6, frostStacks + amount));
+    }
+
+    public void SetFrostStacks(int count)
+    {
+        int clamped = Mathf.Clamp(count, 0, 6);
+        if (frostStacks == clamped) return;
+        frostStacks = clamped;
+        RaiseStatusChanged();
+    }
+
     public int ApplyElementalAttack(ElementType e, int baseDamage, Player player)
     {
         return elements != null ? elements.ApplyElementalAttack(e, baseDamage, player) : baseDamage;
@@ -241,7 +256,26 @@ public class Enemy : MonoBehaviour
 
     public virtual void ProcessPlayerTurnEnd()
     {
+        ApplyBurningTurnEnd();
         elements?.ProcessPlayerTurnEnd();
+    }
+
+    private void ApplyBurningTurnEnd()
+    {
+        if (burningTurns <= 0) return;
+
+        TakeDamage(2);
+        burningTurns--;
+        RaiseStatusChanged();
+        if (burningTurns == 0)
+        {
+            RemoveElementTag(ElementType.Wood);
+        }
+    }
+    
+    public void ProcessEnemyTurnEnd()
+    {
+        combat?.HandleEnemyTurnEnd();
     }
 
     public int BaseAttackDamage

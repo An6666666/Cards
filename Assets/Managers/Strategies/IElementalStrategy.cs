@@ -53,7 +53,7 @@ public class DefaultElementalStrategy : IElementalStrategy // 預設元素策略
     }                                          // 方法區塊結束
 }                                              // 類別區塊結束
 
-public class FireStrategy : DefaultElementalStrategy, IPlayerEndTurnEffect // 火元素策略：繼承預設策略並實作玩家回合結束效果
+public class FireStrategy : DefaultElementalStrategy // 火元素策略：繼承預設策略
 {                                              // 類別區塊開始
     public override int CalculateDamage(Player attacker, Enemy defender, int baseDamage) // 覆寫傷害計算：火元素的特殊反應處理
     {                                          // 方法區塊開始
@@ -79,7 +79,7 @@ public class FireStrategy : DefaultElementalStrategy, IPlayerEndTurnEffect // �
         {                                                        // else if 區塊開始
             defender.SetBurningTurns(5);                         // 點燃木頭：設定燃燒持續 5 回合
             defender.RemoveElementTag(ElementType.Wood);         // 燃燒後木材被消耗
-            defender.AddElementTag(ElementType.Fire);            // 加上火標記（燃燒來源）
+            defender.AddElementTag(ElementType.Fire);            // 燃燒後保留火元素附著
         }                                                        // else if 區塊結束
         else if (latestReactive == ElementType.Thunder)       // 若有雷元素
         {                                                        // else if 區塊開始
@@ -143,20 +143,6 @@ public class FireStrategy : DefaultElementalStrategy, IPlayerEndTurnEffect // �
             enemy.AddElementTag(ElementType.Fire);
         }
     }
-    
-    public void OnPlayerEndTurn(Enemy enemy)                     // 玩家回合結束效果：火的燃燒 DOT（持續傷害）
-    {                                                            // 方法區塊開始
-        if (enemy.burningTurns > 0)                              // 若仍有燃燒回合數
-        {                                                        // if 區塊開始
-            enemy.TakeDamage(2);                                 // 每回合固定扣 2 點傷害
-            enemy.burningTurns--;                                // 燃燒回合數 -1
-            enemy.RaiseStatusChanged();
-            if (enemy.burningTurns == 0)                         // 若燃燒剛好結束
-            {                                                    // if 區塊開始
-                enemy.RemoveElementTag(ElementType.Wood);        // 燃燒結束後只清除木標記
-            }                                                    // if 區塊結束
-        }                                                        // if 區塊結束
-    }                                                            // 方法區塊結束
 }                                                                // 類別區塊結束
 
 public class WaterStrategy : DefaultElementalStrategy            // 水元素策略：只覆寫傷害，沒有回合開始效果
@@ -422,7 +408,7 @@ public class IceStrategy : DefaultElementalStrategy              // 冰元素策
 
         ElementType? latestReactive = ElementReactionOrderHelper.GetLatestReactiveTag(
         defender,
-        new[] { ElementType.Fire, ElementType.Water, ElementType.Thunder });
+        new[] { ElementType.Fire, ElementType.Water, ElementType.Thunder, ElementType.Wood });
 
         if (latestReactive == ElementType.Fire)               // 冰 + 火：互剋（實作為 1.5 倍並覆蓋火）
         {                                                        // if 區塊開始
@@ -444,6 +430,12 @@ public class IceStrategy : DefaultElementalStrategy              // 冰元素策
         {                                                        // else if 區塊開始
             defender.superconduct = true;                        // 開啟超導
             defender.RemoveElementTag(ElementType.Thunder);      // 移除雷
+            defender.RemoveElementTag(ElementType.Ice);          // 移除冰
+        }                                                        // else if 區塊結束
+        else if (latestReactive == ElementType.Wood)          // 冰 + 木：結霜
+        {                                                        // else if 區塊開始
+            defender.AddFrostStacks(1);                          // 疊加結霜層數
+            defender.RemoveElementTag(ElementType.Wood);         // 移除木
             defender.RemoveElementTag(ElementType.Ice);          // 移除冰
         }                                                        // else if 區塊結束
         else                                                     // 無特殊反應
@@ -514,19 +506,25 @@ public class WoodStrategy : DefaultElementalStrategy             // 木元素策
 
         ElementType? latestReactive = ElementReactionOrderHelper.GetLatestReactiveTag(
         defender,
-        new[] { ElementType.Fire, ElementType.Thunder });
+        new[] { ElementType.Fire, ElementType.Thunder, ElementType.Ice });
 
         if (latestReactive == ElementType.Fire)               // 木 + 火：引燃木頭（燃燒）
         {                                                        // if 區塊開始
             defender.SetBurningTurns(5);                         // 設定 5 回合燃燒
             defender.RemoveElementTag(ElementType.Wood);         // 燃燒後木材被消耗
-            defender.AddElementTag(ElementType.Fire);            // 附著火
+            defender.AddElementTag(ElementType.Fire);            // 燃燒後保留火元素附著
         }                                                        // if 區塊結束
         else if (latestReactive == ElementType.Thunder)       // 木 + 雷：蓄力狀態
         {                                                        // else if 區塊開始
             defender.RemoveElementTag(ElementType.Wood);         // 移除木
             defender.RemoveElementTag(ElementType.Thunder);      // 移除雷
             defender.SetChargedCount(2);                         // 設定蓄力次數
+        }                                                        // else if 區塊結束
+        else if (latestReactive == ElementType.Ice)           // 木 + 冰：結霜
+        {                                                        // else if 區塊開始
+            defender.AddFrostStacks(1);                          // 疊加結霜層數
+            defender.RemoveElementTag(ElementType.Wood);         // 移除木
+            defender.RemoveElementTag(ElementType.Ice);          // 移除冰
         }                                                        // else if 區塊結束
         else                                                     // 沒有特殊組合
         {                                                        // else 區塊開始
