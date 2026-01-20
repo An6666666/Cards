@@ -19,7 +19,7 @@ public class GouShe : Enemy               // 鉤蛇怪物類別，繼承自 Enem
     [SerializeField, Range(0f, 1f)] private float extraStrikeDamageRatio = 0.3f;
     // 額外一段傷害的比例（相對於本次攻擊傷害）
 
-    private int columnStrikeCooldownRemaining = 0;               // 目前距離直線打擊可用還剩幾回合冷卻
+    private int columnStrikeCooldownRemaining = 2;               // 目前距離直線打擊可用還剩幾回合冷卻
     private bool columnStrikePending = false;                    // 是否已經進入「直線打擊準備完成，等待發動」狀態
     private readonly HashSet<int> columnStrikeTargetColumns = new HashSet<int>();
     // 要攻擊的目標欄位（x 座標），可包含多條直線
@@ -68,7 +68,15 @@ public class GouShe : Enemy               // 鉤蛇怪物類別，繼承自 Enem
             // 冷卻結束 + 站在水格上 + 成功準備直線打擊 → 本回合只做準備就 return
             return;
         }
+        if (CanMoveToAdjacentWater()) // 若旁邊有水格，優先直接踩水
+        {
+            return;
+        }
 
+        if (TryMoveOneStepTowardNearestWater(3)) // 若 3 步內有水格，優先靠近
+        {
+            return;
+        }
         if (IsPlayerInRange(player))   // 若玩家在普通攻擊範圍內
         {
             PerformAttackWithBonus(player); // 進行帶有被動額外傷害機率的普通攻擊
@@ -173,7 +181,195 @@ public class GouShe : Enemy               // 鉤蛇怪物類別，繼承自 Enem
         return tile != null && tile.HasElement(ElementType.Water);
         // 若格子存在且具有水元素，則回傳 true
     }
+    private bool CanMoveToAdjacentWater()
+    {
+        Board board = FindObjectOfType<Board>();
+        if (board == null)
+        {
+            return false;
+        }
 
+        Player player = FindObjectOfType<Player>();
+
+        foreach (BoardTile tile in board.GetAdjacentTiles(gridPosition))
+        {
+            if (tile == null || !tile.HasElement(ElementType.Water))
+            {
+                continue;
+            }
+
+            Vector2Int targetPos = tile.gridPosition;
+            if (IsPositionBlocked(board, targetPos, player))
+            {
+                continue;
+            }
+
+            MoveToPosition(targetPos);
+            return true;
+        }
+
+        return false;
+    }
+
+    private bool TryMoveOneStepTowardNearestWater(int maxSteps)
+    {
+        if (IsOnWaterTile())
+        {
+            return false;
+        }
+
+        Board board = FindObjectOfType<Board>();
+        if (board == null)
+        {
+            return false;
+        }
+
+        Vector2Int? targetWater = FindNearestWaterWithinSteps(board, maxSteps);
+        if (!targetWater.HasValue)
+        {
+            return false;
+        }
+
+        Player player = FindObjectOfType<Player>();
+        Vector2Int bestPos = gridPosition;
+        int bestDistance = int.MaxValue;
+
+        foreach (BoardTile tile in board.GetAdjacentTiles(gridPosition))
+        {
+            if (tile == null)
+            {
+                continue;
+            }
+
+            Vector2Int nextPos = tile.gridPosition;
+            if (IsPositionBlocked(board, nextPos, player))
+            {
+                continue;
+            }
+
+            int distance = ComputeStepDistance(board, nextPos, targetWater.Value, player);
+            if (distance < bestDistance)
+            {
+                bestDistance = distance;
+                bestPos = nextPos;
+            }
+        }
+
+        if (bestPos != gridPosition && bestDistance < int.MaxValue)
+        {
+            MoveToPosition(bestPos);
+            return true;
+        }
+
+        return false;
+    }
+
+    private Vector2Int? FindNearestWaterWithinSteps(Board board, int maxSteps)
+    {
+        if (board == null)
+        {
+            return null;
+        }
+
+        Player player = FindObjectOfType<Player>();
+        Queue<(Vector2Int pos, int steps)> pending = new Queue<(Vector2Int pos, int steps)>();
+        HashSet<Vector2Int> visited = new HashSet<Vector2Int> { gridPosition };
+
+        pending.Enqueue((gridPosition, 0));
+
+        while (pending.Count > 0)
+        {
+            var current = pending.Dequeue();
+            if (current.steps > maxSteps)
+            {
+                continue;
+            }
+
+            if (current.steps > 0)
+            {
+                BoardTile tile = board.GetTileAt(current.pos);
+                if (tile != null && tile.HasElement(ElementType.Water))
+                {
+                    return current.pos;
+                }
+            }
+
+            if (current.steps == maxSteps)
+            {
+                continue;
+            }
+
+            foreach (BoardTile tile in board.GetAdjacentTiles(current.pos))
+            {
+                if (tile == null)
+                {
+                    continue;
+                }
+
+                Vector2Int next = tile.gridPosition;
+                if (!visited.Add(next))
+                {
+                    continue;
+                }
+
+                if (IsPositionBlocked(board, next, player))
+                {
+                    continue;
+                }
+
+                pending.Enqueue((next, current.steps + 1));
+            }
+        }
+
+        return null;
+    }
+
+    private int ComputeStepDistance(Board board, Vector2Int start, Vector2Int target, Player player)
+    {
+        if (start == target)
+        {
+            return 0;
+        }
+
+        Queue<(Vector2Int pos, int dist)> pending = new Queue<(Vector2Int pos, int dist)>();
+        HashSet<Vector2Int> visited = new HashSet<Vector2Int> { start };
+
+        pending.Enqueue((start, 0));
+
+        while (pending.Count > 0)
+        {
+            var current = pending.Dequeue();
+            int nextDist = current.dist + 1;
+
+            foreach (BoardTile tile in board.GetAdjacentTiles(current.pos))
+            {
+                if (tile == null)
+                {
+                    continue;
+                }
+
+                Vector2Int next = tile.gridPosition;
+                if (!visited.Add(next))
+                {
+                    continue;
+                }
+
+                if (IsPositionBlocked(board, next, player))
+                {
+                    continue;
+                }
+
+                if (next == target)
+                {
+                    return nextDist;
+                }
+
+                pending.Enqueue((next, nextDist));
+            }
+        }
+
+        return int.MaxValue;
+    }
     private void PerformAttackWithBonus(Player player)
     {
         if (player == null)             // 若沒有玩家目標
@@ -403,7 +599,6 @@ public class GouShe : Enemy               // 鉤蛇怪物類別，繼承自 Enem
         {
             return;
         }
-
         if (columnStrikeCooldownRemaining > 0)                 // 冷卻回合大於 0 才需要遞減
         {
             columnStrikeCooldownRemaining--;                   // 每回合開始遞減 1
