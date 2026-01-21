@@ -2,7 +2,7 @@ using System.Collections.Generic;            // 使用泛型集合，方便用 L
 using UnityEngine;                           // 使用 Unity 引擎相關的類別（MonoBehaviour、Vector2Int、SerializeField 等）
 
 // 鷹鴿 Boss，繼承你專案裡的 Enemy 基底類別
-public class YingGe : Enemy
+public class YingGe : Enemy, IEnemyCooldownProvider
 {
     // 覆寫基底的屬性，讓這個 Boss 不會在每回合自動把護甲歸零
     public override bool ShouldResetBlockEachTurn => false;
@@ -68,15 +68,12 @@ public class YingGe : Enemy
     public override void ProcessTurnStart()
     {
         base.ProcessTurnStart();                       // 先讓基底做它原本的回合開始處理
-        if (battleManager == null)
-        {
-            battleManager = FindObjectOfType<BattleManager>();
-        }
+    }
 
-        if (battleManager == null || battleManager.IsProcessingEnemyTurnStart)
-        {
-            AdvanceStoneFeatherCooldown();
-        }
+    public override void ProcessEnemyTurnEnd()
+    {
+        base.ProcessEnemyTurnEnd();
+        AdvanceStoneFeatherCooldown();
     }
 
     // 敵人這回合實際要做的行動
@@ -156,7 +153,16 @@ public class YingGe : Enemy
         // block = 現在護甲 + 每回合護甲，確保不會是負的
         block = Mathf.Max(0, block + armorPerTurn);
     }
+    public int GetCooldownTurnsRemaining()
+    {
+        if (stoneFeatherPending)
+        {
+            return 0;
+        }
 
+        int remaining = stoneFeatherCooldown - stoneFeatherCooldownTimer;
+        return Mathf.Max(0, remaining);
+    }
     // 石羽雨的冷卻回合往前推進
     private void AdvanceStoneFeatherCooldown()
     {

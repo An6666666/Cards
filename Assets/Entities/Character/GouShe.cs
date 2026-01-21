@@ -1,7 +1,7 @@
 using System.Collections.Generic;         // 使用泛型集合，例如 List<T>
 using UnityEngine;                        // 使用 Unity 引擎的核心功能
 
-public class GouShe : Enemy               // 鉤蛇怪物類別，繼承自 Enemy 基底類
+public class GouShe : Enemy, IEnemyCooldownProvider               // 鉤蛇怪物類別，繼承自 Enemy 基底類
 {
     private static readonly Vector2Int OffBoardSentinel = new Vector2Int(int.MinValue / 2, int.MinValue / 2);
     // 一個特殊座標，用來代表「暫時離開棋盤」（不在任何有效格子上）
@@ -46,6 +46,11 @@ public class GouShe : Enemy               // 鉤蛇怪物類別，繼承自 Enem
     public override void ProcessTurnStart()
     {
         base.ProcessTurnStart();    // 先執行基底的回合開始流程（處理 buff 等）
+    }
+
+    public override void ProcessEnemyTurnEnd()
+    {
+        base.ProcessEnemyTurnEnd();
         TickColumnStrikeCooldown(); // 處理直線打擊技能的冷卻回合遞減
     }
 
@@ -69,21 +74,21 @@ public class GouShe : Enemy               // 鉤蛇怪物類別，繼承自 Enem
             // 冷卻結束 + 站在水格上 + 成功準備直線打擊 → 本回合只做準備就 return
             return;
         }
-        if (CanMoveToAdjacentWater()) // 若旁邊有水格，優先直接踩水
-        {
-            return;
-        }
-
-        if (TryMoveOneStepTowardNearestWater(3)) // 若 3 步內有水格，優先靠近
-        {
-            return;
-        }
         if (IsPlayerInRange(player))   // 若玩家在普通攻擊範圍內
         {
             PerformAttackWithBonus(player); // 進行帶有被動額外傷害機率的普通攻擊
         }
         else
         {
+            if (CanMoveToAdjacentWater()) // 若旁邊有水格，優先直接踩水
+            {
+                return;
+            }
+
+            if (TryMoveOneStepTowardNearestWater(2)) // 若 3 步內有水格，優先靠近
+            {
+                return;
+            }
             MoveOneStepTowards(player); // 否則朝玩家移動一格
         }
     }
@@ -169,7 +174,10 @@ public class GouShe : Enemy               // 鉤蛇怪物類別，繼承自 Enem
 
         block += waterArmor;        // 增加護甲（block）
     }
-
+    public int GetCooldownTurnsRemaining()
+    {
+        return Mathf.Max(0, columnStrikeCooldownRemaining);
+    }
     private bool IsOnWaterTile()
     {
         Board board = FindObjectOfType<Board>(); // 尋找棋盤物件
@@ -602,7 +610,7 @@ public class GouShe : Enemy               // 鉤蛇怪物類別，繼承自 Enem
         }
         if (columnStrikeCooldownRemaining > 0)                 // 冷卻回合大於 0 才需要遞減
         {
-            columnStrikeCooldownRemaining--;                   // 每回合開始遞減 1
+            columnStrikeCooldownRemaining--;                   // 每次妖怪回合結束遞減 1
         }
     }
 

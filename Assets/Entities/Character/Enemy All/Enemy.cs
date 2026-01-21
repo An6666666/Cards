@@ -272,8 +272,8 @@ public class Enemy : MonoBehaviour
             RemoveElementTag(ElementType.Wood);
         }
     }
-    
-    public void ProcessEnemyTurnEnd()
+
+    public virtual void ProcessEnemyTurnEnd()
     {
         combat?.HandleEnemyTurnEnd();
     }

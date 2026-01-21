@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine; // 引用 Unity 引擎命名空間
 
-public class HuGuPo : Enemy // 定義 HuGuPo 類別，繼承自 Enemy
+public class HuGuPo : Enemy, IEnemyCooldownProvider // 定義 HuGuPo 類別，繼承自 Enemy
 {
     [Header("Hu Gu Po Settings")] // 在 Inspector 中顯示標題
     [SerializeField] private int bleedDuration = 2; // 流血狀態持續回合數
@@ -33,7 +33,11 @@ public class HuGuPo : Enemy // 定義 HuGuPo 類別，繼承自 Enemy
         imprisonCooldownRemaining = imprisonCooldownTurns; // 開場即進入冷卻
         chargeCooldownRemaining = chargeCooldownTurns; // 開場即進入冷卻
     }
-
+    public override void ProcessEnemyTurnEnd()
+    {
+        base.ProcessEnemyTurnEnd();
+        TickCooldowns(); // 冷卻只在妖怪回合結束時計算
+    }
     public override void EnemyAction(Player player)
     {
         if (HandleFrozen()) // 若處於冰凍，處理後直接結束行動
@@ -243,7 +247,11 @@ public class HuGuPo : Enemy // 定義 HuGuPo 類別，繼承自 Enemy
         chargeCooldownRemaining = chargeCooldownTurns; // 衝撞流程結束 → 進入冷卻
         return true;
     }
-
+    public int GetCooldownTurnsRemaining()
+    {
+        int maxCooldown = Mathf.Max(imprisonCooldownRemaining, chargeCooldownRemaining);
+        return Mathf.Max(0, maxCooldown);
+    }
     private void MoveTowardsLockedPosition(Board board, Vector2Int targetPos)
     {
         if (board == null) // 無棋盤 → 不執行
