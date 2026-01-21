@@ -775,11 +775,10 @@ MonoBehaviour:
   goldReward: 100
   burningTurns: 0
   frozenTurns: 0
-  thunderstrike: 0
   superconduct: 0
+  chargedCount: 0
+  frostStacks: 0
   hasBerserk: 0
-  buffs:
-    stun: 0
   gridPosition: {x: 0, y: 0}
   baseAttackDamage: 15
   attackRangeOffsets:
@@ -838,7 +837,7 @@ MonoBehaviour:
   stoneFeatherDamage: 15
   stoneFeatherCooldown: 4
   stonePrefab: {fileID: 5009010696390418974, guid: ef95fb2219afd6e4193794239db46df1, type: 3}
-  stoneHealth: 1
+  stoneHealth: 100
   stoneRespawnWaitTurns: 2
 --- !u!61 &6108899651598782048
 BoxCollider2D:

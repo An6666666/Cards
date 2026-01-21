@@ -9,8 +9,8 @@ public class HuGuPo : Enemy // 定義 HuGuPo 類別，繼承自 Enemy
     [SerializeField] private int imprisonCooldownTurns = 3; // 禁錮技能冷卻回合需求
     [SerializeField] private int chargeCooldownTurns = 4; // 蓄力衝撞技能冷卻回合數
     [SerializeField] private int chargeDamage = 15; // 衝撞造成的傷害
-    private int imprisonCooldownCounter = 0; // 禁錮技能當前冷卻累積
-    private int chargeCooldownCounter = 0; // 蓄力衝撞技能當前冷卻累積
+    private int imprisonCooldownRemaining = 0; // 禁錮技能剩餘冷卻
+    private int chargeCooldownRemaining = 0; // 蓄力衝撞技能剩餘冷卻
 
     private bool isPreparingCharge = false; // 是否正在準備衝撞
     private Vector2Int? lockedChargePosition = null; // 鎖定衝撞目標的位置（nullable）
@@ -30,6 +30,8 @@ public class HuGuPo : Enemy // 定義 HuGuPo 類別，繼承自 Enemy
     {
         enemyName = "虎姑婆"; // 設定敵人名稱
         base.Awake(); // 呼叫父類別 Awake()
+        imprisonCooldownRemaining = imprisonCooldownTurns; // 開場即進入冷卻
+        chargeCooldownRemaining = chargeCooldownTurns; // 開場即進入冷卻
     }
 
     public override void EnemyAction(Player player)
@@ -39,35 +41,26 @@ public class HuGuPo : Enemy // 定義 HuGuPo 類別，繼承自 Enemy
             return;
         }
         DecideNextIntent(player);
-        bool skipImprisonIncrement = false; // 是否跳過禁錮技能冷卻累加
-        bool skipChargeIncrement = false; // 是否跳過衝撞技能冷卻累加
 
         if (ProcessChargeMovement(player)) // 若正在執行衝撞移動
         {
             DecideNextIntent(player);
-            skipChargeIncrement = true; // 當回合不累加衝撞冷卻
-            IncrementCooldowns(skipImprisonIncrement, skipChargeIncrement); // 更新冷卻
             return;
         }
 
         if (TryStartCharge(player)) // 嘗試開始蓄力衝撞
         {
             DecideNextIntent(player);
-            skipChargeIncrement = true; // 已啟動衝撞 → 不累加衝撞冷卻
-            IncrementCooldowns(skipImprisonIncrement, skipChargeIncrement); // 更新冷卻
             return;
         }
 
         if (TryUseImprison(player)) // 嘗試對玩家施展禁錮
         {
             DecideNextIntent(player);
-            skipImprisonIncrement = true; // 已施展禁錮 → 不累加該冷卻
-            IncrementCooldowns(skipImprisonIncrement, skipChargeIncrement); // 更新冷卻
             return;
         }
 
         PerformAttackOrMoveWithBleed(player); // 若上述皆未觸發，則進行普通攻擊或靠近玩家
-        IncrementCooldowns(skipImprisonIncrement, skipChargeIncrement); // 最後累加冷卻
     }
 
     public override void DecideNextIntent(Player player)
@@ -96,7 +89,7 @@ public class HuGuPo : Enemy // 定義 HuGuPo 類別，繼承自 Enemy
             return;
         }
 
-        bool canStartCharge = player.buffs.imprison > 0 && chargeCooldownCounter >= chargeCooldownTurns;
+        bool canStartCharge = player.buffs.imprison > 0 && chargeCooldownRemaining == 0;
         if (canStartCharge)
         {
             nextIntent.type = EnemyIntentType.Skill;
@@ -105,7 +98,7 @@ public class HuGuPo : Enemy // 定義 HuGuPo 類別，繼承自 Enemy
             return;
         }
 
-        bool canImprison = player.buffs.imprison <= 0 && imprisonCooldownCounter >= imprisonCooldownTurns;
+        bool canImprison = player.buffs.imprison <= 0 && imprisonCooldownRemaining == 0;
         if (canImprison)
         {
             nextIntent.type = EnemyIntentType.Skill;
@@ -137,8 +130,7 @@ public class HuGuPo : Enemy // 定義 HuGuPo 類別，繼承自 Enemy
     {
         if (frozenTurns > 0) // 若冰凍中
         {
-             SetFrozenTurns(Mathf.Max(0, frozenTurns - 1)); // 冰凍回合遞減
-            IncrementCooldowns(false, false); // 冰凍時冷卻仍要累加
+            SetFrozenTurns(Mathf.Max(0, frozenTurns - 1)); // 冰凍回合遞減
             return true; // 本回合無法行動
         }
 
@@ -178,13 +170,13 @@ public class HuGuPo : Enemy // 定義 HuGuPo 類別，繼承自 Enemy
             return false;
         }
 
-        if (imprisonCooldownCounter < imprisonCooldownTurns) // 冷卻未完成
+        if (imprisonCooldownRemaining > 0) // 冷卻未完成
         {
             return false;
         }
 
         player.buffs.ApplyImprisonFromEnemy(imprisonDuration); // 施加禁錮
-        imprisonCooldownCounter = 0; // 重置禁錮冷卻
+        imprisonCooldownRemaining = imprisonCooldownTurns; // 進入禁錮冷卻
         return true;
     }
 
@@ -200,7 +192,7 @@ public class HuGuPo : Enemy // 定義 HuGuPo 類別，繼承自 Enemy
             return false;
         }
 
-        if (chargeCooldownCounter < chargeCooldownTurns) // 冷卻未完成
+        if (chargeCooldownRemaining > 0) // 冷卻未完成
         {
             return false;
         }
@@ -213,7 +205,6 @@ public class HuGuPo : Enemy // 定義 HuGuPo 類別，繼承自 Enemy
         lockedChargeTile?.SetAttackHighlight(true); // 地板上顯示危險提示
 
         isPreparingCharge = true; // 進入蓄力狀態
-        chargeCooldownCounter = 0; // 重置冷卻
         return true;
     }
 
@@ -249,7 +240,7 @@ public class HuGuPo : Enemy // 定義 HuGuPo 類別，繼承自 Enemy
             lockedChargeTile = null;
         }
 
-        chargeCooldownCounter = 0; // 衝撞冷卻重置
+        chargeCooldownRemaining = chargeCooldownTurns; // 衝撞流程結束 → 進入冷卻
         return true;
     }
 
@@ -345,16 +336,12 @@ public class HuGuPo : Enemy // 定義 HuGuPo 類別，繼承自 Enemy
         return bestDir;
     }
 
-    private void IncrementCooldowns(bool skipImprison, bool skipCharge)
+    private void TickCooldowns()
     {
-        if (!skipImprison) // 若沒有跳過禁錮冷卻
+        imprisonCooldownRemaining = Mathf.Max(0, imprisonCooldownRemaining - 1); // 禁錮冷卻倒數
+        if (!isPreparingCharge)
         {
-            imprisonCooldownCounter = Mathf.Min(imprisonCooldownCounter + 1, imprisonCooldownTurns); // 冷卻累加
-        }
-
-        if (!skipCharge) // 若沒有跳過衝撞冷卻
-        {
-            chargeCooldownCounter = Mathf.Min(chargeCooldownCounter + 1, chargeCooldownTurns); // 冷卻累加
+            chargeCooldownRemaining = Mathf.Max(0, chargeCooldownRemaining - 1); // 衝撞冷卻倒數
         }
     }
 }

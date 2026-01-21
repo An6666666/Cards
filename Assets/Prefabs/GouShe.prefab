@@ -647,7 +647,7 @@ MonoBehaviour:
   waterArmor: 10
   columnStrikeDamage: 10
   columnStrikeWeakDuration: 2
-  columnStrikeCooldownTurns: 2
+  columnStrikeCooldownTurns: 3
   extraStrikeChance: 0.5
   extraStrikeDamageRatio: 0.3
 --- !u!61 &8062545072184826831

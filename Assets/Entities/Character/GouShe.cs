@@ -19,7 +19,7 @@ public class GouShe : Enemy               // 鉤蛇怪物類別，繼承自 Enem
     [SerializeField, Range(0f, 1f)] private float extraStrikeDamageRatio = 0.3f;
     // 額外一段傷害的比例（相對於本次攻擊傷害）
 
-    private int columnStrikeCooldownRemaining = 2;               // 目前距離直線打擊可用還剩幾回合冷卻
+    private int columnStrikeCooldownRemaining;              // 目前距離直線打擊可用還剩幾回合冷卻
     private bool columnStrikePending = false;                    // 是否已經進入「直線打擊準備完成，等待發動」狀態
     private readonly HashSet<int> columnStrikeTargetColumns = new HashSet<int>();
     // 要攻擊的目標欄位（x 座標），可包含多條直線
@@ -35,6 +35,7 @@ public class GouShe : Enemy               // 鉤蛇怪物類別，繼承自 Enem
     {
         enemyName = "鉤蛇";          // 設定敵人名稱
         base.Awake();               // 呼叫基底 Enemy.Awake() 做通用初始化
+        columnStrikeCooldownRemaining = columnStrikeCooldownTurns; // 開場用設定值
     }
 
     private void Start()

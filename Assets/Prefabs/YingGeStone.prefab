@@ -669,18 +669,13 @@ MonoBehaviour:
   goldReward: 0
   burningTurns: 0
   frozenTurns: 0
-  thunderstrike: 0
   superconduct: 0
+  chargedCount: 0
+  frostStacks: 0
   hasBerserk: 0
   gridPosition: {x: 0, y: 0}
   baseAttackDamage: 0
-  attackRangeOffsets:
-  - {x: -2, y: 0}
-  - {x: 2, y: 0}
-  - {x: -1, y: -2}
-  - {x: 1, y: -2}
-  - {x: -1, y: 2}
-  - {x: 1, y: 2}
+  attackRangeOffsets: []
   isBoss: 1
   spriteRoot: {fileID: 2076971732226725919}
   useAppearAnimation: 0
