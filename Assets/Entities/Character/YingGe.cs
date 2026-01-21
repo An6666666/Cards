@@ -153,8 +153,14 @@ public class YingGe : Enemy, IEnemyCooldownProvider
         // block = 現在護甲 + 每回合護甲，確保不會是負的
         block = Mathf.Max(0, block + armorPerTurn);
     }
-    public int GetCooldownTurnsRemaining()
+    public int CooldownSlotCount => 1;
+
+    public int GetCooldownTurnsRemaining(int slotIndex)
     {
+        if (slotIndex != 0)
+        {
+            return 0;
+        }
         if (stoneFeatherPending)
         {
             return 0;

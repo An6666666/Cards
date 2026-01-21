@@ -1,4 +1,5 @@
 public interface IEnemyCooldownProvider
 {
-    int GetCooldownTurnsRemaining();
+    int CooldownSlotCount { get; }
+    int GetCooldownTurnsRemaining(int slotIndex);
 }

@@ -174,8 +174,14 @@ public class GouShe : Enemy, IEnemyCooldownProvider               // 鉤蛇怪�
 
         block += waterArmor;        // 增加護甲（block）
     }
-    public int GetCooldownTurnsRemaining()
+    public int CooldownSlotCount => 1;
+
+    public int GetCooldownTurnsRemaining(int slotIndex)
     {
+        if (slotIndex != 0)
+        {
+            return 0;
+        }
         return Mathf.Max(0, columnStrikeCooldownRemaining);
     }
     private bool IsOnWaterTile()

@@ -247,10 +247,19 @@ public class HuGuPo : Enemy, IEnemyCooldownProvider // 定義 HuGuPo 類別，�
         chargeCooldownRemaining = chargeCooldownTurns; // 衝撞流程結束 → 進入冷卻
         return true;
     }
-    public int GetCooldownTurnsRemaining()
+    public int CooldownSlotCount => 2;
+
+    public int GetCooldownTurnsRemaining(int slotIndex)
     {
-        int maxCooldown = Mathf.Max(imprisonCooldownRemaining, chargeCooldownRemaining);
-        return Mathf.Max(0, maxCooldown);
+        switch (slotIndex)
+        {
+            case 0:
+                return Mathf.Max(0, imprisonCooldownRemaining);
+            case 1:
+                return Mathf.Max(0, chargeCooldownRemaining);
+            default:
+                return 0;
+        }
     }
     private void MoveTowardsLockedPosition(Board board, Vector2Int targetPos)
     {

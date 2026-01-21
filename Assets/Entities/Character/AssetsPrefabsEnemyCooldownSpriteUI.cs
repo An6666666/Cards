@@ -11,7 +11,8 @@ public class EnemyCooldownSpriteUI : MonoBehaviour
 
     [Tooltip("依序擺放的 SpriteRenderer（左到右）。")]
     public SpriteRenderer[] digitSpriteRenderers;
-
+    [Tooltip("指定要顯示哪一個技能的冷卻（從 0 開始）。")]
+    [SerializeField] private int cooldownSlotIndex = 0;
     [SerializeField] private bool hideWhenZero = true;
 
     private void Awake()
@@ -52,7 +53,13 @@ public class EnemyCooldownSpriteUI : MonoBehaviour
             provider = enemy.GetComponent<IEnemyCooldownProvider>();
         }
 
-        return provider != null ? Mathf.Max(0, provider.GetCooldownTurnsRemaining()) : 0;
+        if (provider == null || provider.CooldownSlotCount <= 0)
+        {
+            return 0;
+        }
+
+        int slot = Mathf.Clamp(cooldownSlotIndex, 0, provider.CooldownSlotCount - 1);
+        return Mathf.Max(0, provider.GetCooldownTurnsRemaining(slot));
     }
 
     private bool HasDigitSprites()
