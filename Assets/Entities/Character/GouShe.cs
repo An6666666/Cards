@@ -52,6 +52,7 @@ public class GouShe : Enemy, IEnemyCooldownProvider               // 鉤蛇怪�
     {
         base.ProcessEnemyTurnEnd();
         TickColumnStrikeCooldown(); // 處理直線打擊技能的冷卻回合遞減
+        ApplyWaterArmorIfOnTile();  // 回合結束重置護甲後，若站在水格上再補護甲
     }
 
     public override void EnemyAction(Player player)
@@ -60,8 +61,6 @@ public class GouShe : Enemy, IEnemyCooldownProvider               // 鉤蛇怪�
         {
             return;
         }
-
-        ApplyWaterArmorIfOnTile();     // 若站在水格上，獲得水護甲加成
 
         if (columnStrikePending)       // 若已進入直線打擊準備完成狀態
         {

@@ -31,7 +31,7 @@ public class EnemyCombat : MonoBehaviour
             if (enemy.currentHP <= 0)
             {
                 enemy.currentHP = 0;
-                Die();
+                enemy.Die();
             }
             else
             {
@@ -56,7 +56,7 @@ public class EnemyCombat : MonoBehaviour
         if (enemy.currentHP <= 0)
         {
             enemy.currentHP = 0;
-            Die();
+            enemy.Die();
         }
         else
         {
