@@ -15,6 +15,8 @@ public class TitleUI : MonoBehaviour
 
     private void Awake()
     {
+        RunManager.DestroyInstance();
+        
         if (startButton != null)
         {
             startButton.onClick.RemoveAllListeners();

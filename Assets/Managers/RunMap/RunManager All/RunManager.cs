@@ -184,7 +184,21 @@ public class RunManager : MonoBehaviour
         sceneRouter = new RunSceneRouter(runSceneName, battleSceneName, shopSceneName, deathReturnSceneName);
         eventResolver = new RunEventResolver(eventUIManager);
     }
+    private void OnDestroy()
+    {
+        if (Instance == this)
+        {
+            Instance = null;
+        }
+    }
 
+    public static void DestroyInstance()
+    {
+        if (Instance == null)
+            return;
+
+        Destroy(Instance.gameObject);
+    }
     private void Start()
     {
         // 如果有勾自動生成，就建一張新圖
