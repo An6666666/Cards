@@ -16,6 +16,7 @@ public class RulePanelController : MonoBehaviour
     [Header("Rule UI")]
     [SerializeField] private GameObject rulePanel;
     [SerializeField] private Image ruleImage;
+    [SerializeField] private Text pageNumberText;
     [SerializeField] private ElementRuleSet[] elementRuleSets;
     [SerializeField] private Button nextButton;
     [SerializeField] private Button prevButton;
@@ -171,6 +172,7 @@ public class RulePanelController : MonoBehaviour
         _currentPageIndex = 0;
         UpdateTabHighlight(index);
         UpdateNavButtons();
+        UpdatePageNumberText(0, ruleSet.pages.Length);
 
         if (_fx != null)
         {
@@ -198,6 +200,7 @@ public class RulePanelController : MonoBehaviour
         if (!TryGetCurrentPages(out var pages)) return;
         if (pageIndex < 0 || pageIndex >= pages.Length) return;
         _currentPageIndex = pageIndex;
+        UpdatePageNumberText(_currentPageIndex, pages.Length);
 
         if (_fx != null)
         {
@@ -332,6 +335,17 @@ public class RulePanelController : MonoBehaviour
         bool interactable = pages.Length > 1;
         if (nextButton != null) nextButton.interactable = interactable;
         if (prevButton != null) prevButton.interactable = interactable;
+    }
+
+    private void UpdatePageNumberText(int currentIndex, int totalPages)
+    {
+        if (pageNumberText == null) return;
+        if (totalPages <= 0)
+        {
+            pageNumberText.text = string.Empty;
+            return;
+        }
+        pageNumberText.text = $"{currentIndex + 1} / {totalPages}";
     }
 
     private bool TryGetCurrentPages(out Sprite[] pages)
