@@ -68,7 +68,7 @@ public class Enemy : MonoBehaviour
 
     [Tooltip("下一回合預計要做的行動（邏輯用）")]
     public EnemyIntent nextIntent = new EnemyIntent();
-
+    protected EnemyBottomHudFinal bottomHud;
     [Tooltip("掛在敵人身上的 SpriteRenderer，用來顯示意圖小圖")]
     public SpriteRenderer intentIconRenderer;
     private bool forceHideIntent = false;
@@ -115,6 +115,23 @@ public class Enemy : MonoBehaviour
     internal bool IsDead => isDead;
     internal bool ForceHideIntent => forceHideIntent;
     internal float DeathDestroyDelay => deathDestroyDelay;
+
+    protected virtual void Start()
+    {
+        bottomHud = GetComponentInChildren<EnemyBottomHudFinal>(true);
+
+        // 狀態變動（燃燒/冰凍/結霜/雷擊…）會刷 HUD
+        OnStatusChanged += RefreshHud;
+
+        // 開場先刷一次
+        RefreshHud();
+    }
+
+    protected void RefreshHud()
+    {
+        if (bottomHud == null) return;
+        bottomHud.Refresh(nextIntent.type, nextIntent.value);
+    }
 
     public void SetCardTargeted(bool on)
     {
@@ -301,11 +318,13 @@ public class Enemy : MonoBehaviour
     public virtual void DecideNextIntent(Player player)
     {
         intent?.DecideNextIntent(player);
+        RefreshHud(); // ✅ 意圖更新後刷
     }
 
     public void UpdateIntentIcon()
     {
         intent?.UpdateIntentIcon();
+        RefreshHud(); // ✅ 圖示更新後刷
     }
 
     public void SetHighlight(bool on)
