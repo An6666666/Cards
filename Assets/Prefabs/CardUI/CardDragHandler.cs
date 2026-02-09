@@ -18,6 +18,7 @@ public class CardDragHandler : MonoBehaviour, IBeginDragHandler, IDragHandler, I
     private bool isDragging;
     private int originalSiblingIndex;
     private Transform placeholder;
+    private Vector2 dragOffset;
 
     public bool IsDragging => isDragging;
     public static bool IsAnyCardDragging => activeDragCount > 0;
@@ -50,12 +51,25 @@ public class CardDragHandler : MonoBehaviour, IBeginDragHandler, IDragHandler, I
         activeDragCount++;
         hoverEffect?.ResetHoverInstant();
 
-        cardUI.originalParent = transform.parent;
-        originalSiblingIndex = transform.GetSiblingIndex();
+        cardUI.originalParent = cardUI.RootRect.parent;
+        originalSiblingIndex = cardUI.RootRect.GetSiblingIndex();
+        CreatePlaceholder();
+        if (cardUI.LayoutElement != null) cardUI.LayoutElement.ignoreLayout = true;
         if (cardUI.VisualRect != null)
-        cardUI.OriginalAnchoredPosition = cardUI.VisualRect.anchoredPosition;
+            cardUI.OriginalAnchoredPosition = cardUI.VisualRect.anchoredPosition;
 
         animationController?.FadeCardAlpha(draggingAlpha);
+
+        if (cardUI.DragLayerRect == null && cardUI.DragLayer != null)
+            cardUI.DragLayerRect = cardUI.DragLayer as RectTransform;
+
+        if (cardUI.DragLayer != null)
+        {
+            cardUI.RootRect.SetParent(cardUI.DragLayer, true);
+            cardUI.RootRect.SetAsLastSibling();
+        }
+
+        dragOffset = CalculateDragOffset(eventData);
 
         useRouter?.HandleBeginDrag(cardUI.cardData, GetWorldPosition(eventData));
 
@@ -64,10 +78,16 @@ public class CardDragHandler : MonoBehaviour, IBeginDragHandler, IDragHandler, I
 
     public void OnDrag(PointerEventData eventData)
     {
-        if (!isDragging || cardUI == null || cardUI.VisualRect == null) return;
+        if (!isDragging || cardUI == null || cardUI.RootRect == null || cardUI.DragLayerRect == null) return;
 
-        float scaleFactor = cardUI.Canvas != null ? cardUI.Canvas.scaleFactor : 1f;
-        cardUI.VisualRect.anchoredPosition += eventData.delta / scaleFactor;
+        if (RectTransformUtility.ScreenPointToLocalPointInRectangle(
+                cardUI.DragLayerRect,
+                eventData.position,
+                eventData.pressEventCamera,
+                out Vector2 localPoint))
+        {
+            cardUI.RootRect.anchoredPosition = localPoint + dragOffset;
+        }
 
         useRouter?.HandleDrag(cardUI.cardData, GetWorldPosition(eventData));
     }
@@ -85,8 +105,8 @@ public class CardDragHandler : MonoBehaviour, IBeginDragHandler, IDragHandler, I
             if (activeDragCount > 0) activeDragCount--;
         }
     }
-    
-     private void LateUpdate()
+
+    private void LateUpdate()
     {
         if (!isDragging) return;
 
@@ -108,7 +128,7 @@ public class CardDragHandler : MonoBehaviour, IBeginDragHandler, IDragHandler, I
     private bool CanDrag()
     {
         if (raycastController != null && !raycastController.Interactable) return false;
-        return allowDragging && cardUI != null && cardUI.VisualRect != null;
+        return allowDragging && cardUI != null && cardUI.RootRect != null;
     }
 
     private void CompleteDrag(PointerEventData eventData, Vector2? pointerOverride)
@@ -118,6 +138,16 @@ public class CardDragHandler : MonoBehaviour, IBeginDragHandler, IDragHandler, I
         raycastController?.SetBlocksRaycasts(true);
         isDragging = false;
         if (activeDragCount > 0) activeDragCount--;
+
+        if (cardUI.RootRect != null)
+        {
+            if (cardUI.originalParent != null)
+            {
+                cardUI.RootRect.SetParent(cardUI.originalParent, false);
+                cardUI.RootRect.SetSiblingIndex(originalSiblingIndex);
+            }
+            if (cardUI.LayoutElement != null) cardUI.LayoutElement.ignoreLayout = false;
+        }
 
         Vector2 pointerPos = pointerOverride ?? (eventData != null ? eventData.position : Input.mousePosition);
         Vector2 worldPos = GetWorldPosition(pointerPos);
@@ -163,6 +193,22 @@ public class CardDragHandler : MonoBehaviour, IBeginDragHandler, IDragHandler, I
             placeholderLayoutElement.preferredWidth = rect.width;
             placeholderLayoutElement.preferredHeight = rect.height;
         }
+    }
+
+    private Vector2 CalculateDragOffset(PointerEventData eventData)
+    {
+        if (cardUI == null || cardUI.RootRect == null || cardUI.DragLayerRect == null) return Vector2.zero;
+
+        if (RectTransformUtility.ScreenPointToLocalPointInRectangle(
+                cardUI.DragLayerRect,
+                eventData.position,
+                eventData.pressEventCamera,
+                out Vector2 localPoint))
+        {
+            return cardUI.RootRect.anchoredPosition - localPoint;
+        }
+
+        return Vector2.zero;
     }
 
     private Vector2 GetWorldPosition(PointerEventData eventData)

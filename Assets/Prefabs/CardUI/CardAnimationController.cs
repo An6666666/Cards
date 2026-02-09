@@ -96,21 +96,20 @@ public class CardAnimationController : MonoBehaviour
             var targetParent = placeholder.parent != null ? placeholder.parent : originalParent;
             if (targetParent != null)
             {
-                transform.SetParent(targetParent, true);
-                transform.SetSiblingIndex(placeholder.GetSiblingIndex());
+                cardUI.RootRect.SetParent(targetParent, false);
+                cardUI.RootRect.SetSiblingIndex(placeholder.GetSiblingIndex());
             }
             DestroyPlaceholder(placeholder);
         }
         else if (originalParent != null)
         {
-            transform.SetParent(originalParent, true);
-            transform.SetSiblingIndex(originalSiblingIndex);
+            cardUI.RootRect.SetParent(originalParent, false);
+            cardUI.RootRect.SetSiblingIndex(originalSiblingIndex);
         }
 
-        cardUI.originalParent = transform.parent;
-        int siblingIndex = transform.GetSiblingIndex();
+        cardUI.originalParent = cardUI.RootRect.parent;
 
-        Vector2 targetPosition = cardUI.OriginalAnchoredPosition;
+        Vector2 targetPosition = Vector2.zero;
 
         var returnTween = TweenCardPosition(targetPosition, returnMoveDuration, returnMoveEase);
         if (returnTween != null)
@@ -239,7 +238,7 @@ public class CardAnimationController : MonoBehaviour
         hoverEffect?.ResetHoverInstant();
 
         if (newHandParent != null) cardUI.originalParent = newHandParent;
-        if (cardUI.originalParent != null) transform.SetParent(cardUI.originalParent, true);
+        if (cardUI.originalParent != null) cardUI.RootRect.SetParent(cardUI.originalParent, false);
         if (cardUI.LayoutElement != null) cardUI.LayoutElement.ignoreLayout = false;
 
         if (dragHandler != null) dragHandler.DestroyPlaceholder();
@@ -337,6 +336,6 @@ public class CardAnimationController : MonoBehaviour
 
         raycastController?.SetBlocksRaycasts(blocksRaycastsBeforeDraw);
 
-        hoverEffect?.SuppressNextHoverOnce();
+        hoverEffect?.ClearHoverSuppression();
     }
 }

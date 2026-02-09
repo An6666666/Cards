@@ -150,7 +150,10 @@ public class CardHoverEffect : MonoBehaviour, IPointerEnterHandler, IPointerExit
     {
         suppressNextHover = true;
     }
-
+    public void ClearHoverSuppression()
+    {
+        suppressNextHover = false;
+    }
     public void SetHoverGlowColor(Color color)
     {
         hoverGlowColor = color;

@@ -22,6 +22,8 @@ public class CardUI : MonoBehaviour
     public Image cardImage;
     public RectTransform RootRect; // layout controlled
     public RectTransform VisualRect; // animation only
+    public RectTransform DragLayerRect;
+    public Transform DragLayer;
 
     [Header("資料參考")]
     public CardBase cardData;
@@ -69,6 +71,24 @@ public class CardUI : MonoBehaviour
         canvas = GetComponentInParent<Canvas>();
         if (canvas == null) canvas = FindObjectOfType<Canvas>();
         canvasRoot = canvas != null ? canvas.transform : null;
+        
+        if (canvasRoot != null)
+        {
+            if (DragLayer == null)
+            {
+                var dragLayerT = canvasRoot.Find("DragLayer");
+                if (dragLayerT != null) DragLayer = dragLayerT;
+            }
+
+            if (DragLayerRect == null && DragLayer != null)
+            {
+                DragLayerRect = DragLayer as RectTransform;
+            }
+        }
+
+        if (DragLayerRect == null && DragLayer != null) DragLayerRect = DragLayer as RectTransform;
+        if (DragLayerRect == null) DragLayerRect = canvasRoot as RectTransform;
+        if (DragLayer == null && DragLayerRect != null) DragLayer = DragLayerRect.transform;
         canvasGroup = GetComponent<CanvasGroup>();
         mainCamera = Camera.main;
         originalParent = transform.parent;
