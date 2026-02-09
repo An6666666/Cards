@@ -6,7 +6,7 @@ public class EnemyFacePlayer : MonoBehaviour
     [SerializeField] private Transform visualRoot;
     [SerializeField] private bool faceRightByDefault = true;
 
-    [Header("Position Offset")]
+    [Header("Position Offset (Optional)")]
     [SerializeField] private Vector3 leftOffset = Vector3.zero;
     [SerializeField] private Vector3 rightOffset = Vector3.zero;
 
@@ -18,40 +18,62 @@ public class EnemyFacePlayer : MonoBehaviour
     [SerializeField] private float flipHysteresis = 0.05f;
 
     private Transform playerTf;
-    private bool facingRight = true;  // 記住上一次方向
+    private bool facingRight;
 
     private void Awake()
     {
+        // 1) Auto find Visual Root if not assigned
         if (visualRoot == null)
         {
-            var t = transform.Find("Visual");
-            if (t != null) visualRoot = t;
+            // Your hierarchy looks like: Enemy/Visual/body
+            Transform t = transform.Find("Visual/body");
+            if (t != null)
+            {
+                visualRoot = t;
+            }
+            else
+            {
+                t = transform.Find("Visual");
+                if (t != null) visualRoot = t;
+            }
         }
 
-        var player = FindObjectOfType<Player>();
-        if (player != null) playerTf = player.transform;
+        // 2) Find player transform
+        Player player = FindObjectOfType<Player>();
+        if (player != null)
+        {
+            playerTf = player.transform;
+        }
+        else
+        {
+            // Fallback: try tag if you use it
+            GameObject go = GameObject.FindGameObjectWithTag("Player");
+            if (go != null) playerTf = go.transform;
+        }
 
-        // 初始化 facingRight：用目前 visual 的 scale 判斷
+        // 3) Initialize facing based on default (since scale is normalized to 1)
+        facingRight = faceRightByDefault;
+
+        // Apply once at start
         if (visualRoot != null)
-            facingRight = visualRoot.localScale.x >= 0f;
+            ApplyFacingAndOffset(facingRight);
     }
 
     private void LateUpdate()
     {
         if (visualRoot == null || playerTf == null) return;
 
-        float dx = playerTf.position.x - visualRoot.position.x;
+        // ✅ Use ROOT as reference (stable). Don't use visualRoot because it moves with offset.
+        float dx = playerTf.position.x - transform.position.x;
 
-        // 1) 正上/正下：維持原方向（不翻）
+        // 1) Dead zone: keep facing to avoid jitter
         if (Mathf.Abs(dx) <= verticalDeadZone)
         {
             ApplyFacingAndOffset(facingRight);
             return;
         }
 
-        // 2) 加一點 hysteresis，避免剛好在界線附近跳來跳去
-        //    - 如果目前朝右，要翻到左，必須 dx < -flipHysteresis
-        //    - 如果目前朝左，要翻到右，必須 dx > +flipHysteresis
+        // 2) Hysteresis
         if (facingRight)
         {
             if (dx < -flipHysteresis) facingRight = false;
@@ -64,22 +86,26 @@ public class EnemyFacePlayer : MonoBehaviour
         ApplyFacingAndOffset(facingRight);
     }
 
-    private void ApplyFacingAndOffset(bool shouldFaceRight)
+        private void ApplyFacingAndOffset(bool shouldFaceRight)
     {
-        // 翻轉 Visual（整套動畫一起翻）
-        var s = visualRoot.localScale;
-        float absX = Mathf.Abs(s.x);
+        // 保留原本大小，只改正負號
+        Vector3 s = visualRoot.localScale;
 
-        // 注意：localScale.x 的正負不一定等於「面向右」
-        // faceRightByDefault=true 表示 absX(正) = 面向右
+        float absX = Mathf.Abs(s.x);
+        float absY = Mathf.Abs(s.y);
+        float absZ = Mathf.Abs(s.z);
+
         float sign = faceRightByDefault
             ? (shouldFaceRight ? 1f : -1f)
             : (shouldFaceRight ? -1f : 1f);
 
         s.x = absX * sign;
+        s.y = absY;
+        s.z = absZ;
+
         visualRoot.localScale = s;
 
-        // 偏移
+        // 偏移（如果你不需要，left / right Offset 請保持 Vector3.zero）
         visualRoot.localPosition = shouldFaceRight ? rightOffset : leftOffset;
     }
 }
