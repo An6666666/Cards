@@ -323,7 +323,7 @@ Transform:
   - {fileID: 7004158491707192783}
   - {fileID: 3199485881507893706}
   - {fileID: 7981473600152872055}
-  - {fileID: 5074166816929622729}
+  - {fileID: 5735981882059830249}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &7728357840837083407
@@ -766,7 +766,7 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 8645717498181915281, guid: 5eb938b8b8628764cad6aaa8a1e732ea, type: 3}
   m_PrefabInstance: {fileID: 1817239499420612326}
   m_PrefabAsset: {fileID: 0}
---- !u!1001 &3439399812549291166
+--- !u!1001 &2759142088063923646
 PrefabInstance:
   m_ObjectHideFlags: 0
   serializedVersion: 2
@@ -778,41 +778,25 @@ PrefabInstance:
       propertyPath: m_Name
       value: CooldownUI
       objectReference: {fileID: 0}
-    - target: {fileID: 5047878534830269870, guid: 43d13ad7b4ac78c48bac71a10c0daaf9, type: 3}
-      propertyPath: m_LocalScale.x
-      value: 0.01
-      objectReference: {fileID: 0}
-    - target: {fileID: 5047878534830269870, guid: 43d13ad7b4ac78c48bac71a10c0daaf9, type: 3}
-      propertyPath: m_LocalScale.y
-      value: 0.02
-      objectReference: {fileID: 0}
-    - target: {fileID: 5047878534830269870, guid: 43d13ad7b4ac78c48bac71a10c0daaf9, type: 3}
-      propertyPath: m_LocalPosition.x
-      value: -1.0985
-      objectReference: {fileID: 0}
-    - target: {fileID: 5047878534830269870, guid: 43d13ad7b4ac78c48bac71a10c0daaf9, type: 3}
-      propertyPath: m_LocalPosition.y
-      value: -3.481
-      objectReference: {fileID: 0}
-    - target: {fileID: 5712658867097542392, guid: 43d13ad7b4ac78c48bac71a10c0daaf9, type: 3}
-      propertyPath: enemy
-      value: 
-      objectReference: {fileID: 7728357840837083407}
-    - target: {fileID: 5712658867097542392, guid: 43d13ad7b4ac78c48bac71a10c0daaf9, type: 3}
-      propertyPath: cooldownSlotIndex
+    - target: {fileID: 1746252647322734107, guid: 43d13ad7b4ac78c48bac71a10c0daaf9, type: 3}
+      propertyPath: m_IsActive
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 7624660405547271767, guid: 43d13ad7b4ac78c48bac71a10c0daaf9, type: 3}
       propertyPath: m_LocalScale.x
-      value: 26.64
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7624660405547271767, guid: 43d13ad7b4ac78c48bac71a10c0daaf9, type: 3}
+      propertyPath: m_LocalScale.y
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 7624660405547271767, guid: 43d13ad7b4ac78c48bac71a10c0daaf9, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 30.88
+      value: -1.8
       objectReference: {fileID: 0}
     - target: {fileID: 7624660405547271767, guid: 43d13ad7b4ac78c48bac71a10c0daaf9, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 46.3
+      value: 3.44
       objectReference: {fileID: 0}
     - target: {fileID: 7624660405547271767, guid: 43d13ad7b4ac78c48bac71a10c0daaf9, type: 3}
       propertyPath: m_LocalPosition.z
@@ -851,10 +835,10 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 43d13ad7b4ac78c48bac71a10c0daaf9, type: 3}
---- !u!4 &5074166816929622729 stripped
+--- !u!4 &5735981882059830249 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 7624660405547271767, guid: 43d13ad7b4ac78c48bac71a10c0daaf9, type: 3}
-  m_PrefabInstance: {fileID: 3439399812549291166}
+  m_PrefabInstance: {fileID: 2759142088063923646}
   m_PrefabAsset: {fileID: 0}
 --- !u!1001 &9144976963268288745
 PrefabInstance:
@@ -864,6 +848,14 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 7603518278215076845}
     m_Modifications:
+    - target: {fileID: 733274850042871441, guid: aa327d458a92acc48ba8ff8e60ec1976, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: -17.7
+      objectReference: {fileID: 0}
+    - target: {fileID: 733274850042871441, guid: aa327d458a92acc48ba8ff8e60ec1976, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 6.1
+      objectReference: {fileID: 0}
     - target: {fileID: 1203048832907362848, guid: aa327d458a92acc48ba8ff8e60ec1976, type: 3}
       propertyPath: m_SortingLayer
       value: 7

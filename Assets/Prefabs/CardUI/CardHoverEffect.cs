@@ -59,14 +59,14 @@ public class CardHoverEffect : MonoBehaviour, IPointerEnterHandler, IPointerExit
     {
         suppressNextHover = false;
 
-        if (cardUI == null || cardUI.RectTransform == null)
+        if (cardUI == null || cardUI.VisualRect == null)
             return;
 
-        cardUI.RectTransform.localScale = cardUI.OriginalLocalScale;
+        cardUI.VisualRect.localScale = cardUI.OriginalLocalScale;
 
         Camera targetCamera = cardUI.MainCamera != null ? cardUI.MainCamera : Camera.main;
         if (EventSystem.current != null &&
-            RectTransformUtility.RectangleContainsScreenPoint(cardUI.RectTransform, Input.mousePosition, targetCamera))
+            RectTransformUtility.RectangleContainsScreenPoint(cardUI.VisualRect, Input.mousePosition, targetCamera))
         {
             suppressNextHover = true;
         }
@@ -194,7 +194,7 @@ public class CardHoverEffect : MonoBehaviour, IPointerEnterHandler, IPointerExit
 
     private void AnimateRewardHover(bool hover, bool instant = false)
     {
-        if (cardUI == null || cardUI.RectTransform == null) return;
+        if (cardUI == null || cardUI.VisualRect == null) return;
 
         scaleTween?.Kill();
         scaleTween = null;
@@ -205,11 +205,11 @@ public class CardHoverEffect : MonoBehaviour, IPointerEnterHandler, IPointerExit
 
         if (instant || duration <= 0f)
         {
-            cardUI.RectTransform.localScale = targetScale;
+            cardUI.VisualRect.localScale = targetScale;
             return;
         }
 
-        scaleTween = cardUI.RectTransform
+        scaleTween = cardUI.VisualRect
             .DOScale(targetScale, duration)
             .SetEase(ease)
             .SetUpdate(true)

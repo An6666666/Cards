@@ -52,12 +52,8 @@ public class CardDragHandler : MonoBehaviour, IBeginDragHandler, IDragHandler, I
 
         cardUI.originalParent = transform.parent;
         originalSiblingIndex = transform.GetSiblingIndex();
-        cardUI.OriginalAnchoredPosition = cardUI.RectTransform.anchoredPosition;
-
-        CreatePlaceholder();
-
-        if (cardUI.LayoutElement != null) cardUI.LayoutElement.ignoreLayout = true;
-        if (cardUI.CanvasRoot != null) transform.SetParent(cardUI.CanvasRoot, true);
+        if (cardUI.VisualRect != null)
+        cardUI.OriginalAnchoredPosition = cardUI.VisualRect.anchoredPosition;
 
         animationController?.FadeCardAlpha(draggingAlpha);
 
@@ -68,10 +64,10 @@ public class CardDragHandler : MonoBehaviour, IBeginDragHandler, IDragHandler, I
 
     public void OnDrag(PointerEventData eventData)
     {
-        if (!isDragging || cardUI == null || cardUI.RectTransform == null) return;
+        if (!isDragging || cardUI == null || cardUI.VisualRect == null) return;
 
         float scaleFactor = cardUI.Canvas != null ? cardUI.Canvas.scaleFactor : 1f;
-        cardUI.RectTransform.anchoredPosition += eventData.delta / scaleFactor;
+        cardUI.VisualRect.anchoredPosition += eventData.delta / scaleFactor;
 
         useRouter?.HandleDrag(cardUI.cardData, GetWorldPosition(eventData));
     }
@@ -112,7 +108,7 @@ public class CardDragHandler : MonoBehaviour, IBeginDragHandler, IDragHandler, I
     private bool CanDrag()
     {
         if (raycastController != null && !raycastController.Interactable) return false;
-        return allowDragging && cardUI != null && cardUI.RectTransform != null;
+        return allowDragging && cardUI != null && cardUI.VisualRect != null;
     }
 
     private void CompleteDrag(PointerEventData eventData, Vector2? pointerOverride)
@@ -161,9 +157,9 @@ public class CardDragHandler : MonoBehaviour, IBeginDragHandler, IDragHandler, I
             placeholderLayoutElement.flexibleWidth = cardUI.LayoutElement.flexibleWidth;
             placeholderLayoutElement.flexibleHeight = cardUI.LayoutElement.flexibleHeight;
         }
-        else if (cardUI.RectTransform != null)
+        else if (cardUI.RootRect != null)
         {
-            var rect = cardUI.RectTransform.rect;
+            var rect = cardUI.RootRect.rect;
             placeholderLayoutElement.preferredWidth = rect.width;
             placeholderLayoutElement.preferredHeight = rect.height;
         }

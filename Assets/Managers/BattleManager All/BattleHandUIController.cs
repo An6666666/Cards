@@ -86,7 +86,7 @@ public class BattleHandUIController           // 戰鬥場景中「手牌 UI」�
 
             for (int i = 0; i < createdCards.Count; i++)          // 重新記錄每張卡片的基準座標
             {
-                var rt = createdCards[i]?.RectTransform;
+                var rt = createdCards[i]?.VisualRect;
                 if (rt != null)
                     createdCards[i].OriginalAnchoredPosition = rt.anchoredPosition;
             }

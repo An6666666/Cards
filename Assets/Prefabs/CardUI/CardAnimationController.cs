@@ -1,6 +1,5 @@
 using UnityEngine;
 using DG.Tweening;
-using UnityEngine.UI;
 
 public class CardAnimationController : MonoBehaviour
 {
@@ -47,9 +46,9 @@ public class CardAnimationController : MonoBehaviour
 
     public void HandleCardEnabled()
     {
-        if (cardUI != null && cardUI.RectTransform != null)
+        if (cardUI != null && cardUI.VisualRect != null)
         {
-            cardUI.RectTransform.localScale = cardUI.OriginalLocalScale;
+            cardUI.VisualRect.localScale = cardUI.OriginalLocalScale;
         }
     }
 
@@ -67,33 +66,19 @@ public class CardAnimationController : MonoBehaviour
         scaleTween?.Kill();
     }
 
-    private void LateUpdate()
-    {
-        if (cardUI == null || cardUI.RectTransform == null) return;
-
-        bool isResting = (dragHandler == null || !dragHandler.IsDragging) &&
-                         (hoverEffect == null || !hoverEffect.IsHovering) &&
-                         (positionTween == null || !positionTween.IsActive());
-        if (!isResting) return;
-
-        Vector2 currentPosition = cardUI.RectTransform.anchoredPosition;
-        if (currentPosition != cardUI.OriginalAnchoredPosition)
-            cardUI.OriginalAnchoredPosition = currentPosition;
-    }
-
     public Tweener TweenCardPosition(Vector2 targetPosition, float duration, Ease ease)
     {
-        if (cardUI == null || cardUI.RectTransform == null) return null;
+        if (cardUI == null || cardUI.VisualRect == null) return null;
 
         positionTween?.Kill(); positionTween = null;
 
         if (duration <= 0f)
         {
-            cardUI.RectTransform.anchoredPosition = targetPosition;
+            cardUI.VisualRect.anchoredPosition = targetPosition;
             return null;
         }
 
-        positionTween = cardUI.RectTransform
+        positionTween = cardUI.VisualRect
             .DOAnchorPos(targetPosition, duration)
             .SetEase(ease)
             .SetUpdate(true)
@@ -129,9 +114,9 @@ public class CardAnimationController : MonoBehaviour
 
         var returnTween = TweenCardPosition(targetPosition, returnMoveDuration, returnMoveEase);
         if (returnTween != null)
-            returnTween.OnComplete(() => cardUI.OriginalAnchoredPosition = cardUI.RectTransform.anchoredPosition);
+            returnTween.OnComplete(() => cardUI.OriginalAnchoredPosition = cardUI.VisualRect.anchoredPosition);
         else
-            cardUI.OriginalAnchoredPosition = cardUI.RectTransform.anchoredPosition;
+            cardUI.OriginalAnchoredPosition = cardUI.VisualRect.anchoredPosition;
 
         if (cardUI.LayoutElement != null) cardUI.LayoutElement.ignoreLayout = false;
 
@@ -162,7 +147,7 @@ public class CardAnimationController : MonoBehaviour
         if (cardUI == null)
             return;
 
-        if (cardUI.RectTransform == null)
+        if (cardUI.VisualRect == null || cardUI.RootRect == null)
             return;
 
         if (cardUI.Canvas == null)
@@ -172,20 +157,11 @@ public class CardAnimationController : MonoBehaviour
         float startScale = startScaleOverride ?? drawStartScale;
         Ease ease = easeOverride ?? drawAnimationEase;
 
-        Vector2 targetAnchoredPosition = cardUI.RectTransform.anchoredPosition;
+        Vector2 targetAnchoredPosition = cardUI.VisualRect.anchoredPosition;
         Vector3 targetScale = cardUI.OriginalLocalScale;
         Vector2 startingAnchoredPosition = targetAnchoredPosition;
 
-        bool temporarilyIgnoredLayout = false;
-        bool layoutRestored = false;
-
-        if (cardUI.LayoutElement != null && !cardUI.LayoutElement.ignoreLayout)
-        {
-            cardUI.LayoutElement.ignoreLayout = true;
-            temporarilyIgnoredLayout = true;
-        }
-
-        if (deckOrigin != null && cardUI.RectTransform.parent is RectTransform parentRect)
+        if (deckOrigin != null)
         {
             Vector3 deckWorldCenter = deckOrigin.TransformPoint(deckOrigin.rect.center);
             Camera camera = null;
@@ -194,7 +170,7 @@ public class CardAnimationController : MonoBehaviour
                 camera = cardUI.Canvas.worldCamera;
 
             if (RectTransformUtility.ScreenPointToLocalPointInRectangle(
-                    parentRect,
+                    cardUI.RootRect,
                     RectTransformUtility.WorldToScreenPoint(camera, deckWorldCenter),
                     camera,
                     out Vector2 localPoint))
@@ -208,37 +184,19 @@ public class CardAnimationController : MonoBehaviour
 
         BeginDrawAnimationPhase();
 
-        cardUI.RectTransform.anchoredPosition = startingAnchoredPosition;
-        cardUI.RectTransform.localScale = targetScale * startScale;
-
-        void RestoreLayoutIfNeeded()
-        {
-            if (layoutRestored)
-                return;
-
-            layoutRestored = true;
-
-            cardUI.RectTransform.anchoredPosition = targetAnchoredPosition;
-            cardUI.RectTransform.localScale = targetScale;
-
-            if (temporarilyIgnoredLayout)
-            {
-                cardUI.LayoutElement.ignoreLayout = false;
-
-                if (cardUI.RectTransform.parent is RectTransform parentRect)
-                    LayoutRebuilder.MarkLayoutForRebuild(parentRect);
-            }
-        }
+        cardUI.VisualRect.anchoredPosition = startingAnchoredPosition;
+        cardUI.VisualRect.localScale = targetScale * startScale;
 
         if (duration <= 0f)
         {
-            RestoreLayoutIfNeeded();
+            cardUI.VisualRect.anchoredPosition = targetAnchoredPosition;
+            cardUI.VisualRect.localScale = targetScale;
             CompleteDrawAnimationInstantly();
             return;
         }
 
         RegisterDrawAnimationTween();
-        positionTween = cardUI.RectTransform
+        positionTween = cardUI.VisualRect
             .DOAnchorPos(targetAnchoredPosition, duration)
             .SetEase(ease)
             .SetUpdate(true)
@@ -246,12 +204,12 @@ public class CardAnimationController : MonoBehaviour
             .OnKill(() =>
             {
                 positionTween = null;
-                RestoreLayoutIfNeeded();
+                cardUI.VisualRect.anchoredPosition = targetAnchoredPosition;
                 OnDrawAnimationTweenTerminated();
             });
 
         RegisterDrawAnimationTween();
-        scaleTween = cardUI.RectTransform
+        scaleTween = cardUI.VisualRect
             .DOScale(targetScale, duration)
             .SetEase(ease)
             .SetUpdate(true)
@@ -259,7 +217,7 @@ public class CardAnimationController : MonoBehaviour
             .OnKill(() =>
             {
                 scaleTween = null;
-                RestoreLayoutIfNeeded();
+                cardUI.VisualRect.localScale = targetScale;
                 OnDrawAnimationTweenTerminated();
             });
     }
@@ -286,12 +244,12 @@ public class CardAnimationController : MonoBehaviour
 
         if (dragHandler != null) dragHandler.DestroyPlaceholder();
 
-        if (cardUI.RectTransform != null)
-            cardUI.RectTransform.localScale = cardUI.OriginalLocalScale;
+        if (cardUI.VisualRect != null)
+            cardUI.VisualRect.localScale = cardUI.OriginalLocalScale;
 
-        if (cardUI.RectTransform != null)
+        if (cardUI.VisualRect != null)
         {
-            cardUI.RectTransform.anchoredPosition = Vector2.zero;
+            cardUI.VisualRect.anchoredPosition = Vector2.zero;
             cardUI.OriginalAnchoredPosition = Vector2.zero;
         }
     }

@@ -25,7 +25,7 @@ public class CardInfoTooltip : MonoBehaviour
     {
         cardUI = ui;
         tooltipRect = tooltipRoot != null ? tooltipRoot.GetComponent<RectTransform>() : null;
-        cardRect = cardUI != null ? cardUI.GetComponent<RectTransform>() : null;
+        cardRect = cardUI != null ? cardUI.VisualRect : null;
         if (tooltipRect != null)
         tooltipRect.localScale = Vector3.one;
 

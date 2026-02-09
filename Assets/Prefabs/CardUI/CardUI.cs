@@ -20,6 +20,8 @@ public class CardUI : MonoBehaviour
 
     [Header("UI 參考")]
     public Image cardImage;
+    public RectTransform RootRect; // layout controlled
+    public RectTransform VisualRect; // animation only
 
     [Header("資料參考")]
     public CardBase cardData;
@@ -29,7 +31,6 @@ public class CardUI : MonoBehaviour
     [SerializeField] private LayoutElement layoutElement;
 
     private Canvas canvas;
-    private RectTransform rectTransform;
     private CanvasGroup canvasGroup;
     private Transform canvasRoot;
     private Camera mainCamera;
@@ -41,8 +42,7 @@ public class CardUI : MonoBehaviour
     private CardUseRouter useRouter;
     private CardRaycastController raycastController;
     private CardInfoTooltip infoTooltip;
-
-    public RectTransform RectTransform => rectTransform;
+    public RectTransform RectTransform => RootRect;
     public Canvas Canvas { get => canvas; set => canvas = value; }
     public CanvasGroup CanvasGroup => canvasGroup;
     public Transform CanvasRoot => canvasRoot;
@@ -57,7 +57,15 @@ public class CardUI : MonoBehaviour
 
     private void Awake()
     {
-        rectTransform = GetComponent<RectTransform>();
+        if (RootRect == null) RootRect = GetComponent<RectTransform>();
+        if (VisualRect == null)
+        {
+            var visualTransform = transform.Find("CardVisual");
+            if (visualTransform == null && transform.childCount > 0)
+                visualTransform = transform.GetChild(0);
+            VisualRect = visualTransform != null ? visualTransform.GetComponent<RectTransform>() : null;
+        }
+        if (VisualRect == null) VisualRect = RootRect;
         canvas = GetComponentInParent<Canvas>();
         if (canvas == null) canvas = FindObjectOfType<Canvas>();
         canvasRoot = canvas != null ? canvas.transform : null;
@@ -65,10 +73,10 @@ public class CardUI : MonoBehaviour
         mainCamera = Camera.main;
         originalParent = transform.parent;
 
-        if (rectTransform != null)
+        if (VisualRect != null)
         {
-            OriginalAnchoredPosition = rectTransform.anchoredPosition;
-            OriginalLocalScale = rectTransform.localScale;
+            OriginalAnchoredPosition = VisualRect.anchoredPosition;
+            OriginalLocalScale = VisualRect.localScale;
         }
 
         if (layoutElement == null) layoutElement = GetComponent<LayoutElement>();
