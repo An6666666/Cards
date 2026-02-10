@@ -88,7 +88,8 @@ public class BattleManager : MonoBehaviour  // 戰鬥管理器，整場戰鬥的
         {
             tutorialController = FindObjectOfType<TutorialBattleController>();
         }
-
+        ConfigureTutorialForActiveEncounter();
+        // 依照目前 Run 節點的遭遇資料，決定這場戰鬥是否啟用教學模式
         InitializeControllers();                            // 初始化各種子控制器（Hand、Movement、Attack、Reward、Encounter、Turn）
         handUIController.SetEndTurnButtonInteractable(false);
         // 一開始先把「結束回合」按鈕設為不可點（等戰鬥正式開始才開）
@@ -96,7 +97,19 @@ public class BattleManager : MonoBehaviour  // 戰鬥管理器，整場戰鬥的
         encounterLoader.LoadEncounterFromRunManager();
         // 從 RunManager 目前節點載入遭遇設定，填 enemySpawnConfigs
     }
+    private void ConfigureTutorialForActiveEncounter()
+    {
+        if (tutorialController == null)
+        return;
+        // 沒有教學控制器就不處理，戰鬥維持一般模式
 
+        RunEncounterDefinition encounter = RunManager.Instance?.ActiveNode?.Encounter;
+        bool enableTutorial = encounter != null && encounter.UseTutorialBattle;
+        TutorialBattleDefinition definition = enableTutorial ? encounter.TutorialBattleDefinition : null;
+        // 由遭遇定義決定是否啟用教學，並帶入本場戰鬥要使用的教學內容
+        tutorialController.ConfigureForBattle(enableTutorial, definition);
+        // 在 Battle 初始化前先完成配置，後續 Encounter/Turn 控制器可直接讀 IsActive
+    }
     void Start()
     {
         StartCoroutine(encounterLoader.GameStartRoutine());

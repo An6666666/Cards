@@ -1,0 +1,29 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1a6cd0bdf97bdbe4095b1e5aa2ad9115, type: 3}
+  m_Name: TutorialBattleDefinition
+  m_EditorClassIdentifier: 
+  overridePlayerStartPosition: 1
+  playerStartPosition: {x: 0, y: 0}
+  steps:
+  - stepId: "\u706B\u52A0\u6728"
+    fixedHand:
+    - {fileID: 11400000, guid: 11d3cc5377d2ef3459a4b4380becefff, type: 2}
+    - {fileID: 11400000, guid: 9aaf3c9fe05acb3468a4b7d995117dd5, type: 2}
+    enemySpawns:
+    - enemyPrefab: {fileID: 4204690724760053818, guid: 87fab54ae39d11f449187455258a17cc, type: 3}
+      gridPosition: {x: -2, y: 0}
+    requireElementReaction: 1
+    requiredAttackElement: 0
+    requiredTargetElement: 4
+    lockEndTurnUntilComplete: 1
+    reactionDialogueKey: 

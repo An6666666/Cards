@@ -443,7 +443,10 @@ MonoBehaviour:
   npcPresenter: {fileID: 1385958988}
   runManager: {fileID: 550176398}
   runStartKey: 'Run_Start '
-  nodeDialogueKeys: []
+  nodeDialogueKeys:
+  - nodeType: 0
+    onEnterKey: Run_Enter_Battle
+    onCompletedKey: 'Run_Complete_Battle '
 --- !u!1 &350600308
 GameObject:
   m_ObjectHideFlags: 0

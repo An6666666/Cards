@@ -14,8 +14,14 @@ public class TutorialBattleController : MonoBehaviour
     private int currentStepIndex;
     private bool hasCompletedTutorial;
     private bool stepCompleted;
+    private bool runtimeEnabled;// 執行時開關：同一場景中動態決定是否啟用教學流程
 
-    public bool IsActive => !hasCompletedTutorial && tutorialDefinition != null && tutorialDefinition.HasSteps;
+    public bool IsActive =>
+    runtimeEnabled &&
+    !hasCompletedTutorial &&
+    tutorialDefinition != null &&
+    tutorialDefinition.HasSteps;
+    // 只有「執行時已啟用 + 定義存在 + 尚未完成」才會覆寫一般戰鬥流程
 
     private void Awake()
     {
@@ -24,6 +30,18 @@ public class TutorialBattleController : MonoBehaviour
         {
             board = battleManager.board;
         }
+        runtimeEnabled = tutorialDefinition != null;
+        // 相容舊配置：若在 Inspector 先指定了 definition，預設允許啟用
+    }
+
+    public void ConfigureForBattle(bool enabled, TutorialBattleDefinition definition)
+    {
+        runtimeEnabled = enabled;
+        tutorialDefinition = definition;
+        currentStepIndex = 0;
+        hasCompletedTutorial = false;
+        stepCompleted = false;
+        // 每次進入新戰鬥都重置步驟狀態，避免沿用上一場教學進度
     }
 
     private void OnEnable()

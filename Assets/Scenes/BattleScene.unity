@@ -1734,6 +1734,52 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 313771483}
   m_CullTransparentMesh: 1
+--- !u!1 &322962242
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 322962244}
+  - component: {fileID: 322962243}
+  m_Layer: 0
+  m_Name: TutorialBattleController
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &322962243
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 322962242}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 32a2106dc869b1f418dbb96a8c991667, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  tutorialDefinition: {fileID: 11400000, guid: 1022d476f333b1a49b19f32a1edf14a8, type: 2}
+  guidePresenter: {fileID: 0}
+--- !u!4 &322962244
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 322962242}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &325588729
 GameObject:
   m_ObjectHideFlags: 0
@@ -7734,6 +7780,7 @@ MonoBehaviour:
   - enemyPrefab: {fileID: 5009010696390418974, guid: ef95fb2219afd6e4193794239db46df1, type: 3}
     count: 0
   playerStartPos: {x: 0, y: 0}
+  tutorialController: {fileID: 0}
   guaranteedMovementCard: {fileID: 11400000, guid: 105c7f2659020eb478d2fc42c9d7276e, type: 2}
   allCardPool:
   - {fileID: 11400000, guid: 6e46d5e13429d2742a580e16ec745461, type: 2}
@@ -11515,3 +11562,4 @@ SceneRoots:
   - {fileID: 800574479}
   - {fileID: 1848671828}
   - {fileID: 977046489}
+  - {fileID: 322962244}
