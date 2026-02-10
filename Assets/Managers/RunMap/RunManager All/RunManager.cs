@@ -104,6 +104,7 @@ public class RunManager : MonoBehaviour
     [SerializeField] private string battleSceneName = "BattleScene"; // 戰鬥場景名稱
     [SerializeField] private string shopSceneName = "ShopScene";     // 商店場景名稱
     [SerializeField] private string deathReturnSceneName = "";       // 玩家死亡後要回到的場景名稱（預設回地圖）
+    [SerializeField, Min(0f)] private float nodeEnterDelaySeconds = 0f; // 點擊節點後，進入節點流程前先等待幾秒
     [SerializeField] private RunEventUIManager eventUIManager;        // 事件彈窗管理器
 
     [Header("Map Generation")]
@@ -156,7 +157,7 @@ public class RunManager : MonoBehaviour
     private RunMapConnector mapConnector;
     private RunSceneRouter sceneRouter;
     private RunEventResolver eventResolver;
-
+    private Coroutine pendingNodeTransitionCoroutine;
     public IReadOnlyList<IReadOnlyList<MapNodeData>> MapFloors => mapFloors; // 對外讀取整張圖
     public MapNodeData CurrentNode => currentNode;                    // 對外讀目前節點
     public MapNodeData ActiveNode => activeNode;                      // 對外讀正在處理的節點
@@ -305,6 +306,29 @@ public class RunManager : MonoBehaviour
 
         activeNode = node;     // 標記現在正在這個節點
         NodeEntered?.Invoke(node);
+        if (pendingNodeTransitionCoroutine != null)
+        {
+            StopCoroutine(pendingNodeTransitionCoroutine);
+        }
+
+        pendingNodeTransitionCoroutine = StartCoroutine(HandleNodeTransition(node));
+        MapStateChanged?.Invoke();
+        return true;
+    }
+
+    private System.Collections.IEnumerator HandleNodeTransition(MapNodeData node)
+    {
+        float delaySeconds = Mathf.Max(0f, nodeEnterDelaySeconds);
+        if (delaySeconds > 0f)
+        {
+            yield return new WaitForSeconds(delaySeconds);
+        }
+
+        if (activeNode != node)
+        {
+            pendingNodeTransitionCoroutine = null;
+            yield break;
+        }
         if (node.NodeType == MapNodeType.Event)
         {
             eventResolver.CurrentRunSnapshot = currentRunSnapshot;
@@ -325,8 +349,7 @@ public class RunManager : MonoBehaviour
         {
             sceneRouter.LoadSceneForNode(node); // 依節點類型載入場景
         }
-        MapStateChanged?.Invoke();
-        return true;
+        pendingNodeTransitionCoroutine = null;
     }
 
     // 檢查這個節點能不能被選

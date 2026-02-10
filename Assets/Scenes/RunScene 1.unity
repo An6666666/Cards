@@ -441,7 +441,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   npcPresenter: {fileID: 1385958988}
-  runManager: {fileID: 550176398}
+  runManager: {fileID: 0}
   runStartKey: 'Run_Start '
   nodeDialogueKeys:
   - nodeType: 0
@@ -1236,6 +1236,7 @@ MonoBehaviour:
   battleSceneName: BattleScene
   shopSceneName: ShopScene
   deathReturnSceneName: TitleScene
+  nodeEnterDelaySeconds: 2
   eventUIManager: {fileID: 1731840768}
   floorCount: 6
   minNodesPerFloor: 1

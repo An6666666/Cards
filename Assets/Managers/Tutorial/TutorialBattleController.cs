@@ -158,26 +158,46 @@ public class TutorialBattleController : MonoBehaviour
         if (context == null || !context.TryGetElementType(out ElementType attackElement))
             return;
 
-        if (attackElement != step.requiredAttackElement)
-            return;
-
-        if (context.TargetElementsBefore == null)
-            return;
-
-        bool hasRequiredElement = false;
-        for (int i = 0; i < context.TargetElementsBefore.Count; i++)
-        {
-            if (context.TargetElementsBefore[i] == step.requiredTargetElement)
-            {
-                hasRequiredElement = true;
-                break;
-            }
-        }
-
-        if (!hasRequiredElement)
+        if (!DidTriggerRequiredReaction(step, context.TargetElementsBefore, attackElement))
             return;
 
         CompleteStep(step);
+    }
+
+    private static bool DidTriggerRequiredReaction(
+        TutorialBattleStep step,
+        IReadOnlyList<ElementType> targetElementsBefore,
+        ElementType attackElement)
+    {
+        if (step == null || targetElementsBefore == null)
+            return false;
+
+        // 教學步驟只要求玩家觸發指定元素反應，不限制哪個元素必須先附著。
+        if (attackElement == step.requiredAttackElement)
+        {
+            return ContainsElement(targetElementsBefore, step.requiredTargetElement);
+        }
+
+        if (attackElement == step.requiredTargetElement)
+        {
+            return ContainsElement(targetElementsBefore, step.requiredAttackElement);
+        }
+
+        return false;
+    }
+
+    private static bool ContainsElement(IReadOnlyList<ElementType> elements, ElementType target)
+    {
+        if (elements == null)
+            return false;
+
+        for (int i = 0; i < elements.Count; i++)
+        {
+            if (elements[i] == target)
+                return true;
+        }
+
+        return false;
     }
 
     private void CompleteStep(TutorialBattleStep step)
