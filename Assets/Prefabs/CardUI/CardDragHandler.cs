@@ -159,6 +159,7 @@ public class CardDragHandler : MonoBehaviour, IBeginDragHandler, IDragHandler, I
         {
             animationController?.HandleCardConsumed(placeholder);
             placeholder = null;
+            useRouter?.NotifyCardUsedUI(cardUI);
             return;
         }
 

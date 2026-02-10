@@ -62,7 +62,12 @@ public class CardUseRouter : MonoBehaviour
     {
         StartCoroutine(ConsumeAndRefreshThenDestroy());
     }
-
+    public void NotifyCardUsedUI(CardUI usedUI)
+    {
+        EnsureBattleManager();
+        if (battleManager != null)
+            battleManager.HandleCardUsedUI(usedUI);
+    }
     public bool IsCardInteractionLocked()
     {
         EnsureBattleManager();

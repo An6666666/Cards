@@ -51,4 +51,9 @@ public class Attack_LingQiaoChuanCi : AttackCardBase
             AudioManager.Instance.PlayAttackSFX(element);
         }
     }
+    public override bool TryGetElementType(out ElementType elementType)
+    {
+        elementType = Element;
+        return true;
+    }
 }

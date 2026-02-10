@@ -124,4 +124,9 @@ public abstract class Attack_DaRanJinShuBase : AttackCardBase
             }
         }
     }
+    public override bool TryGetElementType(out ElementType elementType)
+    {
+        elementType = Element;
+        return true;
+    }
 }

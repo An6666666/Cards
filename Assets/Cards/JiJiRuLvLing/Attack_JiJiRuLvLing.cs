@@ -56,4 +56,9 @@ public abstract class Attack_JiJiRuLvLing : AttackCardBase
     protected virtual void OnAfterDamage(Player player, Enemy enemy, ElementType element, int damage)
     {
     }
+    public override bool TryGetElementType(out ElementType elementType)
+    {
+        elementType = Element;
+        return true;
+    }
 }

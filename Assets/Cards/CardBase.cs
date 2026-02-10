@@ -31,6 +31,15 @@ public abstract class CardBase : ScriptableObject
     public abstract void ExecuteEffect(Player player, Enemy enemy);
 
     /// <summary>
+    /// 回傳卡片的元素屬性，預設沒有元素。
+    /// </summary>
+    public virtual bool TryGetElementType(out ElementType elementType)
+    {
+        elementType = default;
+        return false;
+    }
+    
+    /// <summary>
     /// 預設不做任何事；若你的卡片需要這種施放方式，請在子類別覆寫此方法。
     /// </summary>
 

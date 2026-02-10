@@ -97,4 +97,9 @@ public class Attack_PoXie : AttackCardBase
 
         return a == 0 ? 1 : a;
     }
+    public override bool TryGetElementType(out ElementType elementType)
+    {
+        elementType = Element;
+        return true;
+    }
 }

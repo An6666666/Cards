@@ -106,13 +106,17 @@ public class AttackSelectionController
             FaceUtils.Face(player.gameObject, e.transform);
 
             // 真正執行卡片效果
+            List<ElementType> targetElementsBefore = new List<ElementType>(e.GetElementTags());
             currentAttackCard.ExecuteEffect(player, e);
+            List<ElementType> targetElementsAfter = new List<ElementType>(e.GetElementTags());
+            GameEvents.RaiseCardPlayed(currentAttackCard);
+            GameEvents.RaiseCardPlayedWithContext(
+            new CardPlayContext(currentAttackCard, e, targetElementsBefore, targetElementsAfter));
         }
         else
         {
         yield break;
         }
-
 
         int finalCost = currentAttackCard.cost
                         + player.GetCardCostModifier(currentAttackCard)
@@ -132,7 +136,7 @@ public class AttackSelectionController
         currentAttackCard = null;
         validEnemies.Clear();
 
-        handUIController.RefreshHandUI();
+        handUIController.UpdateHandMetaUI();
     }
 
     // =========================

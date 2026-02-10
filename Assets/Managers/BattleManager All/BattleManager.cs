@@ -35,7 +35,8 @@ public class BattleManager : MonoBehaviour  // 戰鬥管理器，整場戰鬥的
 
     public Vector2Int playerStartPos = Vector2Int.zero;
     // 玩家在棋盤上的起始格子座標（預設 0,0）
-
+    [Header("Tutorial")]
+    [SerializeField] private TutorialBattleController tutorialController;
     private readonly BattleStateMachine stateMachine = new BattleStateMachine();
     // 戰鬥狀態機，負責管理 PlayerTurn/EnemyTurn/Victory/Defeat 等狀態
 
@@ -74,7 +75,7 @@ public class BattleManager : MonoBehaviour  // 戰鬥管理器，整場戰鬥的
 
     public BattleStateMachine StateMachine => stateMachine;
     // 公開唯讀屬性：提供外部存取戰鬥狀態機（例如狀態判斷）
-
+    public TutorialBattleController TutorialController => tutorialController;
     public bool IsProcessingEnemyTurnStart => turnController != null && turnController.IsProcessingEnemyTurnStart;
     // 是否正在處理敵方回合開始（提供給其他系統判斷時機用）
 
@@ -83,6 +84,11 @@ public class BattleManager : MonoBehaviour  // 戰鬥管理器，整場戰鬥的
 
     void Awake()
     {
+        if (tutorialController == null)
+        {
+            tutorialController = FindObjectOfType<TutorialBattleController>();
+        }
+
         InitializeControllers();                            // 初始化各種子控制器（Hand、Movement、Attack、Reward、Encounter、Turn）
         handUIController.SetEndTurnButtonInteractable(false);
         // 一開始先把「結束回合」按鈕設為不可點（等戰鬥正式開始才開）
@@ -234,16 +240,24 @@ public class BattleManager : MonoBehaviour  // 戰鬥管理器，整場戰鬥的
             return false;
         }
 
-        Enemy target = enemies.Find(e => e != null && e.currentHP > 0); 
+        Enemy target = enemies.Find(e => e != null && e.currentHP > 0);
         // 這裡簡單選擇第一個仍存活的敵人作為目標（若卡片沒自己處理目標）
         if (target != null)
         {
             FaceUtils.Face(player.gameObject, target.transform);        // 再面向
         }
-
+        List<ElementType> targetElementsBefore = null;
+        if (target != null)
+        {
+            targetElementsBefore = new List<ElementType>(target.GetElementTags());
+        }
         cardData.ExecuteEffect(player, target);
         // 執行卡片效果，由卡本身實作（增加護甲、造成傷害、上狀態等）
-
+        List<ElementType> targetElementsAfter = null;
+        if (target != null)
+        {
+            targetElementsAfter = new List<ElementType>(target.GetElementTags());
+        }
         if (cardData.cardType == CardType.Attack && player.buffs.nextAttackPlus > 0)
         {
             player.buffs.nextAttackPlus = 0;               // 用掉一次攻擊加成後，把 nextAttackPlus 歸零
@@ -285,10 +299,16 @@ public class BattleManager : MonoBehaviour  // 戰鬥管理器，整場戰鬥的
 
         player.UseEnergy(finalCost);                       // 扣除玩家能量
         GameEvents.RaiseCardPlayed(cardData);              // 觸發「卡片已被打出」事件，方便其他系統監聽
-        handUIController.RefreshHandUI();                  // 重新整理手牌 UI（顯示棄牌後狀態）
+        GameEvents.RaiseCardPlayedWithContext(
+        new CardPlayContext(cardData, target, targetElementsBefore, targetElementsAfter));
+        if (removedFromHand)
+        handUIController.UpdateHandMetaUI();          // 更新能量與牌庫/棄牌顯示
         return true;                                       // 成功打出卡片
     }
-
+    public void HandleCardUsedUI(CardUI usedUI)
+    {
+        handUIController.HandleCardUsedUI(usedUI);
+    }
     public void RefreshHandUI(bool playDrawAnimation = false)
     {
         handUIController.RefreshHandUI(playDrawAnimation);
@@ -367,7 +387,11 @@ public class BattleManager : MonoBehaviour  // 戰鬥管理器，整場戰鬥的
         handUIController.SetEndTurnButtonInteractable(value);
         // 透過 HandUIController 控制「結束回合」按鈕是否可互動
     }
-
+    public void RefreshEnemiesFromScene()
+    {
+        enemies.Clear();
+        enemies.AddRange(FindObjectsOfType<Enemy>());
+    }
     internal bool IsGuaranteedMovementCard(CardBase card)
     {
         if (card == null)
@@ -454,7 +478,8 @@ public class BattleManager : MonoBehaviour  // 戰鬥管理器，整場戰鬥的
             player,                                        // 玩家
             enemies,                                       // 敵人列表（之後會被填入場上敵人）
             enemySpawnConfigs,                             // 生成敵人的設定列表
-            stateMachine);                                 // 戰鬥狀態機（開局後切到 PlayerTurn）
+            stateMachine,                                  // 戰鬥狀態機（開局後切到 PlayerTurn）
+            tutorialController);                           // 教學控制器（可為 null）
 
         movementSelectionController.SetEncounterLoader(encounterLoader);
         // 告訴 MovementSelectionController：初期還要處理「起始格選擇」的邏輯
@@ -464,6 +489,7 @@ public class BattleManager : MonoBehaviour  // 戰鬥管理器，整場戰鬥的
             player,                                        // 玩家
             enemies,                                       // 敵人列表
             stateMachine,                                  // 戰鬥狀態機
-            handUIController);                             // 需要控制手牌 UI（例如鎖卡、抽牌、開關按鈕）
+            handUIController,                              // 需要控制手牌 UI（例如鎖卡、抽牌、開關按鈕）
+            tutorialController);                           // 教學控制器（可為 null）
     }
 }

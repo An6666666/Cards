@@ -49,4 +49,9 @@ public class Attack_ShouSha : AttackCardBase
             AudioManager.Instance.PlayAttackSFX(element);
         }
     }
+    public override bool TryGetElementType(out ElementType elementType)
+    {
+        elementType = Element;
+        return true;
+    }
 }
