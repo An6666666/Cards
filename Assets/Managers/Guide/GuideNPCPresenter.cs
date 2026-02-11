@@ -44,9 +44,25 @@ public class GuideNPCPresenter : MonoBehaviour
 
     public bool Talk(string key)
     {
-        IReadOnlyList<string> lines = dialogueDatabase != null ? dialogueDatabase.GetLines(key) : null;
-        if (lines == null || lines.Count == 0)
+        if (dialogueUI == null)
+        {
+            Debug.LogWarning("[GuideNPCPresenter] Talk aborted: dialogueUI is null.", this);
             return false;
+        }
+
+        if (string.IsNullOrWhiteSpace(key))
+        {
+            Debug.LogWarning("[GuideNPCPresenter] Talk aborted: dialogue key is null or empty.", this);
+            return false;
+        }
+
+        string trimmedKey = key.Trim();
+        IReadOnlyList<string> lines = dialogueDatabase != null ? dialogueDatabase.GetLines(trimmedKey) : null;
+        if (lines == null || lines.Count == 0)
+        {
+            Debug.LogWarning($"[GuideNPCPresenter] Talk aborted: no dialogue lines found for key '{trimmedKey}'.", this);
+            return false;
+        }
 
         TalkLines(lines);
         return true;

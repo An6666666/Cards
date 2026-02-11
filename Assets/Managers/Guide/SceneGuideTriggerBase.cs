@@ -12,10 +12,11 @@ public abstract class SceneGuideTriggerBase : UnityEngine.MonoBehaviour
         if (presenter == null || string.IsNullOrWhiteSpace(key))
             return false;
 
-        if (playedFlags.Contains(key))
+        string trimmedKey = key.Trim();
+        if (playedFlags.Contains(trimmedKey))
             return false;
 
-        bool played = presenter.Talk(key);
+        bool played = presenter.Talk(trimmedKey);
         if (!played && fallbackLines != null)
         {
             presenter.TalkLines(fallbackLines);
@@ -24,7 +25,7 @@ public abstract class SceneGuideTriggerBase : UnityEngine.MonoBehaviour
 
         if (played)
         {
-            playedFlags.Add(key);
+            playedFlags.Add(trimmedKey);
         }
 
         return played;

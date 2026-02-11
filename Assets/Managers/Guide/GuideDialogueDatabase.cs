@@ -16,16 +16,17 @@ public class GuideDialogueDatabase : ScriptableObject
     }
 
     [SerializeField] private List<DialogueEntry> entries = new List<DialogueEntry>();
-    private readonly Dictionary<string, List<string>> lookup = new Dictionary<string, List<string>>();
+    private readonly Dictionary<string, List<string>> lookup = new Dictionary<string, List<string>>(System.StringComparer.Ordinal);
     private bool initialized;
 
     public IReadOnlyList<string> GetLines(string key)
     {
         InitializeIfNeeded();
         if (string.IsNullOrWhiteSpace(key))
-            return null;
+        return null;
 
-        return lookup.TryGetValue(key, out List<string> lines) ? lines : null;
+        string trimmedKey = key.Trim();
+        return lookup.TryGetValue(trimmedKey, out List<string> lines) ? lines : null;
     }
 
     private void InitializeIfNeeded()
@@ -37,12 +38,16 @@ public class GuideDialogueDatabase : ScriptableObject
         foreach (DialogueEntry entry in entries)
         {
             if (entry == null || string.IsNullOrWhiteSpace(entry.key))
-                continue;
+            continue;
 
-            if (lookup.ContainsKey(entry.key))
-                continue;
+            string trimmedKey = entry.key.Trim();
+            if (string.IsNullOrEmpty(trimmedKey))
+            continue;
 
-            lookup.Add(entry.key, entry.lines ?? new List<string>());
+            if (lookup.ContainsKey(trimmedKey))
+            continue;
+
+            lookup.Add(trimmedKey, entry.lines ?? new List<string>());
         }
 
         initialized = true;

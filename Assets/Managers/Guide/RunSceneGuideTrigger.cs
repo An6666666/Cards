@@ -80,7 +80,8 @@ public class RunSceneGuideTrigger : SceneGuideTriggerBase
 
     private void TryPlaySceneEntryDialogue()
     {
-        Debug.Log($"[RunSceneGuideTrigger] TryPlaySceneEntryDialogue | currentNode={(runManager!=null ? runManager.CurrentNode?.NodeType.ToString() : "null")} | runStartKey={runStartKey}");
+        string trimmedRunStartKey = string.IsNullOrWhiteSpace(runStartKey) ? string.Empty : runStartKey.Trim();
+        Debug.Log($"[RunSceneGuideTrigger] TryPlaySceneEntryDialogue | currentNode={(runManager!=null ? runManager.CurrentNode?.NodeType.ToString() : "null")} | runStartKey={trimmedRunStartKey}");
         if (hasPlayedSceneEntryDialogue)
         return;
         TryBindPresenter();
@@ -103,9 +104,9 @@ public class RunSceneGuideTrigger : SceneGuideTriggerBase
         // 這樣你就不會「常常沒講話」
         }
 
-        if (!string.IsNullOrWhiteSpace(runStartKey))
+        if (!string.IsNullOrWhiteSpace(trimmedRunStartKey))
         {
-            hasPlayedSceneEntryDialogue = TryTalk(npcPresenter, runStartKey);
+            hasPlayedSceneEntryDialogue = TryTalk(npcPresenter, trimmedRunStartKey);
             if (hasPlayedSceneEntryDialogue) return;
         }
 
@@ -141,10 +142,13 @@ public class RunSceneGuideTrigger : SceneGuideTriggerBase
         return;
         TryBindPresenter();
         NodeDialogueKey entry = nodeDialogueKeys.Find(e => e != null && e.nodeType == node.NodeType);
-        if (entry == null || string.IsNullOrWhiteSpace(entry.onEnterKey))
-        return;
+        string trimmedOnEnterKey = entry == null || string.IsNullOrWhiteSpace(entry.onEnterKey)
+            ? string.Empty
+            : entry.onEnterKey.Trim();
+        if (string.IsNullOrWhiteSpace(trimmedOnEnterKey))
+            return;
 
-        TryTalk(npcPresenter, entry.onEnterKey);
+        TryTalk(npcPresenter, trimmedOnEnterKey);
     }
 
     private void HandleNodeCompleted(MapNodeData node)
@@ -157,18 +161,22 @@ public class RunSceneGuideTrigger : SceneGuideTriggerBase
 
     private bool TryTalkForNodeCompleted(MapNodeData node)
     {
-        Debug.LogWarning($"[RunSceneGuideTrigger] No completed dialogue key for nodeType={node.NodeType} (or key not found in database).");
-
         if (node == null)
-        return false;
+            return false;
 
         TryBindPresenter();
 
         NodeDialogueKey entry = nodeDialogueKeys.Find(e => e != null && e.nodeType == node.NodeType);
-        if (entry == null || string.IsNullOrWhiteSpace(entry.onCompletedKey))
-        return false;
+        string trimmedOnCompletedKey = entry == null || string.IsNullOrWhiteSpace(entry.onCompletedKey)
+            ? string.Empty
+            : entry.onCompletedKey.Trim();
+        if (string.IsNullOrWhiteSpace(trimmedOnCompletedKey))
+        {
+            Debug.LogWarning($"[RunSceneGuideTrigger] No completed dialogue key for nodeType={node.NodeType}.");
+            return false;
+        }
 
-        return TryTalk(npcPresenter, entry.onCompletedKey);
+        return TryTalk(npcPresenter, trimmedOnCompletedKey);
     }
 
     private void TryBindPresenter()

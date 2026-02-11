@@ -70,7 +70,7 @@ public class DialogueBubbleUI : MonoBehaviour, IPointerClickHandler
             {
                 if (!string.IsNullOrWhiteSpace(line))
                 {
-                    queuedLines.Enqueue(line);
+                    queuedLines.Enqueue(line.Trim());
                 }
             }
         }
@@ -86,7 +86,7 @@ public class DialogueBubbleUI : MonoBehaviour, IPointerClickHandler
             return;
         }
 
-        PlayLines(new[] { text });
+        PlayLines(new[] { text.Trim() });
     }
 
     public void ShowNextLine()

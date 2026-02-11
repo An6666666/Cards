@@ -422,11 +422,11 @@ Transform:
   m_GameObject: {fileID: 193995660}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -826, y: -490, z: 0}
-  m_LocalScale: {x: 0.5, y: 0.5, z: 0.5}
+  m_LocalPosition: {x: 268, y: 100, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 2121037502}
+  m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &193995662
 MonoBehaviour:
@@ -441,12 +441,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   npcPresenter: {fileID: 1385958988}
-  runManager: {fileID: 0}
-  runStartKey: 'Run_Start '
+  runManager: {fileID: 550176398}
+  runStartKey: Start
   nodeDialogueKeys:
   - nodeType: 0
     onEnterKey: Run_Enter_Battle
-    onCompletedKey: 'Run_Complete_Battle '
+    onCompletedKey: Run_Complete_Battle
 --- !u!1 &350600308
 GameObject:
   m_ObjectHideFlags: 0
@@ -3707,7 +3707,6 @@ RectTransform:
   - {fileID: 1849751276}
   - {fileID: 976569380}
   - {fileID: 1385958984}
-  - {fileID: 193995661}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
@@ -3917,4 +3916,5 @@ SceneRoots:
   m_Roots:
   - {fileID: 660933916}
   - {fileID: 550176399}
+  - {fileID: 193995661}
   - {fileID: 2121037502}
