@@ -44,6 +44,7 @@ public class GuideNPCPresenter : MonoBehaviour
 
     public bool Talk(string key)
     {
+        ResolveSceneReferencesIfNeeded();
         if (dialogueUI == null)
         {
             Debug.LogWarning("[GuideNPCPresenter] Talk aborted: dialogueUI is null.", this);
@@ -94,6 +95,7 @@ public class GuideNPCPresenter : MonoBehaviour
     }
     public void TalkLines(IEnumerable<string> lines)
     {
+        ResolveSceneReferencesIfNeeded();
         if (dialogueUI == null)
             return;
 
@@ -103,6 +105,7 @@ public class GuideNPCPresenter : MonoBehaviour
 
     public void Show()
     {
+        ResolveSceneReferencesIfNeeded();
         KillDelayedHideTween();
         if (canvasGroup == null || !animateVisibility)
         return;
@@ -133,7 +136,12 @@ public class GuideNPCPresenter : MonoBehaviour
     }
     private void Awake()
     {
+        ResolveSceneReferencesIfNeeded();
         SubscribeDialogueEvents();
+    }
+    private void OnEnable()
+    {
+        ResolveSceneReferencesIfNeeded();
     }
     private void OnDestroy()
     {
@@ -179,6 +187,27 @@ public class GuideNPCPresenter : MonoBehaviour
         {
             delayedHideTween.Kill(false);
             delayedHideTween = null;
+        }
+    }
+    private void ResolveSceneReferencesIfNeeded()
+    {
+        if (dialogueUI == null)
+        {
+            DialogueBubbleUI foundDialogueUI = FindObjectOfType<DialogueBubbleUI>(true);
+            if (foundDialogueUI != null)
+            {
+                AssignDialogueUI(foundDialogueUI);
+            }
+        }
+
+        if (dialogueDatabase == null)
+        {
+            dialogueDatabase = FindObjectOfType<GuideDialogueDatabase>(true);
+        }
+
+        if (canvasGroup == null)
+        {
+            canvasGroup = GetComponent<CanvasGroup>();
         }
     }
 }

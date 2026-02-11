@@ -28,7 +28,7 @@ public class DialogueBubbleUI : MonoBehaviour, IPointerClickHandler
     private readonly Queue<string> queuedLines = new Queue<string>();
     private Tween dialogueTween;
     private bool isTyping;
-
+    private bool linesFinishedInvoked;
     public bool IsTyping => isTyping;
 
     private void Awake()
@@ -58,6 +58,7 @@ public class DialogueBubbleUI : MonoBehaviour, IPointerClickHandler
     {
         KillCurrentTween();
         queuedLines.Clear();
+        linesFinishedInvoked = false;
 
         if (dialogueText != null)
         {
@@ -107,7 +108,7 @@ public class DialogueBubbleUI : MonoBehaviour, IPointerClickHandler
             isTyping = false;
             dialogueText.text = string.Empty;
             UpdateBubbleVisibility();
-            LinesFinished?.Invoke();
+            NotifyLinesFinished();
             return;
         }
 
@@ -166,8 +167,11 @@ public class DialogueBubbleUI : MonoBehaviour, IPointerClickHandler
             {
                 isTyping = false;
                 UpdateBubbleVisibility();
+                if (queuedLines.Count == 0)
+                {
+                    NotifyLinesFinished();
+                }
             });
-
         UpdateBubbleVisibility();
     }
 
@@ -195,5 +199,13 @@ public class DialogueBubbleUI : MonoBehaviour, IPointerClickHandler
 
         button.onClick.RemoveAllListeners();
         button.onClick.AddListener(ShowNextLine);
+    }
+    private void NotifyLinesFinished()
+    {
+        if (linesFinishedInvoked)
+            return;
+
+        linesFinishedInvoked = true;
+        LinesFinished?.Invoke();
     }
 }
