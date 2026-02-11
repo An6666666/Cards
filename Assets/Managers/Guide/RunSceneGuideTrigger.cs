@@ -66,38 +66,52 @@ public class RunSceneGuideTrigger : SceneGuideTriggerBase
     private void Start()
     {
         Debug.Log("[RunSceneGuideTrigger] Start()");
+        
         TryPlaySceneEntryDialogue();
     }
 
     private void Update()
     {
         if (hasPlayedSceneEntryDialogue)
-            return;
+        return;
 
         TryPlaySceneEntryDialogue();
     }
 
     private void TryPlaySceneEntryDialogue()
     {
+        Debug.Log($"[RunSceneGuideTrigger] TryPlaySceneEntryDialogue | currentNode={(runManager!=null ? runManager.CurrentNode?.NodeType.ToString() : "null")} | runStartKey={runStartKey}");
         if (hasPlayedSceneEntryDialogue)
-            return;
-
+        return;
+        TryBindPresenter();
         TryBindRunManager();
         if (runManager == null)
-            return;
+        return;
 
-        hasPlayedSceneEntryDialogue = true;
         // 回到 RunScene（例如戰鬥結束）時，優先播放剛完成節點的完成台詞。
         // 只有在尚未進行任何節點時，才播放開場台詞。
         if (runManager.CurrentNode != null)
         {
-            TryTalkForNodeCompleted(runManager.CurrentNode);
+        // 先嘗試播放「剛完成節點」台詞
+        if (TryTalkForNodeCompleted(runManager.CurrentNode))
+        {
+            hasPlayedSceneEntryDialogue = true;
             return;
         }
+
+        // ✅ 如果完成台詞找不到（key 沒配/資料庫沒收錄），就退回播開場台詞（或通用台詞）
+        // 這樣你就不會「常常沒講話」
+        }
+
         if (!string.IsNullOrWhiteSpace(runStartKey))
         {
-            TryTalk(npcPresenter, runStartKey);
+            hasPlayedSceneEntryDialogue = TryTalk(npcPresenter, runStartKey);
+            if (hasPlayedSceneEntryDialogue) return;
         }
+
+        // ✅ 兩者都沒有/都播不了，就直接視為已處理，避免 Update 無限嘗試
+        hasPlayedSceneEntryDialogue = true;
+
     }
 
     private void OnDestroy()
@@ -124,11 +138,11 @@ public class RunSceneGuideTrigger : SceneGuideTriggerBase
     private void HandleNodeEntered(MapNodeData node)
     {
         if (node == null)
-            return;
-
+        return;
+        TryBindPresenter();
         NodeDialogueKey entry = nodeDialogueKeys.Find(e => e != null && e.nodeType == node.NodeType);
         if (entry == null || string.IsNullOrWhiteSpace(entry.onEnterKey))
-            return;
+        return;
 
         TryTalk(npcPresenter, entry.onEnterKey);
     }
@@ -141,15 +155,27 @@ public class RunSceneGuideTrigger : SceneGuideTriggerBase
         TryTalkForNodeCompleted(node);
     }
 
-    private void TryTalkForNodeCompleted(MapNodeData node)
+    private bool TryTalkForNodeCompleted(MapNodeData node)
     {
+        Debug.LogWarning($"[RunSceneGuideTrigger] No completed dialogue key for nodeType={node.NodeType} (or key not found in database).");
+
         if (node == null)
-            return;
+        return false;
+
+        TryBindPresenter();
 
         NodeDialogueKey entry = nodeDialogueKeys.Find(e => e != null && e.nodeType == node.NodeType);
         if (entry == null || string.IsNullOrWhiteSpace(entry.onCompletedKey))
-            return;
+        return false;
 
-        TryTalk(npcPresenter, entry.onCompletedKey);
+        return TryTalk(npcPresenter, entry.onCompletedKey);
+    }
+
+    private void TryBindPresenter()
+    {
+        if (npcPresenter == null)
+        {
+            npcPresenter = FindObjectOfType<GuideNPCPresenter>(true);
+        }
     }
 }

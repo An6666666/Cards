@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using DG.Tweening;
 using UnityEngine;
@@ -10,6 +11,7 @@ using UnityEngine.UI;
 /// </summary>
 public class DialogueBubbleUI : MonoBehaviour, IPointerClickHandler
 {
+    public event Action LinesFinished;
     [Header("References")]
     [SerializeField] private GameObject bubbleRoot;
     [SerializeField] private Text dialogueText;
@@ -105,6 +107,7 @@ public class DialogueBubbleUI : MonoBehaviour, IPointerClickHandler
             isTyping = false;
             dialogueText.text = string.Empty;
             UpdateBubbleVisibility();
+            LinesFinished?.Invoke();
             return;
         }
 

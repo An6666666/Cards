@@ -3814,9 +3814,17 @@ PrefabInstance:
       propertyPath: canvasGroup
       value: 
       objectReference: {fileID: 976569381}
+    - target: {fileID: 5319055684074607263, guid: 6ee8a7298f7c9954d85e9639a13c03db, type: 3}
+      propertyPath: hideDelaySeconds
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 5361295244187457011, guid: 6ee8a7298f7c9954d85e9639a13c03db, type: 3}
       propertyPath: m_Name
       value: GuideNPC
+      objectReference: {fileID: 0}
+    - target: {fileID: 5361295244187457011, guid: 6ee8a7298f7c9954d85e9639a13c03db, type: 3}
+      propertyPath: m_IsActive
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 8333607065587245697, guid: 6ee8a7298f7c9954d85e9639a13c03db, type: 3}
       propertyPath: m_Pivot.x

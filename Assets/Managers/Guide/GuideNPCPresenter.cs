@@ -21,12 +21,20 @@ public class GuideNPCPresenter : MonoBehaviour
     [SerializeField] private bool animateVisibility = true;
     [SerializeField, Min(0f)] private float fadeDuration = 0.2f;
     [SerializeField] private Ease fadeEase = Ease.OutCubic;
+    [SerializeField] private bool hideAfterDialogueEnds = true;
+    [SerializeField, Min(0f)] private float hideDelaySeconds = 2f;
 
     private Tween visibilityTween;
+    private Tween delayedHideTween;
 
     public void AssignDialogueUI(DialogueBubbleUI ui)
     {
+        if (dialogueUI == ui)
+        return;
+
+        UnsubscribeDialogueEvents();
         dialogueUI = ui;
+        SubscribeDialogueEvents();
     }
 
     public void AssignDatabase(GuideDialogueDatabase database)
@@ -79,8 +87,9 @@ public class GuideNPCPresenter : MonoBehaviour
 
     public void Show()
     {
+        KillDelayedHideTween();
         if (canvasGroup == null || !animateVisibility)
-            return;
+        return;
 
         KillVisibilityTween();
         canvasGroup.gameObject.SetActive(true);
@@ -92,31 +101,68 @@ public class GuideNPCPresenter : MonoBehaviour
 
     public void Hide()
     {
+        KillDelayedHideTween();
         if (canvasGroup == null || !animateVisibility)
-            return;
+        return;
 
         KillVisibilityTween();
         visibilityTween = canvasGroup.DOFade(0f, fadeDuration)
-            .SetEase(fadeEase)
-            .OnStart(() => canvasGroup.blocksRaycasts = false)
-            .OnComplete(() =>
-            {
-                canvasGroup.alpha = 0f;
-                canvasGroup.gameObject.SetActive(false);
-            });
+        .SetEase(fadeEase)
+        .OnStart(() => canvasGroup.blocksRaycasts = false)
+        .OnComplete(() =>
+        {
+            canvasGroup.alpha = 0f;
+            canvasGroup.gameObject.SetActive(false);
+        });
     }
-
+    private void Awake()
+    {
+        SubscribeDialogueEvents();
+    }
     private void OnDestroy()
     {
+        UnsubscribeDialogueEvents();
+        KillDelayedHideTween();
         KillVisibilityTween();
     }
+    private void OnDialogueLinesFinished()
+    {
+        if (!hideAfterDialogueEnds)
+            return;
 
+        KillDelayedHideTween();
+        delayedHideTween = DOVirtual.DelayedCall(hideDelaySeconds, Hide);
+    }
+
+    private void SubscribeDialogueEvents()
+    {
+        if (dialogueUI != null)
+        {
+            dialogueUI.LinesFinished += OnDialogueLinesFinished;
+        }
+    }
+
+    private void UnsubscribeDialogueEvents()
+    {
+        if (dialogueUI != null)
+        {
+            dialogueUI.LinesFinished -= OnDialogueLinesFinished;
+        }
+    }
     private void KillVisibilityTween()
     {
         if (visibilityTween != null)
         {
             visibilityTween.Kill(false);
             visibilityTween = null;
+        }
+    }
+    private void KillDelayedHideTween()
+    {
+        if (delayedHideTween != null)
+        {
+            delayedHideTween.Kill(false);
+            delayedHideTween = null;
         }
     }
 }
