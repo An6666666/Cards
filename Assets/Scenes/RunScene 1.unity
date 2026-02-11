@@ -440,8 +440,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1286198a85ffcfb448e0d92deec77ea0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  npcPresenter: {fileID: 0}
-  runManager: {fileID: 550176398}
+  npcPresenter: {fileID: 1289133497}
+  runManager: {fileID: 0}
   runStartKey: Start
   nodeDialogueKeys:
   - nodeType: 0
@@ -2019,7 +2019,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: New Text
+  m_Text: "\u5C0F\u9053\u58EB\uFF0C\u9019\u88E1\u662F\u4F60\u7684\u4FEE\u884C\u8DEF\u5F91\u3002\r\n\u6BCF\u4E00\u5C64\u7684\u9078\u64C7\uFF0C\u90FD\u6703\u5F71\u97FF\u4F60\u63A5\u4E0B\u4F86\u7684\u547D\u904B\u3002"
 --- !u!222 &993795119
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -2264,6 +2264,17 @@ RectTransform:
   m_CorrespondingSourceObject: {fileID: 8333607065587245697, guid: 6ee8a7298f7c9954d85e9639a13c03db, type: 3}
   m_PrefabInstance: {fileID: 386132827}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &1289133497 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 5319055684074607263, guid: 6ee8a7298f7c9954d85e9639a13c03db, type: 3}
+  m_PrefabInstance: {fileID: 386132827}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 27661e6aa2bf6024ea9a702c52e7063c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1370335351
 GameObject:
   m_ObjectHideFlags: 0

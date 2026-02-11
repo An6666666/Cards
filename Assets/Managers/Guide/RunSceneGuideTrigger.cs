@@ -91,9 +91,18 @@ public class RunSceneGuideTrigger : SceneGuideTriggerBase
 
         // 回到 RunScene（例如戰鬥結束）時，優先播放剛完成節點的完成台詞。
         // 只有在尚未進行任何節點時，才播放開場台詞。
+        bool hasAnyCandidateKey = !string.IsNullOrWhiteSpace(trimmedRunStartKey);
         if (runManager.CurrentNode != null)
         {
         // 先嘗試播放「剛完成節點」台詞
+        NodeDialogueKey entry = nodeDialogueKeys.Find(e => e != null && e.nodeType == runManager.CurrentNode.NodeType);
+        string trimmedOnCompletedKey = entry == null || string.IsNullOrWhiteSpace(entry.onCompletedKey)
+            ? string.Empty
+            : entry.onCompletedKey.Trim();
+        if (!string.IsNullOrWhiteSpace(trimmedOnCompletedKey))
+        {
+            hasAnyCandidateKey = true;
+        }
         if (TryTalkForNodeCompleted(runManager.CurrentNode))
         {
             hasPlayedSceneEntryDialogue = true;
@@ -110,9 +119,9 @@ public class RunSceneGuideTrigger : SceneGuideTriggerBase
             if (hasPlayedSceneEntryDialogue) return;
         }
 
-        // ✅ 兩者都沒有/都播不了，就直接視為已處理，避免 Update 無限嘗試
-        hasPlayedSceneEntryDialogue = true;
-
+        // 只有在「本來就沒有可播放 key」時才視為已處理。
+        // 若有 key 但暫時播不了（例如場景引用尚未綁定完成），保留重試機會。
+        hasPlayedSceneEntryDialogue = !hasAnyCandidateKey;
     }
 
     private void OnDestroy()
