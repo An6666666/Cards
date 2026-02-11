@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Video;
 
 [CreateAssetMenu(fileName = "TutorialBattleDefinition", menuName = "Tutorial/Battle Definition")]
 public class TutorialBattleDefinition : ScriptableObject
@@ -49,6 +50,9 @@ public class TutorialBattleStep
     [Header("Flow Control")]
     public bool lockEndTurnUntilComplete = true;
     public string reactionDialogueKey;
+    [Header("Reaction Visual (Optional)")]
+    public Sprite reactionImage;
+    public VideoClip reactionVideo;
 }
 
 [System.Serializable]

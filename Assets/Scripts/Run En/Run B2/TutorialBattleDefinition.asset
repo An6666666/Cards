@@ -26,7 +26,9 @@ MonoBehaviour:
     requiredAttackElement: 4
     requiredTargetElement: 0
     lockEndTurnUntilComplete: 1
-    reactionDialogueKey: 
+    reactionDialogueKey: Burn
+    reactionImage: {fileID: 21300000, guid: 8630b8506fff7e1458efca55585193f7, type: 3}
+    reactionVideo: {fileID: 0}
   - stepId: "\u706B\u52A0\u6C34"
     fixedHand:
     - {fileID: 11400000, guid: 11d3cc5377d2ef3459a4b4380becefff, type: 2}
@@ -39,3 +41,5 @@ MonoBehaviour:
     requiredTargetElement: 0
     lockEndTurnUntilComplete: 1
     reactionDialogueKey: 
+    reactionImage: {fileID: 0}
+    reactionVideo: {fileID: 0}

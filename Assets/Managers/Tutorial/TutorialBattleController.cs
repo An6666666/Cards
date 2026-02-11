@@ -204,11 +204,15 @@ public class TutorialBattleController : MonoBehaviour
     {
         stepCompleted = true;
 
-        if (guidePresenter != null && !string.IsNullOrWhiteSpace(step.reactionDialogueKey))
+        if (guidePresenter != null)
         {
-            guidePresenter.Talk(step.reactionDialogueKey);
-        }
+            if (!string.IsNullOrWhiteSpace(step.reactionDialogueKey))
+            {
+                guidePresenter.Talk(step.reactionDialogueKey);
+            }
 
+            guidePresenter.ShowReactionVisual(step.reactionImage, step.reactionVideo);
+        }
         AdvanceStep();
     }
 

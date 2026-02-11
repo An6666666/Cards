@@ -1,6 +1,8 @@
 using System.Collections.Generic;
 using DG.Tweening;
 using UnityEngine;
+using UnityEngine.UI;
+using UnityEngine.Video;
 
 /// <summary>
 /// Presents guide NPC dialogue using a shared DialogueBubbleUI and GuideDialogueDatabase.
@@ -12,6 +14,8 @@ public class GuideNPCPresenter : MonoBehaviour
     [SerializeField] private DialogueBubbleUI dialogueUI;
     [SerializeField] private GuideDialogueDatabase dialogueDatabase;
     [SerializeField] private CanvasGroup canvasGroup;
+    [SerializeField] private Image reactionImageView;
+    [SerializeField] private VideoPlayer reactionVideoPlayer;
 
     [Header("Animation")]
     [SerializeField] private bool animateVisibility = true;
@@ -39,7 +43,31 @@ public class GuideNPCPresenter : MonoBehaviour
         TalkLines(lines);
         return true;
     }
+    public void ShowReactionVisual(Sprite image, VideoClip video)
+    {
+        if (reactionImageView != null)
+        {
+            reactionImageView.sprite = image;
+            reactionImageView.enabled = image != null;
+        }
 
+        if (reactionVideoPlayer != null)
+        {
+            reactionVideoPlayer.Stop();
+            reactionVideoPlayer.clip = video;
+
+            bool hasVideo = video != null;
+            if (reactionVideoPlayer.gameObject.activeSelf != hasVideo)
+            {
+                reactionVideoPlayer.gameObject.SetActive(hasVideo);
+            }
+
+            if (hasVideo)
+            {
+                reactionVideoPlayer.Play();
+            }
+        }
+    }
     public void TalkLines(IEnumerable<string> lines)
     {
         if (dialogueUI == null)
