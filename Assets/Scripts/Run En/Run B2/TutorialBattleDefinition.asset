@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   overridePlayerStartPosition: 1
   playerStartPosition: {x: 0, y: 0}
-  openingDialogueKey: FR
+  openingDialogueKey: Star_one
   refreshEnemiesOnStepAdvance: 1
   clearExistingEnemiesBeforeSpawn: 1
   steps:
@@ -29,6 +29,9 @@ MonoBehaviour:
     requireElementReaction: 1
     requiredAttackElement: 4
     requiredTargetElement: 0
+    requireOrderedElementApplication: 0
+    redealHandOnIncorrectOrder: 0
+    incorrectOrderDialogueKey: 
     lockEndTurnUntilComplete: 1
     clearTileEffectsBeforeSpawn: 1
     reactionDialogueKey: Burn
@@ -42,6 +45,9 @@ MonoBehaviour:
     requireElementReaction: 1
     requiredAttackElement: 1
     requiredTargetElement: 0
+    requireOrderedElementApplication: 0
+    redealHandOnIncorrectOrder: 0
+    incorrectOrderDialogueKey: 
     lockEndTurnUntilComplete: 1
     clearTileEffectsBeforeSpawn: 1
     reactionDialogueKey: Burntwo
@@ -58,6 +64,9 @@ MonoBehaviour:
     requireElementReaction: 1
     requiredAttackElement: 1
     requiredTargetElement: 0
+    requireOrderedElementApplication: 0
+    redealHandOnIncorrectOrder: 0
+    incorrectOrderDialogueKey: 
     lockEndTurnUntilComplete: 1
     clearTileEffectsBeforeSpawn: 1
     reactionDialogueKey: Evaporation
@@ -84,6 +93,9 @@ MonoBehaviour:
     requireElementReaction: 1
     requiredAttackElement: 0
     requiredTargetElement: 2
+    requireOrderedElementApplication: 0
+    redealHandOnIncorrectOrder: 1
+    incorrectOrderDialogueKey: Mis
     lockEndTurnUntilComplete: 1
     clearTileEffectsBeforeSpawn: 1
     reactionDialogueKey: Thunderclap
@@ -110,6 +122,9 @@ MonoBehaviour:
     requireElementReaction: 1
     requiredAttackElement: 1
     requiredTargetElement: 4
+    requireOrderedElementApplication: 0
+    redealHandOnIncorrectOrder: 0
+    incorrectOrderDialogueKey: 
     lockEndTurnUntilComplete: 1
     clearTileEffectsBeforeSpawn: 1
     reactionDialogueKey: Growth
@@ -136,6 +151,9 @@ MonoBehaviour:
     requireElementReaction: 1
     requiredAttackElement: 2
     requiredTargetElement: 1
+    requireOrderedElementApplication: 1
+    redealHandOnIncorrectOrder: 1
+    incorrectOrderDialogueKey: Miss
     lockEndTurnUntilComplete: 1
     clearTileEffectsBeforeSpawn: 1
     reactionDialogueKey: Growthtwo

@@ -2270,7 +2270,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   npcPresenter: {fileID: 386132828}
   runManager: {fileID: 550176398}
-  runStartKey: f
+  runStartKey: Star_one
   nodeDialogueKeys:
   - nodeType: 0
     onEnterKey: Run_Enter_Battle

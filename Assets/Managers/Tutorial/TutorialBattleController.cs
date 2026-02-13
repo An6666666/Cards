@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -120,7 +121,7 @@ public class TutorialBattleController : MonoBehaviour
 
     public bool TryApplyFixedHand(Player player, BattleHandUIController handUIController, bool playDrawAnimation)
     {
-        if (!IsActive || player == null || handUIController == null)
+        if (!IsActive || player == null)
             return false;
 
         TutorialBattleStep step = GetCurrentStep();
@@ -134,7 +135,15 @@ public class TutorialBattleController : MonoBehaviour
             player.Hand.Add(card);
         }
 
-        handUIController.RefreshHandUI(playDrawAnimation);
+        if (handUIController != null)
+        {
+            handUIController.RefreshHandUI(playDrawAnimation);
+        }
+        else
+        {
+            battleManager?.RefreshHandUI(playDrawAnimation);
+        }
+
         return true;
     }
 
@@ -241,32 +250,84 @@ public class TutorialBattleController : MonoBehaviour
         if (context == null || !context.TryGetElementType(out ElementType attackElement))
             return;
 
-        if (!DidTriggerRequiredReaction(step, context.TargetElementsBefore, attackElement))
+        bool requireOrderedApplication = step.requireOrderedElementApplication;
+        if (!DidTriggerRequiredReaction(step, context.TargetElementsBefore, attackElement, requireOrderedApplication, out bool incorrectOrder))
+        {
+            if (incorrectOrder)
+            {
+                HandleIncorrectOrder(step);
+            }
+            else
+            {
+                StartCoroutine(CheckFailureAfterCardResolved(step));
+            }
             return;
+        }
 
         CompleteStep(step);
     }
+    private IEnumerator CheckFailureAfterCardResolved(TutorialBattleStep step)
+    {
+        yield return null;
 
+        if (!IsActive || stepCompleted || step == null)
+            yield break;
+
+        if (GetCurrentStep() != step)
+            yield break;
+
+        if (battleManager == null || battleManager.player == null || battleManager.player.Hand == null)
+            yield break;
+
+        if (battleManager.player.Hand.Count > 0)
+            yield break;
+
+        HandleIncorrectOrder(step);
+    }
     private static bool DidTriggerRequiredReaction(
         TutorialBattleStep step,
         IReadOnlyList<ElementType> targetElementsBefore,
-        ElementType attackElement)
+        ElementType attackElement,
+        bool requireOrderedApplication,
+        out bool incorrectOrder)
     {
+        incorrectOrder = false;
         if (step == null || targetElementsBefore == null)
             return false;
 
-        // 教學步驟只要求玩家觸發指定元素反應，不限制哪個元素必須先附著。
-        if (attackElement == step.requiredAttackElement)
+        bool isRequiredAttack = attackElement == step.requiredAttackElement;
+        bool isRequiredTarget = attackElement == step.requiredTargetElement;
+        bool hasRequiredAttack = ContainsElement(targetElementsBefore, step.requiredAttackElement);
+        bool hasRequiredTarget = ContainsElement(targetElementsBefore, step.requiredTargetElement);
+
+        if (isRequiredAttack && hasRequiredTarget)
         {
-            return ContainsElement(targetElementsBefore, step.requiredTargetElement);
+            return true;
         }
 
-        if (attackElement == step.requiredTargetElement)
+        if (isRequiredTarget && hasRequiredAttack)
         {
-            return ContainsElement(targetElementsBefore, step.requiredAttackElement);
+            incorrectOrder = requireOrderedApplication;
+            return !requireOrderedApplication;
         }
 
         return false;
+    }
+
+    private void HandleIncorrectOrder(TutorialBattleStep step)
+    {
+        if (!IsActive || step == null)
+            return;
+
+        if (guidePresenter != null && !string.IsNullOrWhiteSpace(step.incorrectOrderDialogueKey))
+        {
+            guidePresenter.Talk(step.incorrectOrderDialogueKey.Trim());
+        }
+
+        if (step.redealHandOnIncorrectOrder)
+        {
+            TryApplyFixedHand(battleManager != null ? battleManager.player : null, null, true);
+        }
     }
 
     private static bool ContainsElement(IReadOnlyList<ElementType> elements, ElementType target)

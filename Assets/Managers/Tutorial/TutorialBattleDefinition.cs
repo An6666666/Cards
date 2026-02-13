@@ -13,7 +13,6 @@ public class TutorialBattleDefinition : ScriptableObject
     [Header("Enemy Flow")]
     [SerializeField] private bool refreshEnemiesOnStepAdvance = true;
     [SerializeField] private bool clearExistingEnemiesBeforeSpawn = true;
-
     [Header("Steps")]
     [SerializeField] private List<TutorialBattleStep> steps = new List<TutorialBattleStep>();
 
@@ -59,7 +58,11 @@ public class TutorialBattleStep
     public bool requireElementReaction = true;
     public ElementType requiredAttackElement = ElementType.Fire;
     public ElementType requiredTargetElement = ElementType.Wood;
+    public bool requireOrderedElementApplication = false;
 
+    [Header("Incorrect Order Handling")]
+    public bool redealHandOnIncorrectOrder = true;
+    public string incorrectOrderDialogueKey;
     [Header("Flow Control")]
     public bool lockEndTurnUntilComplete = true;
     public bool clearTileEffectsBeforeSpawn = true;
