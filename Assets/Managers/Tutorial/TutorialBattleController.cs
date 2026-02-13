@@ -39,6 +39,7 @@ public class TutorialBattleController : MonoBehaviour
     private bool stepCompleted;
     private bool waitingForOpeningDialogue;
     private bool waitingForReactionDialogue;
+    private bool hasTriggeredTutorialExit;
     private bool runtimeEnabled;// 執行時開關：同一場景中動態決定是否啟用教學流程
 
     public bool IsActive =>
@@ -55,8 +56,8 @@ public class TutorialBattleController : MonoBehaviour
         {
             board = battleManager.board;
         }
-        runtimeEnabled = tutorialDefinition != null;
-        // 相容舊配置：若在 Inspector 先指定了 definition，預設允許啟用
+        // runtimeEnabled 只由 ConfigureForBattle 決定，避免 Awake 執行順序覆蓋 BattleManager 的配置結果。
+        // 需求：一般戰鬥隱藏 GuideNPC，僅教學戰鬥顯示。
         UpdateGuideNpcVisibility();
     }
 
@@ -69,6 +70,7 @@ public class TutorialBattleController : MonoBehaviour
         stepCompleted = false;
         waitingForOpeningDialogue = false;
         waitingForReactionDialogue = false;
+        hasTriggeredTutorialExit = false;
         // 每次進入新戰鬥都重置步驟狀態，避免沿用上一場教學進度
         UpdateGuideNpcVisibility();
     }
@@ -459,6 +461,7 @@ public class TutorialBattleController : MonoBehaviour
             {
                 battleManager.SetEndTurnButtonInteractable(true);
             }
+            TryFinishTutorialBattleAndReturnToMap();
             return;
         }
 
@@ -478,7 +481,20 @@ public class TutorialBattleController : MonoBehaviour
     {
         return tutorialDefinition != null ? tutorialDefinition.GetStep(currentStepIndex) : null;
     }
+    private void TryFinishTutorialBattleAndReturnToMap()
+    {
+        if (hasTriggeredTutorialExit)
+            return;
 
+        hasTriggeredTutorialExit = true;
+
+        RunManager runManager = RunManager.Instance;
+        if (runManager == null)
+            return;
+
+        runManager.HandleBattleVictory();
+        runManager.ReturnToRunSceneFromBattle();
+    }
     private void ClearExistingEnemies()
     {
         Enemy[] existingEnemies = FindObjectsOfType<Enemy>();

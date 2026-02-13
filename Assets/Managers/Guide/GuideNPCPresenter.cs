@@ -31,6 +31,7 @@ public class GuideNPCPresenter : MonoBehaviour
     private Tween delayedHideTween;
     private static readonly List<DialogueBubbleUI> dialogueUiCandidates = new List<DialogueBubbleUI>();
     private DialogueBubbleUI subscribedDialogueUI;
+    private Graphic[] selfGraphics;
 
     public void AssignDialogueUI(DialogueBubbleUI ui)
     {
@@ -112,11 +113,17 @@ public class GuideNPCPresenter : MonoBehaviour
     {
         ResolveSceneReferencesIfNeeded();
         KillDelayedHideTween();
-        if (canvasGroup == null || !animateVisibility)
+        SetSelfGraphicsVisible(true);
+        if (canvasGroup == null)
         return;
-
         KillVisibilityTween();
         canvasGroup.gameObject.SetActive(true);
+        if (!animateVisibility)
+        {
+            canvasGroup.alpha = 1f;
+            canvasGroup.blocksRaycasts = true;
+            return;
+        }
         visibilityTween = canvasGroup.DOFade(1f, fadeDuration)
             .SetEase(fadeEase)
             .OnStart(() => canvasGroup.blocksRaycasts = true)
@@ -126,18 +133,38 @@ public class GuideNPCPresenter : MonoBehaviour
     public void Hide()
     {
         KillDelayedHideTween();
-        if (canvasGroup == null || !animateVisibility)
+        SetSelfGraphicsVisible(false);
+        if (canvasGroup == null)
         return;
-
         KillVisibilityTween();
+        if (canvasGroup == null)
+        {
+            gameObject.SetActive(false);
+            return;
+        }
         visibilityTween = canvasGroup.DOFade(0f, fadeDuration)
         .SetEase(fadeEase)
-        .OnStart(() => canvasGroup.blocksRaycasts = false)
         .OnComplete(() =>
         {
             canvasGroup.alpha = 0f;
             canvasGroup.gameObject.SetActive(false);
         });
+    }
+    private void SetSelfGraphicsVisible(bool visible)
+    {
+        if (selfGraphics == null || selfGraphics.Length == 0)
+        {
+            selfGraphics = GetComponents<Graphic>();
+        }
+
+        for (int i = 0; i < selfGraphics.Length; i++)
+        {
+            Graphic graphic = selfGraphics[i];
+            if (graphic == null)
+                continue;
+
+            graphic.enabled = visible;
+        }
     }
     private void Awake()
     {
