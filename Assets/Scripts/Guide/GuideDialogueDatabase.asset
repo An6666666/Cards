@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: GuideDialogueDatabase
   m_EditorClassIdentifier: 
   entries:
-  - key: Start
+  - key: f
     lines:
     - "\u5C0F\u9053\u58EB\uFF0C\u9019\u88E1\u662F\u4F60\u7684\u4FEE\u884C\u8DEF\u5F91\u3002\r\n\u6BCF\u4E00\u5C64\u7684\u9078\u64C7\uFF0C\u90FD\u6703\u5F71\u97FF\u4F60\u63A5\u4E0B\u4F86\u7684\u547D\u904B\u3002\r"
   - key: Run_Enter_Battle

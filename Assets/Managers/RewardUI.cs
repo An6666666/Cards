@@ -11,6 +11,11 @@ public class RewardUI : MonoBehaviour
     [SerializeField] private Button packButton;
     [SerializeField] private Button skipButton;
     [SerializeField] private Transform cardParent;
+    [Header("Reward Card Display")]
+    [SerializeField] private bool useRewardCardScale = true;
+    [SerializeField] private Vector3 rewardCardScale = new Vector3(0.8f, 0.8f, 1f);
+    [SerializeField] private bool useRewardCardLayoutSize = false;
+    [SerializeField] private Vector2 rewardCardPreferredSize = new Vector2(130f, 270f);
 
     public void Show(BattleManager bm, int goldReward, List<CardBase> cardChoices)
     {
@@ -39,6 +44,20 @@ public class RewardUI : MonoBehaviour
         foreach (var card in cardChoices)
         {
             GameObject cardGO = Instantiate(manager.cardPrefab, cardParent);
+            if (useRewardCardScale)
+            {
+                cardGO.transform.localScale = rewardCardScale;
+            }
+
+            if (useRewardCardLayoutSize)
+            {
+                LayoutElement layoutElement = cardGO.GetComponent<LayoutElement>();
+                if (layoutElement == null)
+                    layoutElement = cardGO.AddComponent<LayoutElement>();
+
+                layoutElement.preferredWidth = rewardCardPreferredSize.x;
+                layoutElement.preferredHeight = rewardCardPreferredSize.y;
+            }
             CardUI ui = cardGO.GetComponent<CardUI>();
             ui.SetupCard(card);
             ui.SetDisplayContext(CardUI.DisplayContext.Reward);

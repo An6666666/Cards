@@ -14,6 +14,8 @@ public class TutorialBattleController : MonoBehaviour
     private int currentStepIndex;
     private bool hasCompletedTutorial;
     private bool stepCompleted;
+    private bool waitingForOpeningDialogue;
+    private bool waitingForReactionDialogue;
     private bool runtimeEnabled;// 執行時開關：同一場景中動態決定是否啟用教學流程
 
     public bool IsActive =>
@@ -32,6 +34,7 @@ public class TutorialBattleController : MonoBehaviour
         }
         runtimeEnabled = tutorialDefinition != null;
         // 相容舊配置：若在 Inspector 先指定了 definition，預設允許啟用
+        UpdateGuideNpcVisibility();
     }
 
     public void ConfigureForBattle(bool enabled, TutorialBattleDefinition definition)
@@ -41,17 +44,52 @@ public class TutorialBattleController : MonoBehaviour
         currentStepIndex = 0;
         hasCompletedTutorial = false;
         stepCompleted = false;
+        waitingForOpeningDialogue = false;
+        waitingForReactionDialogue = false;
         // 每次進入新戰鬥都重置步驟狀態，避免沿用上一場教學進度
+        UpdateGuideNpcVisibility();
+    }
+
+    private void UpdateGuideNpcVisibility()
+    {
+        if (guidePresenter == null)
+            return;
+
+        bool shouldShowGuideNpc = runtimeEnabled && tutorialDefinition != null && tutorialDefinition.HasSteps;
+        if (guidePresenter.gameObject.activeSelf != shouldShowGuideNpc)
+        {
+            guidePresenter.gameObject.SetActive(shouldShowGuideNpc);
+        }
     }
 
     private void OnEnable()
     {
         GameEvents.CardPlayedWithContext += HandleCardPlayed;
+        if (guidePresenter != null)
+        {
+            guidePresenter.DialogueLinesFinished += HandleGuideDialogueFinished;
+        }
     }
 
     private void OnDisable()
     {
         GameEvents.CardPlayedWithContext -= HandleCardPlayed;
+        if (guidePresenter != null)
+        {
+            guidePresenter.DialogueLinesFinished -= HandleGuideDialogueFinished;
+        }
+    }
+
+    public bool IsWaitingForOpeningDialogue => waitingForOpeningDialogue;
+
+    private void HandleGuideDialogueFinished()
+    {
+        waitingForOpeningDialogue = false;
+        if (!waitingForReactionDialogue)
+            return;
+
+        waitingForReactionDialogue = false;
+        AdvanceStep();
     }
 
     public bool TryGetPlayerStartPosition(out Vector2Int position)
@@ -97,16 +135,21 @@ public class TutorialBattleController : MonoBehaviour
         return true;
     }
 
+    public bool ShouldLockEndTurnForCurrentStep()
+    {
+        if (!IsActive)
+            return false;
+
+        TutorialBattleStep step = GetCurrentStep();
+        return step != null && step.lockEndTurnUntilComplete;
+    }
+
     public void ApplyTurnStartOverrides(BattleHandUIController handUIController, BattleManager manager)
     {
         if (!IsActive || handUIController == null || manager == null)
             return;
 
-        TutorialBattleStep step = GetCurrentStep();
-        if (step == null)
-            return;
-
-        if (step.lockEndTurnUntilComplete)
+        if (ShouldLockEndTurnForCurrentStep())
         {
             manager.SetEndTurnButtonInteractable(false);
         }
@@ -121,7 +164,11 @@ public class TutorialBattleController : MonoBehaviour
         if (step == null)
             return;
 
-        ClearExistingEnemies();
+        if (tutorialDefinition != null && tutorialDefinition.ClearExistingEnemiesBeforeSpawn)
+        {
+            ClearExistingEnemies();
+        }
+
 
         foreach (TutorialEnemySpawn spawn in step.enemySpawns)
         {
@@ -144,6 +191,20 @@ public class TutorialBattleController : MonoBehaviour
             return;
 
         stepCompleted = false;
+        TryPlayOpeningDialogue();
+    }
+
+    private void TryPlayOpeningDialogue()
+    {
+        waitingForOpeningDialogue = false;
+        waitingForReactionDialogue = false;
+        if (guidePresenter == null || tutorialDefinition == null)
+            return;
+
+        if (tutorialDefinition.TryGetOpeningDialogueKey(out string dialogueKey))
+        {
+            waitingForOpeningDialogue = guidePresenter.Talk(dialogueKey);
+        }
     }
 
     private void HandleCardPlayed(CardPlayContext context)
@@ -203,15 +264,21 @@ public class TutorialBattleController : MonoBehaviour
     private void CompleteStep(TutorialBattleStep step)
     {
         stepCompleted = true;
-
+        waitingForReactionDialogue = false;
+        bool playedReactionDialogue = false;
         if (guidePresenter != null)
         {
             if (!string.IsNullOrWhiteSpace(step.reactionDialogueKey))
             {
-                guidePresenter.Talk(step.reactionDialogueKey);
+                playedReactionDialogue = guidePresenter.Talk(step.reactionDialogueKey);
             }
 
             guidePresenter.ShowReactionVisual(step.reactionImage, step.reactionVideo);
+        }
+        if (playedReactionDialogue)
+        {
+            waitingForReactionDialogue = true;
+            return;
         }
         AdvanceStep();
     }
@@ -231,7 +298,10 @@ public class TutorialBattleController : MonoBehaviour
             return;
         }
 
-        SpawnEnemiesForCurrentStep();
+         if (tutorialDefinition != null && tutorialDefinition.RefreshEnemiesOnStepAdvance)
+        {
+            SpawnEnemiesForCurrentStep();
+        }
 
         if (battleManager != null)
         {

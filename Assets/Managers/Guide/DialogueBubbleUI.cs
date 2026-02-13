@@ -51,6 +51,11 @@ public class DialogueBubbleUI : MonoBehaviour, IPointerClickHandler
 
     public void OnPointerClick(PointerEventData eventData)
     {
+        if (!isTyping && queuedLines.Count == 0)
+        {
+            HideBubbleImmediately();
+            return;
+        }
         ShowNextLine();
     }
 
@@ -174,7 +179,18 @@ public class DialogueBubbleUI : MonoBehaviour, IPointerClickHandler
             });
         UpdateBubbleVisibility();
     }
+    private void HideBubbleImmediately()
+    {
+        if (dialogueText != null)
+        {
+            dialogueText.text = string.Empty;
+        }
 
+        if (bubbleRoot != null && bubbleRoot.activeSelf)
+        {
+            bubbleRoot.SetActive(false);
+        }
+    }
     private void UpdateBubbleVisibility()
     {
         bool hasMoreLines = queuedLines.Count > 0;

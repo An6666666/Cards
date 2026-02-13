@@ -8,13 +8,25 @@ public class TutorialBattleDefinition : ScriptableObject
     [Header("Player Start")]
     [SerializeField] private bool overridePlayerStartPosition = true;
     [SerializeField] private Vector2Int playerStartPosition = Vector2Int.zero;
+    [Header("Opening Dialogue")]
+    [SerializeField] private string openingDialogueKey;
+    [Header("Enemy Flow")]
+    [SerializeField] private bool refreshEnemiesOnStepAdvance = true;
+    [SerializeField] private bool clearExistingEnemiesBeforeSpawn = true;
 
     [Header("Steps")]
     [SerializeField] private List<TutorialBattleStep> steps = new List<TutorialBattleStep>();
 
     public bool HasSteps => steps != null && steps.Count > 0;
     public int StepCount => steps?.Count ?? 0;
-
+    public bool RefreshEnemiesOnStepAdvance => refreshEnemiesOnStepAdvance;
+    public bool ClearExistingEnemiesBeforeSpawn => clearExistingEnemiesBeforeSpawn;
+    
+    public bool TryGetOpeningDialogueKey(out string dialogueKey)
+    {
+        dialogueKey = string.IsNullOrWhiteSpace(openingDialogueKey) ? null : openingDialogueKey.Trim();
+        return !string.IsNullOrEmpty(dialogueKey);
+    }
     public bool TryGetPlayerStartPosition(out Vector2Int position)
     {
         position = playerStartPosition;

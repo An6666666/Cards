@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using DG.Tweening;
 using UnityEngine;
@@ -10,6 +11,7 @@ using UnityEngine.Video;
 /// </summary>
 public class GuideNPCPresenter : MonoBehaviour
 {
+    public event Action DialogueLinesFinished;
     [Header("References")]
     [SerializeField] private DialogueBubbleUI dialogueUI;
     [SerializeField] private GuideDialogueDatabase dialogueDatabase;
@@ -151,6 +153,7 @@ public class GuideNPCPresenter : MonoBehaviour
     }
     private void OnDialogueLinesFinished()
     {
+        DialogueLinesFinished?.Invoke();
         if (!hideAfterDialogueEnds)
             return;
 
