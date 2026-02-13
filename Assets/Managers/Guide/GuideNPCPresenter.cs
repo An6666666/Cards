@@ -4,6 +4,7 @@ using DG.Tweening;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.Video;
+using UnityEngine.SceneManagement;
 
 /// <summary>
 /// Presents guide NPC dialogue using a shared DialogueBubbleUI and GuideDialogueDatabase.
@@ -28,6 +29,8 @@ public class GuideNPCPresenter : MonoBehaviour
 
     private Tween visibilityTween;
     private Tween delayedHideTween;
+    private static readonly List<DialogueBubbleUI> dialogueUiCandidates = new List<DialogueBubbleUI>();
+    private DialogueBubbleUI subscribedDialogueUI;
 
     public void AssignDialogueUI(DialogueBubbleUI ui)
     {
@@ -139,7 +142,6 @@ public class GuideNPCPresenter : MonoBehaviour
     private void Awake()
     {
         ResolveSceneReferencesIfNeeded();
-        SubscribeDialogueEvents();
     }
     private void OnEnable()
     {
@@ -163,17 +165,19 @@ public class GuideNPCPresenter : MonoBehaviour
 
     private void SubscribeDialogueEvents()
     {
-        if (dialogueUI != null)
+        if (dialogueUI != null && subscribedDialogueUI != dialogueUI)
         {
             dialogueUI.LinesFinished += OnDialogueLinesFinished;
+            subscribedDialogueUI = dialogueUI;
         }
     }
 
     private void UnsubscribeDialogueEvents()
     {
-        if (dialogueUI != null)
+        if (subscribedDialogueUI != null)
         {
-            dialogueUI.LinesFinished -= OnDialogueLinesFinished;
+            subscribedDialogueUI.LinesFinished -= OnDialogueLinesFinished;
+            subscribedDialogueUI = null;
         }
     }
     private void KillVisibilityTween()
@@ -196,21 +200,63 @@ public class GuideNPCPresenter : MonoBehaviour
     {
         if (dialogueUI == null)
         {
-            DialogueBubbleUI foundDialogueUI = FindObjectOfType<DialogueBubbleUI>(true);
+            DialogueBubbleUI foundDialogueUI = FindBestDialogueUI();
             if (foundDialogueUI != null)
             {
                 AssignDialogueUI(foundDialogueUI);
             }
         }
 
-        if (dialogueDatabase == null)
-        {
-            dialogueDatabase = FindObjectOfType<GuideDialogueDatabase>(true);
-        }
+        //if (dialogueDatabase == null)
+        //{
+        //    dialogueDatabase = FindObjectOfType<GuideDialogueDatabase>(true);
+        //}
 
         if (canvasGroup == null)
         {
             canvasGroup = GetComponent<CanvasGroup>();
         }
+        SubscribeDialogueEvents();
+    }
+    private DialogueBubbleUI FindBestDialogueUI()
+    {
+        dialogueUiCandidates.Clear();
+        #if UNITY_2023_1_OR_NEWER
+        dialogueUiCandidates.AddRange(FindObjectsByType<DialogueBubbleUI>(FindObjectsInactive.Include, FindObjectsSortMode.None));
+        #else
+        dialogueUiCandidates.AddRange(Resources.FindObjectsOfTypeAll<DialogueBubbleUI>());
+        #endif
+
+        Scene currentScene = gameObject.scene;
+        DialogueBubbleUI fallback = null;
+
+        for (int i = 0; i < dialogueUiCandidates.Count; i++)
+        {
+            DialogueBubbleUI candidate = dialogueUiCandidates[i];
+            if (candidate == null)
+                continue;
+
+            Scene candidateScene = candidate.gameObject.scene;
+            if (!candidateScene.IsValid() || !candidateScene.isLoaded)
+                continue;
+
+            if (fallback == null)
+            {
+                fallback = candidate;
+            }
+
+            if (candidateScene != currentScene)
+                continue;
+
+            if (candidate.gameObject.activeInHierarchy)
+                return candidate;
+
+            if (fallback == null)
+            {
+                fallback = candidate;
+            }
+        }
+
+        return fallback;
     }
 }

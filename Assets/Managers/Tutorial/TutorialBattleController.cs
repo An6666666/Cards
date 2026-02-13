@@ -56,10 +56,13 @@ public class TutorialBattleController : MonoBehaviour
             return;
 
         bool shouldShowGuideNpc = runtimeEnabled && tutorialDefinition != null && tutorialDefinition.HasSteps;
-        if (guidePresenter.gameObject.activeSelf != shouldShowGuideNpc)
+        if (shouldShowGuideNpc)
         {
-            guidePresenter.gameObject.SetActive(shouldShowGuideNpc);
+            guidePresenter.Show();
+            return;
         }
+
+        guidePresenter.Hide();
     }
 
     private void OnEnable()
