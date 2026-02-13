@@ -5,13 +5,13 @@ using UnityEngine.Video;
 [CreateAssetMenu(fileName = "TutorialBattleDefinition", menuName = "Tutorial/Battle Definition")]
 public class TutorialBattleDefinition : ScriptableObject
 {
+    private static readonly string[] OpeningDialogueKeys = { "FR" };
     [Header("Player Start")]
     [SerializeField] private bool overridePlayerStartPosition = true;
     [SerializeField] private Vector2Int playerStartPosition = Vector2Int.zero;
-    [Header("Opening Dialogue")]
-    [SerializeField] private string openingDialogueKey;
     [Header("Enemy Flow")]
     [SerializeField] private bool refreshEnemiesOnStepAdvance = true;
+    [SerializeField] private bool refreshEnemiesOnIncorrectOrder = true;
     [SerializeField] private bool clearExistingEnemiesBeforeSpawn = true;
     [Header("Steps")]
     [SerializeField] private List<TutorialBattleStep> steps = new List<TutorialBattleStep>();
@@ -19,12 +19,28 @@ public class TutorialBattleDefinition : ScriptableObject
     public bool HasSteps => steps != null && steps.Count > 0;
     public int StepCount => steps?.Count ?? 0;
     public bool RefreshEnemiesOnStepAdvance => refreshEnemiesOnStepAdvance;
+    public bool RefreshEnemiesOnIncorrectOrder => refreshEnemiesOnIncorrectOrder;
     public bool ClearExistingEnemiesBeforeSpawn => clearExistingEnemiesBeforeSpawn;
+    public IReadOnlyList<string> GetOpeningDialogueKeys()
+    {
+        return OpeningDialogueKeys;
+    }
 
     public bool TryGetOpeningDialogueKey(out string dialogueKey)
     {
-        dialogueKey = string.IsNullOrWhiteSpace(openingDialogueKey) ? null : openingDialogueKey.Trim();
-        return !string.IsNullOrEmpty(dialogueKey);
+        dialogueKey = null;
+        for (int i = 0; i < OpeningDialogueKeys.Length; i++)
+        {
+            string key = OpeningDialogueKeys[i];
+            if (string.IsNullOrWhiteSpace(key))
+                continue;
+
+            dialogueKey = key.Trim();
+            if (!string.IsNullOrEmpty(dialogueKey))
+                return true;
+        }
+
+        return false;
     }
     public bool TryGetPlayerStartPosition(out Vector2Int position)
     {

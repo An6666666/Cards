@@ -7,6 +7,12 @@ using UnityEngine.SceneManagement;
 /// </summary>
 public class RunSceneGuideTrigger : SceneGuideTriggerBase
 {
+    private const string RunStartDialogueKey = "Star_one";
+    private static readonly string[] RunStartFallbackLines =
+    {
+        "小道士，這裡是你的修行路徑。",
+        "每一層的選擇，都會影響你接下來的命運。"
+    };
     [System.Serializable]
     public class NodeDialogueKey
     {
@@ -20,7 +26,6 @@ public class RunSceneGuideTrigger : SceneGuideTriggerBase
     [SerializeField] private RunManager runManager;
 
     [Header("Dialogue Keys")]
-    [SerializeField] private string runStartKey;
     [SerializeField] private List<NodeDialogueKey> nodeDialogueKeys = new List<NodeDialogueKey>();
 
     private bool isSubscribed;
@@ -80,7 +85,7 @@ public class RunSceneGuideTrigger : SceneGuideTriggerBase
 
     private void TryPlaySceneEntryDialogue()
     {
-        string trimmedRunStartKey = string.IsNullOrWhiteSpace(runStartKey) ? string.Empty : runStartKey.Trim();
+        string trimmedRunStartKey = string.IsNullOrWhiteSpace(RunStartDialogueKey) ? string.Empty : RunStartDialogueKey.Trim();
         Debug.Log($"[RunSceneGuideTrigger] TryPlaySceneEntryDialogue | currentNode={(runManager!=null ? runManager.CurrentNode?.NodeType.ToString() : "null")} | runStartKey={trimmedRunStartKey}");
         if (hasPlayedSceneEntryDialogue)
         return;
@@ -115,7 +120,7 @@ public class RunSceneGuideTrigger : SceneGuideTriggerBase
 
         if (!string.IsNullOrWhiteSpace(trimmedRunStartKey))
         {
-            hasPlayedSceneEntryDialogue = TryTalk(npcPresenter, trimmedRunStartKey);
+            hasPlayedSceneEntryDialogue = TryTalk(npcPresenter, trimmedRunStartKey, RunStartFallbackLines);
             if (hasPlayedSceneEntryDialogue) return;
         }
 

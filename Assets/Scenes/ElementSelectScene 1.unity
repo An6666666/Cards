@@ -417,7 +417,7 @@ MonoBehaviour:
   selectionUI: {fileID: 596144955}
   dialogueBubbleUI: {fileID: 0}
   npcPresenter: {fileID: 0}
-  dialogueDatabase: {fileID: 11400000, guid: f673d71a9f9ad7e45abb5d3ea1698bef, type: 2}
+  dialogueDatabase: {fileID: 0}
   introKey: 
   introLines:
   - "\u9996\u6B21\u4EFB\u52D9\u8981\u958B\u59CB\u4E86\uFF0C\u5C0F\u9053\u58EB"

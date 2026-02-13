@@ -14,7 +14,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   overridePlayerStartPosition: 1
   playerStartPosition: {x: 0, y: 0}
-  openingDialogueKey: Star_one
   refreshEnemiesOnStepAdvance: 1
   clearExistingEnemiesBeforeSpawn: 1
   steps:

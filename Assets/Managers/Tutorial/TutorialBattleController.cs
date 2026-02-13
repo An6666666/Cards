@@ -4,6 +4,28 @@ using UnityEngine;
 
 public class TutorialBattleController : MonoBehaviour
 {
+    private static readonly Dictionary<string, string[]> LocalDialogueByKey = new Dictionary<string, string[]>
+    {
+        { "FR", new[] { "我會教導你所有的元素反應，開始吧", "這是急急如律令火和急急如律令木，試試吧，拖拽到妖怪身上使用" } },
+        { "Burn", new[] { "滑鼠移至受到攻擊的妖怪上，可以看到妖怪的狀態", "火+木會產生燃燒的效果，會殘留火元素，燃燒持續5回合，每次造成2點傷害", "妖怪在燃燒狀態下，受到水元素或冰元素傷害，會因此被消除，試試吧" } },
+        { "Burntwo", new[] { "滑鼠移至受到攻擊的妖怪上看看，燃燒已經被移除了，妖怪身上則會只保留水元素", "做的好，接下來是蒸發反應", "這是急急如律令火和急急如律令水，試試吧，拖拽到妖怪身上使用" } },
+        { "Evaporation", new[] { "火+水的蒸發反應，會讓後者使用的傷害增加1.5倍", "並留下後者攻擊的元素", "接下來是超載反應", "這是急急如律令雷、急急如律令火" } },
+        { "Thunderclap", new[] { "超載會對被攻擊的妖怪周圍的敵人，也造成0.5倍的傷害", "被攻擊的妖怪會留下後者的元素", "接下來是生長反應" } },
+        { "Growth", new[] { "生長反應會在棋盤上生長出荊棘", "荊棘會在玩家結束回合時，攻擊在荊棘格上的妖怪造成3點傷害", "接下來是導電反應", "先使用急急如律令水，在使用急急如律令雷" } },
+        { "Conductive", new[] { "先使用水元素的特性讓鋪設好環境，再用雷元素造成導電的反應","接下來是冰凍反應", "這是急急如律令冰和急急如律令水" } },
+        { "Freeze", new[] { "冰+水的冰凍反應，可以冰凍妖怪", "讓妖怪無法移動和攻擊", "接下來是結霜反應", "這是急急如律令冰和急急如律令木" } },
+        { "Frost", new[] { "冰+木的結霜反應，會讓接下來造成的傷害額外增加2點傷害", "最多可以疊加6層，每玩家回合開始時會減少1層","接下來是雷擊反應，這是急急如律令雷和急急如律令木" } }, 
+        { "Lightning strike", new[] { "雷+木的雷擊反應，會讓接下來造成的傷害變成2倍","接下來是融化反應，這是急急如律令火和急急如律令冰" } }, 
+        { "Melt", new[] { "火+冰的融化反應，會讓後者使用的傷害增加1.5倍","被攻擊的妖怪會留下後者的元素" , "接下來是超導反應", "這是急急如律令雷和急急如律令冰" } },
+        { "Superconduct", new[] { "雷+冰的超導反應，會讓後攻擊的傷害增加6點", "這是教學的最後一個元素反應了，接下來就靠你自己去探索了！","切記，攻擊一個目標時，他會優先和前一個使用的元素進行反應"} },
+        { "Miss", new[] { "使用的順序錯了，再使用一次，先使用急急如律令水，在使用急急如律令雷" } },
+        { "Mis", new[] { "急急如律令雷和急急如律令火需要攻擊同一個妖怪，才能正確的觸發元素反應" } },
+    };
+    private static readonly string[] OpeningDialogueFallbackLines =
+    {
+        "我會教導你所有的元素反應，開始吧。",
+        "這是急急如律令火和急急如律令木，試試吧，拖拽到妖怪身上使用。"
+    };
     [Header("Definition")]
     [SerializeField] private TutorialBattleDefinition tutorialDefinition;
 
@@ -232,12 +254,44 @@ public class TutorialBattleController : MonoBehaviour
         if (guidePresenter == null || tutorialDefinition == null)
             return;
 
-        if (tutorialDefinition.TryGetOpeningDialogueKey(out string dialogueKey))
+        IReadOnlyList<string> openingDialogueKeys = tutorialDefinition.GetOpeningDialogueKeys();
+        if (openingDialogueKeys != null)
         {
-            waitingForOpeningDialogue = guidePresenter.Talk(dialogueKey);
-        }
-    }
+            for (int i = 0; i < openingDialogueKeys.Count; i++)
+            {
+                string dialogueKey = openingDialogueKeys[i];
+                if (string.IsNullOrWhiteSpace(dialogueKey))
+                    continue;
 
+                if (TryTalkLocalByKey(dialogueKey))
+                {
+                    waitingForOpeningDialogue = true;
+                    return;
+                }
+            }
+        }
+
+        if (tutorialDefinition.TryGetOpeningDialogueKey(out string fallbackKey))
+        {
+            waitingForOpeningDialogue = TryTalkLocalByKey(fallbackKey);
+            if (waitingForOpeningDialogue)
+                return;
+        }
+        guidePresenter.TalkLines(OpeningDialogueFallbackLines);
+        waitingForOpeningDialogue = true;
+    }
+    private bool TryTalkLocalByKey(string key)
+    {
+        if (guidePresenter == null || string.IsNullOrWhiteSpace(key))
+            return false;
+
+        string trimmedKey = key.Trim();
+        if (!LocalDialogueByKey.TryGetValue(trimmedKey, out string[] lines) || lines == null || lines.Length == 0)
+            return false;
+
+        guidePresenter.TalkLines(lines);
+        return true;
+    }
     private void HandleCardPlayed(CardPlayContext context)
     {
         if (!IsActive || stepCompleted)
@@ -321,15 +375,42 @@ public class TutorialBattleController : MonoBehaviour
 
         if (guidePresenter != null && !string.IsNullOrWhiteSpace(step.incorrectOrderDialogueKey))
         {
-            guidePresenter.Talk(step.incorrectOrderDialogueKey.Trim());
+            TryTalkLocalByKey(step.incorrectOrderDialogueKey);
         }
-
+        if (tutorialDefinition != null && tutorialDefinition.RefreshEnemiesOnIncorrectOrder)
+        {
+            RespawnEnemiesForCurrentStep();
+        }
         if (step.redealHandOnIncorrectOrder)
         {
             TryApplyFixedHand(battleManager != null ? battleManager.player : null, null, true);
         }
     }
+    private void RespawnEnemiesForCurrentStep()
+    {
+        if (!IsActive || board == null)
+            return;
 
+        TutorialBattleStep step = GetCurrentStep();
+        if (step == null)
+            return;
+
+        ClearExistingEnemies();
+
+        foreach (TutorialEnemySpawn spawn in step.enemySpawns)
+        {
+            if (spawn == null || spawn.enemyPrefab == null)
+                continue;
+
+            BoardTile tile = board.GetTileAt(spawn.gridPosition);
+            Vector3 spawnPosition = tile != null ? tile.transform.position : new Vector3(spawn.gridPosition.x, spawn.gridPosition.y, 0f);
+
+            Enemy enemy = Instantiate(spawn.enemyPrefab, spawnPosition, Quaternion.identity);
+            enemy.gridPosition = spawn.gridPosition;
+        }
+
+        battleManager?.RefreshEnemiesFromScene();
+    }
     private static bool ContainsElement(IReadOnlyList<ElementType> elements, ElementType target)
     {
         if (elements == null)
@@ -353,7 +434,7 @@ public class TutorialBattleController : MonoBehaviour
         {
             if (!string.IsNullOrWhiteSpace(step.reactionDialogueKey))
             {
-                playedReactionDialogue = guidePresenter.Talk(step.reactionDialogueKey);
+                playedReactionDialogue = TryTalkLocalByKey(step.reactionDialogueKey);
             }
 
             guidePresenter.ShowReactionVisual(step.reactionImage, step.reactionVideo);
