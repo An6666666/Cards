@@ -21,7 +21,7 @@ public class TutorialBattleDefinition : ScriptableObject
     public int StepCount => steps?.Count ?? 0;
     public bool RefreshEnemiesOnStepAdvance => refreshEnemiesOnStepAdvance;
     public bool ClearExistingEnemiesBeforeSpawn => clearExistingEnemiesBeforeSpawn;
-    
+
     public bool TryGetOpeningDialogueKey(out string dialogueKey)
     {
         dialogueKey = string.IsNullOrWhiteSpace(openingDialogueKey) ? null : openingDialogueKey.Trim();
@@ -52,6 +52,7 @@ public class TutorialBattleStep
     public List<CardBase> fixedHand = new List<CardBase>();
 
     [Header("Enemy Spawns")]
+    public bool clearExistingEnemiesBeforeSpawn = true;
     public List<TutorialEnemySpawn> enemySpawns = new List<TutorialEnemySpawn>();
 
     [Header("Progress Condition")]
@@ -61,6 +62,7 @@ public class TutorialBattleStep
 
     [Header("Flow Control")]
     public bool lockEndTurnUntilComplete = true;
+    public bool clearTileEffectsBeforeSpawn = true;
     public string reactionDialogueKey;
     [Header("Reaction Visual (Optional)")]
     public Sprite reactionImage;

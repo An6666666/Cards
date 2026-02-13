@@ -429,7 +429,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   enemyName: "\u9B54\u795E\u4ED4"
-  maxHP: 9999
+  maxHP: 30
   currentHP: 0
   block: 0
   goldReward: 4

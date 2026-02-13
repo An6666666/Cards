@@ -110,8 +110,27 @@ public class BoardTile : MonoBehaviour
     {
         return elements.Contains(e);
     }
+    /// <summary>
+    /// 清除棋盤格上的持續效果（元素標記、荊棘陷阱、瘴氣與高亮）
+    /// </summary>
+    public void ClearTileEffects()
+    {
+        elements.Clear();
+        growthTrap = false;
+        hasMiasma = false;
+        miasmaDamage = 0;
 
-     /// <summary>
+        if (miasmaEffectObject)
+        {
+            miasmaEffectObject.SetActive(false);
+        }
+
+        SetHighlight(false);
+        SetAttackHighlight(false);
+        UpdateGrowthTrapVisual();
+        UpdateElementIcons();
+    }
+    /// <summary>
     /// 檢查是否佈滿瘴氣
     /// </summary>
     public bool HasMiasma => hasMiasma;

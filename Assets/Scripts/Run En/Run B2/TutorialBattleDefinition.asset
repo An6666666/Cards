@@ -15,13 +15,14 @@ MonoBehaviour:
   overridePlayerStartPosition: 1
   playerStartPosition: {x: 0, y: 0}
   openingDialogueKey: Start
-  refreshEnemiesOnStepAdvance: 0
+  refreshEnemiesOnStepAdvance: 1
   clearExistingEnemiesBeforeSpawn: 1
   steps:
   - stepId: "\u706B\u52A0\u6728"
     fixedHand:
     - {fileID: 11400000, guid: 11d3cc5377d2ef3459a4b4380becefff, type: 2}
     - {fileID: 11400000, guid: 9aaf3c9fe05acb3468a4b7d995117dd5, type: 2}
+    clearExistingEnemiesBeforeSpawn: 1
     enemySpawns:
     - enemyPrefab: {fileID: 4204690724760053818, guid: 0389e1c4bf705174ca9b0340c784871e, type: 3}
       gridPosition: {x: -2, y: 0}
@@ -29,24 +30,28 @@ MonoBehaviour:
     requiredAttackElement: 4
     requiredTargetElement: 0
     lockEndTurnUntilComplete: 1
+    clearTileEffectsBeforeSpawn: 1
     reactionDialogueKey: Burn
     reactionImage: {fileID: 0}
     reactionVideo: {fileID: 0}
   - stepId: "\u71C3\u71D2\u52A0\u6C34"
     fixedHand:
     - {fileID: 11400000, guid: 4fd70894f3d5cb54388922c21a1e3c60, type: 2}
+    clearExistingEnemiesBeforeSpawn: 0
     enemySpawns: []
     requireElementReaction: 1
     requiredAttackElement: 1
     requiredTargetElement: 0
     lockEndTurnUntilComplete: 1
+    clearTileEffectsBeforeSpawn: 1
     reactionDialogueKey: Burntwo
     reactionImage: {fileID: 0}
     reactionVideo: {fileID: 0}
-  - stepId: "\u706B+\u6C34"
+  - stepId: "\u706B\u52A0\u6C34"
     fixedHand:
     - {fileID: 11400000, guid: 4fd70894f3d5cb54388922c21a1e3c60, type: 2}
     - {fileID: 11400000, guid: 11d3cc5377d2ef3459a4b4380becefff, type: 2}
+    clearExistingEnemiesBeforeSpawn: 1
     enemySpawns:
     - enemyPrefab: {fileID: 4204690724760053818, guid: 0389e1c4bf705174ca9b0340c784871e, type: 3}
       gridPosition: {x: -2, y: 0}
@@ -54,6 +59,72 @@ MonoBehaviour:
     requiredAttackElement: 1
     requiredTargetElement: 0
     lockEndTurnUntilComplete: 1
+    clearTileEffectsBeforeSpawn: 1
     reactionDialogueKey: Evaporation
+    reactionImage: {fileID: 0}
+    reactionVideo: {fileID: 0}
+  - stepId: "\u706B\u52A0\u96F7"
+    fixedHand:
+    - {fileID: 11400000, guid: 11d3cc5377d2ef3459a4b4380becefff, type: 2}
+    - {fileID: 11400000, guid: a58c41531431ead4ebb45b0f3f038cbc, type: 2}
+    clearExistingEnemiesBeforeSpawn: 1
+    enemySpawns:
+    - enemyPrefab: {fileID: 4204690724760053818, guid: 0389e1c4bf705174ca9b0340c784871e, type: 3}
+      gridPosition: {x: -2, y: 0}
+    - enemyPrefab: {fileID: 4204690724760053818, guid: 0389e1c4bf705174ca9b0340c784871e, type: 3}
+      gridPosition: {x: -4, y: 0}
+    - enemyPrefab: {fileID: 4204690724760053818, guid: 0389e1c4bf705174ca9b0340c784871e, type: 3}
+      gridPosition: {x: -1, y: -2}
+    - enemyPrefab: {fileID: 4204690724760053818, guid: 0389e1c4bf705174ca9b0340c784871e, type: 3}
+      gridPosition: {x: -1, y: 2}
+    - enemyPrefab: {fileID: 4204690724760053818, guid: 0389e1c4bf705174ca9b0340c784871e, type: 3}
+      gridPosition: {x: -3, y: -2}
+    - enemyPrefab: {fileID: 4204690724760053818, guid: 0389e1c4bf705174ca9b0340c784871e, type: 3}
+      gridPosition: {x: -3, y: 2}
+    requireElementReaction: 1
+    requiredAttackElement: 0
+    requiredTargetElement: 2
+    lockEndTurnUntilComplete: 1
+    clearTileEffectsBeforeSpawn: 1
+    reactionDialogueKey: Thunderclap
+    reactionImage: {fileID: 0}
+    reactionVideo: {fileID: 0}
+  - stepId: "\u6C34\u52A0\u6728"
+    fixedHand:
+    - {fileID: 11400000, guid: 4fd70894f3d5cb54388922c21a1e3c60, type: 2}
+    - {fileID: 11400000, guid: 9aaf3c9fe05acb3468a4b7d995117dd5, type: 2}
+    clearExistingEnemiesBeforeSpawn: 1
+    enemySpawns:
+    - enemyPrefab: {fileID: 4204690724760053818, guid: 0389e1c4bf705174ca9b0340c784871e, type: 3}
+      gridPosition: {x: -2, y: 0}
+    - enemyPrefab: {fileID: 4204690724760053818, guid: 0389e1c4bf705174ca9b0340c784871e, type: 3}
+      gridPosition: {x: -4, y: 0}
+    - enemyPrefab: {fileID: 4204690724760053818, guid: 0389e1c4bf705174ca9b0340c784871e, type: 3}
+      gridPosition: {x: -1, y: -2}
+    - enemyPrefab: {fileID: 4204690724760053818, guid: 0389e1c4bf705174ca9b0340c784871e, type: 3}
+      gridPosition: {x: -1, y: 2}
+    - enemyPrefab: {fileID: 4204690724760053818, guid: 0389e1c4bf705174ca9b0340c784871e, type: 3}
+      gridPosition: {x: -3, y: -2}
+    - enemyPrefab: {fileID: 4204690724760053818, guid: 0389e1c4bf705174ca9b0340c784871e, type: 3}
+      gridPosition: {x: -3, y: 2}
+    requireElementReaction: 1
+    requiredAttackElement: 1
+    requiredTargetElement: 4
+    lockEndTurnUntilComplete: 1
+    clearTileEffectsBeforeSpawn: 1
+    reactionDialogueKey: Growth
+    reactionImage: {fileID: 0}
+    reactionVideo: {fileID: 0}
+  - stepId: "\u834A\u68D8\u6548\u679C"
+    fixedHand:
+    - {fileID: 0}
+    clearExistingEnemiesBeforeSpawn: 0
+    enemySpawns: []
+    requireElementReaction: 0
+    requiredAttackElement: 1
+    requiredTargetElement: 4
+    lockEndTurnUntilComplete: 0
+    clearTileEffectsBeforeSpawn: 0
+    reactionDialogueKey: Growth
     reactionImage: {fileID: 0}
     reactionVideo: {fileID: 0}

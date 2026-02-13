@@ -164,11 +164,24 @@ public class TutorialBattleController : MonoBehaviour
         if (step == null)
             return;
 
-        if (tutorialDefinition != null && tutorialDefinition.ClearExistingEnemiesBeforeSpawn)
+        bool hasAnySpawn = false;
+        foreach (TutorialEnemySpawn spawn in step.enemySpawns)
+        {
+            if (spawn != null && spawn.enemyPrefab != null)
+            {
+                hasAnySpawn = true;
+                break;
+            }
+        }
+
+        if (hasAnySpawn && ShouldClearEnemiesBeforeSpawn(step))
         {
             ClearExistingEnemies();
         }
-
+        if (step.clearTileEffectsBeforeSpawn)
+        {
+            board.ClearAllTileEffects();
+        }
 
         foreach (TutorialEnemySpawn spawn in step.enemySpawns)
         {
@@ -184,7 +197,13 @@ public class TutorialBattleController : MonoBehaviour
 
         battleManager?.RefreshEnemiesFromScene();
     }
+    private bool ShouldClearEnemiesBeforeSpawn(TutorialBattleStep step)
+    {
+        if (step == null)
+            return false;
 
+        return step.clearExistingEnemiesBeforeSpawn;
+    }
     public void HandleBattleStarted()
     {
         if (!IsActive)

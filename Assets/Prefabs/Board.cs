@@ -26,7 +26,13 @@ public class Board : MonoBehaviour
     {
         foreach (var kv in tileDict) kv.Value.SetSelectable(false);
     }
-
+    public void ClearAllTileEffects()         // 清除所有格子的持續效果
+    {
+        foreach (var kv in tileDict)
+        {
+            kv.Value.ClearTileEffects();
+        }
+    }
     // 檢查指定格子是否有敵人佔據
     public bool IsTileOccupied(Vector2Int pos)
     {
