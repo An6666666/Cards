@@ -4,7 +4,7 @@ using UnityEngine;
 public class EnemyMouseInteractor : MonoBehaviour
 {
     private Enemy enemy;
-    private bool isMouseOver = false;
+    private bool isMouseOver;
     private readonly List<BoardTile> hoverRangeTiles = new List<BoardTile>();
     private readonly Dictionary<BoardTile, bool> hoverRangePreviousStates = new Dictionary<BoardTile, bool>();
 
@@ -26,8 +26,11 @@ public class EnemyMouseInteractor : MonoBehaviour
 
     public void HandleMouseDown()
     {
-        BattleManager bm = FindObjectOfType<BattleManager>();
-        bm.OnEnemyClicked(enemy);
+        BattleManager manager = ResolveBattleManager();
+        if (manager != null && enemy != null)
+        {
+            manager.OnEnemyClicked(enemy);
+        }
     }
 
     public void HandleMouseEnter()
@@ -45,11 +48,9 @@ public class EnemyMouseInteractor : MonoBehaviour
     public void RefreshHoverIndicator()
     {
         bool shouldShow = isMouseOver && !CardDragHandler.IsAnyCardDragging;
-
         if (!shouldShow)
         {
             HideHoverEffects();
-
             return;
         }
 
@@ -58,12 +59,8 @@ public class EnemyMouseInteractor : MonoBehaviour
 
     public bool ShouldRefreshHover()
     {
-        bool hasActiveEffect =
-        hoverRangeTiles.Count > 0;
-
-        return isMouseOver ||
-        hasActiveEffect ||
-        (CardDragHandler.IsAnyCardDragging && hasActiveEffect);
+        bool hasActiveEffect = hoverRangeTiles.Count > 0;
+        return isMouseOver || hasActiveEffect || (CardDragHandler.IsAnyCardDragging && hasActiveEffect);
     }
 
     private void ShowHoverEffects()
@@ -76,28 +73,28 @@ public class EnemyMouseInteractor : MonoBehaviour
         ClearAttackRangeHighlights();
     }
 
-    private bool IsHoverEffectActive()
-    {
-        return hoverRangeTiles.Count > 0;
-    }
-
     private void HighlightAttackRange()
     {
         ClearAttackRangeHighlights();
-
         if (enemy == null)
+        {
             return;
+        }
 
-        Board board = FindObjectOfType<Board>();
+        Board board = ResolveBoard();
         if (board == null)
+        {
             return;
+        }
 
         List<Vector2Int> offsets = enemy.Movement != null ? enemy.Movement.AttackRangeOffsets : enemy.attackRangeOffsets;
-        foreach (Vector2Int offset in offsets)
+        for (int i = 0; i < offsets.Count; i++)
         {
-            BoardTile tile = board.GetTileAt(enemy.gridPosition + offset);
+            BoardTile tile = board.GetTileAt(enemy.gridPosition + offsets[i]);
             if (tile == null)
+            {
                 continue;
+            }
 
             bool wasActive = tile.IsAttackHighlightActive();
             hoverRangePreviousStates[tile] = wasActive;
@@ -108,18 +105,38 @@ public class EnemyMouseInteractor : MonoBehaviour
 
     private void ClearAttackRangeHighlights()
     {
-        foreach (BoardTile tile in hoverRangeTiles)
+        for (int i = 0; i < hoverRangeTiles.Count; i++)
         {
+            BoardTile tile = hoverRangeTiles[i];
             if (tile == null)
+            {
                 continue;
+            }
 
             if (hoverRangePreviousStates.TryGetValue(tile, out bool wasActive))
+            {
                 tile.SetAttackHighlight(wasActive);
+            }
             else
+            {
                 tile.SetAttackHighlight(false);
+            }
         }
 
         hoverRangeTiles.Clear();
         hoverRangePreviousStates.Clear();
     }
+
+    private static BattleManager ResolveBattleManager()
+    {
+        BattleRuntimeContext context = BattleRuntimeContext.Active;
+        return context != null ? context.Manager : null;
+    }
+
+    private static Board ResolveBoard()
+    {
+        BattleRuntimeContext context = BattleRuntimeContext.Active;
+        return context != null ? context.Board : null;
+    }
 }
+

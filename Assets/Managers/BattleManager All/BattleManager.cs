@@ -1,263 +1,324 @@
-using System;                                // 使用 System 命名空間，支援序列化等基礎功能
-using System.Collections;                   // 使用非泛型集合與 IEnumerator（協程等）
-using System.Collections.Generic;           // 使用泛型集合（List<T> 等）
-using UnityEngine;                          // 使用 Unity 引擎核心 API
-using UnityEngine.UI;                       // 使用 Unity UI（Text、Button 等）
+﻿using System;                                // 雿輻 System ?賢?蝛粹?嚗?游???蝑蝷???
+using System.Collections;                   // 雿輻?????? IEnumerator嚗?蝔?嚗?
+using System.Collections.Generic;           // 雿輻瘜???嚗ist<T> 蝑?
+using UnityEngine;                          // 雿輻 Unity 撘??詨? API
+using UnityEngine.UI;                       // 雿輻 Unity UI嚗ext?utton 蝑?
 
-[Serializable]                              // 標記此類可序列化，方便在 Inspector 顯示/編輯
-public class EnemySpawnConfig               // 敵人生成的設定資料（Prefab + 數量）
+[Serializable]                              // 璅?甇日??臬???嚗靘踹 Inspector 憿舐內/蝺刻摩
+public class EnemySpawnConfig               // ?萎犖???身摰???Prefab + ?賊?嚗?
 {
-    public Enemy enemyPrefab;               // 要生成的敵人預製物
-    public int count = 1;                   // 生成此敵人數量，預設 1
+    public Enemy enemyPrefab;               // 閬????萎犖?ˊ??
+    public int count = 1;                   // ??甇斗鈭箸???身 1
 }
 
-public class BattleManager : MonoBehaviour  // 戰鬥管理器，整場戰鬥的中樞腳本（掛在場景物件）
+public class BattleManager : MonoBehaviour  // ?圈洛蝞∠??剁??游?圈洛?葉璅?穿???湔?拐辣嚗?
 {
-    [Header("Core References")]             // Inspector 區塊標題：核心參考
-    public Player player;                   // 場上的玩家物件引用
+    [Header("Core References")]             // Inspector ?憛?憿??詨???
+    public Player player;                   // ?港??摰嗥隞嗅???
     [NonSerialized] public List<Enemy> enemies = new List<Enemy>();
-    // 場上所有敵人的列表（不序列化，避免編輯器追蹤 runtime 物件）
+    // ?港???鈭箇??”嚗?摨????踹?蝺刻摩?刻蕭頩?runtime ?拐辣嚗?
 
-    public Board board;                     // 棋盤 Board 物件（管理格子）
+    public Board board;                     // 璉 Board ?拐辣嚗恣?摮?
 
-    [Header("Cards & UI")]                  // Inspector 區塊標題：卡片與 UI
-    public GameObject cardPrefab;           // 卡片 UI 的預製物
-    public Transform handPanel;             // UI：手牌區域的父物件
-    public Transform deckPile;              // UI：牌庫顯示區域（通常只顯示數字）
-    public Transform discardPile;           // UI：棄牌堆顯示區域（通常只顯示數字）
-    public Text energyText;                 // UI：顯示玩家能量的 Text
+    [Header("Cards & UI")]                  // Inspector ?憛?憿??∠???UI
+    public GameObject cardPrefab;           // ?∠? UI ??鋆賜
+    public Transform handPanel;             // UI嚗??????嗥隞?
+    public Transform deckPile;              // UI嚗?摨恍＊蝷箏????虜?芷＊蝷箸摮?
+    public Transform discardPile;           // UI嚗???憿舐內????虜?芷＊蝷箸摮?
+    public Text energyText;                 // UI嚗＊蝷箇摰嗉?? Text
     [SerializeField] private Button endTurnButton;
-    // UI：「結束回合」按鈕（私有但可在 Inspector 指定）
+    // UI嚗???????蝘?雿??Inspector ??嚗?
 
-    [Header("Initial Setup")]               // Inspector 區塊標題：初始設定
+    [Header("Initial Setup")]               // Inspector ?憛?憿???閮剖?
     public List<EnemySpawnConfig> enemySpawnConfigs = new List<EnemySpawnConfig>();
-    // 初始戰鬥遭遇的敵人生成配置（可在 Inspector 設定）
+    // ???圈洛?剝??鈭箇???蝵殷??臬 Inspector 閮剖?嚗?
 
     public Vector2Int playerStartPos = Vector2Int.zero;
-    // 玩家在棋盤上的起始格子座標（預設 0,0）
+    // ?拙振?冽??支??絲憪摮漣璅??身 0,0嚗?
     [Header("Tutorial")]
     [SerializeField] private TutorialBattleController tutorialController;
     private readonly BattleStateMachine stateMachine = new BattleStateMachine();
-    // 戰鬥狀態機，負責管理 PlayerTurn/EnemyTurn/Victory/Defeat 等狀態
+    // ?圈洛???嚗?鞎祉恣??PlayerTurn/EnemyTurn/Victory/Defeat 蝑???
 
-    [Header("Guaranteed Cards")]            // Inspector 區塊標題：保證卡（例如保證一張移動卡）
+    [Header("Guaranteed Cards")]            // Inspector ?憛?憿?靽??∴?靘?靽?銝撘萇宏?嚗?
     public Move_YiDong guaranteedMovementCard;
-    // 保證會給玩家的一張「移動卡」樣板（ScriptableObject）
+    // 靽??策?拙振??撘萸宏??見?選?ScriptableObject嚗?
 
     private Move_YiDong guaranteedMovementCardInstance;
-    // 在這場戰鬥中真正使用的「保證移動卡」實例（從樣板 Clone）
+    // ?券?圈洛銝剔?甇?蝙?函???霅宏??祕靘?敺見??Clone嚗?
 
-    [Header("Rewards")]                     // Inspector 區塊標題：戰利品/獎勵
+    [Header("Rewards")]                     // Inspector ?憛?憿??啣???
     public List<CardBase> allCardPool = new List<CardBase>();
-    // 所有可能作為勝利獎勵的卡池列表
+    // ???賭??箏??拍??萇??⊥??”
 
-    public RewardUI rewardUIPrefab;         // 勝利後顯示獎勵的 UI 預製物
+    public RewardUI rewardUIPrefab;         // ?敺＊蝷箇??萇? UI ?ˊ??
 
-    [Header("Timings")]                     // Inspector 區塊標題：時間相關設定
-    public float cardUseDelay = 0f;         // 使用卡片後，解鎖卡片互動的延遲秒數
+    [Header("Timings")]                     // Inspector ?憛?憿????賊?閮剖?
+    public float cardUseDelay = 0f;         // 雿輻?∠?敺?閫???∠?鈭??辣?脩???
 
-    private bool battleStarted = false;     // 戰鬥是否已經開始（開始前不觸發勝負判定）
+    private bool battleStarted = false;     // ?圈洛?臬撌脩???嚗?憪?銝孛?澆?鞎摰?
 
-    private BattleEncounterLoader encounterLoader;      // 負責載入戰鬥遭遇/生成敵人/選起始格的控制器
-    private BattleTurnController turnController;        // 管理回合流程（玩家回合與敵人回合）的控制器
-    private BattleHandUIController handUIController;    // 管理手牌 UI 與能量顯示的控制器
+    private BattleEncounterLoader encounterLoader;      // 鞎痊頛?圈洛?剝?/???萎犖/?貉絲憪??嗅
+    private BattleTurnController turnController;        // 蝞∠???瘚?嚗摰嗅????萎犖??嚗??批??
+    private BattleHandUIController handUIController;    // 蝞∠??? UI ??＊蝷箇??批??
     private MovementSelectionController movementSelectionController;
-    // 管理「移動卡」選格與移動邏輯的控制器
+    // 蝞∠??宏???潸?蝘餃??摩??嗅
 
     private AttackSelectionController attackSelectionController;
-    // 管理「攻擊卡」選取敵人目標的控制器
+    // 蝞∠?????鈭箇璅??批??
 
     private BattleRewardController rewardController;
-    // 管理敵人死亡計數與勝利獎勵 UI 的控制器
+    private BattleRuntimeContext runtimeContext;
+    private IEnemyQueryService enemyQueryService;
+    private PlayerDeckController playerDeckController;
+    // 蝞∠??萎犖甇颱滿閮???拍???UI ??嗅
 
     public bool BattleStarted => battleStarted;
-    // 公開唯讀屬性：目前戰鬥是否已開始
+    // ?祇??航?撅祆改??桀??圈洛?臬撌脤?憪?
 
     public BattleStateMachine StateMachine => stateMachine;
-    // 公開唯讀屬性：提供外部存取戰鬥狀態機（例如狀態判斷）
+    // ?祇??航?撅祆改???憭摮??圈洛???嚗?憒???瘀?
     public TutorialBattleController TutorialController => tutorialController;
     public bool IsProcessingEnemyTurnStart => turnController != null && turnController.IsProcessingEnemyTurnStart;
-    // 是否正在處理敵方回合開始（提供給其他系統判斷時機用）
+    // ?臬甇????菜????嚗?靘策?嗡?蝟餌絞?斗???剁?
 
     public bool IsCardInteractionLocked => handUIController != null && handUIController.IsCardInteractionLocked;
-    // 是否目前卡片互動被鎖定（給 CardUI 同步互動權限用）
+    public BattleRuntimeContext RuntimeContext => runtimeContext;
+    public IEnemyQueryService EnemyQueryService => enemyQueryService;
+    // ?臬?桀??∠?鈭?鋡恍?摰?蝯?CardUI ?郊鈭?甈??剁?
 
     void Awake()
     {
+        ResolveTutorialController();
+        // 靘?桀? Run 蝭暺??剝?鞈?嚗捱摰?圈洛?臬??飛璅∪?
+        InitializeControllers();                            // ????蝔桀??批?剁?Hand?ovement?ttack?eward?ncounter?urn嚗?
+        handUIController.SetEndTurnButtonInteractable(false);
+        // 銝???????????身?箔??舫?嚗??圈洛甇??????嚗?
+
+        encounterLoader.LoadEncounterFromRunManager();
+        ConfigureTutorialForActiveEncounter();
+        // 敺?RunManager ?桀?蝭暺??仿?身摰?憛?enemySpawnConfigs
+    }
+    private void ResolveTutorialController()
+    {
+        if (tutorialController != null)
+        {
+            return;
+        }
+
+        tutorialController = GetComponentInChildren<TutorialBattleController>(true);
         if (tutorialController == null)
         {
             tutorialController = FindObjectOfType<TutorialBattleController>();
         }
-        ConfigureTutorialForActiveEncounter();
-        // 依照目前 Run 節點的遭遇資料，決定這場戰鬥是否啟用教學模式
-        InitializeControllers();                            // 初始化各種子控制器（Hand、Movement、Attack、Reward、Encounter、Turn）
-        handUIController.SetEndTurnButtonInteractable(false);
-        // 一開始先把「結束回合」按鈕設為不可點（等戰鬥正式開始才開）
-
-        encounterLoader.LoadEncounterFromRunManager();
-        // 從 RunManager 目前節點載入遭遇設定，填 enemySpawnConfigs
     }
     private void ConfigureTutorialForActiveEncounter()
     {
+        ResolveTutorialController();
+
         if (tutorialController == null)
-        return;
-        // 沒有教學控制器就不處理，戰鬥維持一般模式
+        {
+            return;
+        }
+        // 瘝??飛?批?典停銝????圈洛蝬剜?銝?祆芋撘?
 
         RunEncounterDefinition encounter = RunManager.Instance?.ActiveNode?.Encounter;
         bool enableTutorial = encounter != null && encounter.UseTutorialBattle;
         TutorialBattleDefinition definition = enableTutorial ? encounter.TutorialBattleDefinition : null;
-        // 由遭遇定義決定是否啟用教學，並帶入本場戰鬥要使用的教學內容
+        // ?梢??蝢拇捱摰?血??冽?摮賂?銝血葆?交?湔擛亥?雿輻??摮詨摰?
         tutorialController.ConfigureForBattle(enableTutorial, definition);
-        // 在 Battle 初始化前先完成配置，後續 Encounter/Turn 控制器可直接讀 IsActive
+        // ??Battle ????????蝵殷?敺? Encounter/Turn ?批?典?湔霈 IsActive
     }
     void Start()
     {
         StartCoroutine(encounterLoader.GameStartRoutine());
-        // 開始戰鬥起始協程：選玩家起始格 → 生成敵人 → 切換到玩家回合等
+        // ???圈洛韏瑕???嚗?拙振韏瑕????????萎犖 ?????啁摰嗅???
     }
 
     void Update()
     {
-        stateMachine.Update();                              // 每幀更新戰鬥狀態機（讓當前狀態有機會執行邏輯）
+        stateMachine.Update();                              // 瘥??湔?圈洛???嚗??嗅????璈??瑁??摩嚗?
 
-        if (!battleStarted) return;                         // 若戰鬥尚未開始，不進行勝敗判斷
+        if (!battleStarted) return;                         // ?交擛亙??芷?憪?銝脰????斗
 
         enemies.RemoveAll(e => e == null);
-        // 移除列表中已被 Destroy 的敵人（避免 Null 引用）
+        // 蝘駁?”銝剖歇鋡?Destroy ?鈭綽??踹? Null 撘嚗?
 
         bool allDead = enemies.Count == 0 || enemies.TrueForAll(e => e.currentHP <= 0);
-        // allDead 條件：1) 敵人數量為 0，或 2) 所有敵人 currentHP <= 0
+        // allDead 璇辣嚗?) ?萎犖?賊???0嚗? 2) ??鈭?currentHP <= 0
 
         if (allDead && !(stateMachine.Current is VictoryState))
         {
             stateMachine.ChangeState(new VictoryState(this));
-            // 若全部敵人死亡，且目前不是勝利狀態 → 切換到 VictoryState
+            // ?亙?冽鈭箸香鈭∴?銝???臬??拍?????????VictoryState
         }
 
         if (player.currentHP <= 0 && !(stateMachine.Current is DefeatState))
         {
             stateMachine.ChangeState(new DefeatState(this));
-            // 若玩家血量歸 0，且目前不是失敗狀態 → 切換到 DefeatState
+            // ?亦摰嗉??飛 0嚗??桀?銝憭望??????????DefeatState
         }
     }
 
     public void StartPlayerTurn()
     {
-        turnController.StartPlayerTurn();                   // 委託 BattleTurnController 處理「玩家回合開始」
+        turnController.StartPlayerTurn();                   // 憪? BattleTurnController ???摰嗅???憪?
     }
 
     public void EndPlayerTurn()
     {
-        turnController.EndPlayerTurn();                     // 委託 BattleTurnController 處理「玩家回合結束 → 切到敵人回合」
+        turnController.EndPlayerTurn();                     // 憪? BattleTurnController ???摰嗅?????????萎犖????
     }
 
     public IEnumerator EnemyTurnCoroutine()
     {
-        return turnController.EnemyTurnCoroutine();         // 由 BattleTurnController 提供敵人回合協程
+        return turnController.EnemyTurnCoroutine();         // ??BattleTurnController ???萎犖????
     }
 
     public void UseMovementCard(CardBase movementCard)
     {
         movementSelectionController.UseMovementCard(movementCard);
-        // 委託 MovementSelectionController，開始移動卡的選格流程
+        // 憪? MovementSelectionController嚗?憪宏???潭?蝔?
     }
 
     public void CancelMovementSelection()
     {
         movementSelectionController.CancelMovementSelection();
-        // 取消目前的移動選格流程，關閉高亮與可選標記
+        // ???桀??宏??潭?蝔???擃漁??豢?閮?
     }
     
     public bool OnTileClicked(BoardTile tile)
     {
         return movementSelectionController.OnTileClicked(tile);
-        // 棋盤格子被點擊時，交給 MovementSelectionController 處理（包含起始格選擇與移動選格）
+        // 璉?澆?鋡恍???嚗漱蝯?MovementSelectionController ??嚗??怨絲憪?豢??宏??潘?
     }
 
     public void StartAttackSelect(CardBase attackCard)
     {
-        attackSelectionController.StartAttackSelect(attackCard);
-        // 玩家開始使用攻擊卡時，委託 AttackSelectionController 進入「選敵人目標」狀態
+        if (!TryCreateAttackSelectionRequest(attackCard, out AttackSelectionRequest request))
+        {
+            return;
+        }
+
+        StartAttackSelect(request);
+    }
+
+    public void StartAttackSelect(AttackSelectionRequest request)
+    {
+        attackSelectionController.StartAttackSelect(request);
     }
 
     public bool OnEnemyClicked(Enemy e)
     {
         return attackSelectionController.OnEnemyClicked(e);
-        // 敵人被點擊時，交由 AttackSelectionController 判斷是否為有效攻擊目標並執行效果
+        // ?萎犖鋡恍???嚗漱??AttackSelectionController ?斗?臬?箸???璅蒂?瑁???
     }
 
     public void UpdateAttackHover(Vector2 worldPosition)
     {
         attackSelectionController.UpdateAttackHover(worldPosition);
-        // 拖曳攻擊卡時，更新滑鼠瞄準目標的高亮與狀態
+        // ??餅??⊥?嚗?唳?曌?皞璅?擃漁????
     }
 
     public void EndAttackSelect()
     {
         attackSelectionController.EndAttackSelect();
-        // 外部可呼叫強制結束攻擊選取（取消高亮）
+        // 憭?臬?怠撥?嗥???????擃漁嚗?
+    }
+
+    private bool TryCreateAttackSelectionRequest(CardBase attackCard, out AttackSelectionRequest request)
+    {
+        request = default;
+
+        if (attackCard == null || player == null || player.Hand == null)
+        {
+            return false;
+        }
+
+        if (!player.Hand.Contains(attackCard))
+        {
+            return false;
+        }
+
+        int finalCost = CalculateCardEnergyCost(attackCard);
+        if (player.energy < finalCost)
+        {
+            Debug.Log("Not enough energy");
+            return false;
+        }
+
+        request = new AttackSelectionRequest(attackCard, finalCost, Time.unscaledTime);
+        return true;
+    }
+
+    private int CalculateCardEnergyCost(CardBase cardData)
+    {
+        if (cardData == null || player == null)
+        {
+            return 0;
+        }
+
+        int finalCost = cardData.cost + player.GetCardCostModifier(cardData);
+
+        if (cardData.cardType == CardType.Attack)
+        {
+            finalCost += player.buffs.nextAttackCostModify;
+        }
+
+        if (cardData.cardType == CardType.Movement)
+        {
+            finalCost += player.buffs.movementCostModify;
+        }
+
+        return Mathf.Max(0, finalCost);
     }
 
     public void OnEnemyDefeated(Enemy e)
     {
         rewardController.OnEnemyDefeated(e);
-        // 某個敵人死亡時呼叫，讓 BattleRewardController 累積擊殺數與金幣
+        // ?鈭箸香鈭⊥??澆嚗? BattleRewardController 蝝舐??捏?貉??馳
     }
 
     public void ShowVictoryRewards()
     {
         rewardController.ShowVictoryRewards();
-        // 戰鬥勝利時呼叫，顯示獎勵 UI（加金幣 + 選卡獎勵）
+        // ?圈洛???恬?憿舐內? UI嚗??馳 + ?詨?嚗?
     }
 
     /// <summary>
-    /// 玩卡：處理費用、執行效果、棄牌、更新 UI
+    /// ?拙嚗??祥?具銵??????UI
     /// </summary>
     public bool PlayCard(CardBase cardData)
     {
         if (!(stateMachine.Current is PlayerTurnState)) return false;
-        // 只有在玩家回合才能出牌，否則失敗
+        // ?芣??函摰嗅????賢???血?憭望?
 
-        if (cardData == null) return false;                 // 傳入卡片資料為空，直接失敗
+        if (cardData == null) return false;                 // ?喳?∠?鞈??箇征嚗?亙仃??
         if (player == null || player.Hand == null) return false;
-        // 玩家或手牌列表不存在，直接失敗
+        // ?拙振????銵其?摮嚗?亙仃??
 
         if (!player.Hand.Contains(cardData)) return false;
-        // 這張卡不在手牌內（可能來自別的地方），直接失敗
+        // ?撐?∩??冽??嚗?賭??芸??對?嚗?亙仃??
 
-        // 計算最終費用 (包含 Buff 修改)
-        int finalCost = cardData.cost + player.GetCardCostModifier(cardData);
-        // 基礎 cost + 玩家針對這張卡的額外費用修正
-
-        if (cardData.cardType == CardType.Attack && player.buffs.nextAttackCostModify != 0)
-        {
-            finalCost += player.buffs.nextAttackCostModify;
-            // 若是攻擊卡，且有「下一次攻擊費用修正」，則加上或減去
-        }
-        if (cardData.cardType == CardType.Movement && player.buffs.movementCostModify != 0)
-        {
-            finalCost += player.buffs.movementCostModify;
-            // 若是移動卡，且有「移動卡費用修正」，則加上或減去
-        }
-        finalCost = Mathf.Max(0, finalCost);               // 確保費用不會小於 0
+        int finalCost = CalculateCardEnergyCost(cardData);
 
         if (player.energy < finalCost)
         {
-            Debug.Log("Not enough energy");                // 能量不足，無法使用此卡
+            Debug.Log("Not enough energy");                // ?賡?銝雲嚗瘜蝙?冽迨??
             return false;
         }
 
         if (cardData is Skill_ZhiJiao && !player.HasExhaustableCardInHand(cardData))
         {
-            Debug.Log("No exhaustable cards in hand for 擲筊");
+            Debug.Log("No exhaustable cards in hand for ?脩?");
             return false;
         }
 
         Enemy target = enemies.Find(e => e != null && e.currentHP > 0);
-        // 這裡簡單選擇第一個仍存活的敵人作為目標（若卡片沒自己處理目標）
+        // ?ㄐ蝪∪?豢?蝚砌???摮暑?鈭箔??箇璅??亙???芸楛???格?嚗?
         if (target != null)
         {
-            FaceUtils.Face(player.gameObject, target.transform);        // 再面向
+            FaceUtils.Face(player.gameObject, target.transform);        // ???
         }
         List<ElementType> targetElementsBefore = null;
         if (target != null)
@@ -265,7 +326,7 @@ public class BattleManager : MonoBehaviour  // 戰鬥管理器，整場戰鬥的
             targetElementsBefore = new List<ElementType>(target.GetElementTags());
         }
         cardData.ExecuteEffect(player, target);
-        // 執行卡片效果，由卡本身實作（增加護甲、造成傷害、上狀態等）
+        // ?瑁??∠???嚗?⊥頨怠祕雿?憓?霅瑞???瑕拿?????嚗?
         List<ElementType> targetElementsAfter = null;
         if (target != null)
         {
@@ -273,50 +334,50 @@ public class BattleManager : MonoBehaviour  // 戰鬥管理器，整場戰鬥的
         }
         if (cardData.cardType == CardType.Attack && player.buffs.nextAttackPlus > 0)
         {
-            player.buffs.nextAttackPlus = 0;               // 用掉一次攻擊加成後，把 nextAttackPlus 歸零
+            player.buffs.nextAttackPlus = 0;               // ?冽?銝甈⊥????嚗? nextAttackPlus 甇賊
         }
 
-        // 若手牌中仍含此卡，則移至棄牌堆
+        // ?交??葉隞甇文嚗?蝘餉璉???
         bool isGuaranteedMovement = IsGuaranteedMovementCard(cardData);
-        // 判斷這張卡是否為「保證移動卡」
+        // ?斗?撐?⊥?衣??霅宏???
 
         bool removedFromHand = player.Hand.Remove(cardData);
-        // 先從手牌中移除這張卡（若存在）
+        // ????銝剔宏?日撐?∴??亙??剁?
 
         if (removedFromHand)
         {
             player.ClearCardCostModifier(cardData);
-            // 有成功從手牌移除才清除此卡的費用修正紀錄
+            // ??????蝘駁???斗迨?∠?鞎餌靽格迤蝝??
 
             if (isGuaranteedMovement)
             {
                 RemoveGuaranteedMovementCardFromPiles();
-                // 若此卡是保證移動卡，從牌庫與棄牌堆中移除所有 YiDong（避免重複）
+                // ?交迨?⊥靽?蝘餃??∴?敺?摨怨?璉??葉蝘駁???YiDong嚗??銴?
             }
             else if (cardData.exhaustOnUse)
             {
                 player.ExhaustCard(cardData);
-                // 一次性卡：使用後進 Exhaust 區（戰鬥中不再返回）
+                // 銝甈⊥批嚗蝙?典???Exhaust ?嚗擛乩葉銝?餈?嚗?
             }
             else
             {
                 player.discardPile.Add(cardData);
-                // 一般卡：使用後加入玩家棄牌堆
+                // 銝?砍嚗蝙?典???拙振璉???
             }
         }
         else if (isGuaranteedMovement)
         {
             RemoveGuaranteedMovementCardFromPiles();
-            // 極端狀況：手牌裡沒有找到，但又是保證移動卡 → 保險再清牌庫/棄牌中的 YiDong
+            // 璆萇垢?瘜???鋆⊥???堆?雿??臭?霅宏? ??靽???澈/璉?銝剔? YiDong
         }
 
-        player.UseEnergy(finalCost);                       // 扣除玩家能量
-        GameEvents.RaiseCardPlayed(cardData);              // 觸發「卡片已被打出」事件，方便其他系統監聽
+        player.UseEnergy(finalCost);                       // ???拙振?賡?
+        GameEvents.RaiseCardPlayed(cardData);              // 閫貊??歇鋡急??箝?隞塚??嫣噶?嗡?蝟餌絞??
         GameEvents.RaiseCardPlayedWithContext(
         new CardPlayContext(cardData, target, targetElementsBefore, targetElementsAfter));
         if (removedFromHand)
-        handUIController.UpdateHandMetaUI();          // 更新能量與牌庫/棄牌顯示
-        return true;                                       // 成功打出卡片
+        handUIController.UpdateHandMetaUI();          // ?湔?賡???摨?璉?憿舐內
+        return true;                                       // ????∠?
     }
     public void HandleCardUsedUI(CardUI usedUI)
     {
@@ -325,20 +386,20 @@ public class BattleManager : MonoBehaviour  // 戰鬥管理器，整場戰鬥的
     public void RefreshHandUI(bool playDrawAnimation = false)
     {
         handUIController.RefreshHandUI(playDrawAnimation);
-        // 封裝給外部用：呼叫 HandUIController 重新整理手牌（可選是否播抽牌動畫）
+        // 撠?蝯血??函嚗??HandUIController ??渡???嚗?豢?行?賜??嚗?
     }
 
     internal void EnsureMovementCardInHand()
     {
-        if (player == null) return;                        // 沒有玩家就不用處理
+        if (player == null) return;                        // 瘝??拙振撠曹??刻???
 
         Move_YiDong movementCard = GetGuaranteedMovementCardInstance();
-        // 拿到保證移動卡的實例（若還沒建立會 Instantiate 一個）
+        // ?踹靽?蝘餃??∠?撖虫?嚗??撱箇???Instantiate 銝??
 
-        if (movementCard == null) return;                  // 若沒有配置樣板，直接返回
+        if (movementCard == null) return;                  // ?交???蝵格見?選??湔餈?
 
         RemoveGuaranteedMovementCardFromPiles();
-        // 先從牌庫與棄牌堆移除所有 YiDong（避免重複）
+        // ???澈????蝘駁???YiDong嚗??銴?
 
         int removedDuplicateCount = 0;
         for (int i = player.Hand.Count - 1; i >= 0; i--)
@@ -346,92 +407,91 @@ public class BattleManager : MonoBehaviour  // 戰鬥管理器，整場戰鬥的
             CardBase card = player.Hand[i];
             if (card is Move_YiDong && !ReferenceEquals(card, movementCard))
             {
-                player.Hand.RemoveAt(i);                   // 移除手牌中其它 YiDong 實例（只保留唯一那張）
-                removedDuplicateCount++;                   // 記錄被移除的數量
+                player.Hand.RemoveAt(i);                   // 蝘駁??銝剖摰?YiDong 撖虫?嚗靽??臭???撐嚗?
+                removedDuplicateCount++;                   // 閮?鋡怎宏?斤??賊?
             }
         }
 
         if (!player.Hand.Contains(movementCard))
         {
-            player.Hand.Add(movementCard);                 // 若手牌中沒有這張保證卡，就放進手牌
+            player.Hand.Add(movementCard);                 // ?交??葉瘝??撐靽??∴?撠望?脫???
         }
 
         if (removedDuplicateCount > 0)
         {
             player.DrawCards(removedDuplicateCount);
-            // 若為了去重而移除了多張 YiDong，就補抽同數量的其他牌給玩家
+            // ?亦鈭?宏?支?憭撐 YiDong嚗停鋆????嗡??策?拙振
         }
     }
 
     internal void DiscardAllHand()
     {
         Move_YiDong movementCard = guaranteedMovementCardInstance;
-        // 取得保證移動卡的實例（若有）
+        // ??靽?蝘餃??∠?撖虫?嚗??
 
         if (movementCard != null)
         {
             player.Hand.Remove(movementCard);
-            // 先從手牌中移除保證移動卡（如果存在）
+            // ????銝剔宏?支?霅宏?嚗????剁?
 
             player.discardPile.Remove(movementCard);
-            // 確保棄牌堆中不會留著這張保證卡
+            // 蝣箔?璉??葉銝????撐靽???
         }
 
         player.discardPile.AddRange(player.Hand);
-        // 把剩餘手牌全部丟到棄牌堆中
+        // ?擗???其??唳???銝?
 
         player.Hand.Clear();
-        // 清空手牌列表
+        // 皜征???”
 
         RemoveGuaranteedMovementCardFromPiles();
-        // 重新清理牌庫與棄牌堆中所有 YiDong（防止殘留）
+        // ?皜??澈????銝剜???YiDong嚗甇Ｘ???
 
         handUIController.RefreshHandUI();
-        // 更新 UI，顯示新的手牌狀態
+        // ?湔 UI嚗＊蝷箸??????
     }
 
     internal void SetBattleStarted(bool value)
     {
-        battleStarted = value;                             // 由外部設定戰鬥是否已開始
+        battleStarted = value;                             // ?勗??刻身摰擛交?血歇??
     }
 
     internal void SetEndTurnButtonInteractable(bool value)
     {
         handUIController.SetEndTurnButtonInteractable(value);
-        // 透過 HandUIController 控制「結束回合」按鈕是否可互動
+        // ?? HandUIController ?批????????血鈭?
     }
     public void RefreshEnemiesFromScene()
     {
-        enemies.Clear();
-        enemies.AddRange(FindObjectsOfType<Enemy>());
+        Enemy.FillActiveEnemies(enemies);
     }
     internal bool IsGuaranteedMovementCard(CardBase card)
     {
         if (card == null)
-            return false;                                  // 空卡一定不是
+            return false;                                  // 蝛箏銝摰???
 
         Move_YiDong instance = GetGuaranteedMovementCardInstance();
         if (instance == null)
-            return false;                                  // 若根本沒設定保證卡樣板，也直接判 false
+            return false;                                  // ?交?祆?閮剖?靽??⊥見?選?銋?亙 false
 
         if (ReferenceEquals(card, instance))
-            return true;                                   // 若就是那個實例，則為保證移動卡
+            return true;                                   // ?亙停?舫?祕靘??靽?蝘餃???
 
         if (guaranteedMovementCard != null && ReferenceEquals(card, guaranteedMovementCard))
-            return true;                                   // 有時候也可能直接引用樣板本身
+            return true;                                   // ?????航?湔撘璅??祈澈
 
-        return false;                                     // 其他情況都不是保證移動卡
+        return false;                                     // ?嗡????賭??臭?霅宏?
     }
 
     internal void RemoveGuaranteedMovementCardFromPiles()
     {
-        if (player == null) return;                       // 沒玩家就不用處理
+        if (player == null) return;                       // 瘝摰嗅停銝??
 
         player.deck.RemoveAll(card => card is Move_YiDong);
-        // 從牌庫移除所有 YiDong 類型的卡
+        // 敺?摨怎宏?斗???YiDong 憿??
 
         player.discardPile.RemoveAll(card => card is Move_YiDong);
-        // 從棄牌堆移除所有 YiDong 類型的卡
+        // 敺???蝘駁???YiDong 憿??
     }
 
     private Move_YiDong GetGuaranteedMovementCardInstance()
@@ -441,68 +501,116 @@ public class BattleManager : MonoBehaviour  // 戰鬥管理器，整場戰鬥的
             if (guaranteedMovementCard == null)
             {
                 Debug.LogWarning("Guaranteed movement card template is not assigned.");
-                // 若沒有在 Inspector 指定樣板，就警告一下
+                // ?交?? Inspector ??璅?嚗停霅血?銝銝?
                 return null;
             }
 
             guaranteedMovementCardInstance = Instantiate(guaranteedMovementCard);
-            // 以樣板 Instantiate 出一個實際戰鬥用的 ScriptableObject 實例
+            // 隞交見??Instantiate ?箔??祕?擛亦??ScriptableObject 撖虫?
         }
 
-        return guaranteedMovementCardInstance;            // 回傳此實例（之後都共用這一份）
+        return guaranteedMovementCardInstance;            // ?甇文祕靘?銋??賢?券?隞踝?
     }
 
     private void InitializeControllers()
     {
+        runtimeContext = new BattleRuntimeContext(this, player, board, enemies);
+        runtimeContext.Activate();
+        enemyQueryService = new BattleEnemyQueryService(runtimeContext);
+
         handUIController = new BattleHandUIController(
-            this,                                          // 傳入 BattleManager 本身
-            player,                                        // 傳入玩家
-            cardPrefab,                                    // 卡片 UI 預製物
-            handPanel,                                     // 手牌 UI 容器
-            deckPile,                                      // 牌庫顯示區
-            discardPile,                                   // 棄牌堆顯示區
-            energyText,                                    // 能量文字
-            endTurnButton,                                 // 結束回合按鈕
-            cardUseDelay);                                 // 使用卡片後延遲秒數
+            this,                                          // ?喳 BattleManager ?祈澈
+            player,                                        // ?喳?拙振
+            cardPrefab,                                    // ?∠? UI ?ˊ??
+            handPanel,                                     // ?? UI 摰孵
+            deckPile,                                      // ?澈憿舐內?
+            discardPile,                                   // 璉??＊蝷箏?
+            energyText,                                    // ?賡???
+            endTurnButton,                                 // 蝯?????
+            cardUseDelay);                                 // 雿輻?∠?敺辣?脩???
 
         movementSelectionController = new MovementSelectionController(
             this,                                          // BattleManager
-            player,                                        // 玩家
-            board,                                         // 棋盤
-            handUIController);                             // 用來在移動時更新 UI 或鎖卡互動
+            player,                                        // ?拙振
+            board,                                         // 璉
+            handUIController);                             // ?其??函宏???湔 UI ???∩???
 
         attackSelectionController = new AttackSelectionController(
-            player,                                        // 玩家
-            board,                                         // 棋盤（攻擊範圍高亮）
+            player,                                        // ?拙振
+            board,                                         // 璉嚗????鈭殷?
             handUIController,
-            this // BattleManager 是 MonoBehaviour，可當 coroutine host
-            );                             // 用來在攻擊後更新手牌 UI
+            this,
+            enemyQueryService
+            );                             // ?其??冽???湔?? UI
 
         rewardController = new BattleRewardController(
             this,                                          // BattleManager
-            player,                                        // 玩家（加金幣）
-            allCardPool,                                   // 所有獎勵卡池
-            rewardUIPrefab,                                // 獎勵 UI 預製物
-            handPanel);                                    // 以手牌所在 Canvas 為父層生成 UI
+            player,                                        // ?拙振嚗??馳嚗?
+            allCardPool,                                   // ????萄瘙?
+            rewardUIPrefab,                                // ? UI ?ˊ??
+            handPanel);                                    // 隞交?????Canvas ?箇撅斤???UI
 
         encounterLoader = new BattleEncounterLoader(
             this,                                          // BattleManager
-            board,                                         // 棋盤
-            player,                                        // 玩家
-            enemies,                                       // 敵人列表（之後會被填入場上敵人）
-            enemySpawnConfigs,                             // 生成敵人的設定列表
-            stateMachine,                                  // 戰鬥狀態機（開局後切到 PlayerTurn）
-            tutorialController);                           // 教學控制器（可為 null）
+            board,                                         // 璉
+            player,                                        // ?拙振
+            enemies,                                       // ?萎犖?”嚗?敺?鋡怠‵?亙銝鈭綽?
+            enemySpawnConfigs,                             // ???萎犖?身摰?銵?
+            stateMachine,                                  // ?圈洛???嚗?撅敺???PlayerTurn嚗?
+            tutorialController);                           // ?飛?批?剁??舐 null嚗?
 
         movementSelectionController.SetEncounterLoader(encounterLoader);
-        // 告訴 MovementSelectionController：初期還要處理「起始格選擇」的邏輯
+        // ?迄 MovementSelectionController嚗???閬??絲憪?豢????摩
 
         turnController = new BattleTurnController(
             this,                                          // BattleManager
-            player,                                        // 玩家
-            enemies,                                       // 敵人列表
-            stateMachine,                                  // 戰鬥狀態機
-            handUIController,                              // 需要控制手牌 UI（例如鎖卡、抽牌、開關按鈕）
-            tutorialController);                           // 教學控制器（可為 null）
+            player,                                        // ?拙振
+            enemies,                                       // ?萎犖?”
+            stateMachine,                                  // ?圈洛???
+            handUIController,                              // ?閬?嗆???UI嚗?憒??～??????
+            tutorialController);                           // ?飛?批?剁??舐 null嚗?
+
+        PlayerDeckController deckController = player != null ? player.GetComponent<PlayerDeckController>() : null;
+        playerDeckController = deckController;
+        if (playerDeckController != null)
+        {
+            playerDeckController.ConfigureBattleRuntime(this, runtimeContext);
+            playerDeckController.HandChanged -= HandlePlayerHandChanged;
+            playerDeckController.HandChanged += HandlePlayerHandChanged;
+            playerDeckController.DeckChanged -= HandlePlayerDeckChanged;
+            playerDeckController.DeckChanged += HandlePlayerDeckChanged;
+        }
+    }
+
+    private void OnDestroy()
+    {
+        runtimeContext?.DeactivateIfOwner(this);
+
+        if (player != null)
+        {
+            if (playerDeckController == null)
+            {
+                playerDeckController = player.GetComponent<PlayerDeckController>();
+            }
+
+            if (playerDeckController != null)
+            {
+                playerDeckController.HandChanged -= HandlePlayerHandChanged;
+                playerDeckController.DeckChanged -= HandlePlayerDeckChanged;
+                playerDeckController.ClearBattleRuntime(this);
+            }
+        }
+    }
+
+    private void HandlePlayerHandChanged()
+    {
+        handUIController?.RefreshHandUI();
+    }
+
+    private void HandlePlayerDeckChanged()
+    {
+        handUIController?.UpdateDeckDiscardUI();
     }
 }
+
+

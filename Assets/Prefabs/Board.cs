@@ -36,9 +36,12 @@ public class Board : MonoBehaviour
     // 檢查指定格子是否有敵人佔據
     public bool IsTileOccupied(Vector2Int pos)
     {
-        Enemy[] enemies = FindObjectsOfType<Enemy>();
-        foreach (var e in enemies)
+        IReadOnlyList<Enemy> enemies = BattleRuntimeContext.Active?.Enemies;
+        if (enemies == null) return false;
+
+        for (int i = 0; i < enemies.Count; i++)
         {
+            Enemy e = enemies[i];
             if (e.gridPosition == pos) return true;
         }
         return false;

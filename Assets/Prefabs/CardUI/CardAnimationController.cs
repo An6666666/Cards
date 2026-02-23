@@ -160,6 +160,9 @@ public class CardAnimationController : MonoBehaviour
         Vector3 targetScale = cardUI.OriginalLocalScale;
         Vector2 startingAnchoredPosition = targetAnchoredPosition;
 
+        // Keep hover return baseline pinned to the in-hand target while draw animation runs.
+        cardUI.OriginalAnchoredPosition = targetAnchoredPosition;
+
         if (deckOrigin != null)
         {
             Vector3 deckWorldCenter = deckOrigin.TransformPoint(deckOrigin.rect.center);
@@ -320,6 +323,9 @@ public class CardAnimationController : MonoBehaviour
     {
         isPlayingDrawAnimation = false;
         drawAnimationTweenCount = 0;
+
+        if (cardUI != null && cardUI.VisualRect != null)
+            cardUI.OriginalAnchoredPosition = cardUI.VisualRect.anchoredPosition;
 
         if (dragHandler != null)
             dragHandler.AllowDragging = cardUI.CurrentDisplayContext == CardUI.DisplayContext.Hand && allowDraggingBeforeDraw;

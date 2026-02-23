@@ -7,30 +7,75 @@ public class RunHUD_Text : MonoBehaviour
     [SerializeField] private Text hpText;
     [SerializeField] private Text goldText;
 
+    [Header("References")]
+    [SerializeField] private RunManager runManager;
+    [SerializeField] private Player player;
+
     [Header("Options")]
     [SerializeField] private bool showHpAsCurrentSlashMax = true;
 
-    private Player player;
-    private RunManager runManager;
-
-    private void Awake()
+    private void OnEnable()
     {
-        runManager = FindObjectOfType<RunManager>();
-        player = FindObjectOfType<Player>();
+        ResolveReferences();
+        Subscribe();
         Refresh();
     }
 
-    private void Update()
+    private void OnDisable()
     {
-        if (runManager == null) runManager = FindObjectOfType<RunManager>();
-        if (player == null) player = FindObjectOfType<Player>();
+        Unsubscribe();
+    }
 
+    private void ResolveReferences()
+    {
+        if (runManager == null)
+        {
+            runManager = RunManager.Instance;
+        }
+
+        if (player == null && runManager != null)
+        {
+            player = runManager.RegisteredPlayer;
+        }
+    }
+
+    private void Subscribe()
+    {
+        if (runManager == null)
+        {
+            return;
+        }
+
+        runManager.RunSnapshotChanged -= HandleRunSnapshotChanged;
+        runManager.RunSnapshotChanged += HandleRunSnapshotChanged;
+        runManager.MapStateChanged -= HandleMapStateChanged;
+        runManager.MapStateChanged += HandleMapStateChanged;
+    }
+
+    private void Unsubscribe()
+    {
+        if (runManager == null)
+        {
+            return;
+        }
+
+        runManager.RunSnapshotChanged -= HandleRunSnapshotChanged;
+        runManager.MapStateChanged -= HandleMapStateChanged;
+    }
+
+    private void HandleRunSnapshotChanged(PlayerRunSnapshot snapshot)
+    {
+        RefreshFromSnapshot(snapshot);
+    }
+
+    private void HandleMapStateChanged()
+    {
+        ResolveReferences();
         Refresh();
     }
 
     private void Refresh()
     {
-        // 1) 有 Player 就用 Player（戰鬥場景等）
         if (player != null)
         {
             SetHP(player.currentHP, player.maxHP);
@@ -38,14 +83,23 @@ public class RunHUD_Text : MonoBehaviour
             return;
         }
 
-        // 2) RunScene 沒 Player → 用 RunManager 的 snapshot
-        if (runManager == null) return;
+        if (runManager == null)
+        {
+            return;
+        }
 
-        var snap = runManager.CurrentRunSnapshot;
-        if (snap == null) return;
+        RefreshFromSnapshot(runManager.CurrentRunSnapshot);
+    }
 
-        SetHP(snap.currentHP, snap.maxHP);
-        SetGold(snap.gold);
+    private void RefreshFromSnapshot(PlayerRunSnapshot snapshot)
+    {
+        if (snapshot == null)
+        {
+            return;
+        }
+
+        SetHP(snapshot.currentHP, snapshot.maxHP);
+        SetGold(snapshot.gold);
     }
 
     private void SetHP(int current, int max)
@@ -60,3 +114,4 @@ public class RunHUD_Text : MonoBehaviour
         goldText.text = $"{gold}";
     }
 }
+

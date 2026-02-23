@@ -16,6 +16,7 @@ public class PlayerBuffController : MonoBehaviour
     public int imprison = 0;
     public int nextTurnAllAttackPlus = 0;
     public bool drawBlockedThisTurn = false;
+    public int blockGainAtTurnStart = 0;
     public int blockGainAtTurnEnd = 0;
     public bool retainBlockNextTurn = false;
     private readonly List<GuardianSpiritCharge> guardianSpiritCharges = new List<GuardianSpiritCharge>();
@@ -242,6 +243,7 @@ public class PlayerBuffController : MonoBehaviour
         weakFromEnemies = 0;
         bleedFromEnemies = 0;
         imprisonFromEnemies = 0;
+        blockGainAtTurnStart = 0;
         blockGainAtTurnEnd = 0;
         retainBlockNextTurn = false;
         guardianSpiritCharges.Clear();

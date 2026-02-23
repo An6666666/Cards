@@ -1,26 +1,20 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-/// <summary>
-/// 天罰 - 以指定敵人為中心對周圍敵人造成元素傷害。
-/// 可以透過 effectRadius 控制範圍，並依元素型別觸發對應的元素反應。
-/// </summary>
-[CreateAssetMenu(fileName = "Attack_TianFa", menuName = "Cards/Attack/天罰")]
-public class Attack_TianFa : AttackCardBase
+[CreateAssetMenu(fileName = "Attack_TianFa", menuName = "Cards/Attack/憭拍蔑")]
+public class Attack_TianFa : AttackCardBase, IAreaTargetingCard
 {
-    [Header("基本設定")]
-    [Tooltip("對每個命中的敵人造成的基礎傷害。")]
+    [Header("Damage")]
     public int baseDamage = 6;
 
-    [Tooltip("以被選定的敵人為中心，影響其他敵人的半徑。單位為格子距離。")]
+    [Tooltip("AOE radius around the selected enemy.")]
     public float effectRadius = 2.5f;
 
-    [Tooltip("命中時產生的特效 (選填)。")] public GameObject hitEffectPrefab;
+    [Tooltip("Optional hit effect prefab.")]
+    public GameObject hitEffectPrefab;
 
-    [Header("元素設定")]
-    [SerializeField]
-    [Tooltip("此卡片所使用的元素屬性。")]
-    private ElementType elementType = ElementType.Fire;
+    [Header("Element")]
+    [SerializeField] private ElementType elementType = ElementType.Fire;
 
     protected virtual ElementType Element => elementType;
 
@@ -39,22 +33,17 @@ public class Attack_TianFa : AttackCardBase
         if (enemy == null) return;
 
         ElementType element = Element;
-        Vector2Int center = enemy.gridPosition;
+        List<Enemy> targets = new List<Enemy>();
+        GetResolveTargets(enemy, GetAliveEnemyCandidates(), targets);
 
-        Enemy[] enemies = GameObject.FindObjectsOfType<Enemy>();
-        foreach (Enemy target in enemies)
+        foreach (Enemy target in targets)
         {
-            if (target == null) continue;
-
-            float distance = Vector2Int.Distance(center, target.gridPosition);
-            if (target != enemy && distance > effectRadius) continue;
-
             int damage = target.ApplyElementalAttack(element, baseDamage, player);
             target.TakeDamage(damage);
 
             if (hitEffectPrefab != null)
             {
-                GameObject.Instantiate(hitEffectPrefab, target.transform.position, Quaternion.identity);
+                Instantiate(hitEffectPrefab, target.transform.position, Quaternion.identity);
             }
         }
 
@@ -63,9 +52,68 @@ public class Attack_TianFa : AttackCardBase
             AudioManager.Instance.PlayAttackSFX(element);
         }
     }
-    public override bool TryGetElementType(out ElementType elementType)
+
+    public void GetPreviewTargets(Enemy primaryTarget, IReadOnlyList<Enemy> aliveEnemies, List<Enemy> results)
     {
-        elementType = Element;
+        CollectTargets(primaryTarget, aliveEnemies, results);
+    }
+
+    public void GetResolveTargets(Enemy primaryTarget, IReadOnlyList<Enemy> aliveEnemies, List<Enemy> results)
+    {
+        CollectTargets(primaryTarget, aliveEnemies, results);
+    }
+
+    public override bool TryGetElementType(out ElementType type)
+    {
+        type = Element;
         return true;
+    }
+
+    private void CollectTargets(Enemy primaryTarget, IReadOnlyList<Enemy> aliveEnemies, List<Enemy> results)
+    {
+        if (results == null)
+        {
+            return;
+        }
+
+        results.Clear();
+        if (primaryTarget == null || aliveEnemies == null)
+        {
+            return;
+        }
+
+        Vector2Int center = primaryTarget.gridPosition;
+        for (int i = 0; i < aliveEnemies.Count; i++)
+        {
+            Enemy candidate = aliveEnemies[i];
+            if (!IsAliveEnemy(candidate))
+            {
+                continue;
+            }
+
+            float distance = Vector2Int.Distance(center, candidate.gridPosition);
+            if (candidate != primaryTarget && distance > effectRadius)
+            {
+                continue;
+            }
+
+            results.Add(candidate);
+        }
+    }
+
+    private static IReadOnlyList<Enemy> GetAliveEnemyCandidates()
+    {
+        BattleRuntimeContext context = BattleRuntimeContext.Active;
+        if (context != null && context.Enemies != null)
+        {
+            return context.Enemies;
+        }
+
+        return System.Array.Empty<Enemy>();
+    }
+
+    private static bool IsAliveEnemy(Enemy enemy)
+    {
+        return enemy != null && enemy.currentHP > 0 && !enemy.IsDead;
     }
 }

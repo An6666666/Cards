@@ -37,24 +37,6 @@ public class StatusPanel_Text : MonoBehaviour
         StartCoroutine(RefreshNextFrame());
     }
 
-    private void Update()
-    {
-        // 不再每幀 Refresh（避免反射一直跑）
-        if (enemy == null) return;
-
-        if (enemy.burningTurns != lastKnownBurningTurns ||
-            enemy.frozenTurns != lastKnownFrozenTurns ||
-            enemy.chargedCount != lastKnownChargedCount ||
-            enemy.frostStacks != lastKnownFrostStacks)
-        {
-            lastKnownBurningTurns = enemy.burningTurns;
-            lastKnownFrozenTurns = enemy.frozenTurns;
-            lastKnownChargedCount = enemy.chargedCount;
-            lastKnownFrostStacks = enemy.frostStacks;
-            Refresh();
-        }
-    }
-
     private void Refresh()
     {
         // 沒目標就不要顯示
@@ -132,6 +114,7 @@ public class StatusPanel_Text : MonoBehaviour
             AddIntEffect(positive, "下回合全攻擊+傷", buffs.nextTurnAllAttackPlus);
 
             AddIntEffect(positive, "近戰傷害減免", buffs.meleeDamageReduce);
+            AddIntEffect(positive, "回合開始獲得格擋", buffs.blockGainAtTurnStart);
             AddIntEffect(positive, "回合結束獲得格擋", buffs.blockGainAtTurnEnd);
             AddBoolEffect(positive, "格擋保留到下回合", buffs.retainBlockNextTurn);
 

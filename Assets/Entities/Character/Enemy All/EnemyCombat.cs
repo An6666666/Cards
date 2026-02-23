@@ -93,7 +93,7 @@ public class EnemyCombat : MonoBehaviour
 
         enemy.Visual.PlayDeadAnimation();
 
-        BattleManager bm = FindObjectOfType<BattleManager>();
+        BattleManager bm = BattleRuntimeContext.Active != null ? BattleRuntimeContext.Active.Manager : null;
         if (bm != null)
         {
             bm.OnEnemyDefeated(enemy);
