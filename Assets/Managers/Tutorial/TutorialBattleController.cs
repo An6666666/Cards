@@ -375,6 +375,8 @@ public class TutorialBattleController : MonoBehaviour
         if (!IsActive || step == null)
             return;
 
+        Player tutorialPlayer = battleManager != null ? battleManager.player : null;
+
         if (guidePresenter != null && !string.IsNullOrWhiteSpace(step.incorrectOrderDialogueKey))
         {
             TryTalkLocalByKey(step.incorrectOrderDialogueKey);
@@ -386,6 +388,14 @@ public class TutorialBattleController : MonoBehaviour
         if (step.redealHandOnIncorrectOrder)
         {
             TryApplyFixedHand(battleManager != null ? battleManager.player : null, null, true);
+        }
+
+        if (tutorialPlayer != null)
+        {
+            tutorialPlayer.energy = tutorialPlayer.maxEnergy;
+            EnergyUIBus.RefreshAll(tutorialPlayer.energy, tutorialPlayer.maxEnergy);
+            UIEventBus.RaiseEnergyState(new EnergySnapshot(tutorialPlayer.energy, tutorialPlayer.maxEnergy));
+            battleManager?.RefreshHandUI(false);
         }
     }
     private void RespawnEnemiesForCurrentStep()

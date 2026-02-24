@@ -1,9 +1,9 @@
-using System;                                      // 為了用 Guid、Serializable
-using System.Collections.Generic;                  // 為了用 List<>
-using System.Linq;                                 // 為了用 Contains on IReadOnlyList
-using UnityEngine;                                 // Unity 基本命名空間
+﻿using System;                                      // ?箔???Guid?erializable
+using System.Collections.Generic;                  // ?箔???List<>
+using System.Linq;                                 // ?箔???Contains on IReadOnlyList
+using UnityEngine;                                 // Unity ?箸?賢?蝛粹?
 
-// 地圖節點的種類：一般戰鬥、菁英戰鬥、商店、事件、Boss
+// ?啣?蝭暺?蝔桅?嚗??祆擛乓??望擛乓?摨?隞嗚oss
 public enum MapNodeType
 {
     Battle,
@@ -14,19 +14,19 @@ public enum MapNodeType
     Boss
 }
 
-[Serializable]                                      // 讓這個資料結構可以在 Inspector 中看見
+[Serializable]                                      // 霈???瑽隞亙 Inspector 銝剔?閬?
 public class MapNodeData
 {
-    [SerializeField] private string nodeId;         // 節點的唯一 ID
-    [SerializeField] private MapNodeType nodeType;  // 節點類型（一般戰鬥/菁英戰鬥/商店/事件/Boss）
-    [SerializeField] private int floorIndex;        // 這個節點位於第幾層（第幾排）
-    [SerializeField] private bool isCompleted;      // 是否已經完成過
-    [SerializeField] private RunEncounterDefinition encounter;       // 如果是戰鬥節點，這裡放要打哪一場戰
-    [SerializeField] private RunEventDefinition eventDefinition;     // 如果是事件節點，這裡放哪一個事件
-    [SerializeField] private ShopInventoryDefinition shopInventory;  // 如果是商店節點，這裡放哪個商店清單
-    [NonSerialized] private List<MapNodeData> nextNodes = new List<MapNodeData>(); // 這個節點連到下一層的哪些節點
+    [SerializeField] private string nodeId;         // 蝭暺??臭? ID
+    [SerializeField] private MapNodeType nodeType;  // 蝭暺???銝?祆擛???圈洛/??/鈭辣/Boss嚗?
+    [SerializeField] private int floorIndex;        // ??暺??潛洵撟曉惜嚗洵撟暹?嚗?
+    [SerializeField] private bool isCompleted;      // ?臬撌脩?摰???
+    [SerializeField] private RunEncounterDefinition encounter;       // 憒??舀擛亦?暺??ㄐ?曇??銝?湔
+    [SerializeField] private RunEventDefinition eventDefinition;     // 憒??臭?隞嗥?暺??ㄐ?曉銝??隞?
+    [SerializeField] private ShopInventoryDefinition shopInventory;  // 憒??臬?摨?暺??ㄐ?曉??摨???
+    [NonSerialized] private List<MapNodeData> nextNodes = new List<MapNodeData>(); // ??暺?銝?撅斤??芯?蝭暺?
 
-    // 建構子：建立一個節點的時候一定要給 id、類型、所在樓層
+    // 撱箸?摮?撱箇?銝??暺???摰?蝯?id?????冽?撅?
     public MapNodeData(string id, MapNodeType type, int floor)
     {
         nodeId = id;
@@ -34,7 +34,7 @@ public class MapNodeData
         floorIndex = floor;
     }
 
-    // 一些對外唯讀屬性，方便外面拿資料
+    // 銝鈭?憭霈撅祆改??嫣噶憭?輯???
     public string NodeId => nodeId;
     public MapNodeType NodeType => nodeType;
     public int FloorIndex => floorIndex;
@@ -43,45 +43,45 @@ public class MapNodeData
     public RunEventDefinition Event => eventDefinition;
     public ShopInventoryDefinition ShopInventory => shopInventory;
     public IReadOnlyList<MapNodeData> NextNodes => nextNodes;
-    public bool IsBoss => nodeType == MapNodeType.Boss;  // 快速判斷是不是 Boss 節點
+    public bool IsBoss => nodeType == MapNodeType.Boss;  // 敹恍?瑟銝 Boss 蝭暺?
 
-    // 設定這個節點的戰鬥配置
+    // 閮剖???暺??圈洛?蔭
     public void SetEncounter(RunEncounterDefinition definition)
     {
         encounter = definition;
     }
 
-    // 設定這個節點的事件
+    // 閮剖???暺?鈭辣
     public void SetEvent(RunEventDefinition definition)
     {
         eventDefinition = definition;
     }
 
-    // 設定這個節點的商店
+    // 閮剖???暺???
     public void SetShop(ShopInventoryDefinition definition)
     {
         shopInventory = definition;
     }
 
-    // 更新節點類型（Slot 分配後用）
+    // ?湔蝭暺???Slot ??敺嚗?
     public void SetNodeType(MapNodeType type)
     {
         nodeType = type;
     }
 
-    // 標記這個節點完成
+    // 璅???暺???
     public void MarkCompleted()
     {
         isCompleted = true;
     }
 
-    // 把完成狀態清回去（重開 run 用）
+    // ???????嚗???run ?剁?
     public void ResetProgress()
     {
         isCompleted = false;
     }
 
-    // 增加一個連到下一層的節點
+    // 憓?銝??銝?撅斤?蝭暺?
     public void AddNextNode(MapNodeData node)
     {
         if (node == null || nextNodes.Contains(node))
@@ -90,30 +90,30 @@ public class MapNodeData
     }
 }
 
-// 這是整個跑團流程的核心控制器
+// ??游???蝔??詨??批??
 public class RunManager : MonoBehaviour
 {
     private const int RestHealAmount = 30;
 
-    // 單例，讓別的場景也能直接 RunManager.Instance 拿到
+    // ?桐?嚗??亦??湔銋?湔 RunManager.Instance ?踹
     public static RunManager Instance { get; private set; }
     [Header("Config Assets")]
     [SerializeField] private RunMapConfig mapConfig;
     [Header("Scene Names")]
-    [SerializeField] private string runSceneName = "RunScene";       // 地圖場景名稱
-    [SerializeField] private string battleSceneName = "BattleScene"; // 戰鬥場景名稱
-    [SerializeField] private string shopSceneName = "ShopScene";     // 商店場景名稱
-    [SerializeField] private string deathReturnSceneName = "";       // 玩家死亡後要回到的場景名稱（預設回地圖）
-    [SerializeField, Min(0f)] private float nodeEnterDelaySeconds = 0f; // 點擊節點後，進入節點流程前先等待幾秒
-    [SerializeField] private RunEventUIManager eventUIManager;        // 事件彈窗管理器
+    [SerializeField] private string runSceneName = "RunScene";       // ?啣??湔?迂
+    [SerializeField] private string battleSceneName = "BattleScene"; // ?圈洛?湔?迂
+    [SerializeField] private string shopSceneName = "ShopScene";     // ???湔?迂
+    [SerializeField] private string deathReturnSceneName = "";       // ?拙振甇颱滿敺????臬?蝔梧??身???
+    [SerializeField, Min(0f)] private float nodeEnterDelaySeconds = 0f; // 暺?蝭暺?嚗脣蝭暺?蝔???敺嗾蝘?
+    [SerializeField] private RunEventUIManager eventUIManager;        // 鈭辣敶?蝞∠???
 
     [Header("Map Generation")]
-    [SerializeField] private int floorCount = 4;                     // 一張圖有幾層
-    [SerializeField] private int minNodesPerFloor = 2;               // 每層節點數下限
-    [SerializeField] private int maxNodesPerFloor = 4;               // 每層節點數上限
-    [Obsolete("Slot-based generation no longer uses single-node rates")] [SerializeField, Range(0f, 1f)] private float eventRate = 0.2f;  // 已棄用
-    [Obsolete("Slot-based generation no longer uses single-node rates")] [SerializeField, Range(0f, 1f)] private float shopRate = 0.15f;  // 已棄用
-    [Obsolete("Slot-based generation no longer uses single-node rates")] [SerializeField, Range(0f, 1f)] private float eliteBattleRate = 0.1f; // 已棄用
+    [SerializeField] private int floorCount = 4;                     // 銝撘萄??嗾撅?
+    [SerializeField] private int minNodesPerFloor = 2;               // 瘥惜蝭暺銝?
+    [SerializeField] private int maxNodesPerFloor = 4;               // 瘥惜蝭暺銝?
+    [Obsolete("Slot-based generation no longer uses single-node rates")] [SerializeField, Range(0f, 1f)] private float eventRate = 0.2f;  // 撌脫???
+    [Obsolete("Slot-based generation no longer uses single-node rates")] [SerializeField, Range(0f, 1f)] private float shopRate = 0.15f;  // 撌脫???
+    [Obsolete("Slot-based generation no longer uses single-node rates")] [SerializeField, Range(0f, 1f)] private float eliteBattleRate = 0.1f; // 撌脫???
     [SerializeField] private int shopMin = 2;
     [SerializeField] private int shopMax = 3;
     [SerializeField] private int eliteMin = 2;
@@ -122,12 +122,12 @@ public class RunManager : MonoBehaviour
     [SerializeField] private int restMax = 6;
     [SerializeField, Range(0f, 1f)] private float eventRatioMin = 0.2f;
     [SerializeField, Range(0f, 1f)] private float eventRatioMax = 0.25f;
-    [SerializeField] private EncounterPool encounterPool;            // 戰鬥池，從這裡抽戰鬥 :contentReference[oaicite:4]{index=
-    [SerializeField] private EncounterPool eliteEncounterPool;       // 菁英戰鬥池，專門放菁英戰鬥
-    [SerializeField] private RunEncounterDefinition bossEncounter;   // Boss 專用戰鬥
-    [SerializeField] private ShopInventoryDefinition defaultShopInventory; // 預設商店清單
-    [SerializeField] private List<RunEventDefinition> eventPool = new List<RunEventDefinition>(); // 事件池
-    [SerializeField] private bool autoGenerateOnStart = true;        // 是否一開場就自動做一張圖
+    [SerializeField] private EncounterPool encounterPool;            // ?圈洛瘙?敺ㄐ?賣擛?:contentReference[oaicite:4]{index=
+    [SerializeField] private EncounterPool eliteEncounterPool;       // ??圈洛瘙?撠??曇??望擛?
+    [SerializeField] private RunEncounterDefinition bossEncounter;   // Boss 撠?圈洛
+    [SerializeField] private ShopInventoryDefinition defaultShopInventory; // ?身??皜
+    [SerializeField] private List<RunEventDefinition> eventPool = new List<RunEventDefinition>(); // 鈭辣瘙?
+    [SerializeField] private bool autoGenerateOnStart = true;        // ?臬銝?撠梯??銝撘萄?
 
     [Header("Map Connection Tuning")]
     [SerializeField] private int connectionNeighborWindow = 2;
@@ -142,14 +142,14 @@ public class RunManager : MonoBehaviour
     [SerializeField, Range(1, 3)] private int maxBranchingNodesPerFloor = 3;
     [SerializeField] private int backtrackAllowance = 1;
     [SerializeField] private int minDistinctTargetsPerFloor = 2;
-    private readonly List<List<MapNodeData>> mapFloors = new List<List<MapNodeData>>(); // 存每一層的節點
-    private MapNodeData currentNode;                                  // 玩家目前所在的節點
-    private MapNodeData activeNode;                                   // 正在進行中的節點（正在戰鬥/商店/事件）
-    private bool runCompleted;                                        // 這次 run 是否已通關
+    private readonly List<List<MapNodeData>> mapFloors = new List<List<MapNodeData>>(); // 摮?銝撅斤?蝭暺?
+    private MapNodeData currentNode;                                  // ?拙振?桀???函?蝭暺?
+    private MapNodeData activeNode;                                   // 甇??脰?銝剔?蝭暺?甇??圈洛/??/鈭辣嚗?
+    private bool runCompleted;                                        // ?活 run ?臬撌脤?
 
-    private Player player;                                            // 目前這次 run 的玩家物件
-    private PlayerRunSnapshot initialPlayerSnapshot;                  // 起始時候的玩家快照（方便死亡重開）
-    private PlayerRunSnapshot currentRunSnapshot;                     // 當前 run 的玩家快照（每次戰鬥回來都會更新）
+    private Player player;                                            // ?桀??活 run ?摰嗥隞?
+    private PlayerRunSnapshot initialPlayerSnapshot;                  // 韏瑕????拙振敹怎嚗靘踵香鈭⊿???
+    private PlayerRunSnapshot currentRunSnapshot;                     // ?嗅? run ?摰嗅翰?改?瘥活?圈洛???賣??湔嚗?
     public PlayerRunSnapshot CurrentRunSnapshot => currentRunSnapshot;
 
 
@@ -158,19 +158,21 @@ public class RunManager : MonoBehaviour
     private RunSceneRouter sceneRouter;
     private RunEventResolver eventResolver;
     private Coroutine pendingNodeTransitionCoroutine;
-    public IReadOnlyList<IReadOnlyList<MapNodeData>> MapFloors => mapFloors; // 對外讀取整張圖
-    public MapNodeData CurrentNode => currentNode;                    // 對外讀目前節點
-    public MapNodeData ActiveNode => activeNode;                      // 對外讀正在處理的節點
-    public bool RunCompleted => runCompleted;                         // 對外讀這次 run 是否完成
-    public ShopInventoryDefinition DefaultShopInventory => defaultShopInventory; // 對外讀預設商店清單
+    public IReadOnlyList<IReadOnlyList<MapNodeData>> MapFloors => mapFloors; // 撠?霈?撘萄?
+    public MapNodeData CurrentNode => currentNode;                    // 撠?霈?桀?蝭暺?
+    public MapNodeData ActiveNode => activeNode;                      // 撠?霈甇?????暺?
+    public bool RunCompleted => runCompleted;                         // 撠?霈?活 run ?臬摰?
+    public ShopInventoryDefinition DefaultShopInventory => defaultShopInventory; // 撠?霈?身??皜
+    public Player RegisteredPlayer => player;
 
-    public event Action<IReadOnlyList<IReadOnlyList<MapNodeData>>> MapGenerated; // 生成新地圖時通知 UI
-    public event Action MapStateChanged;                              // 地圖狀態（完成/可選節點）變動時通知
-    public event Action<MapNodeData> NodeEntered;                     // 進入某個節點時通知（商店/事件/戰鬥等）
-    public event Action<MapNodeData> NodeCompleted;                   // 完成某個節點時通知
+    public event Action<IReadOnlyList<IReadOnlyList<MapNodeData>>> MapGenerated; // ???啣??? UI
+    public event Action MapStateChanged;                              // ?啣????摰?/?舫蝭暺?霈??
+    public event Action<MapNodeData> NodeEntered;                     // ?脣??暺??嚗?摨?鈭辣/?圈洛蝑?
+    public event Action<MapNodeData> NodeCompleted;                   // 摰???暺??
+    public event Action<PlayerRunSnapshot> RunSnapshotChanged;
     private void Awake()
     {
-        // 確保只有一個 RunManager，重複的就刪掉
+        // 蝣箔??芣?銝??RunManager嚗?銴?撠勗??
         if (Instance != null && Instance != this)
         {
             Destroy(gameObject);
@@ -178,7 +180,7 @@ public class RunManager : MonoBehaviour
         }
 
         Instance = this;
-        DontDestroyOnLoad(gameObject); // 場景切換時不要把我刪掉
+        DontDestroyOnLoad(gameObject); // ?湔????閬????
 
         BuildMapSystemsFromConfig(mapConfig);
 
@@ -202,14 +204,14 @@ public class RunManager : MonoBehaviour
     }
     private void Start()
     {
-        // 如果有勾自動生成，就建一張新圖
+        // 憒???芸???嚗停撱箔?撘菜??
         if (autoGenerateOnStart)
         {
             GenerateNewRun();
         }
     }
 
-    // 登記玩家物件，讓 RunManager 可以存/還原他的資料
+    // ?餉??拙振?拐辣嚗? RunManager ?臭誑摮???隞?鞈?
     public void RegisterPlayer(Player newPlayer)
     {
         if (newPlayer == null)
@@ -218,7 +220,7 @@ public class RunManager : MonoBehaviour
         player = newPlayer;
         eventResolver.Player = newPlayer;
 
-        // 第一次註冊的時候，抓一份起始快照
+        // 蝚砌?甈∟酉??????隞質絲憪翰??
         if (initialPlayerSnapshot == null)
         {
             initialPlayerSnapshot = PlayerRunSnapshot.Capture(newPlayer);
@@ -226,14 +228,15 @@ public class RunManager : MonoBehaviour
             eventResolver.InitialPlayerSnapshot = initialPlayerSnapshot;
         }
 
-        // 如果有目前快照，就套回去（例如從戰鬥場景回到地圖場景時）
+        // 憒???翰?改?撠勗??嚗?憒??圈洛?湔??啣??湔??
         if (currentRunSnapshot != null)
         {
             ApplySnapshotToPlayer(newPlayer, currentRunSnapshot);
+            RaiseRunSnapshotChanged();
         }
     }
 
-    // 產生一張新的 run 地圖
+    // ?Ｙ?銝撘菜??run ?啣?
     public void GenerateNewRun()
     {
         RunMapGenerator.SlotAllocationSettings slotSettings = GetActiveSlotSettings();
@@ -263,38 +266,38 @@ public class RunManager : MonoBehaviour
 
         mapFloors.Clear();
         mapFloors.AddRange(map.Floors);
-        currentNode = null;     // 還沒選起始節點
-        activeNode = null;      // 還沒進入任何節點
-        runCompleted = false;   // 新的 run 當然還沒通關
+        currentNode = null;     // ???貉絲憪?暺?
+        activeNode = null;      // ???脣隞颱?蝭暺?
+        runCompleted = false;   // ?啁? run ?嗥????
 
         MapGenerated?.Invoke(mapFloors);
         MapStateChanged?.Invoke();
     }
 
-    // 給 UI 用：現在有哪些節點可以選
+    // 蝯?UI ?剁??曉?鈭?暺隞仿
     public IReadOnlyList<MapNodeData> GetAvailableNodes()
     {
-        // 如果現在有一個節點正在進行（還沒回來），那就不能再選別的
+        // 憒??曉????暺迤?券脰?嚗?瘝?靘?嚗撠曹??賢??詨??
         if (activeNode != null)
             return Array.Empty<MapNodeData>();
 
-        // 如果根本還沒有地圖，就回空陣列
+        // 憒??寞?????撠勗?蝛粹??
         if (mapFloors.Count == 0)
             return Array.Empty<MapNodeData>();
 
-        // 如果還沒選過節點，就把第一層全部回去當可選
+        // 憒????賊?蝭暺?撠望?蝚砌?撅文?典??餌?舫
         if (currentNode == null)
             return mapFloors[0];
 
-        // 如果目前的節點沒有往下的連線，就沒有東西可以選
+        // 憒??桀???暺???銝????嚗停瘝??梯正?臭誑??
         if (currentNode.NextNodes.Count == 0)
             return Array.Empty<MapNodeData>();
 
-        // 否則就回傳下一層連線的節點
+        // ?血?撠勗??喃?銝撅日????暺?
         return currentNode.NextNodes;
     }
 
-    // 嘗試進入某個節點，成功就會切到對應的場景
+    // ?岫?脣??暺???撠望??撠????
     public bool TryEnterNode(MapNodeData node)
     {
         if (node == null)
@@ -304,7 +307,7 @@ public class RunManager : MonoBehaviour
         if (!IsNodeSelectable(node))
             return false;
 
-        activeNode = node;     // 標記現在正在這個節點
+        activeNode = node;     // 璅??曉甇???暺?
         NodeEntered?.Invoke(node);
         if (pendingNodeTransitionCoroutine != null)
         {
@@ -338,6 +341,7 @@ public class RunManager : MonoBehaviour
             {
                 CompleteActiveNodeWithoutBattle();
                 currentRunSnapshot = eventResolver.CurrentRunSnapshot;
+                RaiseRunSnapshotChanged();
             });
         }
         else if (node.NodeType == MapNodeType.Rest)
@@ -347,42 +351,42 @@ public class RunManager : MonoBehaviour
         }
         else
         {
-            sceneRouter.LoadSceneForNode(node); // 依節點類型載入場景
+            sceneRouter.LoadSceneForNode(node); // 靘?暺????亙??
         }
         pendingNodeTransitionCoroutine = null;
     }
 
-    // 檢查這個節點能不能被選
+    // 瑼Ｘ??暺銝鋡恍
     public bool IsNodeSelectable(MapNodeData node)
     {
         if (node == null || node.IsCompleted)
             return false;
 
-        // 還沒走過任何節點時，只能選第 0 層的
+        // ??韏圈?隞颱?蝭暺?嚗?賡蝚?0 撅斤?
         if (currentNode == null)
             return node.FloorIndex == 0;
 
-        // 有走過的話，就只能選目前節點連出去的那些
+        // ?粥??閰梧?撠勗?賡?桀?蝭暺??餌????
         return currentNode.NextNodes.Contains(node);
     }
 
-    // 被戰鬥場景呼叫：打贏了
+    // 鋡急擛亙?臬?恬???鈭?
     public void HandleBattleVictory()
     {
         if (activeNode == null)
             return;
 
-        activeNode.MarkCompleted(); // 標記這個節點完成了
-        currentNode = activeNode;   // 玩家現在就站在這個節點上
+        activeNode.MarkCompleted(); // 璅???暺???
+        currentNode = activeNode;   // ?拙振?曉撠梁??券?暺?
         if (activeNode.IsBoss)
         {
-            runCompleted = true;    // 如果這個是 Boss，那 run 結束
+            runCompleted = true;    // 憒?? Boss嚗 run 蝯?
         }
         NodeCompleted?.Invoke(activeNode);
         MapStateChanged?.Invoke();
     }
 
-    // 商店 / 事件等非戰鬥節點完成時呼叫：標記節點已完成並更新目前位置
+    // ?? / 鈭辣蝑??圈洛蝭暺????澆嚗?閮?暺歇摰?銝行?啁??蝵?
     public void CompleteActiveNodeWithoutBattle()
     {
         if (activeNode == null)
@@ -395,29 +399,29 @@ public class RunManager : MonoBehaviour
         MapStateChanged?.Invoke();
     }
 
-    // 被戰鬥場景呼叫：打輸了
+    // 鋡急擛亙?臬?恬??撓鈭?
     public void HandleBattleDefeat()
     {
-        ResetRun();     // 把整個 run 重置
-        sceneRouter.LoadDeathReturnScene(); // 回到設定的場景（預設地圖）重新開始
+        ResetRun();     // ???run ?蔭
+        sceneRouter.LoadDeathReturnScene(); // ?閮剖???荔??身?啣?嚗??圈?憪?
     }
 
-    // 戰鬥 / 商店 / 事件做完，要回到地圖時呼叫這個
+    // ?圈洛 / ?? / 鈭辣??嚗???啣???恍?
     public void ReturnToRunSceneFromBattle()
     {
-        SyncPlayerRunState();   // 先把玩家目前狀態存起來
+        SyncPlayerRunState();   // ???拙振?桀????韏瑚?
 
         if (runCompleted)
         {
-            ResetRun();         // 如果 run 已經完成了，就直接重開一張新的
+            ResetRun();         // 憒? run 撌脩?摰?鈭?撠梁?仿???撘菜??
         }
 
-        activeNode = null;      // 不再有正在進行的節點
-        sceneRouter.LoadRunScene();         // 載入地圖場景
+        activeNode = null;      // 銝??迤?券脰???暺?
+        sceneRouter.LoadRunScene();         // 頛?啣??湔
         MapStateChanged?.Invoke();
     }
 
-    // 把玩家目前狀態記起來，之後回到地圖時可以還原
+    // ?摰嗥????韏瑚?嚗?敺??啣???臭誑??
     public void SyncPlayerRunState()
     {
         if (player == null)
@@ -425,24 +429,26 @@ public class RunManager : MonoBehaviour
 
         currentRunSnapshot = PlayerRunSnapshot.Capture(player);
         eventResolver.CurrentRunSnapshot = currentRunSnapshot;
+        RaiseRunSnapshotChanged();
     }
 
-    // 重置整個 run：玩家回初始、地圖重做
+    // ?蔭?游?run嚗摰嗅????????
     public void ResetRun()
     {
         runCompleted = false;
         activeNode = null;
         currentNode = null;
 
-        // 如果有存起始快照，就套回去
+        // 憒???韏瑕?敹怎嚗停憟???
         if (initialPlayerSnapshot != null)
         {
             currentRunSnapshot = initialPlayerSnapshot.Clone();
             eventResolver.CurrentRunSnapshot = currentRunSnapshot;
             ApplySnapshotToPlayer(player, currentRunSnapshot);
+            RaiseRunSnapshotChanged();
         }
 
-        GenerateNewRun(); // 重做一張圖
+        GenerateNewRun(); // ??銝撘萄?
     }
 
     private void ApplySnapshotToPlayer(Player target, PlayerRunSnapshot snapshot)
@@ -460,6 +466,7 @@ public class RunManager : MonoBehaviour
             player.currentHP = healedHP;
             currentRunSnapshot = PlayerRunSnapshot.Capture(player);
             eventResolver.CurrentRunSnapshot = currentRunSnapshot;
+            RaiseRunSnapshotChanged();
             return;
         }
 
@@ -470,6 +477,7 @@ public class RunManager : MonoBehaviour
         int clampedHp = Mathf.Clamp(currentRunSnapshot.currentHP + RestHealAmount, 0, currentRunSnapshot.maxHP);
         currentRunSnapshot.currentHP = clampedHp;
         eventResolver.CurrentRunSnapshot = currentRunSnapshot;
+        RaiseRunSnapshotChanged();
     }
 
     private void EnsureCurrentRunSnapshot()
@@ -495,6 +503,10 @@ public class RunManager : MonoBehaviour
             relics = new List<CardBase>(),
             exhaustPile = new List<CardBase>()
         };
+    }
+    private void RaiseRunSnapshotChanged()
+    {
+        RunSnapshotChanged?.Invoke(currentRunSnapshot);
     }
     public void ApplyMapConfig(RunMapConfig config, bool regenerate = true)
     {
@@ -586,3 +598,4 @@ public class RunManager : MonoBehaviour
             featureFlags: generationFeatureFlags);
     }
 }
+

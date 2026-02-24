@@ -21,6 +21,6 @@ public class Skill_JinShen : CardBase
             return;
         }
 
-        player.buffs.blockGainAtTurnEnd += armorGainPerTurn;
+        player.buffs.blockGainAtTurnStart += armorGainPerTurn;
     }
 }

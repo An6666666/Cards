@@ -54,7 +54,6 @@ public class RunMapUI : MonoBehaviour
 
     private readonly Dictionary<MapNodeData, RectTransform> nodeRects = new Dictionary<MapNodeData, RectTransform>();
     private readonly Dictionary<MapNodeData, Button> nodeButtons = new Dictionary<MapNodeData, Button>();
-    private float refreshTimer;
     private bool _hasBuilt;
     private float _builtMinY;
     private float _builtMaxY;
@@ -114,14 +113,6 @@ public class RunMapUI : MonoBehaviour
             }
 
             return;
-        }
-
-        refreshTimer += Time.deltaTime;
-        if (refreshTimer >= 0.25f)
-        {
-            refreshTimer = 0f;
-            RefreshNodeStates();
-            RefreshLegendPanel();
         }
     }
 

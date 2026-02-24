@@ -49,12 +49,16 @@ public class UIManager : MonoBehaviour
 
     public void OpenSettingsPanel()
     {
-        settingsController?.Open();
+        GlobalSettingsUI.OpenGlobal();
         ruleController?.Close();
         deckController?.HideAll();
     }
 
-    public void CloseSettingsPanel() => settingsController?.Close();
+    public void CloseSettingsPanel()
+    {
+        GlobalSettingsUI.CloseGlobal();
+        settingsController?.Close();
+    }
 
     public void OpenRulePanel() => ruleController?.Open();
     public void CloseRulePanel() => ruleController?.Close();
@@ -71,6 +75,7 @@ public class UIManager : MonoBehaviour
     public void CloseAllPanels()
     {
         ruleController?.Close();
+        GlobalSettingsUI.CloseGlobal();
         settingsController?.Close();
         deckController?.HideAll();
     }

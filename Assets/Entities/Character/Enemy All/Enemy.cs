@@ -8,6 +8,8 @@ using UnityEngine.UI;
 
 public class Enemy : MonoBehaviour
 {
+    private static readonly HashSet<Enemy> ActiveEnemies = new HashSet<Enemy>();
+
     public string enemyName = "Slime";
     public int maxHP = 30;
     public int currentHP;
@@ -415,6 +417,7 @@ public class Enemy : MonoBehaviour
 
     private void OnEnable()
     {
+        ActiveEnemies.Add(this);
         sorting?.HandleOnEnable();
         visual?.HandleOnEnable();
         mouseInteractor?.HandleOnEnable();
@@ -422,6 +425,7 @@ public class Enemy : MonoBehaviour
 
     private void OnDisable()
     {
+        ActiveEnemies.Remove(this);
         mouseInteractor?.HandleOnDisable();
     }
 
@@ -510,5 +514,22 @@ public class Enemy : MonoBehaviour
     public void SetMoveBool(bool moving)
     {
         visual?.SetMoveBool(moving);
+    }
+
+    public static void FillActiveEnemies(List<Enemy> results)
+    {
+        if (results == null)
+        {
+            return;
+        }
+
+        results.Clear();
+        foreach (Enemy enemy in ActiveEnemies)
+        {
+            if (enemy != null)
+            {
+                results.Add(enemy);
+            }
+        }
     }
 }

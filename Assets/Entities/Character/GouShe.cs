@@ -38,8 +38,9 @@ public class GouShe : Enemy, IEnemyCooldownProvider               // 鉤蛇怪�
         columnStrikeCooldownRemaining = columnStrikeCooldownTurns; // 開場用設定值
     }
 
-    private void Start()
+    protected override void Start()
     {
+        base.Start();
         PrepareInitialWaterZones(); // 開場時建立初始的水元素區域
     }
 
@@ -172,6 +173,7 @@ public class GouShe : Enemy, IEnemyCooldownProvider               // 鉤蛇怪�
         }
 
         block += waterArmor;        // 增加護甲（block）
+        RaiseStatusChanged();
     }
     public int CooldownSlotCount => 1;
 

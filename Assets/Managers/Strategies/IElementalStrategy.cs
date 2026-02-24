@@ -1,6 +1,6 @@
-using System.Collections;                     // 引用非泛型集合命名空間（如 ArrayList、Hashtable），雖然本檔案未直接使用，但常見於 Unity 範本
-using System.Collections.Generic;             // 引用泛型集合命名空間（如 List<T>、Dictionary<TKey,TValue>）
-using UnityEngine;                            // 引用 Unity 的核心 API（如 MonoBehaviour、GameObject、Mathf 等）
+﻿using System.Collections;                     // 撘??????征??憒?ArrayList?ashtable嚗???祆?獢?湔雿輻嚗?撣貉???Unity 蝭
+using System.Collections.Generic;             // 撘瘜????賢?蝛粹?嚗? List<T>?ictionary<TKey,TValue>嚗?
+using UnityEngine;                            // 撘 Unity ?敹?API嚗? MonoBehaviour?ameObject?athf 蝑?
 
 internal static class ElementReactionOrderHelper
 {
@@ -36,78 +36,109 @@ internal static class ElementReactionOrderHelper
     }
 }
 
-public interface IElementalStrategy            // 宣告元素策略介面：定義所有元素計算傷害時必須實作的方法
-{                                              // 介面區塊開始
-    int CalculateDamage(Player attacker, Enemy defender, int baseDamage); // 計算傷害的方法：輸入攻擊者、被攻擊者與基礎傷害，回傳實際傷害值
-}                                              // 介面區塊結束
-public interface IPlayerEndTurnEffect          // 宣告玩家回合結束效果介面：某些元素有「玩家回合結束時」要處理的效果
-{                                              // 介面區塊開始
-    void OnPlayerEndTurn(Enemy enemy);         // 在玩家回合結束時呼叫，用來處理持續性狀態（如燃燒扣血）
-}                                              // 介面區塊結束
+internal static class BattleQueryResolver
+{
+    public static Board ResolveBoard()
+    {
+        BattleRuntimeContext context = BattleRuntimeContext.Active;
+        if (context != null && context.Board != null)
+        {
+            return context.Board;
+        }
 
-public class DefaultElementalStrategy : IElementalStrategy // 預設元素策略實作：不做任何加成或特效，單純回傳原傷害
-{                                              // 類別區塊開始
-    public virtual int CalculateDamage(Player attacker, Enemy defender, int baseDamage) // virtual 允許子類別覆寫
-    {                                          // 方法區塊開始
-        return baseDamage;                     // 直接回傳基礎傷害，沒有任何變動
-    }                                          // 方法區塊結束
-}                                              // 類別區塊結束
+        return null;
+    }
 
-public class FireStrategy : DefaultElementalStrategy // 火元素策略：繼承預設策略
-{                                              // 類別區塊開始
-    public override int CalculateDamage(Player attacker, Enemy defender, int baseDamage) // 覆寫傷害計算：火元素的特殊反應處理
-    {                                          // 方法區塊開始
-        int dmg = baseDamage;                  // 先以基礎傷害為起點，之後依反應再修正
+    public static Enemy[] ResolveEnemies()
+    {
+        BattleRuntimeContext context = BattleRuntimeContext.Active;
+        if (context != null && context.Enemies != null)
+        {
+            IReadOnlyList<Enemy> enemies = context.Enemies;
+            Enemy[] snapshot = new Enemy[enemies.Count];
+            for (int i = 0; i < enemies.Count; i++)
+            {
+                snapshot[i] = enemies[i];
+            }
+
+            return snapshot;
+        }
+
+        return new Enemy[0];
+    }
+}
+public interface IElementalStrategy            // 摰????蝑隞嚗?蝢拇???蝝?蝞摰單?敹?撖虫??瘜?
+{                                              // 隞?憛?憪?
+    int CalculateDamage(Player attacker, Enemy defender, int baseDamage); // 閮??瑕拿?瘜?頛詨?餅??◤?餅????箇??瑕拿嚗??喳祕?摰喳?
+}                                              // 隞?憛???
+public interface IPlayerEndTurnEffect          // 摰???拙振??蝯???隞嚗?鈭?蝝??摰嗅?????????????
+{                                              // 隞?憛?憪?
+    void OnPlayerEndTurn(Enemy enemy);         // ?函摰嗅??????澆嚗靘???蝥抒???憒??銵嚗?
+}                                              // 隞?憛???
+
+public class DefaultElementalStrategy : IElementalStrategy // ?身??蝑撖虫?嚗??遙雿????寞?嚗蝝??喳??瑕拿
+{                                              // 憿?憛?憪?
+    public virtual int CalculateDamage(Player attacker, Enemy defender, int baseDamage) // virtual ?迂摮??亥?撖?
+    {                                          // ?寞??憛?憪?
+        return baseDamage;                     // ?湔??箇??瑕拿嚗??遙雿???
+    }                                          // ?寞??憛???
+}                                              // 憿?憛???
+
+public class FireStrategy : DefaultElementalStrategy // ?怠?蝝??伐?蝜潭?身蝑
+{                                              // 憿?憛?憪?
+    public override int CalculateDamage(Player attacker, Enemy defender, int baseDamage) // 閬神?瑕拿閮?嚗???畾?????
+    {                                          // ?寞??憛?憪?
+        int dmg = baseDamage;                  // ?誑?箇??瑕拿?箄絲暺?銋?靘???靽格迤
 
         ElementType? latestReactive = ElementReactionOrderHelper.GetLatestReactiveTag(
         defender,
         new[] { ElementType.Water, ElementType.Ice, ElementType.Wood, ElementType.Thunder });
 
-        if (latestReactive == ElementType.Water)              // 若防守者身上有水元素
-        {                                                        // if 區塊開始
-            dmg = Mathf.CeilToInt(baseDamage * 1.5f);            // 火遇水：提高傷害 1.5 倍並無條件進位
-            defender.RemoveElementTag(ElementType.Water);        // 移除水標記
-            defender.AddElementTag(ElementType.Fire);            // 新增火標記（表示被火附著）
-        }                                                        // if 區塊結束
-        else if (latestReactive == ElementType.Ice)           // 否則若有冰元素
-        {                                                        // else if 區塊開始
-            dmg = Mathf.CeilToInt(baseDamage * 1.5f);            // 火融冰：同樣 1.5 倍傷害
-            defender.RemoveElementTag(ElementType.Ice);          // 移除冰標記
-            defender.AddElementTag(ElementType.Fire);            // 加上火標記
-        }                                                        // else if 區塊結束
-        else if (latestReactive == ElementType.Wood)          // 若有木元素
-        {                                                        // else if 區塊開始
-            defender.SetBurningTurns(5);                         // 點燃木頭：設定燃燒持續 5 回合
-            defender.RemoveElementTag(ElementType.Wood);         // 燃燒後木材被消耗
-            defender.AddElementTag(ElementType.Fire);            // 燃燒後保留火元素附著
-        }                                                        // else if 區塊結束
-        else if (latestReactive == ElementType.Thunder)       // 若有雷元素
-        {                                                        // else if 區塊開始
-            ElementType keep = ElementType.Fire;                 // 反應後保留的元素：火
-            ElementType remove = ElementType.Thunder;            // 反應後要移除的元素：雷
-            Board board = GameObject.FindObjectOfType<Board>();  // 在場景中尋找 Board 實例（棋盤/格子管理）
-            if (board != null)                                   // 若成功找到 Board
-            {                                                    // if 區塊開始
-                foreach (var en in GameObject.FindObjectsOfType<Enemy>()) // 迴圈遍歷場景中所有 Enemy
-                {                                                // foreach 區塊開始
-                    if (en == defender) continue;                // 跳過本體（不處理自己）
-                    if (Vector2Int.Distance(en.gridPosition, defender.gridPosition) <= 2.3f) // 若距離小於等於 2.3（視為相鄰）
-                    {                                            // if 區塊開始
-                        int spreadDmg = Mathf.CeilToInt(baseDamage * 0.5f); // 相鄰敵人受到 0.5 倍基礎傷害
-                        if (spreadDmg > 0) en.TakeDamage(spreadDmg); // 造成最終傷害
-                    }                                            // if 區塊結束
-                }                                                // foreach 區塊結束
-            }                                                    // if 區塊結束
-            defender.RemoveElementTag(remove);                   // 從本體移除雷元素標記
-            defender.AddElementTag(keep);                        // 給本體加上火元素標記
-        }                                                        // else if 區塊結束
-        else                                                     // 若沒有任何特定相剋元素
-        {                                                        // else 區塊開始
-            defender.AddElementTag(ElementType.Fire);            // 單純附著火元素
-        }                                                        // else 區塊結束
+        if (latestReactive == ElementType.Water)              // ?仿摰澈銝?瘞游?蝝?
+        {                                                        // if ?憛?憪?
+            dmg = Mathf.CeilToInt(baseDamage * 1.5f);            // ?恍?瘞湛????瑕拿 1.5 ?蒂?⊥?隞園脖?
+            defender.RemoveElementTag(ElementType.Water);        // 蝘駁瘞湔?閮?
+            defender.AddElementTag(ElementType.Fire);            // ?啣??急?閮?銵函內鋡怎??嚗?
+        }                                                        // if ?憛???
+        else if (latestReactive == ElementType.Ice)           // ?血??交??啣?蝝?
+        {                                                        // else if ?憛?憪?
+            dmg = Mathf.CeilToInt(baseDamage * 1.5f);            // ?怨??堆??見 1.5 ?摰?
+            defender.RemoveElementTag(ElementType.Ice);          // 蝘駁?唳?閮?
+            defender.AddElementTag(ElementType.Fire);            // ???急?閮?
+        }                                                        // else if ?憛???
+        else if (latestReactive == ElementType.Wood)          // ?交??典?蝝?
+        {                                                        // else if ?憛?憪?
+            defender.SetBurningTurns(5);                         // 暺??券嚗身摰???蝥?5 ??
+            defender.RemoveElementTag(ElementType.Wood);         // ??敺?◤瘨?
+            defender.AddElementTag(ElementType.Fire);            // ??敺??????
+        }                                                        // else if ?憛???
+        else if (latestReactive == ElementType.Thunder)       // ?交??瑕?蝝?
+        {                                                        // else if ?憛?憪?
+            ElementType keep = ElementType.Fire;                 // ??敺?????嚗
+            ElementType remove = ElementType.Thunder;            // ??敺?蝘駁??蝝???
+            Board board = BattleQueryResolver.ResolveBoard();  // ?典?臭葉撠 Board 撖虫?嚗????澆?蝞∠?嚗?
+            if (board != null)                                   // ?交????Board
+            {                                                    // if ?憛?憪?
+                foreach (var en in BattleQueryResolver.ResolveEnemies()) // 餈游??風?湔銝剜???Enemy
+                {                                                // foreach ?憛?憪?
+                    if (en == defender) continue;                // 頝喲??祇?嚗????芸楛嚗?
+                    if (Vector2Int.Distance(en.gridPosition, defender.gridPosition) <= 2.3f) // ?亥??Ｗ??潛???2.3嚗??箇?堆?
+                    {                                            // if ?憛?憪?
+                        int spreadDmg = Mathf.CeilToInt(baseDamage * 0.5f); // ?賊?萎犖? 0.5 ?蝷摰?
+                        if (spreadDmg > 0) en.TakeDamage(spreadDmg); // ???蝯摰?
+                    }                                            // if ?憛???
+                }                                                // foreach ?憛???
+            }                                                    // if ?憛???
+            defender.RemoveElementTag(remove);                   // 敺擃宏?日??璅?
+            defender.AddElementTag(keep);                        // 蝯行擃?銝??璅?
+        }                                                        // else if ?憛???
+        else                                                     // ?交??遙雿摰??蝝?
+        {                                                        // else ?憛?憪?
+            defender.AddElementTag(ElementType.Fire);            // ?桃????怠?蝝?
+        }                                                        // else ?憛???
 
-        return dmg;                                              // 回傳最終傷害
-    }                                                            // 方法區塊結束
+        return dmg;                                              // ??蝯摰?
+    }                                                            // ?寞??憛???
 
     private void ApplyFireSpreadReaction(Enemy enemy, ref int dmg)
     {
@@ -143,69 +174,69 @@ public class FireStrategy : DefaultElementalStrategy // 火元素策略：繼承
             enemy.AddElementTag(ElementType.Fire);
         }
     }
-}                                                                // 類別區塊結束
+}                                                                // 憿?憛???
 
-public class WaterStrategy : DefaultElementalStrategy            // 水元素策略：只覆寫傷害，沒有回合開始效果
-{                                                                // 類別區塊開始
-    public override int CalculateDamage(Player attacker, Enemy defender, int baseDamage) // 覆寫水元素的傷害計算
-    {                                                            // 方法區塊開始
-        int dmg = baseDamage;                                    // 基礎傷害起點
+public class WaterStrategy : DefaultElementalStrategy            // 瘞游?蝝??伐??芾?撖怠摰喉?瘝???????
+{                                                                // 憿?憛?憪?
+    public override int CalculateDamage(Player attacker, Enemy defender, int baseDamage) // 閬神瘞游?蝝??瑕拿閮?
+    {                                                            // ?寞??憛?憪?
+        int dmg = baseDamage;                                    // ?箇??瑕拿韏琿?
 
         ElementType? latestReactive = ElementReactionOrderHelper.GetLatestReactiveTag(
         defender,
         new[] { ElementType.Fire, ElementType.Ice });
 
-        if (latestReactive == ElementType.Fire)               // 水剋火：若對方有火
-        {                                                        // if 區塊開始
-            dmg = Mathf.CeilToInt(baseDamage * 1.5f);            // 傷害 1.5 倍
-            defender.RemoveElementTag(ElementType.Fire);         // 移除火標記
-            defender.SetBurningTurns(0);                         // 受到水傷害時清除燃燒
-            defender.AddElementTag(ElementType.Water);           // 加上水標記
-        }                                                        // if 區塊結束
-        else if (latestReactive == ElementType.Ice)           // 水 + 冰：凍結判定
-        {                                                        // else if 區塊開始
-            bool freeze = true;                                  // 預設會凍結
-            if (defender.isBoss && UnityEngine.Random.value < 0.5f) // 若是 Boss，有 50% 免疫凍結（隨機）
-                freeze = false;                                  // 設定不凍結
-            if (freeze) defender.SetFrozenTurns(1);              // 若要凍結，設定凍結 1 回合
-            defender.RemoveElementTag(ElementType.Ice);          // 清除冰標記
-            defender.RemoveElementTag(ElementType.Water);        // 清除水標記（反應後兩者皆消失）
-        }                                                        // else if 區塊結束
-        else                                                     // 其餘情況：只是附著水
-        {                                                        // else 區塊開始
-            defender.AddElementTag(ElementType.Water);           // 加上水標記
-        }                                                        // else 區塊結束
+        if (latestReactive == ElementType.Fire)               // 瘞游??恬??亙??寞???
+        {                                                        // if ?憛?憪?
+            dmg = Mathf.CeilToInt(baseDamage * 1.5f);            // ?瑕拿 1.5 ??
+            defender.RemoveElementTag(ElementType.Fire);         // 蝘駁?急?閮?
+            defender.SetBurningTurns(0);                         // ?瘞游摰單?皜??
+            defender.AddElementTag(ElementType.Water);           // ??瘞湔?閮?
+        }                                                        // if ?憛???
+        else if (latestReactive == ElementType.Ice)           // 瘞?+ ?堆????文?
+        {                                                        // else if ?憛?憪?
+            bool freeze = true;                                  // ?身??蝯?
+            if (defender.isBoss && UnityEngine.Random.value < 0.5f) // ?交 Boss嚗? 50% ???嚗璈?
+                freeze = false;                                  // 閮剖?銝?蝯?
+            if (freeze) defender.SetFrozenTurns(1);              // ?亥???嚗身摰?蝯?1 ??
+            defender.RemoveElementTag(ElementType.Ice);          // 皜?唳?閮?
+            defender.RemoveElementTag(ElementType.Water);        // 皜瘞湔?閮???敺??瘨仃嚗?
+        }                                                        // else if ?憛???
+        else                                                     // ?園???嚗?舫??偌
+        {                                                        // else ?憛?憪?
+            defender.AddElementTag(ElementType.Water);           // ??瘞湔?閮?
+        }                                                        // else ?憛???
 
-        ApplyElementToTiles(defender, ElementType.Water);        // 將水元素標記擴散到格子
+        ApplyElementToTiles(defender, ElementType.Water);        // 撠偌??璅??湔?唳摮?
 
-        return dmg;                                              // 回傳最終傷害
-    }                                                            // 方法區塊結束
+        return dmg;                                              // ??蝯摰?
+    }                                                            // ?寞??憛???
 
-    private void ApplyElementToTiles(Enemy defender, ElementType element) // 協助方法：在格子上附著元素
+    private void ApplyElementToTiles(Enemy defender, ElementType element) // ??寞?嚗?澆?銝???蝝?
     {
-        Board board = GameObject.FindObjectOfType<Board>();      // 尋找場上的棋盤
-        if (board == null) return;                               // 若沒有棋盤則不處理
+        Board board = BattleQueryResolver.ResolveBoard();      // 撠?港?????
+        if (board == null) return;                               // ?交????文?銝???
 
-        BoardTile current = board.GetTileAt(defender.gridPosition); // 取得敵人所在格子
-        if (current != null) current.AddElement(element);        // 在該格子加入元素標籤
+        BoardTile current = board.GetTileAt(defender.gridPosition); // ???萎犖??冽摮?
+        if (current != null) current.AddElement(element);        // ?刻府?澆????璅惜
 
-        foreach (var adj in board.GetAdjacentTiles(defender.gridPosition)) // 迭代相鄰格子
+        foreach (var adj in board.GetAdjacentTiles(defender.gridPosition)) // 餈凋誨?賊?澆?
         {
-            adj.AddElement(element);                             // 相鄰格子也加入相同元素標籤
+            adj.AddElement(element);                             // ?賊?澆?銋??亦??蝝?蝐?
         }
     }
-}                                                                // 類別區塊結束
+}                                                                // 憿?憛???
 
-public class ThunderStrategy : DefaultElementalStrategy          // 雷元素策略：多種連鎖、傳導反應
-{                                                                // 類別區塊開始
-    public override int CalculateDamage(Player attacker, Enemy defender, int baseDamage) // 覆寫雷元素傷害計算
-    {                                                            // 方法區塊開始
-        Board board = GameObject.FindObjectOfType<Board>();      // 快取場上的棋盤
-        Enemy[] allEnemies = GameObject.FindObjectsOfType<Enemy>(); // 快取所有敵人，避免重複搜尋
-        int dmg = ResolveThunderHit(attacker, defender, baseDamage, HitContext.Direct, board, allEnemies); // 共用邏輯
+public class ThunderStrategy : DefaultElementalStrategy          // ?瑕?蝝??伐?憭車????撠???
+{                                                                // 憿?憛?憪?
+    public override int CalculateDamage(Player attacker, Enemy defender, int baseDamage) // 閬神?瑕?蝝摰唾?蝞?
+    {                                                            // ?寞??憛?憪?
+        Board board = BattleQueryResolver.ResolveBoard();      // 敹怠??港?????
+        Enemy[] allEnemies = BattleQueryResolver.ResolveEnemies(); // 敹怠???鈭綽??踹?????
+        int dmg = ResolveThunderHit(attacker, defender, baseDamage, HitContext.Direct, board, allEnemies); // ?梁?摩
 
-        return dmg;                                              // 回傳最終傷害
-    }                                                            // 方法區塊結束
+        return dmg;                                              // ??蝯摰?
+    }                                                            // ?寞??憛???
 
     private enum HitContext
     {
@@ -215,122 +246,122 @@ public class ThunderStrategy : DefaultElementalStrategy          // 雷元素策
 
     private int ResolveThunderHit(Player attacker, Enemy defender, int baseDamage, HitContext context, Board board, Enemy[] allEnemies)
     {
-        int dmg = baseDamage;                                    // 基礎傷害
-        bool isChain = context == HitContext.Chain;              // 是否為連鎖命中
+        int dmg = baseDamage;                                    // ?箇??瑕拿
+        bool isChain = context == HitContext.Chain;              // ?臬?粹???賭葉
 
-        if (isChain)                                             // 連鎖命中先移除水，避免 BFS 套 BFS
-        defender.RemoveElementTag(ElementType.Water);        // 導電後移除水，避免無限反應
+        if (isChain)                                             // ????賭葉?宏?斗偌嚗??BFS 憟?BFS
+        defender.RemoveElementTag(ElementType.Water);        // 撠敺宏?斗偌嚗?????
 
         ElementType? latestReactive = ElementReactionOrderHelper.GetLatestReactiveTag(
         defender,
         new[] { ElementType.Fire, ElementType.Water, ElementType.Ice, ElementType.Wood });
-        bool defenderOnWaterTile = false;                        // 防守者腳下的格子是否帶有水元素
+        bool defenderOnWaterTile = false;                        // ?脣??銝??澆??臬撣嗆?瘞游?蝝?
 
-        if (board != null && !isChain)                           // 需要棋盤資訊才能檢查格子元素
+        if (board != null && !isChain)                           // ?閬??方?閮??賣炎?交摮?蝝?
         {
-            BoardTile defenderTile = board.GetTileAt(defender.gridPosition); // 取得當前格子
-            defenderOnWaterTile = defenderTile != null && defenderTile.HasElement(ElementType.Water); // 判斷格子是否帶水
+            BoardTile defenderTile = board.GetTileAt(defender.gridPosition); // ???嗅??澆?
+            defenderOnWaterTile = defenderTile != null && defenderTile.HasElement(ElementType.Water); // ?斗?澆??臬撣嗆偌
         }
 
-        if (latestReactive == ElementType.Fire)               // 雷 + 火：擴散到周圍（與火類似，但元素交換不同）
-        {                                                        // if 區塊開始
-            ElementType keep = ElementType.Thunder;              // 保留雷
-            ElementType remove = ElementType.Fire;               // 移除火
+        if (latestReactive == ElementType.Fire)               // ??+ ?恬??湔?啣???憿撮嚗???鈭斗?銝?嚗?
+        {                                                        // if ?憛?憪?
+            ElementType keep = ElementType.Thunder;              // 靽???
+            ElementType remove = ElementType.Fire;               // 蝘駁??
             
-            if (board != null)                                   // 若找到
-            {                                                    // if 區塊開始
-                foreach (var en in allEnemies)                   // 迭代所有敵人
-                {                                                // foreach 區塊開始
-                    if (en == defender) continue;                // 跳過自己
-                    if (Vector2Int.Distance(en.gridPosition, defender.gridPosition) <= 2.3f) // 相鄰判定
-                    {                                            // if 區塊開始
-                        int spreadDmg = Mathf.CeilToInt(baseDamage * 0.5f); // 相鄰扣 0.5 倍
+            if (board != null)                                   // ?交??
+            {                                                    // if ?憛?憪?
+                foreach (var en in allEnemies)                   // 餈凋誨??鈭?
+                {                                                // foreach ?憛?憪?
+                    if (en == defender) continue;                // 頝喲??芸楛
+                    if (Vector2Int.Distance(en.gridPosition, defender.gridPosition) <= 2.3f) // ?賊?文?
+                    {                                            // if ?憛?憪?
+                        int spreadDmg = Mathf.CeilToInt(baseDamage * 0.5f); // ?賊??0.5 ??
                         if (spreadDmg > 0) en.TakeDamage(spreadDmg);
-                    }                                            // if 區塊結束
-                }                                                // foreach 區塊結束
-            }                                                    // if 區塊結束
-            defender.RemoveElementTag(remove);                   // 移除本體火
-            defender.AddElementTag(keep);                        // 本體加雷
-        }                                                        // if 區塊結束
-        else if (latestReactive == ElementType.Water || (latestReactive == null && defenderOnWaterTile))     // 雷 + 水：導電擴散，判斷敵人是否帶水或站在水格
-        {                                                        // else if 區塊開始
-            if (board != null)                                   // 需要棋盤資訊才能追蹤水元素連鎖
-            {                                                    // if 區塊開始
-                var enemyByPos = new Dictionary<Vector2Int, Enemy>(); // 建立座標到敵人的映射
-                foreach (var en in allEnemies)                   // 迭代所有敵人
-                {                                                // foreach 區塊開始
-                    if (!enemyByPos.ContainsKey(en.gridPosition)) // 避免重複加入同座標
-                        enemyByPos[en.gridPosition] = en;        // 建立映射
-                }                                                // foreach 區塊結束
+                    }                                            // if ?憛???
+                }                                                // foreach ?憛???
+            }                                                    // if ?憛???
+            defender.RemoveElementTag(remove);                   // 蝘駁?祇???
+            defender.AddElementTag(keep);                        // ?祇??
+        }                                                        // if ?憛???
+        else if (latestReactive == ElementType.Water || (latestReactive == null && defenderOnWaterTile))     // ??+ 瘞湛?撠?湔嚗?瑟鈭箸?血葆瘞湔?蝡瘞湔
+        {                                                        // else if ?憛?憪?
+            if (board != null)                                   // ?閬??方?閮??質蕭頩斗偌?????
+            {                                                    // if ?憛?憪?
+                var enemyByPos = new Dictionary<Vector2Int, Enemy>(); // 撱箇?摨扳??唳鈭箇???
+                foreach (var en in allEnemies)                   // 餈凋誨??鈭?
+                {                                                // foreach ?憛?憪?
+                    if (!enemyByPos.ContainsKey(en.gridPosition)) // ?踹?????漣璅?
+                        enemyByPos[en.gridPosition] = en;        // 撱箇???
+                }                                                // foreach ?憛???
 
-                Queue<Vector2Int> pending = new Queue<Vector2Int>(); // 佇列：待處理的格子座標
-                HashSet<Vector2Int> visited = new HashSet<Vector2Int>(); // 紀錄已處理過的格子
-                HashSet<Enemy> chainTargets = new HashSet<Enemy>(); // 需要承受連鎖傷害的敵人
+                Queue<Vector2Int> pending = new Queue<Vector2Int>(); // 雿?嚗????摮漣璅?
+                HashSet<Vector2Int> visited = new HashSet<Vector2Int>(); // 蝝?歇?????澆?
+                HashSet<Enemy> chainTargets = new HashSet<Enemy>(); // ?閬????瑕拿?鈭?
 
-                pending.Enqueue(defender.gridPosition);          // 以被攻擊者所在格子為起點
-                visited.Add(defender.gridPosition);              // 標記起點已拜訪
+                pending.Enqueue(defender.gridPosition);          // 隞亥◤?餅????冽摮韏琿?
+                visited.Add(defender.gridPosition);              // 璅?韏琿?撌脫?閮?
 
-                while (pending.Count > 0)                        // BFS 掃描所有相連水元素格子
-                {                                                // while 區塊開始
-                    Vector2Int current = pending.Dequeue();      // 取出目前處理的格子
-                    var neighbors = board.GetAdjacentTiles(current); // 取得相鄰格子
-                    foreach (var tile in neighbors)              // 檢查每個鄰居
-                    {                                            // foreach 區塊開始
-                        Vector2Int pos = tile.gridPosition;      // 鄰居座標
+                while (pending.Count > 0)                        // BFS ??????偌???澆?
+                {                                                // while ?憛?憪?
+                    Vector2Int current = pending.Dequeue();      // ??桀????摮?
+                    var neighbors = board.GetAdjacentTiles(current); // ???賊?澆?
+                    foreach (var tile in neighbors)              // 瑼Ｘ瘥撅?
+                    {                                            // foreach ?憛?憪?
+                        Vector2Int pos = tile.gridPosition;      // ?啣?摨扳?
 
-                        enemyByPos.TryGetValue(pos, out Enemy occupant); // 試著找到該格子的敵人
-                        bool tileHasWater = tile.HasElement(ElementType.Water); // 格子是否有水標籤
-                        bool enemyHasWater = occupant != null && occupant.HasElement(ElementType.Water); // 敵人是否有水標籤
+                        enemyByPos.TryGetValue(pos, out Enemy occupant); // 閰西??曉閰脫摮??萎犖
+                        bool tileHasWater = tile.HasElement(ElementType.Water); // ?澆??臬?偌璅惜
+                        bool enemyHasWater = occupant != null && occupant.HasElement(ElementType.Water); // ?萎犖?臬?偌璅惜
 
-                        if (!tileHasWater && !enemyHasWater)     // 若格子與敵人都沒有水標籤
-                            continue;                            // 不進入連鎖
+                        if (!tileHasWater && !enemyHasWater)     // ?交摮??萎犖?賣??偌璅惜
+                            continue;                            // 銝脣???
 
-                        if (!visited.Add(pos)) continue;         // 已處理則跳過
-                        pending.Enqueue(pos);                    // 加入待處理佇列，繼續擴散
+                        if (!visited.Add(pos)) continue;         // 撌脰???頝喲?
+                        pending.Enqueue(pos);                    // ?敺?????蝜潛??湔
 
-                        if (occupant != null && occupant != defender) // 只對其他敵人造成傷害
-                            chainTargets.Add(occupant);          // 加入連鎖傷害目標
-                    }                                            // foreach 區塊結束
-                }                                                // while 區塊結束
+                        if (occupant != null && occupant != defender) // ?芸??嗡??萎犖???瑕拿
+                            chainTargets.Add(occupant);          // ?????瑕拿?格?
+                    }                                            // foreach ?憛???
+                }                                                // while ?憛???
 
-                foreach (var target in chainTargets)             // 對所有連鎖目標造成傷害
-                {                                                // foreach 區塊開始
+                foreach (var target in chainTargets)             // 撠?????格????瑕拿
+                {                                                // foreach ?憛?憪?
                     ResolveThunderHit(attacker, target, baseDamage, HitContext.Chain, board, allEnemies);
-                }                                                // foreach 區塊結束
-            }                                                    // if 區塊結束
-            else                                                 // 若場上無棋盤資訊
-            {                                                    // else 區塊開始
-                foreach (var en in allEnemies)                   // 退回舊邏輯：僅處理相鄰且帶水的敵人
-                {                                                // foreach 區塊開始
-                    if (en == defender) continue;                // 跳過自己
-                    bool adjacent = Vector2Int.Distance(en.gridPosition, defender.gridPosition) <= 2.3f; // 是否相鄰
-                    if (adjacent && en.HasElement(ElementType.Water)) // 僅當敵人身上有水標籤
+                }                                                // foreach ?憛???
+            }                                                    // if ?憛???
+            else                                                 // ?亙銝璉鞈?
+            {                                                    // else ?憛?憪?
+                foreach (var en in allEnemies)                   // ????摩嚗????賊銝葆瘞渡??萎犖
+                {                                                // foreach ?憛?憪?
+                    if (en == defender) continue;                // 頝喲??芸楛
+                    bool adjacent = Vector2Int.Distance(en.gridPosition, defender.gridPosition) <= 2.3f; // ?臬?賊
+                    if (adjacent && en.HasElement(ElementType.Water)) // ??萎犖頨思??偌璅惜
                     {
-                        en.TakeDamage(baseDamage);               // 造成基礎傷害
-                        en.RemoveElementTag(ElementType.Water);  // 導電後移除水，避免無限反應
+                        en.TakeDamage(baseDamage);               // ???箇??瑕拿
+                        en.RemoveElementTag(ElementType.Water);  // 撠敺宏?斗偌嚗?????
                     }
-                }                                                // foreach 區塊結束
-            }                                                    // else 區塊結束
-            defender.RemoveElementTag(ElementType.Water);         // 導電結算後清除水標記
-            defender.AddElementTag(ElementType.Thunder); // 以導電結果為主，若沒有其他反應則附著雷
-        }                                                        // else if 區塊結束
-        else if (TryApplyThunderReactionWithoutWater(defender, false, null, ref dmg)) // 先檢查冰/木組合（依最新附著順序）
-        {                                                        // else if 區塊開始
-            // 反應處理已在 helper 內完成
-        }                                                        // else if 區塊結束
-        else                                                     // 沒有特別反應
-        {                                                        // else 區塊開始
-            defender.AddElementTag(ElementType.Thunder);         // 單純附著雷
-        }                                                        // else 區塊結束
+                }                                                // foreach ?憛???
+            }                                                    // else ?憛???
+            defender.RemoveElementTag(ElementType.Water);         // 撠蝯?敺??斗偌璅?
+            defender.AddElementTag(ElementType.Thunder); // 隞亙??餌??銝鳴??交??隞???????
+        }                                                        // else if ?憛???
+        else if (TryApplyThunderReactionWithoutWater(defender, false, null, ref dmg)) // ?炎?亙/?函???靘??圈???摨?
+        {                                                        // else if ?憛?憪?
+            // ????撌脣 helper ?批???
+        }                                                        // else if ?憛???
+        else                                                     // 瘝??孵??
+        {                                                        // else ?憛?憪?
+            defender.AddElementTag(ElementType.Thunder);         // ?桃?????
+        }                                                        // else ?憛???
         
-        if (defender.superconduct)                               // 若超導狀態生效
-        {                                                        // if 區塊開始
-            dmg += 6;                                            // 額外加 6 點固定傷害
-            defender.superconduct = false;                       // 清除超導狀態
-        }                                                        // if 區塊結束
+        if (defender.superconduct)                               // ?亥?撠?????
+        {                                                        // if ?憛?憪?
+            dmg += 6;                                            // 憿???6 暺摰摰?
+            defender.superconduct = false;                       // 皜頞????
+        }                                                        // if ?憛???
 
-        if (isChain && dmg > 0)                                  // 連鎖命中才直接扣血
-        defender.TakeDamage(dmg);                            // 造成等同基礎值的傷害
+        if (isChain && dmg > 0)                                  // ????賭葉??交銵
+        defender.TakeDamage(dmg);                            // ??蝑??箇??潛??瑕拿
 
         return dmg;
     }
@@ -344,8 +375,8 @@ public class ThunderStrategy : DefaultElementalStrategy          // 雷元素策
         if (latestReactive == ElementType.Water)
         {
             enemy.RemoveElementTag(ElementType.Water);
-            bool reacted = TryApplyThunderReactionWithoutWater(enemy, false, null, ref dmg); // 水導電後檢查冰/木
-            if (!reacted) enemy.AddElementTag(ElementType.Thunder); // 無反應才附著雷
+            bool reacted = TryApplyThunderReactionWithoutWater(enemy, false, null, ref dmg); // 瘞游??餃?瑼Ｘ????
+            if (!reacted) enemy.AddElementTag(ElementType.Thunder); // ?∪???????
             return;
         }
         if (latestReactive == ElementType.Fire)
@@ -365,13 +396,13 @@ public class ThunderStrategy : DefaultElementalStrategy          // 雷元素策
     }
 
     /// <summary>
-    /// 處理雷元素與非水元素（冰或木）的組合反應。
+    /// ???瑕?蝝??偌??嚗?嚗?蝯?????
     /// </summary>
-    /// <param name="target">要處理的目標敵人。</param>
-    /// <param name="zeroDamageOnReact">若發生反應，是否將當前傷害歸零。</param>
-    /// <param name="latestReactive">外部已計算好的最新可反應元素，若為 null 則在此計算。</param>
-    /// <param name="dmg">傳入的傷害引用，視情況可能被重設。</param>
-    /// <returns>若有發生反應則回傳 true。</returns>
+    /// <param name="target">閬????格??萎犖??/param>
+    /// <param name="zeroDamageOnReact">?亦?????臬撠?摰單飛?嗚?/param>
+    /// <param name="latestReactive">憭撌脰?蝞末???啣????嚗??null ?甇方?蝞?/param>
+    /// <param name="dmg">?喳?摰喳??剁?閬?瘜?質◤?身??/param>
+    /// <returns>?交??潛???????true??/returns>
     private static bool TryApplyThunderReactionWithoutWater(Enemy target, bool zeroDamageOnReact, ElementType? latestReactive, ref int dmg)
     {
         ElementType? reactive = latestReactive ?? ElementReactionOrderHelper.GetLatestReactiveTag(
@@ -398,68 +429,68 @@ public class ThunderStrategy : DefaultElementalStrategy          // 雷元素策
 
         return false;
     }
-}                                                                // 類別區塊結束
+}                                                                // 憿?憛???
 
-public class IceStrategy : DefaultElementalStrategy              // 冰元素策略
-{                                                                // 類別區塊開始
-    public override int CalculateDamage(Player attacker, Enemy defender, int baseDamage) // 覆寫冰的傷害計算
-    {                                                            // 方法區塊開始
-        int dmg = baseDamage;                                    // 基礎傷害
+public class IceStrategy : DefaultElementalStrategy              // ?啣?蝝???
+{                                                                // 憿?憛?憪?
+    public override int CalculateDamage(Player attacker, Enemy defender, int baseDamage) // 閬神?啁??瑕拿閮?
+    {                                                            // ?寞??憛?憪?
+        int dmg = baseDamage;                                    // ?箇??瑕拿
 
         ElementType? latestReactive = ElementReactionOrderHelper.GetLatestReactiveTag(
         defender,
         new[] { ElementType.Fire, ElementType.Water, ElementType.Thunder, ElementType.Wood });
 
-        if (latestReactive == ElementType.Fire)               // 冰 + 火：互剋（實作為 1.5 倍並覆蓋火）
-        {                                                        // if 區塊開始
-            dmg = Mathf.CeilToInt(baseDamage * 1.5f);            // 1.5 倍傷害
-            defender.RemoveElementTag(ElementType.Fire);         // 移除火
-            defender.SetBurningTurns(0);                         // 受到冰傷害時清除燃燒
-            defender.AddElementTag(ElementType.Ice);             // 附著冰
-        }                                                        // if 區塊結束
-        else if (latestReactive == ElementType.Water)         // 冰 + 水：凍結機率判定
-        {                                                        // else if 區塊開始
-            bool freeze = true;                                  // 預設凍結
-            if (defender.isBoss && UnityEngine.Random.value < 0.5f) // Boss 有 50% 免疫
-                freeze = false;                                  // 改為不凍結
-            if (freeze) defender.SetFrozenTurns(1);              // 凍結 1 回合
-            defender.RemoveElementTag(ElementType.Ice);          // 清除冰
-            defender.RemoveElementTag(ElementType.Water);        // 清除水
-        }                                                        // else if 區塊結束
-        else if (latestReactive == ElementType.Thunder)       // 冰 + 雷：超導
-        {                                                        // else if 區塊開始
-            defender.superconduct = true;                        // 開啟超導
-            defender.RemoveElementTag(ElementType.Thunder);      // 移除雷
-            defender.RemoveElementTag(ElementType.Ice);          // 移除冰
-        }                                                        // else if 區塊結束
-        else if (latestReactive == ElementType.Wood)          // 冰 + 木：結霜
-        {                                                        // else if 區塊開始
-            defender.AddFrostStacks(1);                          // 疊加結霜層數
-            defender.RemoveElementTag(ElementType.Wood);         // 移除木
-            defender.RemoveElementTag(ElementType.Ice);          // 移除冰
-        }                                                        // else if 區塊結束
-        else                                                     // 無特殊反應
-        {                                                        // else 區塊開始
-            defender.AddElementTag(ElementType.Ice);             // 單純附著冰
-        }                                                        // else 區塊結束
+        if (latestReactive == ElementType.Fire)               // ??+ ?恬?鈭?嚗祕雿 1.5 ?蒂閬??恬?
+        {                                                        // if ?憛?憪?
+            dmg = Mathf.CeilToInt(baseDamage * 1.5f);            // 1.5 ?摰?
+            defender.RemoveElementTag(ElementType.Fire);         // 蝘駁??
+            defender.SetBurningTurns(0);                         // ??啣摰單?皜??
+            defender.AddElementTag(ElementType.Ice);             // ????
+        }                                                        // if ?憛???
+        else if (latestReactive == ElementType.Water)         // ??+ 瘞湛???璈??文?
+        {                                                        // else if ?憛?憪?
+            bool freeze = true;                                  // ?身??
+            if (defender.isBoss && UnityEngine.Random.value < 0.5f) // Boss ??50% ?
+                freeze = false;                                  // ?寧銝?蝯?
+            if (freeze) defender.SetFrozenTurns(1);              // ?? 1 ??
+            defender.RemoveElementTag(ElementType.Ice);          // 皜??
+            defender.RemoveElementTag(ElementType.Water);        // 皜瘞?
+        }                                                        // else if ?憛???
+        else if (latestReactive == ElementType.Thunder)       // ??+ ?瘀?頞?
+        {                                                        // else if ?憛?憪?
+            defender.superconduct = true;                        // ??頞?
+            defender.RemoveElementTag(ElementType.Thunder);      // 蝘駁??
+            defender.RemoveElementTag(ElementType.Ice);          // 蝘駁??
+        }                                                        // else if ?憛???
+        else if (latestReactive == ElementType.Wood)          // ??+ ?剁?蝯?
+        {                                                        // else if ?憛?憪?
+            defender.AddFrostStacks(1);                          // ??蝯?撅斗
+            defender.RemoveElementTag(ElementType.Wood);         // 蝘駁??
+            defender.RemoveElementTag(ElementType.Ice);          // 蝘駁??
+        }                                                        // else if ?憛???
+        else                                                     // ?∠畾???
+        {                                                        // else ?憛?憪?
+            defender.AddElementTag(ElementType.Ice);             // ?桃?????
+        }                                                        // else ?憛???
 
-        ApplyIceTagToAdjacentEnemies(defender);                  // 將冰元素標記擴散到相鄰敵人
+        ApplyIceTagToAdjacentEnemies(defender);                  // 撠??璅??湔?啁?唳鈭?
 
-        if (defender.superconduct)                               // 若有超導狀態
-        {                                                        // if 區塊開始
-            dmg += 6;                                            // 額外加 6 傷害
-            defender.superconduct = false;                       // 清除狀態
-        }                                                        // if 區塊結束
+        if (defender.superconduct)                               // ?交?頞????
+        {                                                        // if ?憛?憪?
+            dmg += 6;                                            // 憿???6 ?瑕拿
+            defender.superconduct = false;                       // 皜???
+        }                                                        // if ?憛???
 
-        return dmg;                                              // 回傳傷害
-    }                                                            // 方法區塊結束
+        return dmg;                                              // ??瑕拿
+    }                                                            // ?寞??憛???
 
     private void ApplyIceTagToAdjacentEnemies(Enemy defender)
     {
-        Board board = GameObject.FindObjectOfType<Board>();
+        Board board = BattleQueryResolver.ResolveBoard();
         if (board == null) return;
 
-        foreach (var enemy in GameObject.FindObjectsOfType<Enemy>())
+        foreach (var enemy in BattleQueryResolver.ResolveEnemies())
         {
             if (enemy == defender) continue;
             if (Vector2Int.Distance(enemy.gridPosition, defender.gridPosition) <= 2.3f)
@@ -495,78 +526,80 @@ public class IceStrategy : DefaultElementalStrategy              // 冰元素策
             }
         }
     }
-}                                                                // 類別區塊結束
+}                                                                // 憿?憛???
 
 
-public class WoodStrategy : DefaultElementalStrategy             // 木元素策略
-{                                                                // 類別區塊開始
-    public override int CalculateDamage(Player attacker, Enemy defender, int baseDamage) // 覆寫木的傷害計算
-    {                                                            // 方法區塊開始
-        int dmg = baseDamage;                                    // 基礎傷害
+public class WoodStrategy : DefaultElementalStrategy             // ?典?蝝???
+{                                                                // 憿?憛?憪?
+    public override int CalculateDamage(Player attacker, Enemy defender, int baseDamage) // 閬神?函??瑕拿閮?
+    {                                                            // ?寞??憛?憪?
+        int dmg = baseDamage;                                    // ?箇??瑕拿
 
         ElementType? latestReactive = ElementReactionOrderHelper.GetLatestReactiveTag(
         defender,
         new[] { ElementType.Fire, ElementType.Thunder, ElementType.Ice });
 
-        if (latestReactive == ElementType.Fire)               // 木 + 火：引燃木頭（燃燒）
-        {                                                        // if 區塊開始
-            defender.SetBurningTurns(5);                         // 設定 5 回合燃燒
-            defender.RemoveElementTag(ElementType.Wood);         // 燃燒後木材被消耗
-            defender.AddElementTag(ElementType.Fire);            // 燃燒後保留火元素附著
-        }                                                        // if 區塊結束
-        else if (latestReactive == ElementType.Thunder)       // 木 + 雷：蓄力狀態
-        {                                                        // else if 區塊開始
-            defender.RemoveElementTag(ElementType.Wood);         // 移除木
-            defender.RemoveElementTag(ElementType.Thunder);      // 移除雷
-            defender.SetChargedCount(2);                         // 設定蓄力次數
-        }                                                        // else if 區塊結束
-        else if (latestReactive == ElementType.Ice)           // 木 + 冰：結霜
-        {                                                        // else if 區塊開始
-            defender.AddFrostStacks(1);                          // 疊加結霜層數
-            defender.RemoveElementTag(ElementType.Wood);         // 移除木
-            defender.RemoveElementTag(ElementType.Ice);          // 移除冰
-        }                                                        // else if 區塊結束
-        else                                                     // 沒有特殊組合
-        {                                                        // else 區塊開始
-            defender.AddElementTag(ElementType.Wood);            // 單純附著木
-        }                                                        // else 區塊結束
+        if (latestReactive == ElementType.Fire)               // ??+ ?恬?撘??券嚗???
+        {                                                        // if ?憛?憪?
+            defender.SetBurningTurns(5);                         // 閮剖? 5 ????
+            defender.RemoveElementTag(ElementType.Wood);         // ??敺?◤瘨?
+            defender.AddElementTag(ElementType.Fire);            // ??敺??????
+        }                                                        // if ?憛???
+        else if (latestReactive == ElementType.Thunder)       // ??+ ?瘀??????
+        {                                                        // else if ?憛?憪?
+            defender.RemoveElementTag(ElementType.Wood);         // 蝘駁??
+            defender.RemoveElementTag(ElementType.Thunder);      // 蝘駁??
+            defender.SetChargedCount(2);                         // 閮剖???甈⊥
+        }                                                        // else if ?憛???
+        else if (latestReactive == ElementType.Ice)           // ??+ ?堆?蝯?
+        {                                                        // else if ?憛?憪?
+            defender.AddFrostStacks(1);                          // ??蝯?撅斗
+            defender.RemoveElementTag(ElementType.Wood);         // 蝘駁??
+            defender.RemoveElementTag(ElementType.Ice);          // 蝘駁??
+        }                                                        // else if ?憛???
+        else                                                     // 瘝??寞?蝯?
+        {                                                        // else ?憛?憪?
+            defender.AddElementTag(ElementType.Wood);            // ?桃?????
+        }                                                        // else ?憛???
 
-        ApplyElementToTiles(defender, ElementType.Wood);         // 將木元素標記擴散到格子
+        ApplyElementToTiles(defender, ElementType.Wood);         // 撠??璅??湔?唳摮?
 
-        return dmg;                                              // 回傳傷害
-    }                                                            // 方法區塊結束
+        return dmg;                                              // ??瑕拿
+    }                                                            // ?寞??憛???
 
-     private void ApplyElementToTiles(Enemy defender, ElementType element) // 協助方法：在格子上附著元素
+     private void ApplyElementToTiles(Enemy defender, ElementType element) // ??寞?嚗?澆?銝???蝝?
     {
-        Board board = GameObject.FindObjectOfType<Board>();      // 尋找場上的棋盤
-        if (board == null) return;                               // 若沒有棋盤則不處理
+        Board board = BattleQueryResolver.ResolveBoard();      // 撠?港?????
+        if (board == null) return;                               // ?交????文?銝???
 
-        BoardTile current = board.GetTileAt(defender.gridPosition); // 取得敵人所在格子
-        if (current != null) current.AddElement(element);        // 在該格子加入元素標籤
+        BoardTile current = board.GetTileAt(defender.gridPosition); // ???萎犖??冽摮?
+        if (current != null) current.AddElement(element);        // ?刻府?澆????璅惜
 
-        foreach (var adj in board.GetAdjacentTiles(defender.gridPosition)) // 迭代相鄰格子
+        foreach (var adj in board.GetAdjacentTiles(defender.gridPosition)) // 餈凋誨?賊?澆?
         {
-            adj.AddElement(element);                             // 相鄰格子也加入相同元素標籤
+            adj.AddElement(element);                             // ?賊?澆?銋??亦??蝝?蝐?
         }
     }
-}                                                                // 類別區塊結束
+}                                                                // 憿?憛???
 
-public static class ElementalStrategyProvider                    // 提供對應元素策略的靜態工廠/查詢類
-{                                                                // 類別區塊開始
-    private static readonly System.Collections.Generic.Dictionary<ElementType, IElementalStrategy> map = // 映射表：元素類型 → 對應策略實例
-        new System.Collections.Generic.Dictionary<ElementType, IElementalStrategy> // 建立字典實例
-        {                                                    // 初始化器開始
-            { ElementType.Fire, new FireStrategy() },        // 火 → FireStrategy
-            { ElementType.Water, new WaterStrategy() },      // 水 → WaterStrategy
-            { ElementType.Thunder, new ThunderStrategy() },  // 雷 → ThunderStrategy
-            { ElementType.Ice, new IceStrategy() },          // 冰 → IceStrategy
-            { ElementType.Wood, new WoodStrategy() }         // 木 → WoodStrategy
-        };                                                   // 初始化器結束並以分號結束整句
+public static class ElementalStrategyProvider                    // ??撠???蝑???極撱??亥岷憿?
+{                                                                // 憿?憛?憪?
+    private static readonly System.Collections.Generic.Dictionary<ElementType, IElementalStrategy> map = // ??銵剁???憿? ??撠?蝑撖虫?
+        new System.Collections.Generic.Dictionary<ElementType, IElementalStrategy> // 撱箇?摮撖虫?
+        {                                                    // ?????
+            { ElementType.Fire, new FireStrategy() },        // ????FireStrategy
+            { ElementType.Water, new WaterStrategy() },      // 瘞???WaterStrategy
+            { ElementType.Thunder, new ThunderStrategy() },  // ????ThunderStrategy
+            { ElementType.Ice, new IceStrategy() },          // ????IceStrategy
+            { ElementType.Wood, new WoodStrategy() }         // ????WoodStrategy
+        };                                                   // ???蝯?銝虫誑??蝯??游
 
-    public static IElementalStrategy Get(ElementType type)        // 對外取得策略的方法
-    {                                                             // 方法區塊開始
-        if (map.TryGetValue(type, out var strat))                 // 嘗試從字典取得對應策略
-            return strat;                                         // 若找到直接回傳
-        return new DefaultElementalStrategy();                    // 若字典中沒有，回傳預設策略
-    }                                                             // 方法區塊結束
-}                                                                 // 類別區塊結束
+    public static IElementalStrategy Get(ElementType type)        // 撠???蝑?瘜?
+    {                                                             // ?寞??憛?憪?
+        if (map.TryGetValue(type, out var strat))                 // ?岫敺??詨?敺?????
+            return strat;                                         // ?交?啁?亙???
+        return new DefaultElementalStrategy();                    // ?亙??訾葉瘝?嚗??喲?閮剔???
+    }                                                             // ?寞??憛???
+}                                                                 // 憿?憛???
+
+

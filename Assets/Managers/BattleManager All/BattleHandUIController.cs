@@ -149,8 +149,15 @@ public class BattleHandUIController           // 戰鬥場景中「手牌 UI」�
             {
                 var cardUI = handPanel.GetChild(i).GetComponent<CardUI>();
                 var rt = cardUI != null ? cardUI.VisualRect : null;
-                if (rt != null)
-                    cardUI.OriginalAnchoredPosition = rt.anchoredPosition;
+                if (cardUI == null || rt == null) continue;
+
+                var animation = cardUI.GetComponent<CardAnimationController>();
+                if (animation != null && animation.IsPlayingDrawAnimation) continue;
+
+                var drag = cardUI.GetComponent<CardDragHandler>();
+                if (drag != null && drag.IsDragging) continue;
+
+                cardUI.OriginalAnchoredPosition = rt.anchoredPosition;
             }
         }
 

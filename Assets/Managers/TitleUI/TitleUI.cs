@@ -12,6 +12,10 @@ public class TitleUI : MonoBehaviour
     [SerializeField] private Button startButton;
     [SerializeField] private Button newButton;
     [SerializeField] private Button quitButton;
+    [SerializeField] private Button illustratedBookButton;
+
+    [Header("Panels")]
+    [SerializeField] private IllustratedBookPanelController illustratedBookPanelController;
 
     private void Awake()
     {
@@ -34,6 +38,12 @@ public class TitleUI : MonoBehaviour
             quitButton.onClick.RemoveAllListeners();
             quitButton.onClick.AddListener(OnQuitClicked);
         }
+
+        if (illustratedBookButton != null)
+        {
+            illustratedBookButton.onClick.RemoveAllListeners();
+            illustratedBookButton.onClick.AddListener(OnIllustratedBookClicked);
+        }
     }
 
     private void OnStartClicked()
@@ -54,5 +64,10 @@ public class TitleUI : MonoBehaviour
         // 在 Editor 裡按離開可以直接停 Play
         UnityEditor.EditorApplication.isPlaying = false;
 #endif
+    }
+
+    private void OnIllustratedBookClicked()
+    {
+        illustratedBookPanelController?.Open();
     }
 }
