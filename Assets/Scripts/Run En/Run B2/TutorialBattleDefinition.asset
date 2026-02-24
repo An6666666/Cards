@@ -109,16 +109,6 @@ MonoBehaviour:
     enemySpawns:
     - enemyPrefab: {fileID: 4204690724760053818, guid: 0389e1c4bf705174ca9b0340c784871e, type: 3}
       gridPosition: {x: -2, y: 0}
-    - enemyPrefab: {fileID: 4204690724760053818, guid: 0389e1c4bf705174ca9b0340c784871e, type: 3}
-      gridPosition: {x: -4, y: 0}
-    - enemyPrefab: {fileID: 4204690724760053818, guid: 0389e1c4bf705174ca9b0340c784871e, type: 3}
-      gridPosition: {x: -1, y: -2}
-    - enemyPrefab: {fileID: 4204690724760053818, guid: 0389e1c4bf705174ca9b0340c784871e, type: 3}
-      gridPosition: {x: -1, y: 2}
-    - enemyPrefab: {fileID: 4204690724760053818, guid: 0389e1c4bf705174ca9b0340c784871e, type: 3}
-      gridPosition: {x: -3, y: -2}
-    - enemyPrefab: {fileID: 4204690724760053818, guid: 0389e1c4bf705174ca9b0340c784871e, type: 3}
-      gridPosition: {x: -3, y: 2}
     requireElementReaction: 1
     requiredAttackElement: 1
     requiredTargetElement: 4
