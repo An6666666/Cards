@@ -52,8 +52,9 @@ public class HeiGouJing : Enemy
         if (bodyAnimator == null) bodyAnimator = GetComponentInChildren<Animator>(true);
     }
 
-    private void Start()
+    protected override void Start()
     {
+        base.Start();
         // 只讓分身做一次「出生後強制受擊」
         if (!isClone) return;
         if (!needPostSpawnHit) return;
@@ -106,6 +107,7 @@ public class HeiGouJing : Enemy
     {
         hasSplitTriggered = true;
         currentHP = maxHP;
+        RaiseStatusChanged();
         SpawnClonesAndTeleport();
     }
 

@@ -10,6 +10,12 @@ public class PlayerAnimatorController : MonoBehaviour
         animator = GetComponent<Animator>();
     }
 
+    private void Awake()
+    {
+        if (animator == null) animator = GetComponent<Animator>();
+        if (animator == null) animator = GetComponentInChildren<Animator>(true);
+    }
+
     public void SetMoving(bool moving)
     {
         if (animator == null) return;

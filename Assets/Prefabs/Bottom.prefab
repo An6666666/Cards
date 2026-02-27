@@ -720,6 +720,7 @@ MonoBehaviour:
   intentValueNumber: {fileID: 5311838520984853855}
   shieldValueRoot: {fileID: 217385251204329431}
   shieldValueNumber: {fileID: 6648837432336926438}
+  shieldIconRoot: {fileID: 2938809923692047511}
   skillRowRoot: {fileID: 733274850042871441}
   skillSlotPrefab: {fileID: 6270318808721227069, guid: 7ddd7ed096c1f2f4a833d5666a6b9ab3, type: 3}
   statusGridRoot: {fileID: 4900648568990441496}

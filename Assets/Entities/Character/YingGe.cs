@@ -59,8 +59,9 @@ public class YingGe : Enemy, IEnemyCooldownProvider
     }
 
     // Unity 生命週期：Start，通常這裡可以做需要場景都載入後的動作
-    private void Start()
+    protected override void Start()
     {
+        base.Start();
         ApplyInitialMiasma();                          // 一開場就把瘴氣灑到棋盤上
     }
 
@@ -152,6 +153,7 @@ public class YingGe : Enemy, IEnemyCooldownProvider
 
         // block = 現在護甲 + 每回合護甲，確保不會是負的
         block = Mathf.Max(0, block + armorPerTurn);
+        RaiseStatusChanged();
     }
     public int CooldownSlotCount => 1;
 
@@ -470,6 +472,7 @@ public class YingGe : Enemy, IEnemyCooldownProvider
         gridPosition = gridPos;          // 棋盤座標也設成一樣
         SetHidden(false);                // 顯示出來
         SetForceHideIntent(false);       // 復活回來 → 意圖恢復顯示
+        RaiseStatusChanged();
 
         if (battleManager == null)
         {

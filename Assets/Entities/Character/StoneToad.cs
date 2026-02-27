@@ -105,6 +105,7 @@ public class StoneToad : Enemy      // 繼承自自訂的 Enemy 基底類別（�
         if (currentHP <= 0) return;       // 已經死亡就不處理
         block += armorGainPerHit;         // 增加護甲
         ClampArmor();                     // 立刻套用上限
+        RaiseStatusChanged();
     }
 
     private void ClampArmor()            // 將護甲限制在 0 ~ armorCap 之間

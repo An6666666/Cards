@@ -13,6 +13,7 @@ public class EnemyBottomHudFinal : MonoBehaviour
 
     [SerializeField] private GameObject shieldValueRoot;
     [SerializeField] private SpriteNumber shieldValueNumber;
+    [SerializeField] private GameObject shieldIconRoot;
 
     [Header("Skills (Dynamic, keep 0)")]
     [SerializeField] private Transform skillRowRoot;
@@ -69,6 +70,7 @@ public class EnemyBottomHudFinal : MonoBehaviour
         if (enemy == null)
         {
             shieldValueRoot.SetActive(false);
+            if (shieldIconRoot != null) shieldIconRoot.SetActive(false);
             return;
         }
 
@@ -83,6 +85,7 @@ public class EnemyBottomHudFinal : MonoBehaviour
 
         bool show = blockValue > 0;
         shieldValueRoot.SetActive(show);
+        if (shieldIconRoot != null) shieldIconRoot.SetActive(show);
 
         if (show)
             shieldValueNumber.SetValue(blockValue);

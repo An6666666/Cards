@@ -105,6 +105,7 @@ public class PlayerStats : MonoBehaviour
 
         currentHP -= incoming;
         HandleFatalDamage();
+        owner?.PlayWoundedAnim();
     }
 
     public void TakeStatusDamage(int dmg)
@@ -134,6 +135,7 @@ public class PlayerStats : MonoBehaviour
         {
             currentHP -= remaining;
             HandleFatalDamage();
+            owner?.PlayWoundedAnim();
         }
     }
 
