@@ -36,6 +36,11 @@ public class Attack_ShouSha : AttackCardBase
 
         ElementType element = Element;
         int blockValue = Mathf.Max(0, player.block);
+        if (blockValue <= 0)
+        {
+            return;
+        }
+
         int damage = enemy.ApplyElementalAttack(element, blockValue, player);
         enemy.TakeDamage(damage);
 

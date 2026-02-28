@@ -9089,7 +9089,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ec43d2a64345a704981db131db4084ef, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  startingDeck: []
+  startingDeck:
+  - {fileID: 11400000, guid: 6e46d5e13429d2742a580e16ec745461, type: 2}
   debugStartingDeck:
   - {fileID: 11400000, guid: a58c41531431ead4ebb45b0f3f038cbc, type: 2}
   - {fileID: 11400000, guid: a58c41531431ead4ebb45b0f3f038cbc, type: 2}

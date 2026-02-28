@@ -32,6 +32,7 @@ public class GuideNPCPresenter : MonoBehaviour
     private static readonly List<DialogueBubbleUI> dialogueUiCandidates = new List<DialogueBubbleUI>();
     private static readonly List<GuideDialogueDatabase> dialogueDatabaseCandidates = new List<GuideDialogueDatabase>();
     private DialogueBubbleUI subscribedDialogueUI;
+    private Graphic[] selfGraphics;
 
     public void AssignDialogueUI(DialogueBubbleUI ui)
     {
@@ -157,6 +158,7 @@ public class GuideNPCPresenter : MonoBehaviour
     {
         ResolveSceneReferencesIfNeeded();
         KillDelayedHideTween();
+        SetSelfGraphicsVisible(true);
         if (canvasGroup == null)
         {
             return;
@@ -180,6 +182,7 @@ public class GuideNPCPresenter : MonoBehaviour
     public void Hide()
     {
         KillDelayedHideTween();
+        SetSelfGraphicsVisible(false);
         if (canvasGroup == null)
         {
             return;
@@ -258,6 +261,22 @@ public class GuideNPCPresenter : MonoBehaviour
         {
             delayedHideTween.Kill(false);
             delayedHideTween = null;
+        }
+    }
+    private void SetSelfGraphicsVisible(bool visible)
+    {
+        if (selfGraphics == null || selfGraphics.Length == 0)
+        {
+            selfGraphics = GetComponents<Graphic>();
+        }
+
+        for (int i = 0; i < selfGraphics.Length; i++)
+        {
+            Graphic graphic = selfGraphics[i];
+            if (graphic == null)
+                continue;
+
+            graphic.enabled = visible;
         }
     }
     private void ResolveSceneReferencesIfNeeded()
