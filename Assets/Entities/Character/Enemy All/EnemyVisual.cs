@@ -27,6 +27,8 @@ public class EnemyVisual : MonoBehaviour
     public void HandleAwake()
     {
         EnsureAnimators();
+        // Capture once on startup so later resets always return to a stable baseline.
+        CaptureSpriteDefaults();
         enemy?.HideIdleOverlaysInternal();
         enemy?.RefreshIdleOverlaysInternal();
         PlayAppearAnimation();

@@ -3989,6 +3989,85 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
+--- !u!1 &907771917
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 907771918}
+  - component: {fileID: 907771920}
+  - component: {fileID: 907771919}
+  m_Layer: 5
+  m_Name: phaseHintText
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &907771918
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 907771917}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1772713544}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: 0, y: 3}
+  m_SizeDelta: {x: 900, y: 200}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &907771919
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 907771917}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5f7201a12d95ffc409449d95f23cf332, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Material: {fileID: 0}
+  m_Color: {r: 0.8679245, g: 0.7624599, b: 0.33161268, a: 1}
+  m_RaycastTarget: 1
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  m_FontData:
+    m_Font: {fileID: 10102, guid: 0000000000000000e000000000000000, type: 0}
+    m_FontSize: 144
+    m_FontStyle: 3
+    m_BestFit: 0
+    m_MinSize: 10
+    m_MaxSize: 182
+    m_Alignment: 4
+    m_AlignByGeometry: 0
+    m_RichText: 1
+    m_HorizontalOverflow: 1
+    m_VerticalOverflow: 0
+    m_LineSpacing: 1
+  m_Text: "\u9078\u64C7\u843D\u9EDE\u56DE\u5408"
+--- !u!222 &907771920
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 907771917}
+  m_CullTransparentMesh: 1
 --- !u!1 &912867733
 GameObject:
   m_ObjectHideFlags: 0
@@ -7219,25 +7298,29 @@ MonoBehaviour:
   discardPile: {fileID: 1411079090}
   energyText: {fileID: 1881360557}
   endTurnButton: {fileID: 2116894243}
+  phaseHintText: {fileID: 907771919}
+  phaseHintDuration: 1
+  phaseHintFadeInDuration: 0.2
+  phaseHintFadeOutDuration: 0.25
   enemySpawnConfigs:
   - enemyPrefab: {fileID: 4204690724760053818, guid: 87fab54ae39d11f449187455258a17cc, type: 3}
-    count: 1
+    count: 20
   - enemyPrefab: {fileID: 4898516673341191513, guid: a09861f3a2ead1f4f876a9345a60088b, type: 3}
-    count: 1
+    count: 0
   - enemyPrefab: {fileID: 4591814044274373110, guid: e0d91408b43bec24ab02b0d2932a3dfc, type: 3}
-    count: 1
+    count: 0
   - enemyPrefab: {fileID: 7728357840837083407, guid: 6fb8d547b14a881468023f486a977e6b, type: 3}
-    count: 1
+    count: 0
   - enemyPrefab: {fileID: 8258485525033336925, guid: b1fbe62463006294b80e46474639e1f9, type: 3}
-    count: 1
+    count: 0
   - enemyPrefab: {fileID: 8896973269389346778, guid: 8e9ee8b5037fe5048ae8dc2cef4d967f, type: 3}
-    count: 1
+    count: 0
   - enemyPrefab: {fileID: 3762648908618512516, guid: cbb7c20ed40c0294daca78f7a8548c50, type: 3}
-    count: 1
+    count: 0
   - enemyPrefab: {fileID: 40532459971013023, guid: 5ecce71dfdd5e304fa13dac5018a9458, type: 3}
-    count: 1
+    count: 0
   - enemyPrefab: {fileID: 5009010696390418974, guid: ef95fb2219afd6e4193794239db46df1, type: 3}
-    count: 1
+    count: 0
   playerStartPos: {x: 0, y: 0}
   tutorialController: {fileID: 0}
   guaranteedMovementCard: {fileID: 11400000, guid: 105c7f2659020eb478d2fc42c9d7276e, type: 2}
@@ -7287,14 +7370,18 @@ MonoBehaviour:
   - {fileID: 11400000, guid: a9bd81711056b1d45aac54762c90d818, type: 2}
   - {fileID: 11400000, guid: d876defb8189e394ea544f81e465dd70, type: 2}
   - {fileID: 11400000, guid: e4c0ee2d18d944642ae0cf5ffd622b58, type: 2}
-  - {fileID: 11400000, guid: fa7d2466b0cbae34487de46fbf1a86da, type: 2}
+  - {fileID: 11400000, guid: 2c973e808ca2465468b72b07c400f451, type: 2}
   - {fileID: 11400000, guid: 4b17aca886ce6ff488b11e95c1291b15, type: 2}
   - {fileID: 11400000, guid: 6473b4799ec8542459f85042836e0f0e, type: 2}
+  - {fileID: 11400000, guid: ed8af5f3bf807bd4fb2318540cade604, type: 2}
+  - {fileID: 11400000, guid: fa7d2466b0cbae34487de46fbf1a86da, type: 2}
   - {fileID: 11400000, guid: 7f7d6b20d27c4ee488fd366efed5fce3, type: 2}
+  - {fileID: 11400000, guid: 63c85651b6cb70b428a9cae1216f1121, type: 2}
   - {fileID: 11400000, guid: 9d0d809868f7c4c4c8e38ffad7b36899, type: 2}
   - {fileID: 11400000, guid: f64b7419d3d824a42a133bb4a9651876, type: 2}
-  - {fileID: 11400000, guid: 2c973e808ca2465468b72b07c400f451, type: 2}
-  - {fileID: 11400000, guid: ed8af5f3bf807bd4fb2318540cade604, type: 2}
+  - {fileID: 11400000, guid: d0de2f6e31d84634b86870364c54d72e, type: 2}
+  - {fileID: 11400000, guid: 24e31aaea5ce6664dbfe74c7070f81bb, type: 2}
+  - {fileID: 11400000, guid: 6bf4c1a83537ce14f8a130878dc25b93, type: 2}
   rewardUIPrefab: {fileID: 5461426028147158543, guid: 8923449bae0f2f3459534ea2b271150f, type: 3}
   cardUseDelay: 0
 --- !u!4 &1640340007 stripped
@@ -8219,6 +8306,7 @@ RectTransform:
   - {fileID: 554476736}
   - {fileID: 1069138236}
   - {fileID: 112202480}
+  - {fileID: 907771918}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
@@ -8600,7 +8688,7 @@ PrefabInstance:
     - target: {fileID: 5319055684074607263, guid: 6ee8a7298f7c9954d85e9639a13c03db, type: 3}
       propertyPath: dialogueDatabase
       value: 
-      objectReference: {fileID: 11400000, guid: 775b83a7b8350a34f9b65c1da0fc55f1, type: 2}
+      objectReference: {fileID: 11400000, guid: f673d71a9f9ad7e45abb5d3ea1698bef, type: 2}
     - target: {fileID: 5319055684074607263, guid: 6ee8a7298f7c9954d85e9639a13c03db, type: 3}
       propertyPath: hideDelaySeconds
       value: 3

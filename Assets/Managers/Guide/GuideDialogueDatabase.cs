@@ -7,6 +7,8 @@ using UnityEngine;
 [CreateAssetMenu(fileName = "GuideDialogueDatabase", menuName = "Guide/Dialogue Database")]
 public class GuideDialogueDatabase : ScriptableObject
 {
+    private static readonly char[] KeyTrimChars = { ' ', '\t', '\r', '\n', '\u200B', '\uFEFF' };
+
     [System.Serializable]
     public class DialogueEntry
     {
@@ -21,12 +23,20 @@ public class GuideDialogueDatabase : ScriptableObject
 
     public IReadOnlyList<string> GetLines(string key)
     {
-        InitializeIfNeeded();
         if (string.IsNullOrWhiteSpace(key))
-        return null;
+            return null;
 
-        string trimmedKey = key.Trim();
-        return lookup.TryGetValue(trimmedKey, out List<string> lines) ? lines : null;
+        string normalizedKey = NormalizeKey(key);
+        if (string.IsNullOrEmpty(normalizedKey))
+            return null;
+
+        InitializeIfNeeded();
+        if (lookup.TryGetValue(normalizedKey, out List<string> lines) && lines != null && lines.Count > 0)
+            return lines;
+
+        // Fast-enter play mode can keep stale lookup; force one rebuild on miss.
+        RebuildLookup();
+        return lookup.TryGetValue(normalizedKey, out lines) ? lines : null;
     }
 
     private void InitializeIfNeeded()
@@ -34,22 +44,51 @@ public class GuideDialogueDatabase : ScriptableObject
         if (initialized)
             return;
 
+        RebuildLookupInternal();
+    }
+
+    private void RebuildLookup()
+    {
+        initialized = false;
+        RebuildLookupInternal();
+    }
+
+    private void RebuildLookupInternal()
+    {
         lookup.Clear();
         foreach (DialogueEntry entry in entries)
         {
             if (entry == null || string.IsNullOrWhiteSpace(entry.key))
-            continue;
+                continue;
 
-            string trimmedKey = entry.key.Trim();
-            if (string.IsNullOrEmpty(trimmedKey))
-            continue;
+            string normalizedKey = NormalizeKey(entry.key);
+            if (string.IsNullOrEmpty(normalizedKey))
+                continue;
 
-            if (lookup.ContainsKey(trimmedKey))
-            continue;
+            if (lookup.ContainsKey(normalizedKey))
+                continue;
 
-            lookup.Add(trimmedKey, entry.lines ?? new List<string>());
+            lookup.Add(normalizedKey, entry.lines ?? new List<string>());
         }
 
         initialized = true;
+    }
+
+    private static string NormalizeKey(string key)
+    {
+        if (string.IsNullOrEmpty(key))
+            return string.Empty;
+
+        return key.Trim(KeyTrimChars);
+    }
+
+    private void OnValidate()
+    {
+        initialized = false;
+    }
+
+    private void OnEnable()
+    {
+        initialized = false;
     }
 }

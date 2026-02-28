@@ -107,6 +107,7 @@ public class BattleEncounterLoader            // 鞎痊???交擛仿?
 
     private IEnumerator SelectPlayerStartTile()
     {
+        yield return battleManager.ShowBattlePhaseHintAndWait("選擇落點回合");
         isSelectingStartTile = true;                       // 閮剜??迤?券?絲憪??
 
         List<Vector2Int> positions = board.GetAllPositions(); // ??璉銝??摮?摨扳?

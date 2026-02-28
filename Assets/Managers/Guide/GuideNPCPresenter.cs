@@ -30,8 +30,8 @@ public class GuideNPCPresenter : MonoBehaviour
     private Tween visibilityTween;
     private Tween delayedHideTween;
     private static readonly List<DialogueBubbleUI> dialogueUiCandidates = new List<DialogueBubbleUI>();
+    private static readonly List<GuideDialogueDatabase> dialogueDatabaseCandidates = new List<GuideDialogueDatabase>();
     private DialogueBubbleUI subscribedDialogueUI;
-    private Graphic[] selfGraphics;
 
     public void AssignDialogueUI(DialogueBubbleUI ui)
     {
@@ -64,15 +64,59 @@ public class GuideNPCPresenter : MonoBehaviour
         }
 
         string trimmedKey = key.Trim();
-        IReadOnlyList<string> lines = dialogueDatabase != null ? dialogueDatabase.GetLines(trimmedKey) : null;
+        IReadOnlyList<string> lines = null;
+        if (!TryResolveDialogueLines(trimmedKey, out lines))
+        {
+            string databaseName = dialogueDatabase != null ? dialogueDatabase.name : "null";
+            Debug.LogWarning($"[GuideNPCPresenter] Talk aborted: no dialogue lines found for key '{trimmedKey}' (database: {databaseName}).", this);
+            return false;
+        }
+
         if (lines == null || lines.Count == 0)
         {
-            Debug.LogWarning($"[GuideNPCPresenter] Talk aborted: no dialogue lines found for key '{trimmedKey}'.", this);
+            string databaseName = dialogueDatabase != null ? dialogueDatabase.name : "null";
+            Debug.LogWarning($"[GuideNPCPresenter] Talk aborted: no dialogue lines found for key '{trimmedKey}' (database: {databaseName}).", this);
             return false;
         }
 
         TalkLines(lines);
         return true;
+    }
+    private bool TryResolveDialogueLines(string key, out IReadOnlyList<string> lines)
+    {
+        lines = null;
+        if (string.IsNullOrWhiteSpace(key))
+            return false;
+
+        string trimmedKey = key.Trim();
+        if (dialogueDatabase != null)
+        {
+            lines = dialogueDatabase.GetLines(trimmedKey);
+            if (lines != null && lines.Count > 0)
+            {
+                return true;
+            }
+        }
+
+        dialogueDatabaseCandidates.Clear();
+        dialogueDatabaseCandidates.AddRange(Resources.FindObjectsOfTypeAll<GuideDialogueDatabase>());
+
+        for (int i = 0; i < dialogueDatabaseCandidates.Count; i++)
+        {
+            GuideDialogueDatabase candidate = dialogueDatabaseCandidates[i];
+            if (candidate == null || candidate == dialogueDatabase)
+                continue;
+
+            IReadOnlyList<string> candidateLines = candidate.GetLines(trimmedKey);
+            if (candidateLines == null || candidateLines.Count == 0)
+                continue;
+
+            dialogueDatabase = candidate;
+            lines = candidateLines;
+            return true;
+        }
+
+        return false;
     }
     public void ShowReactionVisual(Sprite image, VideoClip video)
     {
@@ -113,9 +157,11 @@ public class GuideNPCPresenter : MonoBehaviour
     {
         ResolveSceneReferencesIfNeeded();
         KillDelayedHideTween();
-        SetSelfGraphicsVisible(true);
         if (canvasGroup == null)
-        return;
+        {
+            return;
+        }
+
         KillVisibilityTween();
         canvasGroup.gameObject.SetActive(true);
         if (!animateVisibility)
@@ -124,6 +170,7 @@ public class GuideNPCPresenter : MonoBehaviour
             canvasGroup.blocksRaycasts = true;
             return;
         }
+        canvasGroup.alpha = 0f;
         visibilityTween = canvasGroup.DOFade(1f, fadeDuration)
             .SetEase(fadeEase)
             .OnStart(() => canvasGroup.blocksRaycasts = true)
@@ -133,38 +180,28 @@ public class GuideNPCPresenter : MonoBehaviour
     public void Hide()
     {
         KillDelayedHideTween();
-        SetSelfGraphicsVisible(false);
-        if (canvasGroup == null)
-        return;
-        KillVisibilityTween();
         if (canvasGroup == null)
         {
-            gameObject.SetActive(false);
             return;
         }
-        visibilityTween = canvasGroup.DOFade(0f, fadeDuration)
-        .SetEase(fadeEase)
-        .OnComplete(() =>
+
+        KillVisibilityTween();
+        if (!animateVisibility)
         {
             canvasGroup.alpha = 0f;
+            canvasGroup.blocksRaycasts = false;
             canvasGroup.gameObject.SetActive(false);
-        });
-    }
-    private void SetSelfGraphicsVisible(bool visible)
-    {
-        if (selfGraphics == null || selfGraphics.Length == 0)
-        {
-            selfGraphics = GetComponents<Graphic>();
+            return;
         }
 
-        for (int i = 0; i < selfGraphics.Length; i++)
-        {
-            Graphic graphic = selfGraphics[i];
-            if (graphic == null)
-                continue;
-
-            graphic.enabled = visible;
-        }
+        visibilityTween = canvasGroup.DOFade(0f, fadeDuration)
+            .SetEase(fadeEase)
+            .OnStart(() => canvasGroup.blocksRaycasts = false)
+            .OnComplete(() =>
+            {
+                canvasGroup.alpha = 0f;
+                canvasGroup.gameObject.SetActive(false);
+            });
     }
     private void Awake()
     {
@@ -239,6 +276,18 @@ public class GuideNPCPresenter : MonoBehaviour
         //    dialogueDatabase = FindObjectOfType<GuideDialogueDatabase>(true);
         //}
 
+        if (canvasGroup == null && dialogueUI != null)
+        {
+            canvasGroup = dialogueUI.GetComponent<CanvasGroup>();
+        }
+        if (canvasGroup == null && dialogueUI != null)
+        {
+            canvasGroup = dialogueUI.GetComponentInParent<CanvasGroup>(true);
+        }
+        if (canvasGroup == null && dialogueUI != null)
+        {
+            canvasGroup = dialogueUI.GetComponentInChildren<CanvasGroup>(true);
+        }
         if (canvasGroup == null)
         {
             canvasGroup = GetComponent<CanvasGroup>();

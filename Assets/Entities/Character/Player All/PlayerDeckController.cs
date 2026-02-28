@@ -5,7 +5,7 @@ using UnityEngine;
 [RequireComponent(typeof(PlayerBuffController))]
 public class PlayerDeckController : MonoBehaviour
 {
-    [Header("韏瑕??∠?閮剖?")]
+    [Header("牌組")]
     [SerializeField] private List<CardBase> startingDeck = new List<CardBase>();
     [SerializeField] private List<CardBase> debugStartingDeck = new List<CardBase>();
     [SerializeField] private bool useDebugDeck = false;

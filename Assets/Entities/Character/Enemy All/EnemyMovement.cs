@@ -5,6 +5,7 @@ using UnityEngine;
 public class EnemyMovement : MonoBehaviour
 {
     private Enemy enemy;
+    private Tween moveTween;
 
     public void Init(Enemy owner)
     {
@@ -87,14 +88,23 @@ public class EnemyMovement : MonoBehaviour
         enemy.gridPosition = targetGridPos;
         enemy.Visual.SetMoveBool(true);
 
-        enemy.transform.DOMove(tile.transform.position, 0.2f)
+        // Kill previous move tween first to avoid overlapping movement animations.
+        if (moveTween != null && moveTween.IsActive())
+        {
+            moveTween.Kill(false);
+            moveTween = null;
+        }
+
+        moveTween = enemy.transform.DOMove(tile.transform.position, 0.2f)
             .SetEase(Ease.Linear)
             .OnUpdate(() => enemy.Sorting.UpdateNow())
             .OnComplete(() =>
             {
+                moveTween = null;
                 enemy.Visual.SetMoveBool(false);
                 enemy.Sorting.UpdateNow();
-                enemy.Visual.CaptureSpriteDefaults();
+                // Do not overwrite sprite defaults here; just snap visual back to baseline.
+                enemy.Visual.ResetSpriteVisual();
             });
     }
 
@@ -110,4 +120,3 @@ public class EnemyMovement : MonoBehaviour
         return context != null ? context.Player : null;
     }
 }
-

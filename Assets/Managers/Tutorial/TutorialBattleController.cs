@@ -376,6 +376,10 @@ public class TutorialBattleController : MonoBehaviour
             return;
 
         Player tutorialPlayer = battleManager != null ? battleManager.player : null;
+        if (board != null)
+        {
+            board.ClearAllTileEffects();
+        }
 
         if (guidePresenter != null && !string.IsNullOrWhiteSpace(step.incorrectOrderDialogueKey))
         {

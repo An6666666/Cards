@@ -635,7 +635,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8333607065587245697, guid: 6ee8a7298f7c9954d85e9639a13c03db, type: 3}
       propertyPath: m_SizeDelta.y
-      value: 100
+      value: 130
       objectReference: {fileID: 0}
     - target: {fileID: 8333607065587245697, guid: 6ee8a7298f7c9954d85e9639a13c03db, type: 3}
       propertyPath: m_LocalScale.x
@@ -683,7 +683,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8333607065587245697, guid: 6ee8a7298f7c9954d85e9639a13c03db, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: -450
+      value: -403.9203
       objectReference: {fileID: 0}
     - target: {fileID: 8333607065587245697, guid: 6ee8a7298f7c9954d85e9639a13c03db, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
@@ -2270,9 +2270,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   npcPresenter: {fileID: 386132828}
   runManager: {fileID: 550176398}
-  runStartKey: Star_one
+  runDialogueDatabase: {fileID: 11400000, guid: f673d71a9f9ad7e45abb5d3ea1698bef, type: 2}
   nodeDialogueKeys:
   - nodeType: 0
+    onEnterKey: Run_Enter_Battle
+    onCompletedKey: 'Run_Complete_Battle '
+  - nodeType: 1
     onEnterKey: Run_Enter_Battle
     onCompletedKey: 'Run_Complete_Battle '
 --- !u!1 &1370335351
@@ -3194,6 +3197,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   hpText: {fileID: 1978707663}
   goldText: {fileID: 1625744139}
+  runManager: {fileID: 0}
+  player: {fileID: 0}
   showHpAsCurrentSlashMax: 1
 --- !u!1 &1892215093
 GameObject:

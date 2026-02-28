@@ -24,6 +24,7 @@ public class RunSceneGuideTrigger : SceneGuideTriggerBase
     [Header("References")]
     [SerializeField] private GuideNPCPresenter npcPresenter;
     [SerializeField] private RunManager runManager;
+    [SerializeField] private GuideDialogueDatabase runDialogueDatabase;
 
     [Header("Dialogue Keys")]
     [SerializeField] private List<NodeDialogueKey> nodeDialogueKeys = new List<NodeDialogueKey>();
@@ -198,6 +199,11 @@ public class RunSceneGuideTrigger : SceneGuideTriggerBase
         if (npcPresenter == null)
         {
             npcPresenter = FindObjectOfType<GuideNPCPresenter>(true);
+        }
+
+        if (npcPresenter != null && runDialogueDatabase != null)
+        {
+            npcPresenter.AssignDatabase(runDialogueDatabase);
         }
     }
 }

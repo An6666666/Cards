@@ -16,7 +16,7 @@ MonoBehaviour:
   cost: 1
   description: "\u9019\u5F35\u724C\u5F9E\u724C\u5EAB\u4E2D\u79FB\u9664\uFF0C\u7372\u5F97\u751F\u547D\u503C\u5C07\u964D\u81F3
     0\u6642\uFF0C\u6539\u70BA\u964D\u81F3 1\uFF0C\u4E26\u589E\u52A010\u9EDE\u8B77\u7532\uFF0C\u89F8\u767C\u5F8C\u6D88\u8017\u6B64\u6548\u679C\u3002"
-  cardImage: {fileID: 21300000, guid: 2374a0131b4821b4daaa9631d4e5d272, type: 3}
+  cardImage: {fileID: 21300000, guid: 72720c431876db246912c2c71dfda850, type: 3}
   exhaustOnUse: 1
   shopPrice: 30
   cardType: 1

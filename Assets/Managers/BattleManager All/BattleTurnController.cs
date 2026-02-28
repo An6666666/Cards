@@ -109,8 +109,16 @@ public class BattleTurnController               // 回合流程控制器：玩�
 
     public void StartPlayerTurn()
     {
+        battleManager.StartCoroutine(StartPlayerTurnRoutine());
+    }
+
+    private IEnumerator StartPlayerTurnRoutine()
+    {
         handUIController.LockCardInteraction();
-        // 一開始先鎖住卡片互動，避免在起始流程中就被操作
+        handUIController.SetEndTurnButtonInteractable(false);
+        // 一開始先鎖住卡片互動與結束回合按鈕，避免提示期間被操作
+
+        yield return battleManager.ShowBattlePhaseHintAndWait("玩家回合");
 
         if (battleManager.BattleStarted)
             handUIController.SetEndTurnButtonInteractable(true);
@@ -199,6 +207,8 @@ public class BattleTurnController               // 回合流程控制器：玩�
 
     public IEnumerator EnemyTurnCoroutine()
     {
+        yield return battleManager.ShowBattlePhaseHintAndWait("妖怪回合");
+
         processingEnemyTurnStart = true;
         // 標記正在處理敵人回合開始
 
