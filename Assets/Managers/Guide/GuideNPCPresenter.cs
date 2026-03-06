@@ -33,6 +33,8 @@ public class GuideNPCPresenter : MonoBehaviour
     private static readonly List<GuideDialogueDatabase> dialogueDatabaseCandidates = new List<GuideDialogueDatabase>();
     private DialogueBubbleUI subscribedDialogueUI;
     private Graphic[] selfGraphics;
+    private float[] selfGraphicBaseAlphas;
+    private bool isHiding;
 
     public void AssignDialogueUI(DialogueBubbleUI ui)
     {
@@ -157,57 +159,125 @@ public class GuideNPCPresenter : MonoBehaviour
     public void Show()
     {
         ResolveSceneReferencesIfNeeded();
+        bool shouldContinueWithoutFade = IsWaitingDelayedHide() || (!isHiding && IsFullyVisible());
         KillDelayedHideTween();
-        SetSelfGraphicsVisible(true);
-        if (canvasGroup == null)
+        if (shouldContinueWithoutFade)
         {
+            EnsureVisibleState();
             return;
         }
 
         KillVisibilityTween();
-        canvasGroup.gameObject.SetActive(true);
         if (!animateVisibility)
         {
-            canvasGroup.alpha = 1f;
-            canvasGroup.blocksRaycasts = true;
+            EnsureVisibleState();
             return;
         }
-        canvasGroup.alpha = 0f;
-        visibilityTween = canvasGroup.DOFade(1f, fadeDuration)
-            .SetEase(fadeEase)
-            .OnStart(() => canvasGroup.blocksRaycasts = true)
-            .OnComplete(() => canvasGroup.alpha = 1f);
+
+        Sequence sequence = DOTween.Sequence();
+        bool hasTween = false;
+
+        Tween selfGraphicFadeIn = CreateSelfGraphicsFadeTween(true);
+        if (selfGraphicFadeIn != null)
+        {
+            sequence.Join(selfGraphicFadeIn);
+            hasTween = true;
+        }
+        else
+        {
+            SetSelfGraphicsVisible(true);
+        }
+
+        if (canvasGroup != null)
+        {
+            bool wasActive = canvasGroup.gameObject.activeSelf;
+            float startAlpha = wasActive ? canvasGroup.alpha : 0f;
+            canvasGroup.gameObject.SetActive(true);
+            canvasGroup.alpha = Mathf.Clamp01(startAlpha);
+            sequence.Join(
+                canvasGroup.DOFade(1f, fadeDuration)
+                    .SetEase(fadeEase)
+                    .OnStart(() => canvasGroup.blocksRaycasts = true)
+                    .OnComplete(() => canvasGroup.alpha = 1f));
+            hasTween = true;
+        }
+
+        if (!hasTween)
+            return;
+
+        isHiding = false;
+        visibilityTween = sequence;
     }
 
     public void Hide()
     {
         KillDelayedHideTween();
-        SetSelfGraphicsVisible(false);
-        if (canvasGroup == null)
-        {
-            return;
-        }
-
         KillVisibilityTween();
         if (!animateVisibility)
         {
-            canvasGroup.alpha = 0f;
-            canvasGroup.blocksRaycasts = false;
-            canvasGroup.gameObject.SetActive(false);
+            if (canvasGroup != null)
+            {
+                canvasGroup.alpha = 0f;
+                canvasGroup.blocksRaycasts = false;
+                canvasGroup.gameObject.SetActive(false);
+            }
+
+            dialogueUI?.ForceHideBubble();
+            SetSelfGraphicsVisible(false);
             return;
         }
 
-        visibilityTween = canvasGroup.DOFade(0f, fadeDuration)
-            .SetEase(fadeEase)
-            .OnStart(() => canvasGroup.blocksRaycasts = false)
-            .OnComplete(() =>
+        Sequence sequence = DOTween.Sequence();
+        bool hasTween = false;
+
+        Tween selfGraphicFadeOut = CreateSelfGraphicsFadeTween(false);
+        if (selfGraphicFadeOut != null)
+        {
+            sequence.Join(selfGraphicFadeOut);
+            hasTween = true;
+        }
+
+        if (canvasGroup != null)
+        {
+            sequence.Join(
+                canvasGroup.DOFade(0f, fadeDuration)
+                    .SetEase(fadeEase)
+                    .OnStart(() => canvasGroup.blocksRaycasts = false));
+            hasTween = true;
+        }
+
+        if (!hasTween)
+        {
+            dialogueUI?.ForceHideBubble();
+            if (canvasGroup != null)
             {
                 canvasGroup.alpha = 0f;
+                canvasGroup.blocksRaycasts = false;
                 canvasGroup.gameObject.SetActive(false);
-            });
+            }
+            SetSelfGraphicsVisible(false);
+            isHiding = false;
+            return;
+        }
+
+        isHiding = true;
+        visibilityTween = sequence.OnComplete(() =>
+        {
+            if (canvasGroup != null)
+            {
+                canvasGroup.alpha = 0f;
+                canvasGroup.blocksRaycasts = false;
+                canvasGroup.gameObject.SetActive(false);
+            }
+
+            dialogueUI?.ForceHideBubble();
+            SetSelfGraphicsVisible(false);
+            isHiding = false;
+        });
     }
     private void Awake()
     {
+        CacheSelfGraphicsIfNeeded();
         ResolveSceneReferencesIfNeeded();
     }
     private void OnEnable()
@@ -254,6 +324,7 @@ public class GuideNPCPresenter : MonoBehaviour
             visibilityTween.Kill(false);
             visibilityTween = null;
         }
+        isHiding = false;
     }
     private void KillDelayedHideTween()
     {
@@ -265,9 +336,10 @@ public class GuideNPCPresenter : MonoBehaviour
     }
     private void SetSelfGraphicsVisible(bool visible)
     {
+        CacheSelfGraphicsIfNeeded();
         if (selfGraphics == null || selfGraphics.Length == 0)
         {
-            selfGraphics = GetComponents<Graphic>();
+            return;
         }
 
         for (int i = 0; i < selfGraphics.Length; i++)
@@ -277,7 +349,121 @@ public class GuideNPCPresenter : MonoBehaviour
                 continue;
 
             graphic.enabled = visible;
+            if (visible)
+            {
+                float targetAlpha = i < selfGraphicBaseAlphas.Length ? selfGraphicBaseAlphas[i] : graphic.color.a;
+                Color color = graphic.color;
+                color.a = targetAlpha;
+                graphic.color = color;
+            }
         }
+    }
+    private void CacheSelfGraphicsIfNeeded()
+    {
+        bool hasCachedGraphics = selfGraphics != null && selfGraphics.Length > 0;
+        bool hasValidAlphaCache = selfGraphicBaseAlphas != null && hasCachedGraphics && selfGraphicBaseAlphas.Length == selfGraphics.Length;
+        if (hasCachedGraphics && hasValidAlphaCache)
+            return;
+
+        selfGraphics = GetComponents<Graphic>();
+        selfGraphicBaseAlphas = new float[selfGraphics.Length];
+        for (int i = 0; i < selfGraphics.Length; i++)
+        {
+            Graphic graphic = selfGraphics[i];
+            if (graphic == null)
+            {
+                selfGraphicBaseAlphas[i] = 1f;
+                continue;
+            }
+
+            float baseAlpha = graphic.color.a;
+            selfGraphicBaseAlphas[i] = baseAlpha > 0f ? baseAlpha : 1f;
+        }
+    }
+    private Tween CreateSelfGraphicsFadeTween(bool visible)
+    {
+        CacheSelfGraphicsIfNeeded();
+        if (selfGraphics == null || selfGraphics.Length == 0)
+            return null;
+
+        Sequence sequence = DOTween.Sequence();
+        bool hasTween = false;
+        for (int i = 0; i < selfGraphics.Length; i++)
+        {
+            Graphic graphic = selfGraphics[i];
+            if (graphic == null)
+                continue;
+
+            float targetAlpha = i < selfGraphicBaseAlphas.Length ? selfGraphicBaseAlphas[i] : graphic.color.a;
+            if (visible)
+            {
+                Color currentColor = graphic.color;
+                if (!graphic.enabled)
+                {
+                    currentColor.a = 0f;
+                    graphic.color = currentColor;
+                }
+                graphic.enabled = true;
+                sequence.Join(graphic.DOFade(targetAlpha, fadeDuration).SetEase(fadeEase));
+                hasTween = true;
+                continue;
+            }
+
+            if (!graphic.enabled)
+                continue;
+
+            sequence.Join(graphic.DOFade(0f, fadeDuration).SetEase(fadeEase));
+            hasTween = true;
+        }
+
+        if (!hasTween)
+        {
+            sequence.Kill(false);
+            return null;
+        }
+
+        return sequence;
+    }
+    private bool IsWaitingDelayedHide()
+    {
+        return delayedHideTween != null && delayedHideTween.IsActive() && delayedHideTween.IsPlaying();
+    }
+    private bool IsFullyVisible()
+    {
+        bool bubbleVisible = canvasGroup == null || (canvasGroup.gameObject.activeSelf && canvasGroup.alpha >= 0.99f);
+        if (!bubbleVisible)
+            return false;
+
+        CacheSelfGraphicsIfNeeded();
+        if (selfGraphics == null || selfGraphics.Length == 0)
+            return true;
+
+        for (int i = 0; i < selfGraphics.Length; i++)
+        {
+            Graphic graphic = selfGraphics[i];
+            if (graphic == null)
+                continue;
+
+            if (!graphic.enabled)
+                return false;
+
+            float targetAlpha = i < selfGraphicBaseAlphas.Length ? selfGraphicBaseAlphas[i] : 1f;
+            if (graphic.color.a + 0.01f < targetAlpha)
+                return false;
+        }
+
+        return true;
+    }
+    private void EnsureVisibleState()
+    {
+        SetSelfGraphicsVisible(true);
+        if (canvasGroup != null)
+        {
+            canvasGroup.gameObject.SetActive(true);
+            canvasGroup.alpha = 1f;
+            canvasGroup.blocksRaycasts = true;
+        }
+        isHiding = false;
     }
     private void ResolveSceneReferencesIfNeeded()
     {
@@ -306,6 +492,10 @@ public class GuideNPCPresenter : MonoBehaviour
         if (canvasGroup == null && dialogueUI != null)
         {
             canvasGroup = dialogueUI.GetComponentInChildren<CanvasGroup>(true);
+        }
+        if (canvasGroup == null && dialogueUI != null)
+        {
+            canvasGroup = dialogueUI.GetOrAddBubbleCanvasGroup();
         }
         if (canvasGroup == null)
         {

@@ -150,7 +150,9 @@ public class RunManager : MonoBehaviour
     private Player player;                                            // ?桀??活 run ?摰嗥隞?
     private PlayerRunSnapshot initialPlayerSnapshot;                  // 韏瑕????拙振敹怎嚗靘踵香鈭⊿???
     private PlayerRunSnapshot currentRunSnapshot;                     // ?嗅? run ?摰嗅翰?改?瘥活?圈洛???賣??湔嚗?
+    private int runSequenceId;                                        // 每次產生新冒險地圖就 +1，用於區分不同冒險
     public PlayerRunSnapshot CurrentRunSnapshot => currentRunSnapshot;
+    public int RunSequenceId => runSequenceId;
 
 
     private RunMapGenerator mapGenerator;
@@ -239,6 +241,8 @@ public class RunManager : MonoBehaviour
     // ?Ｙ?銝撘菜??run ?啣?
     public void GenerateNewRun()
     {
+        runSequenceId++; // 這次是全新一輪冒險，遞增序號
+
         RunMapGenerator.SlotAllocationSettings slotSettings = GetActiveSlotSettings();
         RunMapLayoutSettings layoutSettings = GetActiveLayoutSettings();
 

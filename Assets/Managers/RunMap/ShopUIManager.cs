@@ -18,6 +18,9 @@ public class ShopUIManager : MonoBehaviour
     [SerializeField] private Text messageText;              // 顯示提示文字
     [SerializeField] private Text removalCostText;          // 顯示移除卡片的花費
 
+    [Header("Shop NPC")]
+    [SerializeField] private ShopNpcDialogueController shopNpcController;
+
     [SerializeField] private GameObject cardOfferTemplate;  // 卡片商品「外框模板」(可空；空就用 cardPrefab 本身當入口)
     [SerializeField] private GameObject cardPrefab;         // 卡片 UI 預製物 (你說最好別改它)
     [SerializeField] private Transform cardListParent;      // 卡片列表的父物件
@@ -91,14 +94,16 @@ public class ShopUIManager : MonoBehaviour
         BindButtons();
         BindTabButtons();
         HideTemplates();
+        ResolveShopNpcController();
     }
 
     private void Start()
     {
-        InitializePlayer();
-        LoadInventory();
-        UpdateShopTitle();
-        RefreshGoldDisplay();
+        InitializePlayer();       // 建立/取得玩家，確保商店內有可操作的 Player 參考
+        LoadInventory();          // 載入這次商店要販售的資料（節點 > 預設 > fallback）
+        UpdateShopTitle();        // 更新商店標題（含節點編號）
+        RefreshGoldDisplay();     // 先把目前金幣同步到 UI
+        shopNpcController?.NotifyShopEntered(); // 進店時觸發 NPC 問候，並累計進店次數
 
         // 只生成一次商品池（保留你的 offersGenerated 規則）
         GenerateOffersFromInventory();
@@ -555,78 +560,88 @@ public class ShopUIManager : MonoBehaviour
     // ===== 購買/移除 =====
     private void PurchaseCard(CardBase card, int price)
     {
-        if (!TrySpendGold(price))
-            return;
+        if (!TrySpendGold(price)) // 金幣不足時會在 TrySpendGold 內觸發 NPC 台詞並中止
+            return;               // 付款失敗：不做任何購買操作
 
-        player.deck.Add(Instantiate(card));
-        availableCards.Remove(card);
+        player.deck.Add(Instantiate(card)); // 購買成功：把卡片複製一份加入玩家牌組
+        availableCards.Remove(card);        // 從商店可購買清單移除已買走的商品
 
-        ShowMessage($"購買 {card.cardName} 成功！");
-        RefreshGoldDisplay();
-        RebuildOffers();
-        SyncRunState();
+        shopNpcController?.NotifyPurchase(card.cardName, price); // 觸發購買成功台詞，並累計消費金額
+        RefreshGoldDisplay();                                   // 重新顯示扣款後金幣
+        RebuildOffers();                                        // 重建畫面（讓已購買商品消失）
+        SyncRunState();                                         // 同步當前 Run 狀態（快照）
     }
 
     private void PurchaseRelic(CardBase relic, int price)
     {
-        if (!TrySpendGold(price))
+        if (!TrySpendGold(price)) // 金幣不足就直接返回，不加入遺物
             return;
 
-        player.relics.Add(Instantiate(relic));
-        availableRelics.Remove(relic);
+        player.relics.Add(Instantiate(relic)); // 購買成功：把遺物複製後加入玩家遺物列表
+        availableRelics.Remove(relic);        // 從商店可購買遺物中移除
 
-        ShowMessage($"購買 {relic.cardName} 成功！");
-        RefreshGoldDisplay();
-        RebuildOffers();
-        SyncRunState();
+        shopNpcController?.NotifyPurchase(relic.cardName, price); // 觸發成功台詞 + 累積花費
+        RefreshGoldDisplay();                                    // 刷新金幣 UI
+        RebuildOffers();                                         // 重新整理頁面內容
+        SyncRunState();                                          // 寫回 Run 快照
     }
 
     private void RemoveCardAt(int index, int cost)
     {
-        if (player == null || player.deck == null || index < 0 || index >= player.deck.Count)
+        if (player == null || player.deck == null || index < 0 || index >= player.deck.Count) // 安全檢查：避免索引越界或空引用
+            return;                                                                            // 參數不合法時直接中止
+
+        if (!TrySpendGold(cost)) // 扣款失敗（通常是金幣不足）時不移除卡片
             return;
 
-        if (!TrySpendGold(cost))
-            return;
+        var removed = player.deck[index]; // 先拿到被移除卡片，給台詞/訊息顯示用
+        player.deck.RemoveAt(index);      // 真正從牌組移除該卡片
 
-        var removed = player.deck[index];
-        player.deck.RemoveAt(index);
-
-        ShowMessage(removed != null ? $"已移除 {removed.cardName}" : "已移除卡片");
-        RefreshGoldDisplay();
+        string removedCardName = removed != null ? removed.cardName : "卡片"; // 組出可讀的卡片名稱
+        shopNpcController?.NotifyPurchase($"移除 {removedCardName}", cost);      // 將移除服務也視為一次消費，觸發 NPC 台詞
+        RefreshGoldDisplay();                                                    // 更新金幣顯示
 
         // 分頁移除後：如果剛好移掉本頁最後一張，避免空頁
-        pageRemoval = Mathf.Clamp(pageRemoval, 0, Mathf.Max(0, Mathf.CeilToInt(player.deck.Count / (float)Mathf.Max(1, removalPerPage)) - 1));
+        pageRemoval = Mathf.Clamp(pageRemoval, 0, Mathf.Max(0, Mathf.CeilToInt(player.deck.Count / (float)Mathf.Max(1, removalPerPage)) - 1)); // 修正頁碼到有效範圍
 
-        BuildRemovalList();
-        SyncRunState();
+        BuildRemovalList(); // 重新建立移除清單，讓 UI 即時反映目前牌組
+        SyncRunState();     // 同步到 Run 快照
     }
 
     private bool TrySpendGold(int price)
     {
-        if (player == null)
-            return false;
+        if (player == null) // 若沒有玩家參考，就無法扣款
+            return false;   // 回傳失敗
 
-        if (player.gold < price)
+        if (player.gold < price) // 餘額不足
         {
-            ShowMessage("金幣不足");
-            return false;
+            shopNpcController?.NotifyInsufficientGold(price, player.gold); // 觸發「不夠錢」NPC 台詞
+            return false;                                       // 扣款失敗
         }
 
-        player.gold -= price;
-        return true;
+        player.gold -= price; // 餘額足夠：直接扣款
+        return true;          // 扣款成功
     }
 
     private void RefreshGoldDisplay()
     {
-        if (goldText != null && player != null)
-            goldText.text = $"{player.gold}";
+        if (goldText != null && player != null) // UI 與玩家資料都存在才更新
+            goldText.text = $"{player.gold}";    // 直接顯示當前金幣數字
     }
 
-    private void ShowMessage(string text)
+    private void ResolveShopNpcController()
     {
-        if (messageText != null)
-            messageText.text = text;
+        if (shopNpcController == null)
+            shopNpcController = GetComponent<ShopNpcDialogueController>();
+
+        if (shopNpcController == null)
+            shopNpcController = FindObjectOfType<ShopNpcDialogueController>(true);
+
+        if (shopNpcController == null)
+            shopNpcController = gameObject.AddComponent<ShopNpcDialogueController>();
+
+        if (shopNpcController != null)
+            shopNpcController.SetUiReferences(messageText);
     }
 
     private void ExitShop()

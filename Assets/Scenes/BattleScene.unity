@@ -9090,7 +9090,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   startingDeck:
-  - {fileID: 11400000, guid: 6e46d5e13429d2742a580e16ec745461, type: 2}
+  - {fileID: 11400000, guid: 176a669e96b0a1745b1fbb531bed5fc2, type: 2}
   debugStartingDeck:
   - {fileID: 11400000, guid: a58c41531431ead4ebb45b0f3f038cbc, type: 2}
   - {fileID: 11400000, guid: a58c41531431ead4ebb45b0f3f038cbc, type: 2}
