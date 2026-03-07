@@ -107,6 +107,9 @@ public class RunManager : MonoBehaviour
     [SerializeField, Min(0f)] private float nodeEnterDelaySeconds = 0f; // 暺?蝭暺?嚗脣蝭暺?蝔???敺嗾蝘?
     [SerializeField] private RunEventUIManager eventUIManager;        // 鈭辣敶?蝞∠???
 
+    [Header("Tutorial")]
+    [SerializeField] private bool tutorialRun;
+
     [Header("Map Generation")]
     [SerializeField] private int floorCount = 4;                     // 銝撘萄??嗾撅?
     [SerializeField] private int minNodesPerFloor = 2;               // 瘥惜蝭暺銝?
@@ -151,6 +154,8 @@ public class RunManager : MonoBehaviour
     private PlayerRunSnapshot initialPlayerSnapshot;                  // 韏瑕????拙振敹怎嚗靘踵香鈭⊿???
     private PlayerRunSnapshot currentRunSnapshot;                     // ?嗅? run ?摰嗅翰?改?瘥活?圈洛???賣??湔嚗?
     private int runSequenceId;                                        // 每次產生新冒險地圖就 +1，用於區分不同冒險
+    private readonly HashSet<string> guideFlags = new HashSet<string>(StringComparer.Ordinal);
+    private bool suppressDefaultShopEntryDialogueOnce;
     public PlayerRunSnapshot CurrentRunSnapshot => currentRunSnapshot;
     public int RunSequenceId => runSequenceId;
 
@@ -166,6 +171,7 @@ public class RunManager : MonoBehaviour
     public bool RunCompleted => runCompleted;                         // 撠?霈?活 run ?臬摰?
     public ShopInventoryDefinition DefaultShopInventory => defaultShopInventory; // 撠?霈?身??皜
     public Player RegisteredPlayer => player;
+    public bool IsTutorialRun => tutorialRun;
 
     public event Action<IReadOnlyList<IReadOnlyList<MapNodeData>>> MapGenerated; // ???啣??? UI
     public event Action MapStateChanged;                              // ?啣????摰?/?舫蝭暺?霈??
@@ -242,6 +248,7 @@ public class RunManager : MonoBehaviour
     public void GenerateNewRun()
     {
         runSequenceId++; // 這次是全新一輪冒險，遞增序號
+        ResetGuideState();
 
         RunMapGenerator.SlotAllocationSettings slotSettings = GetActiveSlotSettings();
         RunMapLayoutSettings layoutSettings = GetActiveLayoutSettings();
@@ -455,6 +462,34 @@ public class RunManager : MonoBehaviour
         GenerateNewRun(); // ??銝撘萄?
     }
 
+    public bool HasGuideFlag(string flag)
+    {
+        if (string.IsNullOrWhiteSpace(flag))
+            return false;
+
+        return guideFlags.Contains(flag.Trim());
+    }
+
+    public void MarkGuideFlag(string flag)
+    {
+        if (string.IsNullOrWhiteSpace(flag))
+            return;
+
+        guideFlags.Add(flag.Trim());
+    }
+
+    public void RequestDefaultShopEntryDialogueSuppression()
+    {
+        suppressDefaultShopEntryDialogueOnce = true;
+    }
+
+    public bool ConsumeDefaultShopEntryDialogueSuppression()
+    {
+        bool shouldSuppress = suppressDefaultShopEntryDialogueOnce;
+        suppressDefaultShopEntryDialogueOnce = false;
+        return shouldSuppress;
+    }
+
     private void ApplySnapshotToPlayer(Player target, PlayerRunSnapshot snapshot)
     {
         if (target == null || snapshot == null)
@@ -508,6 +543,13 @@ public class RunManager : MonoBehaviour
             exhaustPile = new List<CardBase>()
         };
     }
+
+    private void ResetGuideState()
+    {
+        guideFlags.Clear();
+        suppressDefaultShopEntryDialogueOnce = false;
+    }
+
     private void RaiseRunSnapshotChanged()
     {
         RunSnapshotChanged?.Invoke(currentRunSnapshot);

@@ -639,15 +639,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8333607065587245697, guid: 6ee8a7298f7c9954d85e9639a13c03db, type: 3}
       propertyPath: m_LocalScale.x
-      value: 6.851468
+      value: 7.042312
       objectReference: {fileID: 0}
     - target: {fileID: 8333607065587245697, guid: 6ee8a7298f7c9954d85e9639a13c03db, type: 3}
       propertyPath: m_LocalScale.y
-      value: 6.851468
+      value: 7.042312
       objectReference: {fileID: 0}
     - target: {fileID: 8333607065587245697, guid: 6ee8a7298f7c9954d85e9639a13c03db, type: 3}
       propertyPath: m_LocalScale.z
-      value: 6.851468
+      value: 7.042312
       objectReference: {fileID: 0}
     - target: {fileID: 8333607065587245697, guid: 6ee8a7298f7c9954d85e9639a13c03db, type: 3}
       propertyPath: m_LocalPosition.x
@@ -679,11 +679,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8333607065587245697, guid: 6ee8a7298f7c9954d85e9639a13c03db, type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: -814
+      value: -818
       objectReference: {fileID: 0}
     - target: {fileID: 8333607065587245697, guid: 6ee8a7298f7c9954d85e9639a13c03db, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: -403.9203
+      value: -383
       objectReference: {fileID: 0}
     - target: {fileID: 8333607065587245697, guid: 6ee8a7298f7c9954d85e9639a13c03db, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
@@ -695,6 +695,10 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8333607065587245697, guid: 6ee8a7298f7c9954d85e9639a13c03db, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8333607065587245697, guid: 6ee8a7298f7c9954d85e9639a13c03db, type: 3}
+      propertyPath: m_ConstrainProportionsScale
       value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
@@ -1343,6 +1347,7 @@ MonoBehaviour:
   deathReturnSceneName: TitleScene
   nodeEnterDelaySeconds: 2
   eventUIManager: {fileID: 1731840768}
+  tutorialRun: 1
   floorCount: 6
   minNodesPerFloor: 1
   maxNodesPerFloor: 1

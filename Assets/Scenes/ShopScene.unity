@@ -218,8 +218,6 @@ RectTransform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 2050619469}
-  - {fileID: 369811685}
-  - {fileID: 157244293}
   - {fileID: 264523038}
   - {fileID: 1720306104}
   - {fileID: 451753845}
@@ -227,6 +225,8 @@ RectTransform:
   - {fileID: 1874289075}
   - {fileID: 1659448844}
   - {fileID: 771414015}
+  - {fileID: 369811685}
+  - {fileID: 157244293}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
@@ -557,8 +557,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -684, y: -438}
-  m_SizeDelta: {x: 1648, y: 471}
+  m_AnchoredPosition: {x: -663, y: -438}
+  m_SizeDelta: {x: 1912.6, y: 471}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &157244294
 MonoBehaviour:
@@ -632,8 +632,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 4.959, y: -66.320496}
-  m_SizeDelta: {x: 822, y: 149.32}
+  m_AnchoredPosition: {x: 41, y: -74.66}
+  m_SizeDelta: {x: 1069.4131, y: 149.32}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &230941274
 MonoBehaviour:
@@ -668,7 +668,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: 111111111111111111111111111111111111
+  m_Text: "\u9019\u88E1\u6703\u986F\u793A\u79FB\u9664\u4E00\u5F35\u5361\u7247\u9700\u8981\u7684\u8CBB\u7528\u3002\u6559\u5B78\u7D50\u675F\u5F8C\uFF0C\u4F60\u5C31\u80FD\u81EA\u7531\u4F7F\u7528\u5546\u5E97\u4E86\u3002"
 --- !u!222 &230941275
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -918,7 +918,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -813, y: -621}
+  m_AnchoredPosition: {x: -748, y: -734}
   m_SizeDelta: {x: 623, y: 1024}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &369811686
@@ -979,6 +979,9 @@ MonoBehaviour:
   messageBaseVisibleSeconds: 1.2
   messageVisibleSecondsPerChar: 0.08
   messageFadeOutSeconds: 0.25
+  typewriterDurationPerChar: 0.03
+  minTypewriterDuration: 0.15
+  typewriterEase: 1
 --- !u!1 &451753844
 GameObject:
   m_ObjectHideFlags: 0

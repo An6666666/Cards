@@ -758,7 +758,7 @@ public class BattleManager : MonoBehaviour
         rect.anchoredPosition = Vector2.zero;
 
         Text text = hintObj.GetComponent<Text>();
-        text.font = Resources.GetBuiltinResource<Font>("Arial.ttf");
+        text.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
         text.fontSize = 42;
         text.alignment = TextAnchor.MiddleCenter;
         text.color = new Color(1f, 1f, 1f, 1f);

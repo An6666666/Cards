@@ -1186,6 +1186,7 @@ MonoBehaviour:
   shopSceneName: ShopScene
   deathReturnSceneName: TitleScene
   eventUIManager: {fileID: 1731840768}
+  tutorialRun: 0
   floorCount: 16
   minNodesPerFloor: 3
   maxNodesPerFloor: 6
