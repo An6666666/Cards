@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -16,6 +17,14 @@ public class EnemySpawnConfig
 // 戰鬥主控制器：負責回合、選牌、結算與 UI 協調。
 public class BattleManager : MonoBehaviour
 {
+    private enum BattlePhaseHintType
+    {
+        Unknown,
+        PlayerTurn,
+        EnemyTurn,
+        SelectStartTile
+    }
+
     [Header("Core References")]
     public Player player;
     [NonSerialized] public List<Enemy> enemies = new List<Enemy>();
@@ -32,6 +41,13 @@ public class BattleManager : MonoBehaviour
     [SerializeField] private Button endTurnButton;
     [Header("Battle Phase Hint")]
     [SerializeField] private Text phaseHintText;
+    [SerializeField] private TMP_Text phaseHintTmpText;
+    [SerializeField] private Image phaseHintImage;
+    [SerializeField] private Image phaseTopIndicatorImage;
+    [SerializeField] private Sprite playerTurnCenterSprite;
+    [SerializeField] private Sprite enemyTurnCenterSprite;
+    [SerializeField] private Sprite playerTurnTopSprite;
+    [SerializeField] private Sprite enemyTurnTopSprite;
     [Min(0f)] [SerializeField] private float phaseHintDuration = 1.2f;
     [Min(0f)] [SerializeField] private float phaseHintFadeInDuration = 0.2f;
     [Min(0f)] [SerializeField] private float phaseHintFadeOutDuration = 0.25f;
@@ -81,7 +97,9 @@ public class BattleManager : MonoBehaviour
     private IEnemyQueryService enemyQueryService;
     private PlayerDeckController playerDeckController;
     private Coroutine phaseHintCoroutine;
-    private CanvasGroup phaseHintCanvasGroup;
+    private CanvasGroup phaseHintLegacyTextCanvasGroup;
+    private CanvasGroup phaseHintTmpTextCanvasGroup;
+    private CanvasGroup phaseHintImageCanvasGroup;
 
 
     public bool BattleStarted => battleStarted;
@@ -103,10 +121,8 @@ public class BattleManager : MonoBehaviour
         ResolveTutorialController();
 
         EnsurePhaseHintText();
-        if (phaseHintText != null)
-        {
-            phaseHintText.gameObject.SetActive(false);
-        }
+        HideCentralPhaseHintVisuals();
+        HideTopPhaseIndicator();
 
         // 建立所有子控制器，並先關閉「結束回合」按鈕。
         InitializeControllers();
@@ -351,6 +367,8 @@ public class BattleManager : MonoBehaviour
         {
             targetElementsBefore = new List<ElementType>(target.GetElementTags());
         }
+
+        PlayNonAttackCardAnimation(cardData);
         cardData.ExecuteEffect(player, target);
 
         List<ElementType> targetElementsAfter = null;
@@ -405,6 +423,43 @@ public class BattleManager : MonoBehaviour
         handUIController.UpdateHandMetaUI();
         return true;
     }
+
+    private void PlayNonAttackCardAnimation(CardBase cardData)
+    {
+        if (player == null || cardData == null || cardData.cardType == CardType.Attack)
+        {
+            return;
+        }
+
+        if (IsDefendCard(cardData))
+        {
+            player.PlayDefendAnim();
+            return;
+        }
+
+        if (IsUtilityCard(cardData))
+        {
+            player.PlayUtilityAnim();
+        }
+    }
+
+    private static bool IsDefendCard(CardBase cardData)
+    {
+        return cardData is Skill_HuWoZhenShen
+            || cardData is Skill_ShenLingBiYou
+            || cardData is Skill_QimenDunjia
+            || cardData is Skill_JinShen
+            || cardData is Skill_BuMieYiZhi
+            || cardData is Skill_WeiLingZhou;
+    }
+
+    private static bool IsUtilityCard(CardBase cardData)
+    {
+        return cardData is Skill_ZhiJiao
+            || cardData is Skill_ZhaoHun
+            || cardData is Skill_ShenLin
+            || cardData is Skill_LingHunZhenDang;
+    }
     public void HandleCardUsedUI(CardUI usedUI)
     {
         handUIController.HandleCardUsedUI(usedUI);
@@ -423,7 +478,7 @@ public class BattleManager : MonoBehaviour
         }
 
         EnsurePhaseHintText();
-        if (phaseHintText == null)
+        if (phaseHintText == null && phaseHintTmpText == null && phaseHintImage == null)
         {
             return;
         }
@@ -433,8 +488,10 @@ public class BattleManager : MonoBehaviour
             StopCoroutine(phaseHintCoroutine);
         }
 
+        BattlePhaseHintType hintType = ResolveBattlePhaseHintType(message);
+        UpdateTopPhaseIndicator(hintType);
         float showDuration = duration > 0f ? duration : phaseHintDuration;
-        phaseHintCoroutine = StartCoroutine(ShowBattlePhaseHintRoutine(message, showDuration));
+        phaseHintCoroutine = StartCoroutine(ShowBattlePhaseHintRoutine(message, showDuration, hintType));
     }
 
     public IEnumerator ShowBattlePhaseHintAndWait(string message, float duration = -1f)
@@ -450,29 +507,28 @@ public class BattleManager : MonoBehaviour
         }
     }
 
-    private IEnumerator ShowBattlePhaseHintRoutine(string message, float duration)
+    private IEnumerator ShowBattlePhaseHintRoutine(string message, float duration, BattlePhaseHintType hintType)
     {
-        if (phaseHintText == null)
+        if (!TryPrepareCentralPhaseHintVisual(hintType, message, out CanvasGroup activeCanvasGroup, out GameObject activeObject))
         {
             yield break;
         }
 
-        EnsurePhaseHintCanvasGroup();
         float fadeIn = Mathf.Max(0f, phaseHintFadeInDuration);
         float fadeOut = Mathf.Max(0f, phaseHintFadeOutDuration);
         float hold = Mathf.Max(0f, duration);
 
-        phaseHintText.text = message;
-        phaseHintText.gameObject.SetActive(true);
-        SetPhaseHintAlpha(0f);
+        HideCentralPhaseHintVisuals();
+        activeObject.SetActive(true);
+        SetCentralPhaseHintAlpha(activeCanvasGroup, 0f);
 
         if (fadeIn > 0f)
         {
-            yield return FadePhaseHintAlpha(0f, 1f, fadeIn);
+            yield return FadePhaseHintAlpha(activeCanvasGroup, 0f, 1f, fadeIn);
         }
         else
         {
-            SetPhaseHintAlpha(1f);
+            SetCentralPhaseHintAlpha(activeCanvasGroup, 1f);
         }
 
         if (hold > 0f)
@@ -482,17 +538,14 @@ public class BattleManager : MonoBehaviour
 
         if (fadeOut > 0f)
         {
-            yield return FadePhaseHintAlpha(1f, 0f, fadeOut);
+            yield return FadePhaseHintAlpha(activeCanvasGroup, 1f, 0f, fadeOut);
         }
         else
         {
-            SetPhaseHintAlpha(0f);
+            SetCentralPhaseHintAlpha(activeCanvasGroup, 0f);
         }
 
-        if (phaseHintText != null)
-        {
-            phaseHintText.gameObject.SetActive(false);
-        }
+        HideCentralPhaseHintVisuals();
 
         phaseHintCoroutine = null;
     }
@@ -714,9 +767,9 @@ public class BattleManager : MonoBehaviour
 
     private void EnsurePhaseHintText()
     {
-        if (phaseHintText != null)
+        if (phaseHintText != null || phaseHintTmpText != null)
         {
-            EnsurePhaseHintCanvasGroup();
+            EnsurePhaseHintCanvasGroups();
             return;
         }
 
@@ -733,7 +786,25 @@ public class BattleManager : MonoBehaviour
             if (n.Contains("BattlePhaseHint") || n.Contains("PhaseHint") || n.Contains("TurnHint"))
             {
                 phaseHintText = candidate;
-                EnsurePhaseHintCanvasGroup();
+                EnsurePhaseHintCanvasGroups();
+                return;
+            }
+        }
+
+        TMP_Text[] allTmpTexts = GetComponentsInChildren<TMP_Text>(true);
+        for (int i = 0; i < allTmpTexts.Length; i++)
+        {
+            TMP_Text candidate = allTmpTexts[i];
+            if (candidate == null)
+            {
+                continue;
+            }
+
+            string n = candidate.gameObject.name;
+            if (n.Contains("BattlePhaseHint") || n.Contains("PhaseHint") || n.Contains("TurnHint"))
+            {
+                phaseHintTmpText = candidate;
+                EnsurePhaseHintCanvasGroups();
                 return;
             }
         }
@@ -768,55 +839,91 @@ public class BattleManager : MonoBehaviour
         text.text = string.Empty;
 
         phaseHintText = text;
-        EnsurePhaseHintCanvasGroup();
+        EnsurePhaseHintCanvasGroups();
     }
 
-    private void EnsurePhaseHintCanvasGroup()
+    private void EnsurePhaseHintCanvasGroups()
     {
-        if (phaseHintText == null)
+        if (phaseHintText != null && phaseHintLegacyTextCanvasGroup == null)
         {
-            return;
-        }
-
-        if (phaseHintCanvasGroup == null)
-        {
-            phaseHintCanvasGroup = phaseHintText.GetComponent<CanvasGroup>();
-            if (phaseHintCanvasGroup == null)
+            phaseHintLegacyTextCanvasGroup = phaseHintText.GetComponent<CanvasGroup>();
+            if (phaseHintLegacyTextCanvasGroup == null)
             {
-                phaseHintCanvasGroup = phaseHintText.gameObject.AddComponent<CanvasGroup>();
+                phaseHintLegacyTextCanvasGroup = phaseHintText.gameObject.AddComponent<CanvasGroup>();
             }
         }
 
-        phaseHintCanvasGroup.interactable = false;
-        phaseHintCanvasGroup.blocksRaycasts = false;
+        if (phaseHintTmpText != null && phaseHintTmpTextCanvasGroup == null)
+        {
+            phaseHintTmpTextCanvasGroup = phaseHintTmpText.GetComponent<CanvasGroup>();
+            if (phaseHintTmpTextCanvasGroup == null)
+            {
+                phaseHintTmpTextCanvasGroup = phaseHintTmpText.gameObject.AddComponent<CanvasGroup>();
+            }
+        }
+
+        if (phaseHintImage != null && phaseHintImageCanvasGroup == null)
+        {
+            phaseHintImageCanvasGroup = phaseHintImage.GetComponent<CanvasGroup>();
+            if (phaseHintImageCanvasGroup == null)
+            {
+                phaseHintImageCanvasGroup = phaseHintImage.gameObject.AddComponent<CanvasGroup>();
+            }
+        }
+
+        if (phaseHintLegacyTextCanvasGroup != null)
+        {
+            phaseHintLegacyTextCanvasGroup.interactable = false;
+            phaseHintLegacyTextCanvasGroup.blocksRaycasts = false;
+        }
+
+        if (phaseHintTmpTextCanvasGroup != null)
+        {
+            phaseHintTmpTextCanvasGroup.interactable = false;
+            phaseHintTmpTextCanvasGroup.blocksRaycasts = false;
+        }
+
+        if (phaseHintImageCanvasGroup != null)
+        {
+            phaseHintImageCanvasGroup.interactable = false;
+            phaseHintImageCanvasGroup.blocksRaycasts = false;
+        }
     }
 
-    private IEnumerator FadePhaseHintAlpha(float from, float to, float duration)
+    private IEnumerator FadePhaseHintAlpha(CanvasGroup canvasGroup, float from, float to, float duration)
     {
         if (duration <= 0f)
         {
-            SetPhaseHintAlpha(to);
+            SetCentralPhaseHintAlpha(canvasGroup, to);
             yield break;
         }
 
         float elapsed = 0f;
-        SetPhaseHintAlpha(from);
+        SetCentralPhaseHintAlpha(canvasGroup, from);
         while (elapsed < duration)
         {
             elapsed += Time.deltaTime;
             float t = Mathf.Clamp01(elapsed / duration);
-            SetPhaseHintAlpha(Mathf.Lerp(from, to, t));
+            SetCentralPhaseHintAlpha(canvasGroup, Mathf.Lerp(from, to, t));
             yield return null;
         }
 
-        SetPhaseHintAlpha(to);
+        SetCentralPhaseHintAlpha(canvasGroup, to);
     }
 
-    private void SetPhaseHintAlpha(float alpha)
+    private void SetCentralPhaseHintAlpha(CanvasGroup canvasGroup, float alpha)
     {
-        if (phaseHintCanvasGroup != null)
+        if (canvasGroup != null)
         {
-            phaseHintCanvasGroup.alpha = Mathf.Clamp01(alpha);
+            canvasGroup.alpha = Mathf.Clamp01(alpha);
+            return;
+        }
+
+        if (phaseHintTmpText != null)
+        {
+            Color tmpColor = phaseHintTmpText.color;
+            tmpColor.a = Mathf.Clamp01(alpha);
+            phaseHintTmpText.color = tmpColor;
             return;
         }
 
@@ -828,6 +935,145 @@ public class BattleManager : MonoBehaviour
         Color c = phaseHintText.color;
         c.a = Mathf.Clamp01(alpha);
         phaseHintText.color = c;
+    }
+
+    private bool TryPrepareCentralPhaseHintVisual(BattlePhaseHintType hintType, string message, out CanvasGroup activeCanvasGroup, out GameObject activeObject)
+    {
+        EnsurePhaseHintText();
+        EnsurePhaseHintCanvasGroups();
+
+        if (TryGetCenterHintSprite(hintType, out Sprite sprite) && phaseHintImage != null)
+        {
+            phaseHintImage.sprite = sprite;
+            activeCanvasGroup = phaseHintImageCanvasGroup;
+            activeObject = phaseHintImage.gameObject;
+            return true;
+        }
+
+        if (phaseHintTmpText != null)
+        {
+            phaseHintTmpText.text = message;
+            activeCanvasGroup = phaseHintTmpTextCanvasGroup;
+            activeObject = phaseHintTmpText.gameObject;
+            return true;
+        }
+
+        if (phaseHintText != null)
+        {
+            phaseHintText.text = message;
+            activeCanvasGroup = phaseHintLegacyTextCanvasGroup;
+            activeObject = phaseHintText.gameObject;
+            return true;
+        }
+
+        activeCanvasGroup = null;
+        activeObject = null;
+        return false;
+    }
+
+    private void HideCentralPhaseHintVisuals()
+    {
+        if (phaseHintText != null)
+        {
+            phaseHintText.gameObject.SetActive(false);
+        }
+
+        if (phaseHintTmpText != null)
+        {
+            phaseHintTmpText.gameObject.SetActive(false);
+        }
+
+        if (phaseHintImage != null)
+        {
+            phaseHintImage.gameObject.SetActive(false);
+        }
+    }
+
+    private BattlePhaseHintType ResolveBattlePhaseHintType(string message)
+    {
+        if (string.IsNullOrWhiteSpace(message))
+        {
+            return BattlePhaseHintType.Unknown;
+        }
+
+        if (message.Contains("玩家回合"))
+        {
+            return BattlePhaseHintType.PlayerTurn;
+        }
+
+        if (message.Contains("妖怪回合") || message.Contains("敵人回合"))
+        {
+            return BattlePhaseHintType.EnemyTurn;
+        }
+
+        if (message.Contains("選擇落點回合"))
+        {
+            return BattlePhaseHintType.SelectStartTile;
+        }
+
+        return BattlePhaseHintType.Unknown;
+    }
+
+    private bool TryGetCenterHintSprite(BattlePhaseHintType hintType, out Sprite sprite)
+    {
+        sprite = null;
+
+        switch (hintType)
+        {
+            case BattlePhaseHintType.PlayerTurn:
+                sprite = playerTurnCenterSprite;
+                break;
+            case BattlePhaseHintType.EnemyTurn:
+                sprite = enemyTurnCenterSprite;
+                break;
+        }
+
+        return sprite != null;
+    }
+
+    private void UpdateTopPhaseIndicator(BattlePhaseHintType hintType)
+    {
+        if (phaseTopIndicatorImage == null)
+        {
+            return;
+        }
+
+        switch (hintType)
+        {
+            case BattlePhaseHintType.PlayerTurn:
+                if (playerTurnTopSprite != null)
+                {
+                    phaseTopIndicatorImage.sprite = playerTurnTopSprite;
+                    phaseTopIndicatorImage.gameObject.SetActive(true);
+                }
+                else
+                {
+                    phaseTopIndicatorImage.gameObject.SetActive(false);
+                }
+                break;
+            case BattlePhaseHintType.EnemyTurn:
+                if (enemyTurnTopSprite != null)
+                {
+                    phaseTopIndicatorImage.sprite = enemyTurnTopSprite;
+                    phaseTopIndicatorImage.gameObject.SetActive(true);
+                }
+                else
+                {
+                    phaseTopIndicatorImage.gameObject.SetActive(false);
+                }
+                break;
+            case BattlePhaseHintType.SelectStartTile:
+                phaseTopIndicatorImage.gameObject.SetActive(false);
+                break;
+        }
+    }
+
+    private void HideTopPhaseIndicator()
+    {
+        if (phaseTopIndicatorImage != null)
+        {
+            phaseTopIndicatorImage.gameObject.SetActive(false);
+        }
     }
 
     private void HandlePlayerHandChanged()

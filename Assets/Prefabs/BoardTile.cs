@@ -14,6 +14,7 @@ public class BoardTile : MonoBehaviour
     [SerializeField] private GameObject waterElementIcon; // 水屬性圖示
     [SerializeField] private GameObject woodElementIcon;  // 木屬性圖示
     [SerializeField] private GameObject miasmaEffectObject; // 瘴氣效果顯示
+    [SerializeField] private PoisonTileAnimatorController miasmaAnimatorController;
 
     // 元素標籤紀錄
     private HashSet<ElementType> elements = new HashSet<ElementType>();
@@ -24,6 +25,7 @@ public class BoardTile : MonoBehaviour
 
      private void Awake()
     {
+        ResolveMiasmaVisualController();
         UpdateElementIcons();
     }
 
@@ -122,7 +124,7 @@ public class BoardTile : MonoBehaviour
 
         if (miasmaEffectObject)
         {
-            miasmaEffectObject.SetActive(false);
+            UpdateMiasmaVisual(false);
         }
 
         SetHighlight(false);
@@ -150,7 +152,7 @@ public class BoardTile : MonoBehaviour
 
         if (miasmaEffectObject)
         {
-            miasmaEffectObject.SetActive(active);
+            UpdateMiasmaVisual(active);
         }
     }
 
@@ -185,8 +187,44 @@ public class BoardTile : MonoBehaviour
 
     private void OnEnable()
     {
+        ResolveMiasmaVisualController();
         UpdateGrowthTrapVisual();
         UpdateElementIcons();
+    }
+
+    private void ResolveMiasmaVisualController()
+    {
+        if (miasmaAnimatorController == null && miasmaEffectObject != null)
+        {
+            miasmaAnimatorController = miasmaEffectObject.GetComponent<PoisonTileAnimatorController>();
+            if (miasmaAnimatorController == null)
+            {
+                miasmaAnimatorController = miasmaEffectObject.GetComponentInChildren<PoisonTileAnimatorController>(true);
+            }
+        }
+    }
+
+    private void UpdateMiasmaVisual(bool active)
+    {
+        ResolveMiasmaVisualController();
+
+        if (miasmaAnimatorController != null)
+        {
+            if (active)
+            {
+                miasmaAnimatorController.Show();
+            }
+            else
+            {
+                miasmaAnimatorController.Hide();
+            }
+            return;
+        }
+
+        if (miasmaEffectObject)
+        {
+            miasmaEffectObject.SetActive(active);
+        }
     }
 
     private void UpdateGrowthTrapVisual()

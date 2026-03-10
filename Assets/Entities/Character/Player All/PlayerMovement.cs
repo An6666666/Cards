@@ -81,16 +81,40 @@ private IEnumerator MoveRoutine(Vector3 targetWorldPos, float duration, BoardTil
         }
 
         Board board = FindObjectOfType<Board>();
-        if (board != null && board.IsTileOccupied(targetPos))
+        if (board == null)
+        {
+            Debug.LogWarning("Board not found!");
+            return;
+        }
+
+        if (board.IsTileOccupied(targetPos))
         {
             Debug.Log("Cannot teleport: tile occupied by enemy.");
             return;
         }
 
-        position = targetPos;
-        transform.position = new Vector3(targetPos.x, targetPos.y, 0f);
+        BoardTile tile = board.GetTileAt(targetPos);
+        if (tile == null)
+        {
+            Debug.LogWarning($"No tile at {targetPos}");
+            return;
+        }
 
-        BoardTile tile = board != null ? board.GetTileAt(targetPos) : null;
-        tile?.HandlePlayerEntered(GetComponent<Player>());
+        position = targetPos;
+        StopAllCoroutines();
+        StartCoroutine(TeleportRoutine(tile.transform.position, tile));
+    }
+
+    private IEnumerator TeleportRoutine(Vector3 targetWorldPos, BoardTile tile)
+    {
+        yield return null;
+
+        transform.position = targetWorldPos;
+
+        Player player = GetComponent<Player>();
+        player?.SetMovingAnim(false);
+        player?.FinishTeleportVisual();
+
+        tile?.HandlePlayerEntered(player);
     }
 }

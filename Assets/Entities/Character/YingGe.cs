@@ -50,6 +50,12 @@ public class YingGe : Enemy, IEnemyCooldownProvider
     public bool IsAwaitingRespawn => awaitingRespawn; // 外部可讀：目前是否在等待復活
 
     // Unity 生命週期：Awake，這裡做基本初始化
+    public void PlaySkillStart() => Visual?.PlaySkillStart();
+
+    public void PlaySkillEnd() => Visual?.PlaySkillEnd();
+
+    private bool waitingForStoneFeatherTakeOff = false;
+
     protected override void Awake()
     {
         enemyName = "鸚哥";
@@ -94,6 +100,12 @@ public class YingGe : Enemy, IEnemyCooldownProvider
         }
 
         // 如果石羽雨已經預告過了，這回合要正式落下
+        if (waitingForStoneFeatherTakeOff)
+        {
+            GainEndOfTurnArmor();
+            return;
+        }
+
         if (stoneFeatherPending)
         {
             ResolveStoneFeather(player); // 判定玩家位置是否在被標記的格子上，若是就扣血
@@ -163,7 +175,7 @@ public class YingGe : Enemy, IEnemyCooldownProvider
         {
             return 0;
         }
-        if (stoneFeatherPending)
+        if (stoneFeatherPending || waitingForStoneFeatherTakeOff)
         {
             return 0;
         }
@@ -174,7 +186,7 @@ public class YingGe : Enemy, IEnemyCooldownProvider
     // 石羽雨的冷卻回合往前推進
     private void AdvanceStoneFeatherCooldown()
     {
-        if (stoneFeatherPending)         // 如果已經在「等待落下」的狀態，就先不要累積
+        if (stoneFeatherPending || waitingForStoneFeatherTakeOff)         // 如果已經在「等待落下」的狀態，就先不要累積
         {
             return;
         }
@@ -188,6 +200,11 @@ public class YingGe : Enemy, IEnemyCooldownProvider
     // 嘗試啟動石羽雨（決定這次要打哪些格子、顯示高亮、讓 Boss 暫時消失）
     private bool TryActivateStoneFeather(Player player)
     {
+        if (stoneFeatherPending || waitingForStoneFeatherTakeOff)
+        {
+            return false;
+        }
+
         Board board = FindObjectOfType<Board>();   // 拿棋盤
         if (board == null)                         // 沒棋盤就沒辦法發動
         {
@@ -214,27 +231,50 @@ public class YingGe : Enemy, IEnemyCooldownProvider
         }
 
         // 開始進入「石羽雨準備中」狀態，下一回合會真的打下去
-        stoneFeatherPending = true;
+        waitingForStoneFeatherTakeOff = true;
+        PlaySkillStart();
         // 重設累積時間
-        stoneFeatherCooldownTimer = 0;
 
         // 記錄隱藏前的位置，之後要回來
-        storedGridBeforeHide = gridPosition;
-        SetHidden(true);                 // 把 Boss 外觀藏起來
-        SetHighlight(false);             // 不要讓它像被選取一樣
-        SetForceHideIntent(true);        // 石羽雨預告期間 → 不顯示意圖
-        gridPosition = OffBoardSentinel; // 把格子位置移到場外，避免跟其他單位衝突
 
         // 確認手上有 battleManager
-        if (battleManager == null)
-        {
-            battleManager = FindObjectOfType<BattleManager>();
-        }
 
         return true;                     // 成功啟動石羽雨
     }
 
     // 真正讓石羽雨落下，檢查玩家是否在目標格子上
+    public void OnStoneFeatherTakeOffEvent()
+    {
+        if (!waitingForStoneFeatherTakeOff)
+        {
+            return;
+        }
+
+        waitingForStoneFeatherTakeOff = false;
+        BeginStoneFeatherTakeOff();
+    }
+
+    private void BeginStoneFeatherTakeOff()
+    {
+        if (stoneFeatherPending || waitingForStoneFeatherTakeOff)
+        {
+            return;
+        }
+
+        stoneFeatherPending = true;
+        stoneFeatherCooldownTimer = 0;
+        storedGridBeforeHide = gridPosition;
+        SetHidden(true);
+        SetHighlight(false);
+        SetForceHideIntent(true);
+        gridPosition = OffBoardSentinel;
+
+        if (battleManager == null)
+        {
+            battleManager = FindObjectOfType<BattleManager>();
+        }
+    }
+
     private void ResolveStoneFeather(Player player)
     {
         // 如果玩家還在，且玩家目前的位置是我們這次標記的其中一格，就扣血
@@ -296,6 +336,8 @@ public class YingGe : Enemy, IEnemyCooldownProvider
     // 石羽雨打完後，Boss 要再出現，並找一個位置站
     private void ReappearAfterStoneFeather()
     {
+        waitingForStoneFeatherTakeOff = false;
+
         if (battleManager == null)
         {
             battleManager = FindObjectOfType<BattleManager>();
@@ -330,6 +372,7 @@ public class YingGe : Enemy, IEnemyCooldownProvider
 
         MoveToPosition(targetPos);       // 把 Boss 的邏輯位置移回棋盤
         SetHidden(false);                // 顯示出來
+        PlaySkillEnd();
         SetForceHideIntent(false);      //回到場上 → 意圖恢復顯示
 
         // 確保 Boss 有被加回 battleManager 的敵人列表裡
