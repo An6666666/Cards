@@ -389,6 +389,7 @@ MonoBehaviour:
   waterElementIcon: {fileID: 5768291564235171586}
   woodElementIcon: {fileID: 7645297697588494752}
   miasmaEffectObject: {fileID: 6689446033607032246}
+  miasmaAnimatorController: {fileID: 2533441305481013981}
   growthTrap: 0
 --- !u!60 &2799592837945800873
 PolygonCollider2D:
@@ -578,6 +579,8 @@ GameObject:
   m_Component:
   - component: {fileID: 6372839281546672734}
   - component: {fileID: 2479073161109733712}
+  - component: {fileID: 2183723477472059946}
+  - component: {fileID: 2533441305481013981}
   m_Layer: 0
   m_Name: miasma
   m_TagString: Untagged
@@ -641,8 +644,8 @@ SpriteRenderer:
   m_SortingLayerID: 1810442673
   m_SortingLayer: 2
   m_SortingOrder: 4
-  m_Sprite: {fileID: 21300000, guid: a92f4372ce8f8dd42ade7da5a9af5241, type: 3}
-  m_Color: {r: 1, g: 0.58775455, b: 0.5424528, a: 0.5686275}
+  m_Sprite: {fileID: 21300000, guid: 5c99bc05e2071da4e886ff15389fa600, type: 3}
+  m_Color: {r: 1, g: 1, b: 1, a: 0.5686275}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
@@ -652,6 +655,40 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
+--- !u!95 &2183723477472059946
+Animator:
+  serializedVersion: 5
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6689446033607032246}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: 23185cfe01233dc46a94d614f43eadd0, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorStateOnDisable: 0
+  m_WriteDefaultValuesOnDisable: 0
+--- !u!114 &2533441305481013981
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6689446033607032246}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: aecf6cf35e00385479f2b7a20517d0b0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  animator: {fileID: 2183723477472059946}
 --- !u!1 &7645297697588494752
 GameObject:
   m_ObjectHideFlags: 0

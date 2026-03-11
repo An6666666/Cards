@@ -14,6 +14,8 @@ public class EnemyVisual : MonoBehaviour
     private static readonly int HashAppear = Animator.StringToHash("Appear");
     private static readonly int HashAttack = Animator.StringToHash("Attack");
     private static readonly int HashHit = Animator.StringToHash("Hit");
+    private static readonly int HashSkillStart = Animator.StringToHash("SkillStart");
+    private static readonly int HashSkillEnd = Animator.StringToHash("SkillEnd");
     private static readonly int HashIsDead = Animator.StringToHash("IsDead");
     private static readonly int HashMove = Animator.StringToHash("Move");
 
@@ -98,6 +100,24 @@ public class EnemyVisual : MonoBehaviour
         if (spriteAnimator == null || enemy.IsDead) return;
         enemy.HideIdleOverlaysInternal();
         spriteAnimator.SetTrigger(HashHit);
+    }
+
+    public void PlaySkillStart()
+    {
+        EnsureAnimators();
+        if (spriteAnimator == null || enemy.IsDead) return;
+        if (!HasParameter(HashSkillStart, AnimatorControllerParameterType.Trigger)) return;
+        enemy.HideIdleOverlaysInternal();
+        spriteAnimator.SetTrigger(HashSkillStart);
+    }
+
+    public void PlaySkillEnd()
+    {
+        EnsureAnimators();
+        if (spriteAnimator == null || enemy.IsDead) return;
+        if (!HasParameter(HashSkillEnd, AnimatorControllerParameterType.Trigger)) return;
+        enemy.HideIdleOverlaysInternal();
+        spriteAnimator.SetTrigger(HashSkillEnd);
     }
 
     public void PlayDeadAnimation()
@@ -223,5 +243,25 @@ public class EnemyVisual : MonoBehaviour
                 highlightAnimator = enemy.highlightFx.GetComponentInChildren<Animator>(true);
             }
         }
+    }
+
+    private bool HasParameter(int hash, AnimatorControllerParameterType type)
+    {
+        if (spriteAnimator == null)
+        {
+            return false;
+        }
+
+        AnimatorControllerParameter[] parameters = spriteAnimator.parameters;
+        for (int i = 0; i < parameters.Length; i++)
+        {
+            AnimatorControllerParameter parameter = parameters[i];
+            if (parameter.nameHash == hash && parameter.type == type)
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

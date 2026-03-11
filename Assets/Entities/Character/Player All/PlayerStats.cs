@@ -4,7 +4,7 @@ using UnityEngine;
 [RequireComponent(typeof(PlayerBuffController))]
 public class PlayerStats : MonoBehaviour
 {
-    [Header("基本屬性")]
+    [Header("Player Stats")]
     public int maxHP = 50;
     public int currentHP;
     public int maxEnergy = 4;
@@ -26,14 +26,16 @@ public class PlayerStats : MonoBehaviour
         buffController = buffs;
         currentHP = maxHP;
         energy = maxEnergy;
+        block = 0;
 
         RaiseEnergyChanged();
+        NotifyHpChanged();
+        NotifyBlockChanged();
     }
 
     public void StartTurn()
     {
         energy = maxEnergy;
-
         RaiseEnergyChanged();
     }
 
@@ -41,7 +43,10 @@ public class PlayerStats : MonoBehaviour
     {
         Debug.Log($"UseEnergy: deducting {cost} energy. Energy before={energy}");
         energy -= cost;
-        if (energy < 0) energy = 0;
+        if (energy < 0)
+        {
+            energy = 0;
+        }
 
         RaiseEnergyChanged();
     }
@@ -49,14 +54,18 @@ public class PlayerStats : MonoBehaviour
     public int CalculateAttackDamage(int baseDamage)
     {
         int dmg = baseDamage + buffController.nextAttackPlus + buffController.nextTurnAllAttackPlus;
-        if (dmg < 0) dmg = 0;
+        if (dmg < 0)
+        {
+            dmg = 0;
+        }
+
         buffController.nextAttackPlus = 0;
         return dmg;
     }
 
     public void AddBlock(int amount, List<CardBase> relics)
     {
-        block += amount;
+        block = Mathf.Max(0, block + amount);
         foreach (CardBase r in relics)
         {
             if (r is Relic_ZiDianJiao z)
@@ -64,15 +73,23 @@ public class PlayerStats : MonoBehaviour
                 z.OnAddBlock(owner, amount);
             }
         }
+
+        NotifyBlockChanged();
     }
 
     public void TakeDamage(int dmg)
     {
         int incoming = dmg;
-        if (buffController.weak > 0) incoming += 2;
+        if (buffController.weak > 0)
+        {
+            incoming += 2;
+        }
 
         int reduced = incoming - buffController.meleeDamageReduce;
-        if (reduced < 0) reduced = 0;
+        if (reduced < 0)
+        {
+            reduced = 0;
+        }
 
         float realDmgF = reduced * buffController.damageTakenRatio;
         int realDmg = Mathf.CeilToInt(realDmgF);
@@ -84,16 +101,15 @@ public class PlayerStats : MonoBehaviour
             currentHP -= remain;
 
             HandleFatalDamage();
-
-            //只要有扣到 HP（remain>0）就播受傷
-            owner?.PlayWoundedAnim();
+            NotifyActualHpDamage();
         }
         else
         {
             block -= realDmg;
         }
-    }
 
+        NotifyBlockChanged();
+    }
 
     public void TakeDamageDirect(int dmg)
     {
@@ -105,7 +121,7 @@ public class PlayerStats : MonoBehaviour
 
         currentHP -= incoming;
         HandleFatalDamage();
-        owner?.PlayWoundedAnim();
+        NotifyActualHpDamage();
     }
 
     public void TakeStatusDamage(int dmg)
@@ -135,14 +151,23 @@ public class PlayerStats : MonoBehaviour
         {
             currentHP -= remaining;
             HandleFatalDamage();
-            owner?.PlayWoundedAnim();
+            NotifyActualHpDamage();
         }
+
+        NotifyBlockChanged();
     }
 
     public void AddGold(int amount)
     {
         gold += amount;
     }
+
+    public void SetBlock(int value)
+    {
+        block = Mathf.Max(0, value);
+        NotifyBlockChanged();
+    }
+
     private void HandleFatalDamage()
     {
         if (currentHP > 0)
@@ -159,5 +184,22 @@ public class PlayerStats : MonoBehaviour
         {
             currentHP = 0;
         }
+    }
+
+    private void NotifyActualHpDamage()
+    {
+        owner?.PlayWoundedAnim();
+        owner?.PlayHitFeedback();
+        NotifyHpChanged();
+    }
+
+    private void NotifyHpChanged()
+    {
+        owner?.RefreshLowHpFeedback();
+    }
+
+    private void NotifyBlockChanged()
+    {
+        owner?.SetShieldFXActive(block > 0);
     }
 }

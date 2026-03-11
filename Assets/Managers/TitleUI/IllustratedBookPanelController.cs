@@ -9,16 +9,16 @@ public class IllustratedBookPanelController : MonoBehaviour
 {
     public enum BookPage
     {
-        [InspectorName("卡牌")] Cards,
-        [InspectorName("敵人")] Monsters,
-        [InspectorName("法器")] Relics
+        [InspectorName("Cards")] Cards,
+        [InspectorName("Monsters")] Monsters,
+        [InspectorName("Relics")] Relics
     }
 
     [Serializable]
     public class UITextBinding
     {
-        [SerializeField, InspectorName("Text(舊版UGUI)")] private Text legacyText;
-        [SerializeField, InspectorName("TMP_Text")] private TMP_Text tmpText;
+        [SerializeField, InspectorName("Legacy Text")] private Text legacyText;
+        [SerializeField, InspectorName("TMP Text")] private TMP_Text tmpText;
 
         public void SetText(string value)
         {
@@ -31,12 +31,12 @@ public class IllustratedBookPanelController : MonoBehaviour
     [Serializable]
     public class IllustratedBookSlotBinding
     {
-        [SerializeField, InspectorName("格子根物件")] private GameObject root;
-        [SerializeField, InspectorName("格子按鈕")] private Button button;
-        [SerializeField, InspectorName("Icon圖片")] private Image iconImage;
-        [SerializeField, InspectorName("名稱文字")] private UITextBinding nameText;
-        [SerializeField, InspectorName("有資料顯示物件")] private GameObject filledVisual;
-        [SerializeField, InspectorName("空格顯示物件")] private GameObject emptyVisual;
+        [SerializeField, InspectorName("Root")] private GameObject root;
+        [SerializeField, InspectorName("Button")] private Button button;
+        [SerializeField, InspectorName("Icon Image")] private Image iconImage;
+        [SerializeField, InspectorName("Name Text")] private UITextBinding nameText;
+        [SerializeField, InspectorName("Filled Visual")] private GameObject filledVisual;
+        [SerializeField, InspectorName("Empty Visual")] private GameObject emptyVisual;
 
         public GameObject Root => root;
         public Button Button => button;
@@ -89,11 +89,12 @@ public class IllustratedBookPanelController : MonoBehaviour
     [Serializable]
     public class CardDetailBindings
     {
-        [SerializeField, InspectorName("詳細頁根物件")] private GameObject root;
-        [SerializeField, InspectorName("名稱文字")] private UITextBinding nameText;
-        [SerializeField, InspectorName("主圖片")] private Image portraitImage;
-        [SerializeField, InspectorName("副圖片")] private Image secondaryImage;
-        [SerializeField, InspectorName("描述文字")] private UITextBinding descriptionText;
+        [SerializeField, InspectorName("Root")] private GameObject root;
+        [SerializeField, InspectorName("Name Text")] private UITextBinding nameText;
+        [SerializeField, InspectorName("Card Image")] private Image cardImage;
+        [SerializeField, InspectorName("Area Image")] private Image areaImage;
+        [SerializeField, InspectorName("Intro Text")] private UITextBinding introText;
+        [SerializeField, InspectorName("Concept Text")] private UITextBinding conceptText;
 
         public GameObject Root => root;
 
@@ -102,10 +103,11 @@ public class IllustratedBookPanelController : MonoBehaviour
             if (data == null) return;
 
             if (nameText != null) nameText.SetText(data.DisplayName);
-            if (descriptionText != null) descriptionText.SetText(data.Description);
+            if (introText != null) introText.SetText(data.Intro);
+            if (conceptText != null) conceptText.SetText(data.Concept);
 
-            SetImage(portraitImage, data.Portrait);
-            SetImage(secondaryImage, data.ExtraSprite);
+            SetImage(cardImage, data.CardSprite);
+            SetImage(areaImage, data.AreaSprite);
         }
 
         private static void SetImage(Image target, Sprite sprite)
@@ -117,14 +119,31 @@ public class IllustratedBookPanelController : MonoBehaviour
     }
 
     [Serializable]
+    public class MonsterSkillData
+    {
+        [SerializeField, InspectorName("Icon")] private Sprite icon;
+        [SerializeField, InspectorName("Skill Name")] private string skillName;
+        [TextArea(2, 6)]
+        [SerializeField, InspectorName("Description")] private string description;
+
+        public Sprite Icon => icon;
+        public string SkillName => skillName;
+        public string Description => description;
+    }
+
+    [Serializable]
     public class MonsterDetailBindings
     {
-        [SerializeField, InspectorName("詳細頁根物件")] private GameObject root;
-        [SerializeField, InspectorName("名稱文字")] private UITextBinding nameText;
-        [SerializeField, InspectorName("立繪圖片")] private Image portraitImage;
-        [SerializeField, InspectorName("介紹文字")] private UITextBinding introText;
-        [SerializeField, InspectorName("技能文字")] private UITextBinding skillText;
-        [SerializeField, InspectorName("提示文字")] private UITextBinding tipText;
+        [SerializeField, InspectorName("Root")] private GameObject root;
+        [SerializeField, InspectorName("Name Text")] private UITextBinding nameText;
+        [SerializeField, InspectorName("Portrait Image")] private Image portraitImage;
+        [SerializeField, InspectorName("Intro Text")] private UITextBinding introText;
+        [SerializeField, InspectorName("Legacy Skill Text")] private UITextBinding skillText;
+        [SerializeField, InspectorName("Tip Text")] private UITextBinding tipText;
+        [SerializeField, InspectorName("Skill Item Prefab")] private MonsterSkillItemBindings skillItemPrefab;
+        [SerializeField, InspectorName("Skill List Parent")] private Transform skillListParent;
+
+        private readonly List<MonsterSkillItemBindings> _spawnedSkillItems = new List<MonsterSkillItemBindings>();
 
         public GameObject Root => root;
 
@@ -134,13 +153,51 @@ public class IllustratedBookPanelController : MonoBehaviour
 
             if (nameText != null) nameText.SetText(data.DisplayName);
             if (introText != null) introText.SetText(data.Intro);
-            if (skillText != null) skillText.SetText(data.Skill);
             if (tipText != null) tipText.SetText(data.Tip);
+            if (skillText != null) skillText.SetText(string.Empty);
 
             if (portraitImage != null)
             {
                 portraitImage.sprite = data.Portrait;
                 portraitImage.enabled = data.Portrait != null;
+            }
+
+            FillSkills(data.Skills);
+        }
+
+        public void ClearSkillItems()
+        {
+            for (int i = 0; i < _spawnedSkillItems.Count; i++)
+            {
+                MonsterSkillItemBindings item = _spawnedSkillItems[i];
+                if (item == null) continue;
+
+                if (Application.isPlaying) UnityEngine.Object.Destroy(item.gameObject);
+                else UnityEngine.Object.DestroyImmediate(item.gameObject);
+            }
+
+            _spawnedSkillItems.Clear();
+        }
+
+        public void FillSkills(List<MonsterSkillData> skills)
+        {
+            ClearSkillItems();
+
+            if (skillItemPrefab == null || skillListParent == null || skills == null || skills.Count == 0)
+            {
+                return;
+            }
+
+            for (int i = 0; i < skills.Count; i++)
+            {
+                MonsterSkillData skill = skills[i];
+                if (skill == null) continue;
+
+                MonsterSkillItemBindings item = UnityEngine.Object.Instantiate(skillItemPrefab, skillListParent);
+                if (item == null) continue;
+
+                item.Fill(skill);
+                _spawnedSkillItems.Add(item);
             }
         }
     }
@@ -148,12 +205,12 @@ public class IllustratedBookPanelController : MonoBehaviour
     [Serializable]
     public class RelicDetailBindings
     {
-        [SerializeField, InspectorName("詳細頁根物件")] private GameObject root;
-        [SerializeField, InspectorName("名稱文字")] private UITextBinding nameText;
-        [SerializeField, InspectorName("立繪圖片")] private Image portraitImage;
-        [SerializeField, InspectorName("介紹文字")] private UITextBinding introText;
-        [SerializeField, InspectorName("概念文字")] private UITextBinding conceptText;
-        [SerializeField, InspectorName("區域圖片(可選/未使用)")] private Image areaImage;
+        [SerializeField, InspectorName("Root")] private GameObject root;
+        [SerializeField, InspectorName("Name Text")] private UITextBinding nameText;
+        [SerializeField, InspectorName("Portrait Image")] private Image portraitImage;
+        [SerializeField, InspectorName("Intro Text")] private UITextBinding introText;
+        [SerializeField, InspectorName("Concept Text")] private UITextBinding conceptText;
+        [SerializeField, InspectorName("Area Image")] private Image areaImage;
 
         public GameObject Root => root;
 
@@ -171,10 +228,10 @@ public class IllustratedBookPanelController : MonoBehaviour
                 portraitImage.enabled = data.Portrait != null;
             }
 
-            // areaImage / areaSprite is optional and not required by current detail spec (1 image + 2 texts).
-            if (areaImage != null && areaImage.sprite == null)
+            if (areaImage != null)
             {
-                areaImage.enabled = false;
+                areaImage.sprite = data.AreaSprite;
+                areaImage.enabled = data.AreaSprite != null;
             }
         }
     }
@@ -182,9 +239,9 @@ public class IllustratedBookPanelController : MonoBehaviour
     [Serializable]
     public class PaginationBindings
     {
-        [SerializeField, InspectorName("上一頁按鈕")] private Button prevButton;
-        [SerializeField, InspectorName("下一頁按鈕")] private Button nextButton;
-        [SerializeField, InspectorName("頁碼文字")] private UITextBinding pageText;
+        [SerializeField, InspectorName("Prev Button")] private Button prevButton;
+        [SerializeField, InspectorName("Next Button")] private Button nextButton;
+        [SerializeField, InspectorName("Page Text")] private UITextBinding pageText;
 
         public Button PrevButton => prevButton;
         public Button NextButton => nextButton;
@@ -195,11 +252,11 @@ public class IllustratedBookPanelController : MonoBehaviour
     public class BookDataBase
     {
         [SerializeField, InspectorName("ID")] private string id;
-        [SerializeField, InspectorName("顯示名稱")] private string displayName;
-        [SerializeField, InspectorName("列表Icon")] private Sprite icon;
-        [SerializeField, InspectorName("詳細頁立繪")] private Sprite portrait;
-        [SerializeField, InspectorName("置頂")] private bool pinned;
-        [SerializeField, InspectorName("排序值")] private int order;
+        [SerializeField, InspectorName("Display Name")] private string displayName;
+        [SerializeField, InspectorName("Icon")] private Sprite icon;
+        [SerializeField, InspectorName("Portrait")] private Sprite portrait;
+        [SerializeField, InspectorName("Pinned")] private bool pinned;
+        [SerializeField, InspectorName("Order")] private int order;
 
         public string Id => id;
         public string DisplayName => string.IsNullOrEmpty(displayName) ? id : displayName;
@@ -212,89 +269,100 @@ public class IllustratedBookPanelController : MonoBehaviour
     [Serializable]
     public class CardBookData : BookDataBase
     {
-        [SerializeField, InspectorName("第二張圖片(可選)")] private Sprite extraSprite;
+        [SerializeField, InspectorName("Card Image")] private Sprite cardSprite;
+        [SerializeField, InspectorName("Area Image")] private Sprite areaSprite;
         [TextArea(2, 6)]
-        [SerializeField, InspectorName("描述")] private string description;
+        [SerializeField, InspectorName("Intro")] private string intro;
+        [TextArea(2, 6)]
+        [SerializeField, InspectorName("Concept")] private string concept;
 
-        public Sprite ExtraSprite => extraSprite;
-        public string Description => description;
+        public Sprite CardSprite => cardSprite != null ? cardSprite : Portrait;
+        public Sprite AreaSprite => areaSprite;
+        public string Intro => intro;
+        public string Concept => concept;
     }
 
     [Serializable]
     public class MonsterBookData : BookDataBase
     {
         [TextArea(2, 6)]
-        [SerializeField, InspectorName("介紹")] private string intro;
+        [SerializeField, InspectorName("Intro")] private string intro;
         [TextArea(2, 6)]
-        [SerializeField, InspectorName("技能")] private string skill;
-        [TextArea(2, 6)]
-        [SerializeField, InspectorName("提示")] private string tip;
+        [SerializeField, InspectorName("Tip")] private string tip;
+        [SerializeField, InspectorName("Skills")] private List<MonsterSkillData> skills = new List<MonsterSkillData>();
 
         public string Intro => intro;
-        public string Skill => skill;
         public string Tip => tip;
+        public List<MonsterSkillData> Skills => skills;
     }
 
     [Serializable]
     public class RelicBookData : BookDataBase
     {
         [TextArea(2, 6)]
-        [SerializeField, InspectorName("介紹")] private string intro;
+        [SerializeField, InspectorName("Intro")] private string intro;
         [TextArea(2, 6)]
-        [SerializeField, InspectorName("概念")] private string concept;
-        [SerializeField, InspectorName("區域圖片(可選/未使用)")] private Sprite areaSprite;
+        [SerializeField, InspectorName("Concept")] private string concept;
+        [SerializeField, InspectorName("Area Sprite")] private Sprite areaSprite;
 
         public string Intro => intro;
         public string Concept => concept;
         public Sprite AreaSprite => areaSprite;
     }
 
-    [Header("面板根物件")]
-    [SerializeField, InspectorName("圖鑑主面板"), Tooltip("整個圖鑑 Root，用 SetActive 控制")] private GameObject illustratedBookPanel;
-    [SerializeField, InspectorName("遮罩(防誤觸)"), Tooltip("可選的透明遮罩，開啟圖鑑時一併顯示")] private GameObject blocker;
-    [SerializeField, InspectorName("卡牌大量頁"), Tooltip("Cards 的列表頁根物件")] private GameObject cardsPanel;
-    [SerializeField, InspectorName("妖怪大量頁"), Tooltip("Monsters 的列表頁根物件")] private GameObject monstersPanel;
-    [SerializeField, InspectorName("法器大量頁"), Tooltip("Relics 的列表頁根物件")] private GameObject relicsPanel;
+    [Header("Panel Roots")]
+    [SerializeField, InspectorName("Illustrated Book Panel"), Tooltip("Root of the whole panel.")]
+    private GameObject illustratedBookPanel;
+    [SerializeField, InspectorName("Blocker"), Tooltip("Optional overlay shown while the panel is open.")]
+    private GameObject blocker;
+    [SerializeField, InspectorName("Cards Panel"), Tooltip("List root for cards.")]
+    private GameObject cardsPanel;
+    [SerializeField, InspectorName("Monsters Panel"), Tooltip("List root for monsters.")]
+    private GameObject monstersPanel;
+    [SerializeField, InspectorName("Relics Panel"), Tooltip("List root for relics.")]
+    private GameObject relicsPanel;
 
-    [Header("按鈕設定")]
-    [SerializeField, InspectorName("關閉按鈕"), Tooltip("關閉圖鑑主面板")] private Button closeButton;
-    [SerializeField, InspectorName("卡牌分類按鈕")] private Button cardsTabButton;
-    [SerializeField, InspectorName("妖怪分類按鈕")] private Button monstersTabButton;
-    [SerializeField, InspectorName("法器分類按鈕")] private Button relicsTabButton;
+    [Header("Buttons")]
+    [SerializeField, InspectorName("Close Button"), Tooltip("Closes the panel.")]
+    private Button closeButton;
+    [SerializeField, InspectorName("Cards Tab Button")] private Button cardsTabButton;
+    [SerializeField, InspectorName("Monsters Tab Button")] private Button monstersTabButton;
+    [SerializeField, InspectorName("Relics Tab Button")] private Button relicsTabButton;
 
-    [Header("分頁(各分類)")]
-    [SerializeField, InspectorName("卡牌分頁")] private PaginationBindings cardsPagination;
-    [SerializeField, InspectorName("妖怪分頁")] private PaginationBindings monstersPagination;
-    [SerializeField, InspectorName("法器分頁")] private PaginationBindings relicsPagination;
+    [Header("Pagination")]
+    [SerializeField, InspectorName("Cards Pagination")] private PaginationBindings cardsPagination;
+    [SerializeField, InspectorName("Monsters Pagination")] private PaginationBindings monstersPagination;
+    [SerializeField, InspectorName("Relics Pagination")] private PaginationBindings relicsPagination;
 
-    [Header("分頁(共用)")]
-    [SerializeField, InspectorName("使用共用分頁UI")] private bool useSharedPaginationBindings;
-    [SerializeField, InspectorName("共用分頁綁定")] private PaginationBindings sharedPagination;
+    [Header("Shared Pagination")]
+    [SerializeField, InspectorName("Use Shared Pagination")] private bool useSharedPaginationBindings;
+    [SerializeField, InspectorName("Shared Pagination")] private PaginationBindings sharedPagination;
 
-    [Header("固定格子(手動排版)")]
-    [SerializeField, InspectorName("卡牌格子"), Tooltip("固定卡牌 slot 清單，數量決定每頁顯示數")] private List<IllustratedBookSlotBinding> cardsSlots = new List<IllustratedBookSlotBinding>();
-    [SerializeField, InspectorName("妖怪格子(2x8)")] private List<IllustratedBookSlotBinding> monstersSlots = new List<IllustratedBookSlotBinding>();
-    [SerializeField, InspectorName("法器格子(1x3)")] private List<IllustratedBookSlotBinding> relicsSlots = new List<IllustratedBookSlotBinding>();
+    [Header("Fixed Slots")]
+    [SerializeField, InspectorName("Cards Slots"), Tooltip("Fixed slots used by the cards list.")]
+    private List<IllustratedBookSlotBinding> cardsSlots = new List<IllustratedBookSlotBinding>();
+    [SerializeField, InspectorName("Monsters Slots")] private List<IllustratedBookSlotBinding> monstersSlots = new List<IllustratedBookSlotBinding>();
+    [SerializeField, InspectorName("Relics Slots")] private List<IllustratedBookSlotBinding> relicsSlots = new List<IllustratedBookSlotBinding>();
 
-    [Header("詳細頁根物件")]
-    [SerializeField, InspectorName("卡牌詳細頁")] private CardDetailBindings cardDetail;
-    [SerializeField, InspectorName("妖怪詳細頁")] private MonsterDetailBindings monsterDetail;
-    [SerializeField, InspectorName("法器詳細頁")] private RelicDetailBindings relicDetail;
+    [Header("Detail Bindings")]
+    [SerializeField, InspectorName("Card Detail")] private CardDetailBindings cardDetail;
+    [SerializeField, InspectorName("Monster Detail")] private MonsterDetailBindings monsterDetail;
+    [SerializeField, InspectorName("Relic Detail")] private RelicDetailBindings relicDetail;
 
-    [Header("詳細頁返回按鈕(可選)")]
-    [SerializeField, InspectorName("卡牌詳細頁返回按鈕")] private Button cardDetailBackButton;
-    [SerializeField, InspectorName("妖怪詳細頁返回按鈕")] private Button monsterDetailBackButton;
-    [SerializeField, InspectorName("法器詳細頁返回按鈕")] private Button relicDetailBackButton;
+    [Header("Detail Back Buttons")]
+    [SerializeField, InspectorName("Card Detail Back Button")] private Button cardDetailBackButton;
+    [SerializeField, InspectorName("Monster Detail Back Button")] private Button monsterDetailBackButton;
+    [SerializeField, InspectorName("Relic Detail Back Button")] private Button relicDetailBackButton;
 
-    [Header("預設設定")]
-    [SerializeField, InspectorName("預設分類")] private BookPage defaultPage = BookPage.Cards;
-    [SerializeField, InspectorName("Awake時隱藏面板")] private bool hidePanelOnAwake = true;
-    [SerializeField, InspectorName("ESC關閉面板")] private bool closeOnEscape = false;
+    [Header("Behavior")]
+    [SerializeField, InspectorName("Default Page")] private BookPage defaultPage = BookPage.Cards;
+    [SerializeField, InspectorName("Hide Panel On Awake")] private bool hidePanelOnAwake = true;
+    [SerializeField, InspectorName("Close On Escape")] private bool closeOnEscape;
 
-    [Header("圖鑑資料(暫用/Inspector填入)")]
-    [SerializeField, InspectorName("卡牌資料")] private List<CardBookData> cardsData = new List<CardBookData>();
-    [SerializeField, InspectorName("妖怪資料")] private List<MonsterBookData> monstersData = new List<MonsterBookData>();
-    [SerializeField, InspectorName("法器資料")] private List<RelicBookData> relicsData = new List<RelicBookData>();
+    [Header("Data")]
+    [SerializeField, InspectorName("Cards Data")] private List<CardBookData> cardsData = new List<CardBookData>();
+    [SerializeField, InspectorName("Monsters Data")] private List<MonsterBookData> monstersData = new List<MonsterBookData>();
+    [SerializeField, InspectorName("Relics Data")] private List<RelicBookData> relicsData = new List<RelicBookData>();
 
     private BookPage _currentPage = BookPage.Cards;
     private int _cardsPageIndex;
@@ -361,15 +429,8 @@ public class IllustratedBookPanelController : MonoBehaviour
         HideAllDetailRoots();
         _isDetailOpen = false;
 
-        if (illustratedBookPanel != null)
-        {
-            illustratedBookPanel.SetActive(false);
-        }
-
-        if (blocker != null)
-        {
-            blocker.SetActive(false);
-        }
+        if (illustratedBookPanel != null) illustratedBookPanel.SetActive(false);
+        if (blocker != null) blocker.SetActive(false);
     }
 
     public void Toggle()
@@ -380,14 +441,8 @@ public class IllustratedBookPanelController : MonoBehaviour
             return;
         }
 
-        if (illustratedBookPanel.activeSelf)
-        {
-            Close();
-        }
-        else
-        {
-            Open();
-        }
+        if (illustratedBookPanel.activeSelf) Close();
+        else Open();
     }
 
     public void ShowCards()
@@ -524,30 +579,18 @@ public class IllustratedBookPanelController : MonoBehaviour
     {
         BindPaginationButton(cardsPagination != null ? cardsPagination.PrevButton : null, PrevCardsPage);
         BindPaginationButton(cardsPagination != null ? cardsPagination.NextButton : null, NextCardsPage);
-
         BindPaginationButton(monstersPagination != null ? monstersPagination.PrevButton : null, PrevMonstersPage);
         BindPaginationButton(monstersPagination != null ? monstersPagination.NextButton : null, NextMonstersPage);
-
         BindPaginationButton(relicsPagination != null ? relicsPagination.PrevButton : null, PrevRelicsPage);
         BindPaginationButton(relicsPagination != null ? relicsPagination.NextButton : null, NextRelicsPage);
     }
 
     private void BindSharedPaginationIfNeeded(BookPage category)
     {
-        if (!useSharedPaginationBindings || sharedPagination == null)
-        {
-            return;
-        }
+        if (!useSharedPaginationBindings || sharedPagination == null) return;
 
-        if (sharedPagination.PrevButton != null)
-        {
-            sharedPagination.PrevButton.onClick.RemoveAllListeners();
-        }
-
-        if (sharedPagination.NextButton != null)
-        {
-            sharedPagination.NextButton.onClick.RemoveAllListeners();
-        }
+        if (sharedPagination.PrevButton != null) sharedPagination.PrevButton.onClick.RemoveAllListeners();
+        if (sharedPagination.NextButton != null) sharedPagination.NextButton.onClick.RemoveAllListeners();
 
         switch (category)
         {
@@ -568,11 +611,7 @@ public class IllustratedBookPanelController : MonoBehaviour
 
     private void BindPaginationButton(Button button, UnityEngine.Events.UnityAction action)
     {
-        if (button == null || action == null)
-        {
-            return;
-        }
-
+        if (button == null || action == null) return;
         button.onClick.RemoveAllListeners();
         button.onClick.AddListener(action);
     }
@@ -623,12 +662,7 @@ public class IllustratedBookPanelController : MonoBehaviour
         RefreshPage(relicsSlots, GetSortedRelics(), _relicsPageIndex, BookPage.Relics, ResolvePagination(BookPage.Relics));
     }
 
-    private void RefreshPage<T>(
-        List<IllustratedBookSlotBinding> slots,
-        List<T> sortedItems,
-        int pageIndex,
-        BookPage category,
-        PaginationBindings pagination)
+    private void RefreshPage<T>(List<IllustratedBookSlotBinding> slots, List<T> sortedItems, int pageIndex, BookPage category, PaginationBindings pagination)
         where T : BookDataBase
     {
         if (slots == null || slots.Count == 0)
@@ -699,19 +733,13 @@ public class IllustratedBookPanelController : MonoBehaviour
 
         if (pagination.PageText != null)
         {
-            if (totalPages <= 0 || totalItems < 0)
-            {
-                pagination.PageText.SetText("0/0");
-            }
-            else
-            {
-                pagination.PageText.SetText((pageIndex + 1).ToString() + "/" + totalPages.ToString());
-            }
+            pagination.PageText.SetText(totalPages <= 0 || totalItems < 0 ? "0/0" : (pageIndex + 1) + "/" + totalPages);
         }
     }
 
     private void OpenDetail(BookPage category, string id)
     {
+        Debug.Log("OpenDetail: " + category + " / " + id);
         if (string.IsNullOrEmpty(id))
         {
             Debug.LogWarning("IllustratedBookPanelController: clicked item id is null/empty.", this);
@@ -733,9 +761,8 @@ public class IllustratedBookPanelController : MonoBehaviour
                     return;
                 }
 
-                if (monsterDetail.Root != null) monsterDetail.Root.SetActive(true);
-                else Debug.LogWarning("IllustratedBookPanelController: monsterDetailRoot is not assigned.", this);
-                monsterDetail.Fill(data);
+                if (monsterDetail != null && monsterDetail.Root != null) monsterDetail.Root.SetActive(true);
+                monsterDetail?.Fill(data);
                 _currentPage = BookPage.Monsters;
                 break;
             }
@@ -749,9 +776,8 @@ public class IllustratedBookPanelController : MonoBehaviour
                     return;
                 }
 
-                if (relicDetail.Root != null) relicDetail.Root.SetActive(true);
-                else Debug.LogWarning("IllustratedBookPanelController: relicDetailRoot is not assigned.", this);
-                relicDetail.Fill(data);
+                if (relicDetail != null && relicDetail.Root != null) relicDetail.Root.SetActive(true);
+                relicDetail?.Fill(data);
                 _currentPage = BookPage.Relics;
                 break;
             }
@@ -765,9 +791,8 @@ public class IllustratedBookPanelController : MonoBehaviour
                     return;
                 }
 
-                if (cardDetail.Root != null) cardDetail.Root.SetActive(true);
-                else Debug.LogWarning("IllustratedBookPanelController: cardDetailRoot is not assigned.", this);
-                cardDetail.Fill(data);
+                if (cardDetail != null && cardDetail.Root != null) cardDetail.Root.SetActive(true);
+                cardDetail?.Fill(data);
                 _currentPage = BookPage.Cards;
                 break;
             }
@@ -784,15 +809,12 @@ public class IllustratedBookPanelController : MonoBehaviour
         {
             case BookPage.Monsters:
                 if (monstersPanel != null) monstersPanel.SetActive(true);
-                else Debug.LogWarning("IllustratedBookPanelController: monstersPanel is not assigned.", this);
                 break;
             case BookPage.Relics:
                 if (relicsPanel != null) relicsPanel.SetActive(true);
-                else Debug.LogWarning("IllustratedBookPanelController: relicsPanel is not assigned.", this);
                 break;
             default:
                 if (cardsPanel != null) cardsPanel.SetActive(true);
-                else Debug.LogWarning("IllustratedBookPanelController: cardsPanel is not assigned.", this);
                 break;
         }
     }
@@ -807,16 +829,19 @@ public class IllustratedBookPanelController : MonoBehaviour
     private void HideAllDetailRoots()
     {
         if (cardDetail != null && cardDetail.Root != null) cardDetail.Root.SetActive(false);
-        if (monsterDetail != null && monsterDetail.Root != null) monsterDetail.Root.SetActive(false);
+
+        if (monsterDetail != null)
+        {
+            monsterDetail.ClearSkillItems();
+            if (monsterDetail.Root != null) monsterDetail.Root.SetActive(false);
+        }
+
         if (relicDetail != null && relicDetail.Root != null) relicDetail.Root.SetActive(false);
     }
 
     private PaginationBindings ResolvePagination(BookPage page)
     {
-        if (useSharedPaginationBindings && sharedPagination != null)
-        {
-            return sharedPagination;
-        }
+        if (useSharedPaginationBindings && sharedPagination != null) return sharedPagination;
 
         switch (page)
         {

@@ -67,7 +67,7 @@ public class Move_SuoDiChengCun : MovementCardBase
     // 玩家點擊目標格後，執行位移效果（與移動卡 Move_YiDong 一致）。
     public override void ExecuteOnPosition(Player player, Vector2Int targetGridPos)
     {
-        // 使用一般移動流程（非瞬移），套用與 Move_YiDong 相同的移動規則。
-        player.MoveToPosition(targetGridPos);
+        // 使用瞬移流程，讓出牌動畫可分成消失/出現兩段。
+        player.BeginTeleportSequence(targetGridPos);
     }
 }
