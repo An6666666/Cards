@@ -259,6 +259,8 @@ public class RunMapGenerator
         ShopInventoryDefinition defaultShop,
         List<RunEventDefinition> eventPool)
     {
+        int totalFloors = map?.Floors?.Count ?? 0;
+
         foreach (List<MapNodeData> floor in map.Floors)
         {
             foreach (MapNodeData node in floor)
@@ -267,9 +269,9 @@ public class RunMapGenerator
                 {
                     case MapNodeType.EliteBattle:
                         RunEncounterDefinition eliteEncounter = elitePool != null
-                            ? elitePool.GetRandomEncounter()
+                            ? elitePool.GetRandomEncounter(node.FloorIndex, totalFloors)
                             : null;
-                        node.SetEncounter(eliteEncounter != null ? eliteEncounter : encounterPool?.GetRandomEncounter());
+                        node.SetEncounter(eliteEncounter != null ? eliteEncounter : encounterPool?.GetRandomEncounter(node.FloorIndex, totalFloors));
                         break;
                     case MapNodeType.Shop:
                         node.SetShop(defaultShop);
@@ -278,13 +280,13 @@ public class RunMapGenerator
                         node.SetEvent(GetRandomEventDefinition(eventPool));
                         break;
                     case MapNodeType.Boss:
-                        node.SetEncounter(bossEncounter != null ? bossEncounter : encounterPool?.GetRandomEncounter());
+                        node.SetEncounter(bossEncounter != null ? bossEncounter : encounterPool?.GetRandomEncounter(node.FloorIndex, totalFloors));
                         break;
                     case MapNodeType.Rest:
                         // 休息站不需要額外配置
                         break;
                     default:
-                        node.SetEncounter(encounterPool != null ? encounterPool.GetRandomEncounter() : null);
+                        node.SetEncounter(encounterPool != null ? encounterPool.GetRandomEncounter(node.FloorIndex, totalFloors) : null);
                         break;
                 }
             }

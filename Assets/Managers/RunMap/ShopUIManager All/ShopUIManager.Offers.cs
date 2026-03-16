@@ -101,7 +101,7 @@ public partial class ShopUIManager
         if (inventory == null)
             return;
 
-        AddRandomSelections(inventory.PurchasableCards, inventory.CardOfferCount, availableCards);
+        availableCards.AddRange(RunCardPoolSelector.GetShopChoices(inventory.PurchasableCards, inventory.CardOfferCount));
         AddRandomSelections(inventory.PurchasableRelics, inventory.RelicOfferCount, availableRelics);
 
         offersGenerated = true;

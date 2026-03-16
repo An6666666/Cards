@@ -70,6 +70,7 @@ public class PlayerDeckController : MonoBehaviour
         if (useDebugDeck && debugStartingDeck != null && debugStartingDeck.Count > 0)
         {
             selectedDeck = debugStartingDeck;
+            StartingDeckSelection.ClearSelection();
         }
 #endif
 
@@ -97,7 +98,7 @@ public class PlayerDeckController : MonoBehaviour
                 List<CardBase> built = definitionToUse.BuildDeck(selectedElements);
                 if (built.Count > 0)
                 {
-                    StartingDeckSelection.ClearSelection();
+                    StartingDeckSelection.ClearPendingSelection();
                     return built;
                 }
             }

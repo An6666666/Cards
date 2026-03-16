@@ -16,9 +16,9 @@ MonoBehaviour:
     floorCount: 16
     minNodesPerFloor: 3
     maxNodesPerFloor: 6
-    floorVarianceChance: 0.25
+    floorVarianceChance: 0.15
   slotAllocation:
-    shopMin: 2
+    shopMin: 3
     shopMax: 3
     eliteMin: 3
     eliteMax: 4
@@ -29,7 +29,7 @@ MonoBehaviour:
     typeConstraints:
       eliteMinFloorOffset: 4
       eliteMaxFloorOffsetFromBoss: 2
-      shopMinFloorOffset: 2
+      shopMinFloorOffset: 3
       shopMaxFloorOffsetFromBoss: 3
       eventMinFloorOffset: 1
       eventMaxFloorOffsetFromBoss: 2
@@ -44,16 +44,16 @@ MonoBehaviour:
       maxConsecutiveEvents: 0
     fixedFloorRules: []
   connectionSettings:
-    connectionNeighborWindow: 3
-    maxOutgoingPerNode: 4
+    connectionNeighborWindow: 2
+    maxOutgoingPerNode: 2
     minConnectedSourcesPerRow: 3
     backtrackAllowance: 1
-    connectionDensity: 1.5
+    connectionDensity: 1.3
     minIncomingPerTarget: 1
     minDistinctSourcesToBoss: 3
-    longLinkChance: 0.2
-    minDistinctTargetsPerFloor: 2
-    minBranchingNodesPerFloor: 2
-    maxBranchingNodesPerFloor: 3
+    longLinkChance: 0.1
+    minDistinctTargetsPerFloor: 3
+    minBranchingNodesPerFloor: 1
+    maxBranchingNodesPerFloor: 2
   enableEliteStartFloorFix: 1
   enableMinSideMergesPerFloorFix: 0

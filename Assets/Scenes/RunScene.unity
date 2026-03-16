@@ -1185,6 +1185,7 @@ MonoBehaviour:
   battleSceneName: BattleScene
   shopSceneName: ShopScene
   deathReturnSceneName: TitleScene
+  nodeEnterDelaySeconds: 0
   eventUIManager: {fileID: 1731840768}
   tutorialRun: 0
   floorCount: 16
@@ -2741,12 +2742,21 @@ MonoBehaviour:
   viewport: {fileID: 353235554}
   bgRect: {fileID: 861074493}
   legendPanel: {fileID: 69363365}
-  floorSpacing: 200
-  nodeSpacing: 250
+  floorSpacing: 270
+  nodeSpacing: 300
   connectionThickness: 8
-  horizontalPositionJitter: 55
-  verticalPositionJitter: 40
-  connectionAnchorJitter: 20
+  floorBandFill: 0.72
+  nodeOverlapPadding: 24
+  sameFloorMinDistance: 72
+  differentFloorMinDistance: 28
+  minHorizontalSlotsPerFloor: 4
+  maxConnectionHorizontalOffset: 220
+  relaxedBossApproachFloorCount: 2
+  bossApproachChildPullMultiplier: 0.45
+  bossApproachSpreadBoost: 1.2
+  horizontalPositionJitter: 45
+  verticalPositionJitter: 70
+  connectionAnchorJitter: 2
   topPadding: 0
   bottomPadding: 100
   defaultColor: {r: 0.3764706, g: 0.6313726, b: 0.6156863, a: 1}
@@ -2790,6 +2800,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   hpText: {fileID: 1978707663}
   goldText: {fileID: 1625744139}
+  runManager: {fileID: 0}
+  player: {fileID: 0}
   showHpAsCurrentSlashMax: 1
 --- !u!1 &1892215093
 GameObject:

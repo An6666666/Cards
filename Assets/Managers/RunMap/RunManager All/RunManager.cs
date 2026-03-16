@@ -88,6 +88,11 @@ public class MapNodeData
             return;
         nextNodes.Add(node);
     }
+
+    public void ClearNextNodes()
+    {
+        nextNodes.Clear();
+    }
 }
 
 // ??游???蝔??詨??批??

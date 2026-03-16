@@ -6,6 +6,7 @@ using UnityEngine;
 internal class RunMapSlotAllocator
 {
     private readonly RunMapSlotScoring scoring = new RunMapSlotScoring();
+
     public Dictionary<MapNodeType, int> ApplyFixedFloorRules(
         SlotAssignmentContext context,
         IReadOnlyList<FixedFloorNodeRule> rules)
@@ -41,6 +42,7 @@ internal class RunMapSlotAllocator
 
         return placedCounts;
     }
+
     public int GetSlotCount(int min, int max, int remaining)
     {
         if (remaining <= 0)
@@ -132,11 +134,14 @@ internal class RunMapSlotAllocator
         int count)
     {
         var placed = new List<NodeSlot>();
+        List<float> targets = BuildEventTargets(count, context.TotalFloors, context.Constraints);
+
         for (int i = 0; i < count; i++)
         {
+            float target = i < targets.Count ? targets[i] : 0.5f;
             NodeSlot? slot = PickBestSlot(
                 context.AvailableSlots,
-                s => scoring.ScoreEventSlot(s, context.TotalFloors),
+                s => scoring.ScoreEventSlot(s, context.TotalFloors, target, placed),
                 s => RunMapSlotConstraints.IsTypeAllowed(s, MapNodeType.Event, placed, context.Predecessors, context.TotalFloors, context.Constraints));
 
             if (slot.HasValue)
@@ -145,6 +150,46 @@ internal class RunMapSlotAllocator
                 placed.Add(slot.Value);
             }
         }
+    }
+
+    private static List<float> BuildEventTargets(int count, int totalFloors, NodeTypeConstraints constraints)
+    {
+        var targets = new List<float>();
+        if (count <= 0)
+            return targets;
+
+        if (totalFloors <= 1)
+        {
+            targets.Add(0f);
+            return targets;
+        }
+
+        int minAllowedFloor = Mathf.Max(0, constraints.EventMinFloorOffset);
+        int maxAllowedFloor = Mathf.Max(
+            minAllowedFloor,
+            (totalFloors - 1) - Mathf.Max(0, constraints.EventMaxFloorOffsetFromBoss));
+
+        float minNormalized = (float)minAllowedFloor / (totalFloors - 1);
+        float maxNormalized = (float)Mathf.Clamp(maxAllowedFloor, 0, totalFloors - 1) / (totalFloors - 1);
+
+        if (count == 1)
+        {
+            targets.Add((minNormalized + maxNormalized) * 0.5f);
+            return targets;
+        }
+
+        float range = Mathf.Max(0f, maxNormalized - minNormalized);
+        float padding = Mathf.Min(0.08f, range * 0.12f);
+        float start = Mathf.Clamp(minNormalized + padding, minNormalized, maxNormalized);
+        float end = Mathf.Clamp(maxNormalized - padding, start, maxNormalized);
+
+        for (int i = 0; i < count; i++)
+        {
+            float t = (float)i / (count - 1);
+            targets.Add(Mathf.Lerp(start, end, t));
+        }
+
+        return targets;
     }
 
     private void SetSlotType(SlotAssignmentContext context, NodeSlot slot, MapNodeType type)
@@ -163,7 +208,7 @@ internal class RunMapSlotAllocator
             .Select(slot => new
             {
                 Slot = slot,
-                Score = scoreFunc(slot) + UnityEngine.Random.value * 0.1f // 小幅隨機，避免每次都一樣
+                Score = scoreFunc(slot) + UnityEngine.Random.value * 0.1f
             })
             .OrderByDescending(x => x.Score)
             .ToList();
