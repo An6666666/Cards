@@ -90,6 +90,7 @@ public class CardHoverEffect : MonoBehaviour, IPointerEnterHandler, IPointerExit
     {
         if (dragHandler != null && dragHandler.IsDragging) return;
         if (raycastController != null && !raycastController.Interactable) return;
+        if (PointerUiBlocker.IsPointerBlockedByOtherUi(transform)) return;
 
         if (suppressNextHover) { suppressNextHover = false; return; }
 
@@ -118,6 +119,18 @@ public class CardHoverEffect : MonoBehaviour, IPointerEnterHandler, IPointerExit
 
         suppressNextHover = false;
         ResetHoverPosition();
+    }
+
+    private void Update()
+    {
+        if (!isHovering)
+            return;
+
+        if (PointerUiBlocker.IsPointerBlockedByOtherUi(transform))
+        {
+            suppressNextHover = false;
+            ResetHoverPosition();
+        }
     }
 
     public void ResetHoverPosition(bool instant = false)

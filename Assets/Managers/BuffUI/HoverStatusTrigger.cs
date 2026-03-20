@@ -3,7 +3,7 @@ using UnityEngine;
 public class HoverStatusTrigger : MonoBehaviour
 {
     private StatusPanel_Text panel;
-    private bool hovering = false;
+    private bool hovering;
 
     private void Awake()
     {
@@ -12,6 +12,9 @@ public class HoverStatusTrigger : MonoBehaviour
 
     private void OnMouseEnter()
     {
+        if (PointerUiBlocker.IsPointerBlockedByUi())
+            return;
+
         hovering = true;
         if (panel != null)
             panel.SetTarget(gameObject);
@@ -24,9 +27,18 @@ public class HoverStatusTrigger : MonoBehaviour
             panel.ClearTarget();
     }
 
+    private void Update()
+    {
+        if (!hovering || !PointerUiBlocker.IsPointerBlockedByUi())
+            return;
+
+        hovering = false;
+        if (panel != null)
+            panel.ClearTarget();
+    }
+
     private void OnDisable()
     {
-        // 防止物件被 Destroy 或 Disable 時狀態欄卡住
         if (hovering && panel != null)
             panel.ClearTarget();
     }

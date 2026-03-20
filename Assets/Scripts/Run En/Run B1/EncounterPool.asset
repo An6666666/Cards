@@ -12,13 +12,28 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1f36336aad719c548920a1e5f420a9ff, type: 3}
   m_Name: EncounterPool
   m_EditorClassIdentifier: 
-  encounters:
-  - {fileID: 11400000, guid: 7aefc34fcb0fd6548bdfba85f683b517, type: 2}
-  - {fileID: 11400000, guid: f04356927be3c8b4985b6aae08aa2269, type: 2}
-  - {fileID: 11400000, guid: b09652e01d4761b42bd7445664ac0381, type: 2}
-  - {fileID: 11400000, guid: 7bb2b3725b4cd6d4a9d671179e9cfb6b, type: 2}
+  encounters: []
   floorBands:
-  - label: 
+  - label: Beginner
     startRatio: 0
-    endRatio: 0
-    encounters: []
+    endRatio: 0.2667
+    encounters:
+    - {fileID: 11400000, guid: 7aefc34fcb0fd6548bdfba85f683b517, type: 2}
+    - {fileID: 11400000, guid: f04356927be3c8b4985b6aae08aa2269, type: 2}
+    - {fileID: 11400000, guid: b09652e01d4761b42bd7445664ac0381, type: 2}
+    - {fileID: 11400000, guid: 7bb2b3725b4cd6d4a9d671179e9cfb6b, type: 2}
+  - label: Intermediate
+    startRatio: 0.3333
+    endRatio: 0.6
+    encounters:
+    - {fileID: 11400000, guid: 8a487bfcc7646d14e9604197824cc16e, type: 2}
+    - {fileID: 11400000, guid: 946f0a26180d9b04fa483274bb05d793, type: 2}
+    - {fileID: 11400000, guid: 90866c65da199744b80c90d416557710, type: 2}
+    - {fileID: 11400000, guid: b5a8c523671976c45a0950e5e4e76e51, type: 2}
+  - label: Advanced
+    startRatio: 0.6667
+    endRatio: 1
+    encounters:
+    - {fileID: 11400000, guid: 9b04f801f46d99d4ebebc42cf86678e0, type: 2}
+    - {fileID: 11400000, guid: 8d1cfbbf4335b2c42874b7b32e966ede, type: 2}
+    - {fileID: 11400000, guid: 9f3464d3ad32fbb48be5fe055efa7fdf, type: 2}

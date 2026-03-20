@@ -19,6 +19,9 @@ public class BoardTileHoverHighlight : MonoBehaviour
 
     private void OnMouseEnter()
     {
+        if (PointerUiBlocker.IsPointerBlockedByUi())
+            return;
+
         hovering = true;
         hoverTimer = 0f;
     }
@@ -33,6 +36,15 @@ public class BoardTileHoverHighlight : MonoBehaviour
     private void Update()
     {
         if (!hovering) return;
+
+        if (PointerUiBlocker.IsPointerBlockedByUi())
+        {
+            hovering = false;
+            hoverTimer = 0f;
+            if (tile) tile.SetHighlight(false);
+            return;
+        }
+
         hoverTimer += Time.deltaTime;
         if (hoverTimer >= hoverDelay)
         {

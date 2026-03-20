@@ -276,6 +276,7 @@ public class AttackSelectionController
         IAreaTargetingCard areaCard = selectedCard as IAreaTargetingCard;
         if (areaCard != null && enemyQueryService != null)
         {
+            areaTargetBuffer.Clear();
             areaCard.GetPreviewTargets(enemy, enemyQueryService.AliveEnemies, areaTargetBuffer);
             for (int i = 0; i < areaTargetBuffer.Count; i++)
             {
@@ -285,16 +286,14 @@ public class AttackSelectionController
                     continue;
                 }
 
-                target.SetCardTargeted(true);
-                areaHighlightedEnemies.Add(target);
+                HighlightEnemy(target, true);
             }
 
             areaTargetBuffer.Clear();
             return;
         }
 
-        enemy.SetCardTargeted(true);
-        areaHighlightedEnemies.Add(enemy);
+        HighlightEnemy(enemy, true);
     }
 
     private void ClearCurrentEnemyHighlight()
@@ -304,6 +303,7 @@ public class AttackSelectionController
             Enemy enemy = areaHighlightedEnemies[i];
             if (enemy != null)
             {
+                enemy.SetAreaDamagePreview(false);
                 enemy.SetCardTargeted(false);
             }
         }
@@ -311,5 +311,16 @@ public class AttackSelectionController
         areaHighlightedEnemies.Clear();
         currentHighlightedEnemy = null;
     }
-}
 
+    private void HighlightEnemy(Enemy enemy, bool showAreaDamagePreview)
+    {
+        if (enemy == null || areaHighlightedEnemies.Contains(enemy))
+        {
+            return;
+        }
+
+        enemy.SetCardTargeted(true);
+        enemy.SetAreaDamagePreview(showAreaDamagePreview);
+        areaHighlightedEnemies.Add(enemy);
+    }
+}

@@ -26,6 +26,9 @@ public class EnemyMouseInteractor : MonoBehaviour
 
     public void HandleMouseDown()
     {
+        if (PointerUiBlocker.IsPointerBlockedByUi())
+            return;
+
         BattleManager manager = ResolveBattleManager();
         if (manager != null && enemy != null)
         {
@@ -47,7 +50,10 @@ public class EnemyMouseInteractor : MonoBehaviour
 
     public void RefreshHoverIndicator()
     {
-        bool shouldShow = isMouseOver && !CardDragHandler.IsAnyCardDragging;
+        bool shouldShow = isMouseOver &&
+            !CardDragHandler.IsAnyCardDragging &&
+            !PointerUiBlocker.IsPointerBlockedByUi();
+
         if (!shouldShow)
         {
             HideHoverEffects();
@@ -139,4 +145,3 @@ public class EnemyMouseInteractor : MonoBehaviour
         return context != null ? context.Board : null;
     }
 }
-

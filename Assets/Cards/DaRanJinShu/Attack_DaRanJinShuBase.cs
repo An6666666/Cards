@@ -5,7 +5,7 @@ using UnityEngine;
 /// Deals elemental damage to all enemies in card range.
 /// Final damage scales with the current exhaust pile count.
 /// </summary>
-public abstract class Attack_DaRanJinShuBase : AttackCardBase
+public abstract class Attack_DaRanJinShuBase : AttackCardBase, IAreaTargetingCard
 {
     [Header("Damage")]
     [Tooltip("Damage gained per exhausted card.")]
@@ -49,9 +49,17 @@ public abstract class Attack_DaRanJinShuBase : AttackCardBase
 
         ElementType element = Element;
         bool hitAnyTarget = false;
+        List<Enemy> targets = new List<Enemy>();
+        GetResolveTargets(enemy, GetAliveEnemyCandidates(), targets);
 
-        foreach (Enemy target in GetEnemiesInRange(player))
+        for (int i = 0; i < targets.Count; i++)
         {
+            Enemy target = targets[i];
+            if (!IsAliveEnemy(target))
+            {
+                continue;
+            }
+
             int appliedDamage = target.ApplyElementalAttack(element, totalDamage, player);
             target.TakeDamage(appliedDamage);
             hitAnyTarget = true;
@@ -68,43 +76,68 @@ public abstract class Attack_DaRanJinShuBase : AttackCardBase
         }
     }
 
+    public void GetPreviewTargets(Enemy primaryTarget, IReadOnlyList<Enemy> aliveEnemies, List<Enemy> results)
+    {
+        CollectTargets(aliveEnemies, results);
+    }
+
+    public void GetResolveTargets(Enemy primaryTarget, IReadOnlyList<Enemy> aliveEnemies, List<Enemy> results)
+    {
+        CollectTargets(aliveEnemies, results);
+    }
+
     public override bool TryGetElementType(out ElementType type)
     {
         type = Element;
         return true;
     }
 
-    private IEnumerable<Enemy> GetEnemiesInRange(Player player)
+    private void CollectTargets(IReadOnlyList<Enemy> aliveEnemies, List<Enemy> results)
     {
+        if (results == null)
+        {
+            return;
+        }
+
+        results.Clear();
+        Player activePlayer = BattleRuntimeContext.Active?.Player;
+        if (activePlayer == null || aliveEnemies == null)
+        {
+            return;
+        }
+
         IReadOnlyList<Vector2Int> offsets = (rangeOffsets != null && rangeOffsets.Count > 0)
             ? rangeOffsets
             : DefaultOffsets;
 
-        Vector2Int center = player.position;
-        IReadOnlyList<Enemy> allEnemies = BattleRuntimeContext.Active?.Enemies;
-        if (allEnemies == null)
-        {
-            allEnemies = System.Array.Empty<Enemy>();
-        }
-
+        Vector2Int center = activePlayer.position;
         HashSet<Enemy> uniqueTargets = new HashSet<Enemy>();
+
         for (int i = 0; i < offsets.Count; i++)
         {
             Vector2Int targetPos = center + offsets[i];
-            for (int j = 0; j < allEnemies.Count; j++)
+            for (int j = 0; j < aliveEnemies.Count; j++)
             {
-                Enemy target = allEnemies[j];
-                if (!IsAliveEnemy(target))
+                Enemy target = aliveEnemies[j];
+                if (!IsAliveEnemy(target) || target.gridPosition != targetPos || !uniqueTargets.Add(target))
                 {
                     continue;
                 }
 
-                if (target.gridPosition == targetPos && uniqueTargets.Add(target))
-                {
-                    yield return target;
-                }
+                results.Add(target);
             }
         }
+    }
+
+    private static IReadOnlyList<Enemy> GetAliveEnemyCandidates()
+    {
+        BattleRuntimeContext context = BattleRuntimeContext.Active;
+        if (context != null && context.Enemies != null)
+        {
+            return context.Enemies;
+        }
+
+        return System.Array.Empty<Enemy>();
     }
 
     private static bool IsAliveEnemy(Enemy enemy)

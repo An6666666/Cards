@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6e3338d371aae2c499455166eeb78eb3, type: 3}
   m_Name: StartingDeckDefinition
   m_EditorClassIdentifier: 
-  copiesPerElement: 2
+  copiesPerElement: 3
   huWoZhenShenCopies: 4
   huWoZhenShenCard: {fileID: 11400000, guid: 4b17aca886ce6ff488b11e95c1291b15, type: 2}
   elementalCards:

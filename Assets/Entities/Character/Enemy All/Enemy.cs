@@ -105,6 +105,7 @@ public class Enemy : MonoBehaviour
     private EnemyVisual visual;
     private EnemySortingController sorting;
     private EnemyMouseInteractor mouseInteractor;
+    private EnemyAreaDamagePreview areaDamagePreview;
 
     internal EnemyCombat Combat => combat;
     internal EnemyElements Elements => elements;
@@ -139,6 +140,27 @@ public class Enemy : MonoBehaviour
     {
         isCardTargeted = on;
         RefreshIdleOverlaysInternal();
+    }
+
+    public void SetAreaDamagePreview(bool on)
+    {
+        if (!on && areaDamagePreview == null)
+        {
+            return;
+        }
+
+        if (areaDamagePreview == null)
+        {
+            areaDamagePreview = GetComponent<EnemyAreaDamagePreview>();
+            if (areaDamagePreview == null)
+            {
+                areaDamagePreview = gameObject.AddComponent<EnemyAreaDamagePreview>();
+            }
+
+            areaDamagePreview.Init(this);
+        }
+
+        areaDamagePreview.SetVisible(on);
     }
 
     private bool IsBodyInIdle()

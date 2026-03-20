@@ -73,6 +73,7 @@ GameObject:
   - component: {fileID: 2892738044695183999}
   - component: {fileID: 3548126464085011898}
   - component: {fileID: -4629864448189848621}
+  - component: {fileID: -4342752798957575059}
   m_Layer: 0
   m_Name: StoneToad
   m_TagString: Untagged
@@ -200,7 +201,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 02a09c0ad5f89d342a8e3da18df30016, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  enemyName: StonToad
+  enemyName: StonToad(Elite)
   maxHP: 60
   currentHP: 0
   block: 0
@@ -257,10 +258,10 @@ MonoBehaviour:
   intentValueText: {fileID: 0}
   intentValueOffset: {x: 0.8, y: 0.1, z: 0}
   highlightFx: {fileID: 3497268538794539498}
-  skillDescription: "\u4E3B\u52D5\u6280\u80FD\uFF1A\u7121\n\u88AB\u52D5\u6280\u80FD\uFF1A\n\u77F3\u87FE\u870D\u7684\u8B77\u7532\u4E0D\u6703\u56E0\u70BA\u7D50\u675F\u56DE\u5408\u800C\u5237\u65B0\n\u6BCF\u53D7\u5230
-    1 \u6B21\u653B\u64CA\uFF0C\u7372\u5F97 +4 \u8B77\u7532\u3002\n\u653B\u64CA\u6642\uFF0C\u984D\u5916\u9020\u6210
-    \u7576\u56DE\u5408\u81EA\u8EAB\u8B77\u7532\u503C \u7684\u50B7\u5BB3\u3002\n\u6BCF\u56DE\u5408\u53EF\u79FB\u52D5
-    1\uFF5E2 \u683C"
+  skillDescription: "\u4E3B\u52D5\u6280\u80FD\uFF1A\u7121\n\u88AB\u52D5\u6280\u80FD\uFF1A\n\u56FA\u82E5\u91D1\u6E6F\uFF1A\u8B77\u7532\u4E0D\u6703\u56E0\u70BA\u7D50\u675F\u56DE\u5408\u800C\u5237\u65B0(\u8B77\u7532\u4E0A\u9650\uFF1A16)\u3002\n\u77F3\u7532\uFF1A\u6BCF\u53D7\u5230
+    1 \u6B21\u653B\u64CA\uFF0C\u7372\u5F97 +4 \u8B77\u7532\u3002\n\u91CD\u5982\u6CF0\u5C71\uFF1A\u653B\u64CA\u6642\uFF0C\u984D\u5916\u9020\u6210\uFF0C\u7576\u56DE\u5408\u81EA\u8EAB\u8B77\u7532\u503C
+    \u7684\u50B7\u5BB3\u3002\n\u86D9\u8DF3\uFF1A\u79FB\u52D5\u6642\u53EF\u4EE5\u79FB\u52D5
+    1\uFF5E2 \u683C\u3002"
   armorGainPerHit: 4
   preferredDistanceInSteps: 2
   maxMovementSteps: 2
@@ -379,6 +380,24 @@ MonoBehaviour:
   rightOffset: {x: -0.03, y: 0.97, z: 0}
   verticalDeadZone: 0.05
   flipHysteresis: 0.05
+--- !u!114 &-4342752798957575059
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 470693498580573215}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 61c6fc34a6b94b74b8afb20d6bd1178c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  previewSprite: {fileID: 21300000, guid: ebda927acb06d6644884b97fc49bbede, type: 3}
+  fallbackLocalOffset: {x: -0.85, y: 4.25, z: 0}
+  offsetFromEnemyCenter: {x: 0, y: 3.5, z: 0}
+  iconScale: 0.3
+  iconColor: {r: 1, g: 1, b: 1, a: 1}
+  sortingOrderOffset: 3
 --- !u!1 &3318196671544289434
 GameObject:
   m_ObjectHideFlags: 0
@@ -866,7 +885,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8030096394536815716, guid: 5eb938b8b8628764cad6aaa8a1e732ea, type: 3}
       propertyPath: m_WasSpriteAssigned
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8645717498181915281, guid: 5eb938b8b8628764cad6aaa8a1e732ea, type: 3}
       propertyPath: m_LocalScale.x

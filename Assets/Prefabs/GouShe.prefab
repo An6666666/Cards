@@ -300,6 +300,7 @@ GameObject:
   - component: {fileID: 3886735481278721440}
   - component: {fileID: 6954649603764732538}
   - component: {fileID: -8673856451519015442}
+  - component: {fileID: -2102838792605850631}
   m_Layer: 0
   m_Name: GouShe
   m_TagString: Untagged
@@ -338,7 +339,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 51b16281fa9a49942882437f6c28f13c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  enemyName: Slime
+  enemyName: GouShe(Elite)
   maxHP: 60
   currentHP: 0
   block: 0
@@ -562,6 +563,24 @@ MonoBehaviour:
   rightOffset: {x: -0.88, y: 0.98, z: 0}
   verticalDeadZone: 0.05
   flipHysteresis: 0.05
+--- !u!114 &-2102838792605850631
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8127814944662599423}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 61c6fc34a6b94b74b8afb20d6bd1178c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  previewSprite: {fileID: 21300000, guid: ebda927acb06d6644884b97fc49bbede, type: 3}
+  fallbackLocalOffset: {x: -0.85, y: 4.25, z: 0}
+  offsetFromEnemyCenter: {x: 0, y: 3.5, z: 0}
+  iconScale: 0.3
+  iconColor: {r: 1, g: 1, b: 1, a: 1}
+  sortingOrderOffset: 3
 --- !u!1 &8460968895802072183
 GameObject:
   m_ObjectHideFlags: 0

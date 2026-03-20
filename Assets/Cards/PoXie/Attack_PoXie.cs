@@ -1,23 +1,22 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
-/// 破邪：1 能量，造成 5 點真實元素傷害（無視妖怪護甲）。
+/// Deals line damage to every enemy between the player and the selected target.
 /// </summary>
 [CreateAssetMenu(fileName = "Attack_PoXie", menuName = "Cards/Attack/破邪")]
-public class Attack_PoXie : AttackCardBase
+public class Attack_PoXie : AttackCardBase, IAreaTargetingCard
 {
-    [Header("數值設定")]
+    [Header("Damage")]
     public int damage = 5;
 
-    [Header("特效設定")]
-    [Tooltip("命中時產生的特效 (選填)。")]
+    [Header("FX")]
+    [Tooltip("Optional hit effect prefab.")]
     public GameObject hitEffectPrefab;
 
-    [Header("元素設定")]
+    [Header("Element")]
     [SerializeField]
-    [Tooltip("此卡片所使用的元素屬性。")]
+    [Tooltip("Element applied by this card.")]
     private ElementType elementType = ElementType.Fire;
 
     protected virtual ElementType Element => elementType;
@@ -42,10 +41,16 @@ public class Attack_PoXie : AttackCardBase
         ElementType element = Element;
         int calculatedDamage = player.CalculateAttackDamage(damage);
         bool hasHit = false;
+        List<Enemy> targets = new List<Enemy>();
+        GetResolveTargets(enemy, GetAliveEnemyCandidates(), targets);
 
-        foreach (Enemy target in GetEnemiesOnLine(player.position, enemy.gridPosition))
+        for (int i = 0; i < targets.Count; i++)
         {
-            if (target == null) continue;
+            Enemy target = targets[i];
+            if (!IsAliveEnemy(target))
+            {
+                continue;
+            }
 
             int elementalDamage = target.ApplyElementalAttack(element, calculatedDamage, player);
             target.TakeTrueDamage(elementalDamage);
@@ -64,24 +69,49 @@ public class Attack_PoXie : AttackCardBase
         }
     }
 
-    private IEnumerable<Enemy> GetEnemiesOnLine(Vector2Int from, Vector2Int to)
+    public void GetPreviewTargets(Enemy primaryTarget, IReadOnlyList<Enemy> aliveEnemies, List<Enemy> results)
     {
-        Enemy[] allEnemies = GameObject.FindObjectsOfType<Enemy>();
-        if (allEnemies == null || allEnemies.Length == 0) yield break;
+        CollectTargets(primaryTarget, aliveEnemies, results);
+    }
 
+    public void GetResolveTargets(Enemy primaryTarget, IReadOnlyList<Enemy> aliveEnemies, List<Enemy> results)
+    {
+        CollectTargets(primaryTarget, aliveEnemies, results);
+    }
+
+    private void CollectTargets(Enemy primaryTarget, IReadOnlyList<Enemy> aliveEnemies, List<Enemy> results)
+    {
+        if (results == null)
+        {
+            return;
+        }
+
+        results.Clear();
+        Player activePlayer = BattleRuntimeContext.Active?.Player;
+        if (activePlayer == null || primaryTarget == null || aliveEnemies == null)
+        {
+            return;
+        }
+
+        Vector2Int from = activePlayer.position;
+        Vector2Int to = primaryTarget.gridPosition;
         Vector2Int diff = to - from;
         int steps = Mathf.Max(1, GreatestCommonDivisor(Mathf.Abs(diff.x), Mathf.Abs(diff.y)));
         Vector2Int step = new Vector2Int(diff.x / steps, diff.y / steps);
+        HashSet<Enemy> uniqueTargets = new HashSet<Enemy>();
 
         for (int i = 1; i <= steps; i++)
         {
             Vector2Int pos = from + step * i;
-            foreach (Enemy e in allEnemies)
+            for (int j = 0; j < aliveEnemies.Count; j++)
             {
-                if (e != null && e.gridPosition == pos)
+                Enemy target = aliveEnemies[j];
+                if (!IsAliveEnemy(target) || target.gridPosition != pos || !uniqueTargets.Add(target))
                 {
-                    yield return e;
+                    continue;
                 }
+
+                results.Add(target);
             }
         }
     }
@@ -97,9 +127,26 @@ public class Attack_PoXie : AttackCardBase
 
         return a == 0 ? 1 : a;
     }
+
     public override bool TryGetElementType(out ElementType elementType)
     {
         elementType = Element;
         return true;
+    }
+
+    private static IReadOnlyList<Enemy> GetAliveEnemyCandidates()
+    {
+        BattleRuntimeContext context = BattleRuntimeContext.Active;
+        if (context != null && context.Enemies != null)
+        {
+            return context.Enemies;
+        }
+
+        return System.Array.Empty<Enemy>();
+    }
+
+    private static bool IsAliveEnemy(Enemy enemy)
+    {
+        return enemy != null && enemy.currentHP > 0 && !enemy.IsDead;
     }
 }

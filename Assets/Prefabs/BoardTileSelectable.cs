@@ -1,14 +1,15 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
-/// 簡單 OnMouseDown；被點擊後轉給 BattleManager
+/// Forwards tile clicks to BattleManager unless a UI element is under the pointer.
 /// </summary>
 public class BoardTileSelectable : MonoBehaviour
 {
     private void OnMouseDown()
     {
+        if (PointerUiBlocker.IsPointerBlockedByUi())
+            return;
+
         BattleManager bm = FindObjectOfType<BattleManager>();
         if (bm) bm.OnTileClicked(GetComponent<BoardTile>());
     }
