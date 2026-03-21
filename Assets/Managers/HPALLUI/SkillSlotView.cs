@@ -10,28 +10,32 @@ public class SkillSlotView : MonoBehaviour
     [Header("Cooldown Number")]
     [SerializeField] private SpriteNumber cdNumber;
 
-    public void Bind(Sprite icon, int cd)
+    public void Bind(Sprite icon, int cd, bool showCooldown)
     {
-        // ✅ icon 為 null：保留 prefab 原本的圖，不要關掉
-        if (icon != null)
-            SetIcon(icon);
+        SetIcon(icon);
 
         if (cdNumber != null)
-            cdNumber.SetValue(Mathf.Max(0, cd));
+        {
+            cdNumber.gameObject.SetActive(showCooldown);
+            if (showCooldown)
+                cdNumber.SetValue(Mathf.Max(0, cd));
+        }
     }
 
     private void SetIcon(Sprite icon)
     {
+        bool hasIcon = icon != null;
+
         if (iconRenderer != null)
         {
             iconRenderer.sprite = icon;
-            iconRenderer.enabled = true;
+            iconRenderer.enabled = hasIcon;
         }
 
         if (iconImage != null)
         {
             iconImage.sprite = icon;
-            iconImage.enabled = true;
+            iconImage.enabled = hasIcon;
         }
     }
 }

@@ -729,8 +729,8 @@ MonoBehaviour:
   frozenIcon: {fileID: 0}
   chargedIcon: {fileID: 0}
   frostIcon: {fileID: 0}
-  _skillStep: 5.6
-  _statusStep: 5.6
+  _skillStep: 9
+  _statusStep: 9
 --- !u!114 &2955211467787434944
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -744,6 +744,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   cooldownProviderSource: {fileID: 0}
+  skillEntries: []
   skillIcons: []
   showSlotsEvenIfNoIcon: 1
 --- !u!1 &7248488943443682185

@@ -946,7 +946,43 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2955211467787434944, guid: aa327d458a92acc48ba8ff8e60ec1976, type: 3}
       propertyPath: skillIcons.Array.size
-      value: 2
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2955211467787434944, guid: aa327d458a92acc48ba8ff8e60ec1976, type: 3}
+      propertyPath: skillEntries.Array.size
+      value: 4
+      objectReference: {fileID: 0}
+    - target: {fileID: 2955211467787434944, guid: aa327d458a92acc48ba8ff8e60ec1976, type: 3}
+      propertyPath: skillEntries.Array.data[0].icon
+      value: 
+      objectReference: {fileID: 21300000, guid: 7753c99243f14ac4a813cb8ffe3d8bfb, type: 3}
+    - target: {fileID: 2955211467787434944, guid: aa327d458a92acc48ba8ff8e60ec1976, type: 3}
+      propertyPath: skillEntries.Array.data[1].icon
+      value: 
+      objectReference: {fileID: 21300000, guid: 7753c99243f14ac4a813cb8ffe3d8bfb, type: 3}
+    - target: {fileID: 2955211467787434944, guid: aa327d458a92acc48ba8ff8e60ec1976, type: 3}
+      propertyPath: skillEntries.Array.data[2].icon
+      value: 
+      objectReference: {fileID: 21300000, guid: 7753c99243f14ac4a813cb8ffe3d8bfb, type: 3}
+    - target: {fileID: 2955211467787434944, guid: aa327d458a92acc48ba8ff8e60ec1976, type: 3}
+      propertyPath: skillEntries.Array.data[3].icon
+      value: 
+      objectReference: {fileID: 21300000, guid: 7753c99243f14ac4a813cb8ffe3d8bfb, type: 3}
+    - target: {fileID: 2955211467787434944, guid: aa327d458a92acc48ba8ff8e60ec1976, type: 3}
+      propertyPath: skillEntries.Array.data[1].showCooldown
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2955211467787434944, guid: aa327d458a92acc48ba8ff8e60ec1976, type: 3}
+      propertyPath: skillEntries.Array.data[1].cooldownSlotIndex
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2955211467787434944, guid: aa327d458a92acc48ba8ff8e60ec1976, type: 3}
+      propertyPath: skillEntries.Array.data[2].cooldownSlotIndex
+      value: -1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2955211467787434944, guid: aa327d458a92acc48ba8ff8e60ec1976, type: 3}
+      propertyPath: skillEntries.Array.data[3].cooldownSlotIndex
+      value: -1
       objectReference: {fileID: 0}
     - target: {fileID: 3981422942297496608, guid: aa327d458a92acc48ba8ff8e60ec1976, type: 3}
       propertyPath: m_IsActive
