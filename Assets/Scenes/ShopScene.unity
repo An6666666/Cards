@@ -534,7 +534,7 @@ GameObject:
   - component: {fileID: 157244295}
   - component: {fileID: 157244294}
   m_Layer: 5
-  m_Name: Mas
+  m_Name: message
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -557,8 +557,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -549.3019, y: -370.85}
-  m_SizeDelta: {x: 931.7986, y: 338.3}
+  m_AnchoredPosition: {x: -499.26367, y: -393.0716}
+  m_SizeDelta: {x: 968.4531, y: 417}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &157244294
 MonoBehaviour:
@@ -580,7 +580,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 6484097e181764441b98455eedbe1d25, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 88669f293cef6144c94f261993610ca6, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -632,8 +632,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 18, y: -26}
-  m_SizeDelta: {x: 686.5247, y: 107.9266}
+  m_AnchoredPosition: {x: 4, y: -7.6108}
+  m_SizeDelta: {x: 683.4931, y: 141.2748}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &230941274
 MonoBehaviour:

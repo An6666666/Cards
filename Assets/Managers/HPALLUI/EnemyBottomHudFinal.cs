@@ -32,15 +32,14 @@ public class EnemyBottomHudFinal : MonoBehaviour
     [SerializeField] private Sprite frostIcon;
 
     [Header("Layout Spacing (local units)")]
-    [SerializeField] private float _skillStep = 0.35f;   // 技能間距：左→右
-    [SerializeField] private float _statusStep = 0.35f;  // 狀態間距：右→左
+    [SerializeField] private float _skillStep = 0.35f;
+    [SerializeField] private float _statusStep = 0.35f;
 
     private void Awake()
     {
         if (enemy == null) enemy = GetComponentInParent<Enemy>();
     }
 
-    // Enemy 會傳進來 nextIntent.type / nextIntent.value
     public void Refresh(EnemyIntentType intentType, int intentValue)
     {
         RefreshIntentValue(intentType, intentValue);
@@ -49,7 +48,6 @@ public class EnemyBottomHudFinal : MonoBehaviour
         RefreshStatuses();
     }
 
-    // ----------------- Intent Value (Attack/Defend 才顯示) -----------------
     private void RefreshIntentValue(EnemyIntentType intentType, int value)
     {
         bool show = intentType == EnemyIntentType.Attack || intentType == EnemyIntentType.Defend;
@@ -61,7 +59,6 @@ public class EnemyBottomHudFinal : MonoBehaviour
             intentValueNumber.SetValue(Mathf.Max(0, value));
     }
 
-    // ----------------- Shield (Block) -----------------
     private void RefreshShield()
     {
         if (shieldValueRoot == null || shieldValueNumber == null)
@@ -74,14 +71,9 @@ public class EnemyBottomHudFinal : MonoBehaviour
             return;
         }
 
-        // 先抓 enemy.block
         int blockValue = TryGetInt(enemy, "block", "Block", "currentBlock");
-
-        // 再嘗試抓 enemy.Combat 裡的 block（如果你的 block 放在 combat）
         if (blockValue <= 0 && enemy.Combat != null)
-        {
             blockValue = TryGetInt(enemy.Combat, "block", "Block", "currentBlock");
-        }
 
         bool show = blockValue > 0;
         shieldValueRoot.SetActive(show);
@@ -91,7 +83,6 @@ public class EnemyBottomHudFinal : MonoBehaviour
             shieldValueNumber.SetValue(blockValue);
     }
 
-    // ----------------- Skills (左→右，CD=0 也顯示) -----------------
     private void RefreshSkills()
     {
         if (enemy == null)
@@ -100,16 +91,17 @@ public class EnemyBottomHudFinal : MonoBehaviour
             return;
         }
 
-        // 你的 Adapter 掛在 Bottom（子物件）時，用 InChildren 才抓得到
-        var provider = enemy.GetComponentInChildren<IEnemySkillCooldownProvider>(true);
-        var list = provider != null ? provider.GetSkillCooldowns() : new List<(Sprite icon, int cd)>();
+        IEnemySkillCooldownProvider provider = enemy.GetComponentInChildren<IEnemySkillCooldownProvider>(true);
+        List<EnemyBattleSkillDisplayData> list = provider != null
+            ? provider.GetSkillCooldowns()
+            : new List<EnemyBattleSkillDisplayData>();
 
         EnsureSkillSlots(list.Count);
 
         for (int i = 0; i < list.Count; i++)
         {
             skillSlots[i].gameObject.SetActive(true);
-            skillSlots[i].Bind(list[i].icon, Mathf.Max(0, list[i].cd));
+            skillSlots[i].Bind(list[i].Icon, list[i].Cooldown, list[i].ShowCooldown);
         }
 
         DisableExtra(skillSlots, list.Count);
@@ -122,14 +114,11 @@ public class EnemyBottomHudFinal : MonoBehaviour
 
         while (skillSlots.Count < need)
         {
-            var s = Instantiate(skillSlotPrefab, skillRowRoot);
-
-            // Instantiate 後歸零，避免 prefab 本身帶偏移造成疊一起
-            s.transform.localPosition = Vector3.zero;
-            s.transform.localRotation = Quaternion.identity;
-            s.transform.localScale = Vector3.one;
-
-            skillSlots.Add(s);
+            SkillSlotView slot = Instantiate(skillSlotPrefab, skillRowRoot);
+            slot.transform.localPosition = Vector3.zero;
+            slot.transform.localRotation = Quaternion.identity;
+            slot.transform.localScale = Vector3.one;
+            skillSlots.Add(slot);
         }
     }
 
@@ -140,12 +129,10 @@ public class EnemyBottomHudFinal : MonoBehaviour
         for (int i = 0; i < n; i++)
             skillSlots[i].transform.localPosition = new Vector3(i * _skillStep, 0f, 0f);
 
-        // 多的歸零（避免你手拉開後留下怪位置）
         for (int i = n; i < skillSlots.Count; i++)
             skillSlots[i].transform.localPosition = Vector3.zero;
     }
 
-    // ----------------- Statuses (右→左，turns>0 才生成) -----------------
     private void RefreshStatuses()
     {
         if (enemy == null)
@@ -157,17 +144,15 @@ public class EnemyBottomHudFinal : MonoBehaviour
         var list = new List<(Sprite icon, int turns)>();
 
         if (enemy.burningTurns > 0) list.Add((burnIcon, enemy.burningTurns));
-        if (enemy.frozenTurns > 0)  list.Add((frozenIcon, enemy.frozenTurns));
+        if (enemy.frozenTurns > 0) list.Add((frozenIcon, enemy.frozenTurns));
         if (enemy.chargedCount > 0) list.Add((chargedIcon, enemy.chargedCount));
-        if (enemy.frostStacks > 0)  list.Add((frostIcon, enemy.frostStacks));
+        if (enemy.frostStacks > 0) list.Add((frostIcon, enemy.frostStacks));
 
         EnsureStatusSlots(list.Count);
 
         for (int i = 0; i < list.Count; i++)
         {
             statusSlots[i].gameObject.SetActive(true);
-
-            // icon 若為 null：StatusSlotView 會保留 prefab 既有 icon（前提是你的 StatusSlotView 不要強制把 null 蓋掉）
             statusSlots[i].Bind(list[i].icon, Mathf.Max(0, list[i].turns));
         }
 
@@ -181,13 +166,11 @@ public class EnemyBottomHudFinal : MonoBehaviour
 
         while (statusSlots.Count < need)
         {
-            var s = Instantiate(statusSlotPrefab, statusGridRoot);
-
-            s.transform.localPosition = Vector3.zero;
-            s.transform.localRotation = Quaternion.identity;
-            s.transform.localScale = Vector3.one;
-
-            statusSlots.Add(s);
+            StatusSlotView slot = Instantiate(statusSlotPrefab, statusGridRoot);
+            slot.transform.localPosition = Vector3.zero;
+            slot.transform.localRotation = Quaternion.identity;
+            slot.transform.localScale = Vector3.one;
+            statusSlots.Add(slot);
         }
     }
 
@@ -202,20 +185,19 @@ public class EnemyBottomHudFinal : MonoBehaviour
             statusSlots[i].transform.localPosition = Vector3.zero;
     }
 
-    // ----------------- Helpers -----------------
     private int TryGetInt(object target, params string[] fieldOrPropNames)
     {
         if (target == null) return 0;
 
-        var type = target.GetType();
+        System.Type type = target.GetType();
 
-        foreach (var name in fieldOrPropNames)
+        foreach (string name in fieldOrPropNames)
         {
-            var field = type.GetField(name, BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+            FieldInfo field = type.GetField(name, BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
             if (field != null && field.FieldType == typeof(int))
                 return (int)field.GetValue(target);
 
-            var prop = type.GetProperty(name, BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+            PropertyInfo prop = type.GetProperty(name, BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
             if (prop != null && prop.PropertyType == typeof(int))
                 return (int)prop.GetValue(target);
         }

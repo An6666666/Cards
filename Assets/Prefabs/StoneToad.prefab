@@ -258,10 +258,10 @@ MonoBehaviour:
   intentValueText: {fileID: 0}
   intentValueOffset: {x: 0.8, y: 0.1, z: 0}
   highlightFx: {fileID: 3497268538794539498}
-  skillDescription: "\u4E3B\u52D5\u6280\u80FD\uFF1A\u7121\n\u88AB\u52D5\u6280\u80FD\uFF1A\n\u56FA\u82E5\u91D1\u6E6F\uFF1A\u8B77\u7532\u4E0D\u6703\u56E0\u70BA\u7D50\u675F\u56DE\u5408\u800C\u5237\u65B0(\u8B77\u7532\u4E0A\u9650\uFF1A16)\u3002\n\u77F3\u7532\uFF1A\u6BCF\u53D7\u5230
-    1 \u6B21\u653B\u64CA\uFF0C\u7372\u5F97 +4 \u8B77\u7532\u3002\n\u91CD\u5982\u6CF0\u5C71\uFF1A\u653B\u64CA\u6642\uFF0C\u984D\u5916\u9020\u6210\uFF0C\u7576\u56DE\u5408\u81EA\u8EAB\u8B77\u7532\u503C
-    \u7684\u50B7\u5BB3\u3002\n\u86D9\u8DF3\uFF1A\u79FB\u52D5\u6642\u53EF\u4EE5\u79FB\u52D5
-    1\uFF5E2 \u683C\u3002"
+  skillDescription: "\u88AB\u52D5\u6280\u80FD\uFF1A\r\n\u56FA\u82E5\u91D1\u6E6F\uFF1A\u8B77\u7532\u4E0D\u6703\u56E0\u70BA\u7D50\u675F\u56DE\u5408\u800C\u5237\u65B0(\u8B77\u7532\u4E0A\u9650\uFF1A16)\u3002\r\n\u77F3\u7532\uFF1A\u6BCF\u53D7\u5230
+    1 \u6B21\u653B\u64CA\uFF0C\u7372\u5F97 +4 \u8B77\u7532\u3002\r\n\u91CD\u5982\u6CF0\u5C71\uFF1A\u653B\u64CA\u6642\uFF0C\u984D\u5916\u9020\u6210\uFF0C\u7576\u56DE\u5408\u81EA\u8EAB\u8B77\u7532\u503C
+    \u7684\u50B7\u5BB3\u3002\r\n\u86D9\u8DF3\uFF1A\u79FB\u52D5\u6642\u53EF\u4EE5\u79FB\u52D5
+    1\uFF5E2 \u683C\u3002 "
   armorGainPerHit: 4
   preferredDistanceInSteps: 2
   maxMovementSteps: 2
@@ -746,7 +746,43 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2955211467787434944, guid: aa327d458a92acc48ba8ff8e60ec1976, type: 3}
       propertyPath: skillIcons.Array.size
-      value: 2
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2955211467787434944, guid: aa327d458a92acc48ba8ff8e60ec1976, type: 3}
+      propertyPath: skillEntries.Array.size
+      value: 4
+      objectReference: {fileID: 0}
+    - target: {fileID: 2955211467787434944, guid: aa327d458a92acc48ba8ff8e60ec1976, type: 3}
+      propertyPath: skillEntries.Array.data[0].icon
+      value: 
+      objectReference: {fileID: 21300000, guid: 092e36103958ae24bbcd4f91933c1e43, type: 3}
+    - target: {fileID: 2955211467787434944, guid: aa327d458a92acc48ba8ff8e60ec1976, type: 3}
+      propertyPath: skillEntries.Array.data[1].icon
+      value: 
+      objectReference: {fileID: 21300000, guid: 092e36103958ae24bbcd4f91933c1e43, type: 3}
+    - target: {fileID: 2955211467787434944, guid: aa327d458a92acc48ba8ff8e60ec1976, type: 3}
+      propertyPath: skillEntries.Array.data[2].icon
+      value: 
+      objectReference: {fileID: 21300000, guid: 13268628998ff1d4eb8e4fd7421eb76c, type: 3}
+    - target: {fileID: 2955211467787434944, guid: aa327d458a92acc48ba8ff8e60ec1976, type: 3}
+      propertyPath: skillEntries.Array.data[3].icon
+      value: 
+      objectReference: {fileID: 21300000, guid: 13268628998ff1d4eb8e4fd7421eb76c, type: 3}
+    - target: {fileID: 2955211467787434944, guid: aa327d458a92acc48ba8ff8e60ec1976, type: 3}
+      propertyPath: skillEntries.Array.data[0].cooldownSlotIndex
+      value: -1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2955211467787434944, guid: aa327d458a92acc48ba8ff8e60ec1976, type: 3}
+      propertyPath: skillEntries.Array.data[1].cooldownSlotIndex
+      value: -1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2955211467787434944, guid: aa327d458a92acc48ba8ff8e60ec1976, type: 3}
+      propertyPath: skillEntries.Array.data[2].cooldownSlotIndex
+      value: -1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2955211467787434944, guid: aa327d458a92acc48ba8ff8e60ec1976, type: 3}
+      propertyPath: skillEntries.Array.data[3].cooldownSlotIndex
+      value: -1
       objectReference: {fileID: 0}
     - target: {fileID: 4879252766316020192, guid: aa327d458a92acc48ba8ff8e60ec1976, type: 3}
       propertyPath: m_LocalPosition.y
