@@ -51,18 +51,20 @@ public class RunSceneGuideTrigger : SceneGuideTriggerBase
 
     private void TryBindRunManager()
     {
-        if (runManager == null)
+        RunManager resolvedRunManager = ResolveActiveRunManager();
+        if (resolvedRunManager == null)
+            return;
+
+        if (runManager != resolvedRunManager)
         {
-            runManager = RunManager.Instance;
+            UnsubscribeRunManager();
+            runManager = resolvedRunManager;
         }
 
-        if (runManager == null)
+        if (!isSubscribed)
         {
-            runManager = FindObjectOfType<RunManager>(true);
-        }
-
-        if (runManager != null && !isSubscribed)
-        {
+            runManager.NodeEntered -= HandleNodeEntered;
+            runManager.NodeCompleted -= HandleNodeCompleted;
             runManager.NodeEntered += HandleNodeEntered;
             runManager.NodeCompleted += HandleNodeCompleted;
             isSubscribed = true;
@@ -147,8 +149,9 @@ public class RunSceneGuideTrigger : SceneGuideTriggerBase
         {
             runManager.NodeEntered -= HandleNodeEntered;
             runManager.NodeCompleted -= HandleNodeCompleted;
-            isSubscribed = false;
         }
+
+        isSubscribed = false;
     }
 
     private void HandleNodeEntered(MapNodeData node)
@@ -205,5 +208,16 @@ public class RunSceneGuideTrigger : SceneGuideTriggerBase
         {
             npcPresenter.AssignDatabase(runDialogueDatabase);
         }
+    }
+
+    private RunManager ResolveActiveRunManager()
+    {
+        if (RunManager.Instance != null)
+            return RunManager.Instance;
+
+        if (runManager != null)
+            return runManager;
+
+        return FindObjectOfType<RunManager>(true);
     }
 }

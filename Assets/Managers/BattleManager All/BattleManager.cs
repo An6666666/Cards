@@ -470,10 +470,25 @@ public class BattleManager : MonoBehaviour
 
     }
 
-    public void ShowBattlePhaseHint(string message, float duration = -1f)
+    public void ShowBattlePhaseHint(string message, float duration = -1f, bool showCentralHint = true)
     {
         if (string.IsNullOrWhiteSpace(message))
         {
+            return;
+        }
+
+        BattlePhaseHintType hintType = ResolveBattlePhaseHintType(message);
+        UpdateTopPhaseIndicator(hintType);
+
+        if (phaseHintCoroutine != null)
+        {
+            StopCoroutine(phaseHintCoroutine);
+            phaseHintCoroutine = null;
+        }
+
+        if (!showCentralHint)
+        {
+            HideCentralPhaseHintVisuals();
             return;
         }
 
@@ -483,20 +498,18 @@ public class BattleManager : MonoBehaviour
             return;
         }
 
-        if (phaseHintCoroutine != null)
-        {
-            StopCoroutine(phaseHintCoroutine);
-        }
-
-        BattlePhaseHintType hintType = ResolveBattlePhaseHintType(message);
-        UpdateTopPhaseIndicator(hintType);
         float showDuration = duration > 0f ? duration : phaseHintDuration;
         phaseHintCoroutine = StartCoroutine(ShowBattlePhaseHintRoutine(message, showDuration, hintType));
     }
 
-    public IEnumerator ShowBattlePhaseHintAndWait(string message, float duration = -1f)
+    public IEnumerator ShowBattlePhaseHintAndWait(string message, float duration = -1f, bool showCentralHint = true)
     {
-        ShowBattlePhaseHint(message, duration);
+        ShowBattlePhaseHint(message, duration, showCentralHint);
+
+        if (!showCentralHint)
+        {
+            yield break;
+        }
 
         float holdDuration = duration > 0f ? duration : phaseHintDuration;
         float waitDuration = Mathf.Max(0f, holdDuration) + Mathf.Max(0f, phaseHintFadeInDuration) + Mathf.Max(0f, phaseHintFadeOutDuration);

@@ -1402,7 +1402,7 @@ MonoBehaviour:
   m_ChildAlignment: 1
   m_StartCorner: 0
   m_StartAxis: 0
-  m_CellSize: {x: 675.3, y: 698.6}
+  m_CellSize: {x: 785.5, y: 698.6}
   m_Spacing: {x: -29.5, y: 45.74}
   m_Constraint: 2
   m_ConstraintCount: 1
@@ -2991,9 +2991,9 @@ MonoBehaviour:
   lampSelectedSprite: {fileID: 21300000, guid: ec918f2d41d748948a8e95e4f1b4c77a, type: 3}
   lampNormalColor: {r: 1, g: 1, b: 1, a: 1}
   lampSelectedColor: {r: 1, g: 1, b: 1, a: 1}
-  cardsPerPage: 4
+  cardsPerPage: 3
   relicsPerPage: 4
-  removalPerPage: 6
+  removalPerPage: 5
   btnPrev: {fileID: 1976164631}
   btnNext: {fileID: 563193844}
   pageText: {fileID: 35827834}

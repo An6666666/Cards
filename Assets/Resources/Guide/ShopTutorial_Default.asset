@@ -21,56 +21,104 @@ MonoBehaviour:
     requiredAction: 0
     selectTabBeforeStep: 0
     tabToSelect: 0
-    tutorialImage: {fileID: 21300000, guid: 27919f2b6e889c941a84df3f76c8b19d, type: 3}
+    tutorialImage: {fileID: 21300000, guid: a18e191abfcaf24409742f9cee2b554c, type: 3}
     tutorialImageAlpha: 0.8
     matchTargetRect: 0
     imageSize: {x: 1920, y: 1080}
     imageOffset: {x: 0, y: 0}
   - stepId: shop_cards
     dialogue: "\u9019\u500B\u9801\u7C64\u6703\u5207\u63DB\u5230\u53EF\u8CFC\u8CB7\u7684\u5361\u724C\u5217\u8868\u3002"
-    prompt: "\u8ACB\u9EDE\u64CA\u5361\u724C\u6309\u9215\u3002"
+    prompt: "\u9EDE\u64CA\u5361\u724C\u6309\u9215\uFF0C\u5207\u63DB\u5230\u5361\u724C\u9801\u9762\u3002"
     focusAnchor: 3
     requiredAction: 1
     selectTabBeforeStep: 0
     tabToSelect: 0
-    tutorialImage: {fileID: 0}
-    tutorialImageAlpha: 1
-    matchTargetRect: 1
-    imageSize: {x: 0, y: 0}
+    tutorialImage: {fileID: 21300000, guid: fb900e93f7b857143b91fe5b2b824dab, type: 3}
+    tutorialImageAlpha: 0.8
+    matchTargetRect: 0
+    imageSize: {x: 1920, y: 1080}
+    imageOffset: {x: 0, y: 0}
+  - stepId: shop_cards_one
+    dialogue: "\u9019\u5340\u584A\u662F\u5C55\u793A\u552E\u8CE3\u7684\u5361\u724C\uFF0C\u5361\u724C\u4E0B\u65B9\u6709\u5404\u5361\u724C\u7684\u50F9\u9322\uFF0C\u9EDE\u64CA\u8981\u8CB7\u7684\u5361\u724C\u5C31\u53EF\u4EE5\u8CFC\u8CB7\u4E86\u3002"
+    prompt: "\u95B1\u8B80\u5B8C\u5F8C\u6309\u4E0B\u7E7C\u7E8C"
+    focusAnchor: 11
+    requiredAction: 0
+    selectTabBeforeStep: 0
+    tabToSelect: 0
+    tutorialImage: {fileID: 21300000, guid: e9be6e1bb7f10ac4fbcdc83954e37dff, type: 3}
+    tutorialImageAlpha: 0.8
+    matchTargetRect: 0
+    imageSize: {x: 1920, y: 1080}
+    imageOffset: {x: 0, y: 0}
+  - stepId: shop_cards_two
+    dialogue: "\u4E0B\u65B9\u6709\u7576\u524D\u9801\u9762/\u7E3D\u5171\u9801\u9762\uFF0C\u5DE6\u53F3\u6309\u9375\u53EF\u4EE5\u63DB\u9801\u3002"
+    prompt: "\u95B1\u8B80\u5B8C\u5F8C\u6309\u4E0B\u7E7C\u7E8C"
+    focusAnchor: 0
+    requiredAction: 0
+    selectTabBeforeStep: 0
+    tabToSelect: 0
+    tutorialImage: {fileID: 21300000, guid: 55acd3a7d0f4a1a4f946742d3a1c5656, type: 3}
+    tutorialImageAlpha: 0.8
+    matchTargetRect: 0
+    imageSize: {x: 1920, y: 1080}
     imageOffset: {x: 0, y: 0}
   - stepId: shop_relics
     dialogue: "\u518D\u4F86\u662F\u6CD5\u5668\u9801\u7C64\u3002\u5207\u904E\u53BB\u770B\u770B\u5546\u5E97\u63D0\u4F9B\u7684\u6CD5\u5668\u3002"
-    prompt: "\u8ACB\u9EDE\u64CA\u6CD5\u5668\u6309\u9215\u3002"
+    prompt: "\u9EDE\u64CA\u6CD5\u5668\u6309\u9215\uFF0C\u5207\u63DB\u5230\u6CD5\u5668\u9801\u9762\u3002"
     focusAnchor: 4
     requiredAction: 2
     selectTabBeforeStep: 0
     tabToSelect: 0
-    tutorialImage: {fileID: 0}
-    tutorialImageAlpha: 1
-    matchTargetRect: 1
+    tutorialImage: {fileID: 21300000, guid: ad9615690810f1d47baa2f5220c9c364, type: 3}
+    tutorialImageAlpha: 0.8
+    matchTargetRect: 0
     imageSize: {x: 0, y: 0}
     imageOffset: {x: 0, y: 0}
   - stepId: shop_removal
     dialogue: "\u6E05\u9664\u9801\u53EF\u4EE5\u82B1\u8CBB\u91D1\u5E63\u79FB\u9664\u724C\u7D44\u4E2D\u7684\u4E00\u5F35\u5361\u7247\u3002"
-    prompt: "\u8ACB\u9EDE\u64CA\u6E05\u9664\u6309\u9215\u3002"
+    prompt: "\u9EDE\u64CA\u6E05\u9664\u6309\u9215\u5207\u63DB\u5230\u6E05\u9664\u9801\u9762\u3002"
     focusAnchor: 5
     requiredAction: 3
     selectTabBeforeStep: 0
-    tabToSelect: 0
-    tutorialImage: {fileID: 0}
-    tutorialImageAlpha: 1
-    matchTargetRect: 1
+    tabToSelect: 1
+    tutorialImage: {fileID: 21300000, guid: 5b69cf97dd3073647bae441b9e8f767f, type: 3}
+    tutorialImageAlpha: 0.8
+    matchTargetRect: 0
     imageSize: {x: 0, y: 0}
     imageOffset: {x: 0, y: 0}
   - stepId: shop_removal_cost
-    dialogue: "\u9019\u88E1\u6703\u986F\u793A\u79FB\u9664\u4E00\u5F35\u5361\u7247\u9700\u8981\u7684\u8CBB\u7528\u3002\u6559\u5B78\u7D50\u675F\u5F8C\uFF0C\u4F60\u5C31\u80FD\u81EA\u7531\u4F7F\u7528\u5546\u5E97\u4E86\u3002"
-    prompt: "\u6309\u4E0B\u7E7C\u7E8C\uFF0C\u958B\u59CB\u900B\u5546\u5E97\u3002"
+    dialogue: "\u9019\u88E1\u6703\u986F\u793A\u6E05\u9664\u4E00\u5F35\u5361\u7247\u9700\u8981\u7684\u8CBB\u7528\u3002"
+    prompt: "\u95B1\u8B80\u5B8C\u5F8C\u6309\u4E0B\u7E7C\u7E8C"
     focusAnchor: 10
     requiredAction: 0
-    selectTabBeforeStep: 1
+    selectTabBeforeStep: 0
     tabToSelect: 2
-    tutorialImage: {fileID: 0}
-    tutorialImageAlpha: 1
-    matchTargetRect: 1
-    imageSize: {x: 0, y: 0}
+    tutorialImage: {fileID: 21300000, guid: 043b065f2e440264e9640f01abf8c741, type: 3}
+    tutorialImageAlpha: 0.8
+    matchTargetRect: 0
+    imageSize: {x: 1920, y: 1080}
+    imageOffset: {x: 0, y: 0}
+  - stepId: shop_removal_one
+    dialogue: "\u9019\u5340\u584A\u6703\u986F\u793A\u4F60\u76EE\u524D\u6240\u64C1\u6709\u7684\u5361\u724C\uFF0C\u9EDE\u64CA\u5C31\u53EF\u4EE5\u82B15\u584A\u9322\u6D88\u9664\u9EDE\u64CA\u7684\u5361\u724C\u3002\n"
+    prompt: "\u95B1\u8B80\u5B8C\u5F8C\u6309\u4E0B\u7E7C\u7E8C"
+    focusAnchor: 13
+    requiredAction: 0
+    selectTabBeforeStep: 0
+    tabToSelect: 2
+    tutorialImage: {fileID: 21300000, guid: a55616046818fd94ba5a3e66770956f4, type: 3}
+    tutorialImageAlpha: 0.8
+    matchTargetRect: 0
+    imageSize: {x: 1920, y: 1080}
+    imageOffset: {x: 0, y: 0}
+  - stepId: shop_removal_left
+    dialogue: "\u6700\u5F8C\u5DE6\u4E0A\u7684\u9019\u662F\u96E2\u958B\u9375\u3002\u5C0F\u5E97\u7684\u4ECB\u7D39\u5C31\u5230\u9019\uFF0C\u6B61\u8FCE\u591A\u4F86\u5149\u9867\u5C0F\u5E97\u3002"
+    prompt: 
+    focusAnchor: 0
+    requiredAction: 0
+    selectTabBeforeStep: 0
+    tabToSelect: 2
+    tutorialImage: {fileID: 21300000, guid: 67c4fdefdd48d484caa23884fa737496, type: 3}
+    tutorialImageAlpha: 0.8
+    matchTargetRect: 0
+    imageSize: {x: 1920, y: 1080}
     imageOffset: {x: 0, y: 0}

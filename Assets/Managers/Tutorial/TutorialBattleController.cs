@@ -40,6 +40,7 @@ public class TutorialBattleController : MonoBehaviour
     private bool waitingForOpeningDialogue;
     private bool waitingForReactionDialogue;
     private bool hasTriggeredTutorialExit;
+    private bool hasShownInitialPlayerTurnPhaseHint;
     private bool runtimeEnabled;// 執行時開關：同一場景中動態決定是否啟用教學流程
 
     public bool IsActive =>
@@ -71,8 +72,21 @@ public class TutorialBattleController : MonoBehaviour
         waitingForOpeningDialogue = false;
         waitingForReactionDialogue = false;
         hasTriggeredTutorialExit = false;
+        hasShownInitialPlayerTurnPhaseHint = false;
         // 每次進入新戰鬥都重置步驟狀態，避免沿用上一場教學進度
         UpdateGuideNpcVisibility();
+    }
+
+    public bool ConsumePlayerTurnPhaseHintAllowance()
+    {
+        if (!IsActive)
+            return true;
+
+        if (hasShownInitialPlayerTurnPhaseHint)
+            return false;
+
+        hasShownInitialPlayerTurnPhaseHint = true;
+        return true;
     }
 
     private void UpdateGuideNpcVisibility()

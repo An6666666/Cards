@@ -2282,8 +2282,20 @@ MonoBehaviour:
     onEnterKey: Run_Enter_Battle
     onCompletedKey: 'Run_Complete_Battle '
   - nodeType: 1
-    onEnterKey: Run_Enter_Battle
-    onCompletedKey: 'Run_Complete_Battle '
+    onEnterKey: 'Run_Enter_Elite '
+    onCompletedKey: 'Run_Complete_Elite '
+  - nodeType: 3
+    onEnterKey: 'Run_Enter_Rest '
+    onCompletedKey: 
+  - nodeType: 2
+    onEnterKey: 'Run_Enter_Shop '
+    onCompletedKey: 'Run_Complete_Shop '
+  - nodeType: 4
+    onEnterKey: 'Run_Enter_Event '
+    onCompletedKey: 'Run_Complete_Event '
+  - nodeType: 5
+    onEnterKey: 'Run_Enter_Boss '
+    onCompletedKey: 
 --- !u!1 &1370335351
 GameObject:
   m_ObjectHideFlags: 0
@@ -3157,6 +3169,15 @@ MonoBehaviour:
   floorSpacing: 200
   nodeSpacing: 250
   connectionThickness: 8
+  floorBandFill: 0.72
+  nodeOverlapPadding: 12
+  sameFloorMinDistance: 96
+  differentFloorMinDistance: 24
+  minHorizontalSlotsPerFloor: 5
+  maxConnectionHorizontalOffset: 180
+  relaxedBossApproachFloorCount: 2
+  bossApproachChildPullMultiplier: 0.35
+  bossApproachSpreadBoost: 0.9
   horizontalPositionJitter: 0
   verticalPositionJitter: 0
   connectionAnchorJitter: 20
