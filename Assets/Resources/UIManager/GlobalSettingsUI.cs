@@ -7,6 +7,7 @@ public class GlobalSettingsUI : MonoBehaviour
     public const string DefaultGlobalUiPrefabResourcePath = "GlobalUI/GlobalUIRoot";
 
     public static GlobalSettingsUI Instance { get; private set; }
+    public bool IsOpen => settingsOverlay != null && settingsOverlay.activeSelf;
 
     [SerializeField] private KeyCode toggleKey = KeyCode.Escape;
 

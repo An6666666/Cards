@@ -46,8 +46,10 @@ public class BattleManager : MonoBehaviour
     [SerializeField] private Image phaseTopIndicatorImage;
     [SerializeField] private Sprite playerTurnCenterSprite;
     [SerializeField] private Sprite enemyTurnCenterSprite;
+    [SerializeField] private Sprite selectStartTileCenterSprite;
     [SerializeField] private Sprite playerTurnTopSprite;
     [SerializeField] private Sprite enemyTurnTopSprite;
+    [SerializeField] private Sprite selectStartTileTopSprite;
     [Min(0f)] [SerializeField] private float phaseHintDuration = 1.2f;
     [Min(0f)] [SerializeField] private float phaseHintFadeInDuration = 0.2f;
     [Min(0f)] [SerializeField] private float phaseHintFadeOutDuration = 0.25f;
@@ -1039,6 +1041,9 @@ public class BattleManager : MonoBehaviour
             case BattlePhaseHintType.EnemyTurn:
                 sprite = enemyTurnCenterSprite;
                 break;
+            case BattlePhaseHintType.SelectStartTile:
+                sprite = selectStartTileCenterSprite;
+                break;
         }
 
         return sprite != null;
@@ -1076,7 +1081,15 @@ public class BattleManager : MonoBehaviour
                 }
                 break;
             case BattlePhaseHintType.SelectStartTile:
-                phaseTopIndicatorImage.gameObject.SetActive(false);
+                if (selectStartTileTopSprite != null)
+                {
+                    phaseTopIndicatorImage.sprite = selectStartTileTopSprite;
+                    phaseTopIndicatorImage.gameObject.SetActive(true);
+                }
+                else
+                {
+                    phaseTopIndicatorImage.gameObject.SetActive(false);
+                }
                 break;
         }
     }

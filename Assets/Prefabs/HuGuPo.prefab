@@ -406,7 +406,6 @@ GameObject:
   - component: {fileID: 1841683551220647667}
   - component: {fileID: 6515365303492296421}
   - component: {fileID: 4612100733422658324}
-  - component: {fileID: 171478213507365764}
   m_Layer: 0
   m_Name: HuGuPo
   m_TagString: Untagged
@@ -659,24 +658,6 @@ MonoBehaviour:
   rightOffset: {x: -0.03, y: 0.69, z: 0}
   verticalDeadZone: 0.05
   flipHysteresis: 0.05
---- !u!114 &171478213507365764
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8127814944662599423}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 61c6fc34a6b94b74b8afb20d6bd1178c, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  previewSprite: {fileID: 21300000, guid: ebda927acb06d6644884b97fc49bbede, type: 3}
-  fallbackLocalOffset: {x: -0.85, y: 4.25, z: 0}
-  offsetFromEnemyCenter: {x: 0, y: 3.5, z: 0}
-  iconScale: 0.3
-  iconColor: {r: 1, g: 1, b: 1, a: 1}
-  sortingOrderOffset: 3
 --- !u!1001 &1817239499420612326
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -704,7 +685,7 @@ PrefabInstance:
     - target: {fileID: 8030096394536815716, guid: 5eb938b8b8628764cad6aaa8a1e732ea, type: 3}
       propertyPath: m_Sprite
       value: 
-      objectReference: {fileID: 21300000, guid: ec9dac023ecf87e44a0940f3525ab226, type: 3}
+      objectReference: {fileID: 21300000, guid: 67e12ac26e3a4db4ab6bcfda6f8d4462, type: 3}
     - target: {fileID: 8030096394536815716, guid: 5eb938b8b8628764cad6aaa8a1e732ea, type: 3}
       propertyPath: m_SortingLayer
       value: 7
@@ -735,7 +716,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8645717498181915281, guid: 5eb938b8b8628764cad6aaa8a1e732ea, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 1.88
+      value: 1.91
       objectReference: {fileID: 0}
     - target: {fileID: 8645717498181915281, guid: 5eb938b8b8628764cad6aaa8a1e732ea, type: 3}
       propertyPath: m_LocalPosition.z

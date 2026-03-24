@@ -354,6 +354,8 @@ public class IllustratedBookPanelController : MonoBehaviour
     [SerializeField, InspectorName("Monster Detail Back Button")] private Button monsterDetailBackButton;
     [SerializeField, InspectorName("Relic Detail Back Button")] private Button relicDetailBackButton;
 
+    public bool IsOpen => illustratedBookPanel != null && illustratedBookPanel.activeSelf;
+
     [Header("Behavior")]
     [SerializeField, InspectorName("Default Page")] private BookPage defaultPage = BookPage.Cards;
     [SerializeField, InspectorName("Hide Panel On Awake")] private bool hidePanelOnAwake = true;

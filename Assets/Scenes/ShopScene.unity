@@ -895,6 +895,7 @@ GameObject:
   - component: {fileID: 369811687}
   - component: {fileID: 369811686}
   - component: {fileID: 369811688}
+  - component: {fileID: 369811689}
   m_Layer: 5
   m_Name: GuideNPC
   m_TagString: Untagged
@@ -941,7 +942,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 9e1a5c67b0558ae49bcec3b73c793cf7, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 8cbccbe99f48304469cec1bcae7c7888, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -982,6 +983,37 @@ MonoBehaviour:
   typewriterDurationPerChar: 0.03
   minTypewriterDuration: 0.15
   typewriterEase: 1
+--- !u!114 &369811689
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 369811684}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 26f9162fc096bb84c9e96c778ad7a014, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  npcImage: {fileID: 369811686}
+  defaultSprite: {fileID: 21300000, guid: 1651637a1a179944895d5cb8b73697d5, type: 3}
+  messageRoot: {fileID: 157244292}
+  uiText: {fileID: 230941274}
+  tmpText: {fileID: 0}
+  dialogueBubbleUI: {fileID: 0}
+  restoreDefaultWhenMessageHidden: 1
+  textChangeSettleSeconds: 0.1
+  randomSprites:
+  - {fileID: 21300000, guid: 1651637a1a179944895d5cb8b73697d5, type: 3}
+  - {fileID: 21300000, guid: 8cbccbe99f48304469cec1bcae7c7888, type: 3}
+  - {fileID: 21300000, guid: 5eb48e4607150324ca1a22d760b247d8, type: 3}
+  - {fileID: 21300000, guid: fe28f37c651410a49ab3e43af6acf4d3, type: 3}
+  - {fileID: 21300000, guid: da3a6b60130bcdf4ba23f2ff70747a38, type: 3}
+  - {fileID: 21300000, guid: 118c233eb5f74744586d9ff3b4f0c3cf, type: 3}
+  - {fileID: 21300000, guid: 33c39072e3f204e42ad2af46a86cf623, type: 3}
+  - {fileID: 21300000, guid: 21c6e5a3bc7f3bd4b8b4e1aedd57a058, type: 3}
+  - {fileID: 21300000, guid: 05d5ef6948fdd2841962d443f50069fc, type: 3}
+  - {fileID: 21300000, guid: f5c1b1af943ef0f40a18d36c2f12afc8, type: 3}
 --- !u!1 &451753844
 GameObject:
   m_ObjectHideFlags: 0

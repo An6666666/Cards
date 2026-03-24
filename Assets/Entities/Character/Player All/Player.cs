@@ -43,6 +43,7 @@ public class Player : MonoBehaviour
     public void PlayTeleportAppearFX() => effectCtrl?.PlayTeleportAppearFX();
     public void PlayWoundedAnim() => animCtrl?.PlayWounded();
     public void PlayHitFeedback() => damageFeedbackCtrl?.PlayHitFeedback();
+    public void PlayAttackHitShake() => damageFeedbackCtrl?.PlayAttackHitShake();
     public void RefreshLowHpFeedback() => lowHpFeedbackCtrl?.RefreshLowHpState(currentHP, maxHP);
     public void SetMovingAnim(bool moving) => animCtrl?.SetMoving(moving);
     public void SetDeadAnim(bool dead) => animCtrl?.SetDead(dead);

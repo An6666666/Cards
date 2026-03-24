@@ -7,6 +7,8 @@ public class EnemyAreaDamagePreview : MonoBehaviour
     [Header("Preview Icon")]
     [Tooltip("Optional override sprite. If empty, the preview reuses the enemy intent sprite.")]
     [SerializeField] private Sprite previewSprite;
+    [Tooltip("If assigned, this placed renderer is used first so you can adjust the icon directly in Bottom.")]
+    [SerializeField] private SpriteRenderer placedPreviewRenderer;
     [SerializeField] private Vector3 fallbackLocalOffset = new Vector3(-0.85f, 4.25f, 0f);
     [FormerlySerializedAs("offsetFromIntentIcon")]
     [Tooltip("Offset relative to the enemy transform center.")]
@@ -14,11 +16,20 @@ public class EnemyAreaDamagePreview : MonoBehaviour
     [SerializeField] private float iconScale = 0.65f;
     [SerializeField] private Color iconColor = new Color(1f, 0.45f, 0.2f, 0.95f);
     [SerializeField] private int sortingOrderOffset = 3;
+    [Tooltip("When using a placed object inside Bottom, keep its local position/scale instead of overriding it from code.")]
+    [SerializeField] private bool preservePlacedObjectTransform = true;
+    [Tooltip("When using a placed object inside Bottom, keep its sorting setup from the prefab.")]
+    [SerializeField] private bool preservePlacedObjectSorting = true;
+
+    [Header("Debug")]
+    [Tooltip("Only for size comparison in Inspector. Forces the preview icon to stay visible without changing battle logic.")]
+    [SerializeField] private bool forceShowForSizeCheck;
 
     private Enemy enemy;
     private SpriteRenderer previewRenderer;
     private Transform previewTransform;
     private bool isVisible;
+    private bool isUsingPlacedRenderer;
 
     public void Init(Enemy owner)
     {
@@ -39,7 +50,7 @@ public class EnemyAreaDamagePreview : MonoBehaviour
 
     private void LateUpdate()
     {
-        if (!isVisible || previewRenderer == null || !previewRenderer.enabled)
+        if (!ShouldShowPreview() || previewRenderer == null || !previewRenderer.enabled)
         {
             return;
         }
@@ -47,8 +58,30 @@ public class EnemyAreaDamagePreview : MonoBehaviour
         SyncVisualState();
     }
 
+    private void OnValidate()
+    {
+        if (previewRenderer != null)
+        {
+            SyncVisualState();
+        }
+    }
+
     private void EnsurePreviewRenderer()
     {
+        if (placedPreviewRenderer == null)
+        {
+            placedPreviewRenderer = ResolvePlacedPreviewRenderer();
+        }
+
+        if (placedPreviewRenderer != null)
+        {
+            previewRenderer = placedPreviewRenderer;
+            previewTransform = placedPreviewRenderer.transform;
+            previewRenderer.enabled = false;
+            isUsingPlacedRenderer = true;
+            return;
+        }
+
         if (previewRenderer != null)
         {
             return;
@@ -73,6 +106,7 @@ public class EnemyAreaDamagePreview : MonoBehaviour
 
         previewRenderer = iconObject.AddComponent<SpriteRenderer>();
         previewRenderer.enabled = false;
+        isUsingPlacedRenderer = false;
     }
 
     private void SyncVisualState()
@@ -83,7 +117,7 @@ public class EnemyAreaDamagePreview : MonoBehaviour
         }
 
         Sprite iconSprite = ResolvePreviewSprite();
-        bool shouldShow = isVisible && enemy != null && iconSprite != null;
+        bool shouldShow = ShouldShowPreview() && enemy != null && iconSprite != null;
         if (!shouldShow)
         {
             previewRenderer.enabled = false;
@@ -94,13 +128,40 @@ public class EnemyAreaDamagePreview : MonoBehaviour
         previewRenderer.color = iconColor;
         previewRenderer.enabled = true;
 
-        if (previewTransform != null)
+        if (previewTransform != null && ShouldApplyRuntimeTransform())
         {
             previewTransform.localPosition = ResolveLocalPosition();
             previewTransform.localScale = Vector3.one * iconScale;
         }
 
-        ApplySorting();
+        if (ShouldApplyRuntimeSorting())
+        {
+            ApplySorting();
+        }
+    }
+
+    [ContextMenu("Toggle Force Show For Size Check")]
+    private void ToggleForceShowForSizeCheck()
+    {
+        forceShowForSizeCheck = !forceShowForSizeCheck;
+        EnsurePreviewRenderer();
+        SyncVisualState();
+    }
+
+    [ContextMenu("Enable Force Show For Size Check")]
+    private void EnableForceShowForSizeCheck()
+    {
+        forceShowForSizeCheck = true;
+        EnsurePreviewRenderer();
+        SyncVisualState();
+    }
+
+    [ContextMenu("Disable Force Show For Size Check")]
+    private void DisableForceShowForSizeCheck()
+    {
+        forceShowForSizeCheck = false;
+        EnsurePreviewRenderer();
+        SyncVisualState();
     }
 
     private Vector3 ResolveLocalPosition()
@@ -186,6 +247,57 @@ public class EnemyAreaDamagePreview : MonoBehaviour
             if (candidate != null && candidate != previewRenderer)
             {
                 return candidate;
+            }
+        }
+
+        return null;
+    }
+
+    private bool ShouldShowPreview()
+    {
+        return isVisible || forceShowForSizeCheck;
+    }
+
+    private bool ShouldApplyRuntimeTransform()
+    {
+        return !isUsingPlacedRenderer || !preservePlacedObjectTransform;
+    }
+
+    private bool ShouldApplyRuntimeSorting()
+    {
+        return !isUsingPlacedRenderer || !preservePlacedObjectSorting;
+    }
+
+    private SpriteRenderer ResolvePlacedPreviewRenderer()
+    {
+        Transform found = FindChildRecursive(transform, "AreaDamagePreviewIcon");
+        if (found == null)
+        {
+            return null;
+        }
+
+        return found.GetComponent<SpriteRenderer>();
+    }
+
+    private Transform FindChildRecursive(Transform root, string childName)
+    {
+        if (root == null)
+        {
+            return null;
+        }
+
+        for (int i = 0; i < root.childCount; i++)
+        {
+            Transform child = root.GetChild(i);
+            if (child.name == childName)
+            {
+                return child;
+            }
+
+            Transform nested = FindChildRecursive(child, childName);
+            if (nested != null)
+            {
+                return nested;
             }
         }
 

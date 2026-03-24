@@ -165,6 +165,7 @@ public class AttackSelectionController
             FaceUtils.Face(player.gameObject, target.transform);
             targetElementsBefore = new List<ElementType>(target.GetElementTags());
             execution.Card.ExecuteEffect(player, target);
+            player.PlayAttackHitShake();
             targetElementsAfter = new List<ElementType>(target.GetElementTags());
         }
 
