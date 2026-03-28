@@ -151,7 +151,7 @@ public class Enemy : MonoBehaviour
 
         if (areaDamagePreview == null)
         {
-            areaDamagePreview = GetComponent<EnemyAreaDamagePreview>();
+            areaDamagePreview = GetComponentInChildren<EnemyAreaDamagePreview>(true);
             if (areaDamagePreview == null)
             {
                 areaDamagePreview = gameObject.AddComponent<EnemyAreaDamagePreview>();

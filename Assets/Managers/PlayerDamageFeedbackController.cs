@@ -4,6 +4,7 @@ using UnityEngine;
 public class PlayerDamageFeedbackController : MonoBehaviour
 {
     private static readonly int HitTriggerHash = Animator.StringToHash("Hit");
+    private const float DefaultAttackHitShakeScale = 2f / 3f;
 
     [Header("Overlay References")]
     [SerializeField] private GameObject hitOverlayRoot;
@@ -41,6 +42,11 @@ public class PlayerDamageFeedbackController : MonoBehaviour
         PlayShake();
     }
 
+    public void PlayAttackHitShake()
+    {
+        PlayShake(DefaultAttackHitShakeScale);
+    }
+
     private void PlayOverlay()
     {
         if (hitOverlayAnimator != null)
@@ -70,12 +76,17 @@ public class PlayerDamageFeedbackController : MonoBehaviour
 
     private void PlayShake()
     {
+        PlayShake(1f);
+    }
+
+    private void PlayShake(float strengthScale)
+    {
         if (screenShakeController == null)
         {
             return;
         }
 
-        screenShakeController.PlayShake(shakeDuration, shakeStrength);
+        screenShakeController.PlayShake(shakeDuration, shakeStrength * Mathf.Max(0f, strengthScale));
     }
 
     private IEnumerator PlayCanvasGroupFade()

@@ -10,11 +10,32 @@ public class StatusSlotView : MonoBehaviour
     [Header("Turns Number")]
     [SerializeField] private SpriteNumber turnNumber;
 
+    private Sprite defaultRendererSprite;
+    private bool defaultRendererEnabled;
+    private Sprite defaultImageSprite;
+    private bool defaultImageEnabled;
+
+    private void Awake()
+    {
+        if (iconRenderer != null)
+        {
+            defaultRendererSprite = iconRenderer.sprite;
+            defaultRendererEnabled = iconRenderer.enabled;
+        }
+
+        if (iconImage != null)
+        {
+            defaultImageSprite = iconImage.sprite;
+            defaultImageEnabled = iconImage.enabled;
+        }
+    }
+
     public void Bind(Sprite icon, int turns)
     {
-        // ✅ icon 為 null：保留 prefab 原本的圖，不要關掉
         if (icon != null)
             SetIcon(icon);
+        else
+            RestoreDefaultIcon();
 
         if (turnNumber != null)
             turnNumber.SetValue(Mathf.Max(0, turns));
@@ -32,6 +53,21 @@ public class StatusSlotView : MonoBehaviour
         {
             iconImage.sprite = icon;
             iconImage.enabled = true;
+        }
+    }
+
+    private void RestoreDefaultIcon()
+    {
+        if (iconRenderer != null)
+        {
+            iconRenderer.sprite = defaultRendererSprite;
+            iconRenderer.enabled = defaultRendererEnabled;
+        }
+
+        if (iconImage != null)
+        {
+            iconImage.sprite = defaultImageSprite;
+            iconImage.enabled = defaultImageEnabled;
         }
     }
 }

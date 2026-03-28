@@ -33,6 +33,8 @@ public class YingGe : Enemy, IEnemyCooldownProvider
     [SerializeField] private int phaseTwoBaseAttackDamage = 10;
     [SerializeField] private int phaseTwoArmorPerTurn = 2;
     [SerializeField] private bool allowStoneFeatherInPhaseTwo = false;
+    [TextArea(2, 10)]
+    [SerializeField] private string phaseTwoSkillDescription;
     [SerializeField] private List<EnemySpawnConfig> phaseTwoSummons = new List<EnemySpawnConfig>();
 
     private readonly HashSet<Vector2Int> miasmaTiles = new HashSet<Vector2Int>();
@@ -524,6 +526,11 @@ public class YingGe : Enemy, IEnemyCooldownProvider
         stoneFeatherPending = false;
         waitingForStoneFeatherTakeOff = false;
         ClearStoneFeatherIndicators();
+
+        if (!string.IsNullOrWhiteSpace(phaseTwoSkillDescription))
+        {
+            skillDescription = phaseTwoSkillDescription;
+        }
     }
 
     private bool HasConfiguredPhaseTwoSummons()
@@ -676,6 +683,7 @@ public class YingGe : Enemy, IEnemyCooldownProvider
         }
 
         SetForceHideIntent(hidden);
+        SetAreaDamagePreview(false);
 
         if (elementStatusDisplay == null)
         {
@@ -685,6 +693,16 @@ public class YingGe : Enemy, IEnemyCooldownProvider
         if (elementStatusDisplay != null)
         {
             elementStatusDisplay.gameObject.SetActive(!hidden);
+        }
+
+        if (bottomHud == null)
+        {
+            bottomHud = GetComponentInChildren<EnemyBottomHudFinal>(true);
+        }
+
+        if (bottomHud != null)
+        {
+            bottomHud.gameObject.SetActive(!hidden);
         }
     }
 
