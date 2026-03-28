@@ -37,6 +37,7 @@ public partial class RunMapUI : MonoBehaviour
     [Header("Padding")]
     [SerializeField] private float topPadding = 120f;
     [SerializeField] private float bottomPadding = 120f;
+    [SerializeField, Range(0f, 1f)] private float focusedNodeViewportY = 0.5f;
 
     [Header("Colors")]
     [SerializeField] private Color defaultColor = Color.white;
@@ -131,6 +132,7 @@ public partial class RunMapUI : MonoBehaviour
             linesRoot.anchoredPosition = Vector2.zero;
 
         ApplyPaddingAndResize(builtMinY, builtMaxY);
+        SnapMapToFocusedNode();
     }
 
     private void HandleMapGenerated(IReadOnlyList<IReadOnlyList<MapNodeData>> floors)
@@ -138,11 +140,51 @@ public partial class RunMapUI : MonoBehaviour
         BuildMap(floors);
         RefreshNodeStates();
         RefreshLegendPanel();
+        SnapMapToFocusedNode();
     }
 
     private void HandleMapStateChanged()
     {
         RefreshNodeStates();
         RefreshLegendPanel();
+        SnapMapToFocusedNode();
+    }
+
+    private void SnapMapToFocusedNode()
+    {
+        if (!hasBuilt || mapContainer == null || viewport == null)
+            return;
+
+        MapNodeData focusNode = GetFocusNode();
+        if (focusNode == null || !nodeRects.TryGetValue(focusNode, out RectTransform nodeRect) || nodeRect == null)
+            return;
+
+        Canvas.ForceUpdateCanvases();
+
+        Vector3 nodeWorldCenter = nodeRect.TransformPoint(nodeRect.rect.center);
+        Vector3 nodeViewportLocal = viewport.InverseTransformPoint(nodeWorldCenter);
+
+        float desiredViewportY = Mathf.Lerp(-viewport.rect.height, 0f, Mathf.Clamp01(focusedNodeViewportY));
+        float deltaY = desiredViewportY - nodeViewportLocal.y;
+        Vector2 anchoredPosition = mapContainer.anchoredPosition;
+        anchoredPosition.y += deltaY;
+
+        float maxScrollY = Mathf.Max(0f, mapContainer.rect.height - viewport.rect.height);
+        anchoredPosition.y = Mathf.Clamp(anchoredPosition.y, 0f, maxScrollY);
+        mapContainer.anchoredPosition = anchoredPosition;
+    }
+
+    private MapNodeData GetFocusNode()
+    {
+        if (runManager == null)
+            return null;
+
+        if (runManager.CurrentNode != null)
+            return runManager.CurrentNode;
+
+        if (runManager.ActiveNode != null)
+            return runManager.ActiveNode;
+
+        return null;
     }
 }

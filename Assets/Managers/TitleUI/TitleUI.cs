@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
+using UnityEngine.Video;
 
 public class TitleUI : MonoBehaviour
 {
@@ -23,13 +24,22 @@ public class TitleUI : MonoBehaviour
     [SerializeField] private RectTransform selectionArrow;
     [SerializeField] private Vector2 arrowOffset = new Vector2(-56f, 0f);
 
+    [Header("Title Visuals")]
+    [SerializeField] private Graphic backgroundGraphic;
+    [SerializeField] private RawImage backgroundVideoSurface;
+    [SerializeField] private VideoPlayer backgroundVideoPlayer;
+    [SerializeField] private RectTransform fireEffectRoot;
+    [SerializeField] private VideoClip backgroundVideoClip;
+
     private readonly Button[] menuButtons = new Button[5];
     private RectTransform currentTarget;
+    private RenderTexture backgroundVideoTexture;
 
     private void Awake()
     {
         RunManager.DestroyInstance();
 
+        SetupTitleVisuals();
         CacheMenuButtons();
         WireButtons();
         RegisterSelectionTargets();
@@ -44,8 +54,24 @@ public class TitleUI : MonoBehaviour
 
     private void OnEnable()
     {
+        EnsureBackgroundVideoPlaying();
         EnsureInitialSelection();
         RefreshSelectionArrow();
+    }
+
+    private void OnDestroy()
+    {
+        if (backgroundVideoPlayer != null)
+        {
+            backgroundVideoPlayer.Stop();
+            backgroundVideoPlayer.targetTexture = null;
+        }
+
+        if (backgroundVideoTexture != null)
+        {
+            backgroundVideoTexture.Release();
+            Destroy(backgroundVideoTexture);
+        }
     }
 
     private void Update()
@@ -254,5 +280,147 @@ public class TitleUI : MonoBehaviour
     {
         GlobalSettingsUI.OpenGlobal();
         SetSelectionArrowVisible(false);
+    }
+
+    private void SetupTitleVisuals()
+    {
+        Canvas rootCanvas = ResolveRootCanvas();
+        if (rootCanvas == null)
+            return;
+
+        Transform canvasTransform = rootCanvas.transform;
+        ResolveTitleVisualReferences(canvasTransform);
+        CreateOrUpdateBackgroundVideo(canvasTransform);
+        EnableFireEffect(canvasTransform);
+    }
+
+    private Canvas ResolveRootCanvas()
+    {
+        if (startButton != null)
+            return startButton.GetComponentInParent<Canvas>();
+
+        return FindObjectOfType<Canvas>();
+    }
+
+    private void ResolveTitleVisualReferences(Transform canvasTransform)
+    {
+        if (canvasTransform == null)
+            return;
+
+        if (backgroundGraphic == null)
+        {
+            Transform background = canvasTransform.Find("Background");
+            if (background != null)
+                backgroundGraphic = background.GetComponent<Graphic>();
+        }
+
+        if (backgroundVideoSurface == null && backgroundGraphic != null)
+        {
+            Transform videoSurface = backgroundGraphic.transform.Find("BackgroundVideo");
+            GameObject videoSurfaceObject;
+            if (videoSurface == null)
+            {
+                videoSurfaceObject = new GameObject("BackgroundVideo", typeof(RectTransform), typeof(CanvasRenderer), typeof(RawImage));
+                RectTransform videoRect = videoSurfaceObject.GetComponent<RectTransform>();
+                videoRect.SetParent(backgroundGraphic.transform, false);
+                videoRect.anchorMin = Vector2.zero;
+                videoRect.anchorMax = Vector2.one;
+                videoRect.offsetMin = Vector2.zero;
+                videoRect.offsetMax = Vector2.zero;
+                videoRect.SetAsLastSibling();
+            }
+            else
+            {
+                videoSurfaceObject = videoSurface.gameObject;
+            }
+
+            backgroundVideoSurface = videoSurfaceObject.GetComponent<RawImage>();
+        }
+
+        if (backgroundVideoPlayer == null && backgroundGraphic != null)
+        {
+            backgroundVideoPlayer = backgroundGraphic.GetComponent<VideoPlayer>();
+            if (backgroundVideoPlayer == null)
+                backgroundVideoPlayer = backgroundGraphic.gameObject.AddComponent<VideoPlayer>();
+        }
+
+        if (fireEffectRoot == null)
+        {
+            Transform fireEffect = canvasTransform.Find("Fire_effect");
+            if (fireEffect != null)
+                fireEffectRoot = fireEffect as RectTransform;
+        }
+    }
+
+    private void CreateOrUpdateBackgroundVideo(Transform canvasTransform)
+    {
+        if (canvasTransform == null || backgroundVideoClip == null)
+            return;
+
+        ResolveTitleVisualReferences(canvasTransform);
+
+        if (backgroundGraphic == null || backgroundVideoSurface == null || backgroundVideoPlayer == null)
+            return;
+
+        backgroundGraphic.enabled = false;
+        backgroundGraphic.raycastTarget = false;
+        backgroundVideoSurface.gameObject.SetActive(true);
+        backgroundVideoSurface.raycastTarget = false;
+        backgroundVideoSurface.color = Color.white;
+
+        EnsureBackgroundVideoTexture();
+        backgroundVideoSurface.texture = backgroundVideoTexture;
+
+        backgroundVideoPlayer.playOnAwake = true;
+        backgroundVideoPlayer.isLooping = true;
+        backgroundVideoPlayer.skipOnDrop = true;
+        backgroundVideoPlayer.waitForFirstFrame = true;
+        backgroundVideoPlayer.audioOutputMode = VideoAudioOutputMode.None;
+        backgroundVideoPlayer.renderMode = VideoRenderMode.RenderTexture;
+        backgroundVideoPlayer.targetTexture = backgroundVideoTexture;
+        backgroundVideoPlayer.aspectRatio = VideoAspectRatio.FitInside;
+        backgroundVideoPlayer.clip = backgroundVideoClip;
+        backgroundVideoPlayer.Play();
+    }
+
+    private void EnsureBackgroundVideoTexture()
+    {
+        if (backgroundVideoTexture != null)
+            return;
+
+        backgroundVideoTexture = new RenderTexture(1920, 1080, 0, RenderTextureFormat.ARGB32)
+        {
+            name = "TitleBackgroundVideo"
+        };
+        backgroundVideoTexture.Create();
+    }
+
+    private void EnsureBackgroundVideoPlaying()
+    {
+        if (backgroundVideoPlayer != null && backgroundVideoClip != null && !backgroundVideoPlayer.isPlaying)
+            backgroundVideoPlayer.Play();
+    }
+
+    private void EnableFireEffect(Transform canvasTransform)
+    {
+        if (canvasTransform == null)
+            return;
+
+        ResolveTitleVisualReferences(canvasTransform);
+
+        if (fireEffectRoot == null)
+            return;
+
+        if (!fireEffectRoot.gameObject.activeSelf)
+            fireEffectRoot.gameObject.SetActive(true);
+
+        Animator fireAnimator = fireEffectRoot.GetComponent<Animator>();
+        if (fireAnimator != null)
+        {
+            fireAnimator.enabled = true;
+            fireAnimator.Rebind();
+            fireAnimator.Update(0f);
+            fireAnimator.Play(0, 0, 0f);
+        }
     }
 }

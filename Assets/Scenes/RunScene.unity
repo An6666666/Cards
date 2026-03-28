@@ -1016,7 +1016,7 @@ MonoBehaviour:
       m_Calls: []
   m_FontData:
     m_Font: {fileID: 10102, guid: 0000000000000000e000000000000000, type: 0}
-    m_FontSize: 20
+    m_FontSize: 19
     m_FontStyle: 0
     m_BestFit: 0
     m_MinSize: 10
@@ -1542,7 +1542,7 @@ MonoBehaviour:
       m_Calls: []
   m_FontData:
     m_Font: {fileID: 10102, guid: 0000000000000000e000000000000000, type: 0}
-    m_FontSize: 20
+    m_FontSize: 19
     m_FontStyle: 0
     m_BestFit: 0
     m_MinSize: 2
@@ -1696,7 +1696,7 @@ MonoBehaviour:
       m_Calls: []
   m_FontData:
     m_Font: {fileID: 10102, guid: 0000000000000000e000000000000000, type: 0}
-    m_FontSize: 20
+    m_FontSize: 19
     m_FontStyle: 0
     m_BestFit: 0
     m_MinSize: 2
@@ -2879,6 +2879,7 @@ MonoBehaviour:
   connectionAnchorJitter: 2
   topPadding: 0
   bottomPadding: 100
+  focusedNodeViewportY: 0.5
   defaultColor: {r: 0.3764706, g: 0.6313726, b: 0.6156863, a: 1}
   completedColor: {r: 0.2, g: 0.2, b: 0.2, a: 1}
   currentColor: {r: 1, g: 0.6431373, b: 0.20392157, a: 1}
