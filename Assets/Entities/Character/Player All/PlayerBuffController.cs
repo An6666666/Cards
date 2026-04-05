@@ -3,6 +3,13 @@ using UnityEngine;
 
 public class PlayerBuffController : MonoBehaviour
 {
+    private enum NegativeEffectType
+    {
+        Weak,
+        Bleed,
+        Imprison
+    }
+
     public float damageTakenRatio = 1.0f;
     public int nextAttackPlus = 0;
     public int nextDamageTakenUp = 0;
@@ -112,8 +119,9 @@ public class PlayerBuffController : MonoBehaviour
         }
         drawBlockedThisTurn = false;
     }
-        public void TickDebuffsOnPlayerTurnStart()
-        {
+
+    public void TickDebuffsOnPlayerTurnEnd()
+    {
         if (weak > 0)
         {
             weak--;
@@ -194,6 +202,27 @@ public class PlayerBuffController : MonoBehaviour
         }
     }
 
+    public bool TryRemoveRandomNegativeEffect(Player owner)
+    {
+        List<NegativeEffectType> removableEffects = new List<NegativeEffectType>();
+
+        if (weak > 0)
+            removableEffects.Add(NegativeEffectType.Weak);
+
+        if (bleed > 0)
+            removableEffects.Add(NegativeEffectType.Bleed);
+
+        if (imprison > 0)
+            removableEffects.Add(NegativeEffectType.Imprison);
+
+        if (removableEffects.Count == 0)
+            return false;
+
+        NegativeEffectType removedEffect = removableEffects[Random.Range(0, removableEffects.Count)];
+        RemoveNegativeEffect(removedEffect);
+        return true;
+    }
+
     public void ApplyWeakFromEnemy(int duration)
     {
         int storedDuration = GetStoredDebuffDuration(duration);
@@ -254,13 +283,28 @@ public class PlayerBuffController : MonoBehaviour
         public CardBase sourceCard;
         public int blockGain;
     }
+
+    private void RemoveNegativeEffect(NegativeEffectType effectType)
+    {
+        switch (effectType)
+        {
+            case NegativeEffectType.Weak:
+                weak = 0;
+                weakFromEnemies = 0;
+                break;
+            case NegativeEffectType.Bleed:
+                bleed = 0;
+                bleedFromEnemies = 0;
+                break;
+            case NegativeEffectType.Imprison:
+                imprison = 0;
+                imprisonFromEnemies = 0;
+                break;
+        }
+    }
+
     private static int GetStoredDebuffDuration(int duration)
     {
-        duration = Mathf.Max(0, duration);
-        if (duration > 0)
-        {
-            duration += 1;
-        }
-        return duration;
+        return Mathf.Max(0, duration);
     }
 }

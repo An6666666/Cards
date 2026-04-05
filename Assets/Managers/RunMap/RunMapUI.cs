@@ -17,6 +17,9 @@ public partial class RunMapUI : MonoBehaviour
     [Header("UI Panels")]
     [SerializeField] private GameObject legendPanel;
 
+    [Header("Relic UI")]
+    [SerializeField] private GameObject relicIconPrefab;
+
     [Header("Layout")]
     [SerializeField] private float floorSpacing = 200f;
     [SerializeField] private float nodeSpacing = 160f;
@@ -65,6 +68,8 @@ public partial class RunMapUI : MonoBehaviour
     private bool hasBuilt;
     private float builtMinY;
     private float builtMaxY;
+
+    public GameObject RelicIconPrefab => relicIconPrefab;
 
     private readonly struct ConnectionSegment
     {

@@ -68,6 +68,6 @@ public class Move_SuoDiChengCun : MovementCardBase
     public override void ExecuteOnPosition(Player player, Vector2Int targetGridPos)
     {
         // 使用瞬移流程，讓出牌動畫可分成消失/出現兩段。
-        player.BeginTeleportSequence(targetGridPos);
+        player.BeginTeleportSequence(targetGridPos, allowOccupiedTileRelic: true);
     }
 }

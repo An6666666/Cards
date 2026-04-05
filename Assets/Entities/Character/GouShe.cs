@@ -31,6 +31,8 @@ public class GouShe : Enemy, IEnemyCooldownProvider               // 鉤蛇怪�
     private EnemyElementStatusDisplay elementStatusDisplay;      //  新增：元素圖示控制元件的參考
     private bool initialWaterPrepared = false;                   // 是否已經建立過初始水域區域
 
+    public override bool SupportsSharedSquadTactics => false;
+
     protected override void Awake()
     {
         enemyName = "鉤蛇";          // 設定敵人名稱
@@ -89,7 +91,10 @@ public class GouShe : Enemy, IEnemyCooldownProvider               // 鉤蛇怪�
             {
                 return;
             }
-            MoveOneStepTowards(player); // 否則朝玩家移動一格
+            if (CanMoveThisTurn())
+            {
+                MoveOneStepTowards(player); // 否則朝玩家移動一格
+            }
         }
     }
 
@@ -135,7 +140,7 @@ public class GouShe : Enemy, IEnemyCooldownProvider               // 鉤蛇怪�
             nextIntent.type = EnemyIntentType.Attack;     // 顯示普通攻擊意圖
             nextIntent.value = CalculateAttackDamage();   // 顯示普通攻擊傷害
         }
-        else if (canMove)                      // 不在攻擊範圍，但可以移動
+        else if (CanMoveThisTurn())            // 不在攻擊範圍，但可以移動
         {
             nextIntent.type = EnemyIntentType.Move;       // 顯示移動意圖
             nextIntent.value = 0;
@@ -199,6 +204,11 @@ public class GouShe : Enemy, IEnemyCooldownProvider               // 鉤蛇怪�
     }
     private bool CanMoveToAdjacentWater()
     {
+        if (!CanMoveThisTurn())
+        {
+            return false;
+        }
+
         Board board = FindObjectOfType<Board>();
         if (board == null)
         {
@@ -229,6 +239,11 @@ public class GouShe : Enemy, IEnemyCooldownProvider               // 鉤蛇怪�
 
     private bool TryMoveOneStepTowardNearestWater(int maxSteps)
     {
+        if (!CanMoveThisTurn())
+        {
+            return false;
+        }
+
         if (IsOnWaterTile())
         {
             return false;

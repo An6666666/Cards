@@ -37,6 +37,8 @@ public class CardUI : MonoBehaviour
     private Transform canvasRoot;
     private Camera mainCamera;
     private DisplayContext displayContext = DisplayContext.Hand;
+    private BattleManager battleManager;
+    private int lastDisplayedCost = int.MinValue;
 
     private CardHoverEffect hoverEffect;
     private CardDragHandler dragHandler;
@@ -125,6 +127,11 @@ public class CardUI : MonoBehaviour
         infoTooltip?.Hide();
     }
 
+    private void LateUpdate()
+    {
+        RefreshDisplayedCostIfNeeded();
+    }
+
     private void CacheControllers()
     {
         hoverEffect = GetComponent<CardHoverEffect>();
@@ -145,9 +152,10 @@ public class CardUI : MonoBehaviour
     public void SetupCard(CardBase data)
     {
         cardData = data;
+        lastDisplayedCost = int.MinValue;
         if (cardImage != null && data != null && data.cardImage != null)
         cardImage.sprite = data.cardImage;
-        infoTooltip?.SetCardData(data);
+        RefreshDisplayedCostIfNeeded(force: true);
     }
 
     public void SetDisplayContext(DisplayContext context)
@@ -155,6 +163,33 @@ public class CardUI : MonoBehaviour
         displayContext = context;
         dragHandler?.SetDisplayContext(context);
         hoverEffect?.ResetHoverInstant();
+        RefreshDisplayedCostIfNeeded(force: true);
+    }
+
+    public int GetDisplayedCost()
+    {
+        if (cardData == null)
+        {
+            return 0;
+        }
+
+        if (displayContext != DisplayContext.Hand)
+        {
+            return Mathf.Max(0, cardData.cost);
+        }
+
+        BattleManager manager = ResolveBattleManager();
+        if (manager == null || manager.player == null || manager.player.Hand == null)
+        {
+            return Mathf.Max(0, cardData.cost);
+        }
+
+        if (!manager.player.Hand.Contains(cardData))
+        {
+            return Mathf.Max(0, cardData.cost);
+        }
+
+        return manager.CalculateCardEnergyCost(cardData);
     }
 
     public void ForceResetToHand(Transform newHandParent = null)
@@ -170,5 +205,44 @@ public class CardUI : MonoBehaviour
     public void PlayDrawAnimation(RectTransform deckOrigin, float? durationOverride = null, float? startScaleOverride = null, DG.Tweening.Ease? easeOverride = null)
     {
         animationController?.PlayDrawAnimation(deckOrigin, durationOverride, startScaleOverride, easeOverride);
+    }
+
+    private void RefreshDisplayedCostIfNeeded(bool force = false)
+    {
+        if (cardData == null)
+        {
+            if (force)
+            {
+                infoTooltip?.SetCardData(null);
+            }
+            return;
+        }
+
+        int displayedCost = GetDisplayedCost();
+        if (!force && displayedCost == lastDisplayedCost)
+        {
+            return;
+        }
+
+        lastDisplayedCost = displayedCost;
+        infoTooltip?.SetCardData(cardData);
+    }
+
+    private BattleManager ResolveBattleManager()
+    {
+        if (battleManager != null)
+        {
+            return battleManager;
+        }
+
+        BattleRuntimeContext activeContext = BattleRuntimeContext.Active;
+        if (activeContext != null && activeContext.Manager != null)
+        {
+            battleManager = activeContext.Manager;
+            return battleManager;
+        }
+
+        battleManager = FindObjectOfType<BattleManager>();
+        return battleManager;
     }
 }

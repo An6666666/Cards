@@ -51,6 +51,18 @@ public class PlayerStats : MonoBehaviour
         RaiseEnergyChanged();
     }
 
+    public void GainEnergy(int amount)
+    {
+        amount = Mathf.Max(0, amount);
+        if (amount <= 0)
+        {
+            return;
+        }
+
+        energy += amount;
+        RaiseEnergyChanged();
+    }
+
     public int CalculateAttackDamage(int baseDamage)
     {
         int dmg = baseDamage + buffController.nextAttackPlus + buffController.nextTurnAllAttackPlus;
@@ -63,15 +75,12 @@ public class PlayerStats : MonoBehaviour
         return dmg;
     }
 
-    public void AddBlock(int amount, List<CardBase> relics)
+    public void AddBlock(int amount, List<RelicBase> relics)
     {
         block = Mathf.Max(0, block + amount);
-        foreach (CardBase r in relics)
+        foreach (RelicBase relic in relics)
         {
-            if (r is Relic_ZiDianJiao z)
-            {
-                z.OnAddBlock(owner, amount);
-            }
+            relic?.OnAddBlock(owner, amount);
         }
 
         NotifyBlockChanged();

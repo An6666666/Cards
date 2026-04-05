@@ -43,8 +43,9 @@ public class Attack_TianJiShenSuan : AttackCardBase
         if (enemy == null) return;
 
         ElementType element = Element;
-        int appliedDamage = enemy.ApplyElementalAttack(element, damage, player);
-        enemy.TakeDamage(appliedDamage);
+        int totalDamage = GetDamageWithRelicBonus(player, enemy, damage);
+        int appliedDamage = enemy.ApplyElementalAttack(element, totalDamage, player);
+        DealDamageAndNotify(player, enemy, appliedDamage);
 
         if (hitEffectPrefab != null)
         {

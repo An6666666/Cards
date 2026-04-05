@@ -37,6 +37,9 @@ public class BattleManager : MonoBehaviour
     public Transform handPanel;
     public Transform deckPile;
     public Transform discardPile;
+    [Header("Relics UI")]
+    [SerializeField] private GameObject relicUIPrefab;
+    [SerializeField] private Transform relicUIParent;
     public Text energyText;
     [SerializeField] private Button endTurnButton;
     [Header("Battle Phase Hint")]
@@ -98,6 +101,8 @@ public class BattleManager : MonoBehaviour
     private BattleRuntimeContext runtimeContext;
     private IEnemyQueryService enemyQueryService;
     private PlayerDeckController playerDeckController;
+    private readonly List<GameObject> spawnedRelicUiObjects = new List<GameObject>();
+    private RunManager runManager;
     private Coroutine phaseHintCoroutine;
     private CanvasGroup phaseHintLegacyTextCanvasGroup;
     private CanvasGroup phaseHintTmpTextCanvasGroup;
@@ -120,6 +125,7 @@ public class BattleManager : MonoBehaviour
 
     void Awake()
     {
+        runManager = RunManager.Instance;
         ResolveTutorialController();
 
         EnsurePhaseHintText();
@@ -166,6 +172,8 @@ public class BattleManager : MonoBehaviour
     }
     void Start()
     {
+        SubscribeRunSnapshot();
+        RefreshRelicUI();
         StartCoroutine(encounterLoader.GameStartRoutine());
 
     }
@@ -253,6 +261,11 @@ public class BattleManager : MonoBehaviour
 
     public bool OnEnemyClicked(Enemy e)
     {
+        if (movementSelectionController != null && movementSelectionController.OnEnemyClicked(e))
+        {
+            return true;
+        }
+
         return attackSelectionController.OnEnemyClicked(e);
 
     }
@@ -294,7 +307,7 @@ public class BattleManager : MonoBehaviour
         return true;
     }
 
-    private int CalculateCardEnergyCost(CardBase cardData)
+    public int CalculateCardEnergyCost(CardBase cardData)
     {
         if (cardData == null || player == null)
         {
@@ -319,6 +332,11 @@ public class BattleManager : MonoBehaviour
     public void OnEnemyDefeated(Enemy e)
     {
         rewardController.OnEnemyDefeated(e);
+
+        if (player != null && e != null && stateMachine.Current is PlayerTurnState)
+        {
+            player.NotifyEnemyDefeated(e);
+        }
 
     }
 
@@ -371,6 +389,7 @@ public class BattleManager : MonoBehaviour
         }
 
         PlayNonAttackCardAnimation(cardData);
+        player.NotifyCardPlayStarted(cardData);
         cardData.ExecuteEffect(player, target);
 
         List<ElementType> targetElementsAfter = null;
@@ -421,8 +440,9 @@ public class BattleManager : MonoBehaviour
         GameEvents.RaiseCardPlayed(cardData);
         GameEvents.RaiseCardPlayedWithContext(
         new CardPlayContext(cardData, target, targetElementsBefore, targetElementsAfter));
+        player.NotifyCardPlayed(cardData);
         if (removedFromHand)
-        handUIController.UpdateHandMetaUI();
+        handUIController.RefreshHandUI(false);
         return true;
     }
 
@@ -470,6 +490,11 @@ public class BattleManager : MonoBehaviour
     {
         handUIController.RefreshHandUI(playDrawAnimation);
 
+    }
+
+    public void RefreshHandMetaUI()
+    {
+        handUIController?.UpdateHandMetaUI();
     }
 
     public void ShowBattlePhaseHint(string message, float duration = -1f, bool showCentralHint = true)
@@ -761,6 +786,8 @@ public class BattleManager : MonoBehaviour
 
     private void OnDestroy()
     {
+        UnsubscribeRunSnapshot();
+
         // 解除事件綁定與 runtime context，避免場景切換後殘留參考。
         runtimeContext?.DeactivateIfOwner(this);
 
@@ -778,6 +805,91 @@ public class BattleManager : MonoBehaviour
                 playerDeckController.ClearBattleRuntime(this);
             }
         }
+    }
+
+    public void RefreshRelicUI()
+    {
+        ClearSpawnedRelicUI();
+
+        if (relicUIPrefab == null || relicUIParent == null)
+            return;
+
+        IReadOnlyList<RelicBase> relics = ResolveBattleRelics();
+        if (relics == null)
+            return;
+
+        for (int i = 0; i < relics.Count; i++)
+        {
+            RelicBase relic = relics[i];
+            if (relic == null)
+                continue;
+
+            GameObject relicUiObject = Instantiate(relicUIPrefab, relicUIParent, false);
+            ApplyRelicUIData(relicUiObject, relic);
+            spawnedRelicUiObjects.Add(relicUiObject);
+        }
+    }
+
+    private void ApplyRelicUIData(GameObject relicUiObject, RelicBase relic)
+    {
+        if (relicUiObject == null)
+            return;
+
+        BattleRelicUIItem itemView = relicUiObject.GetComponent<BattleRelicUIItem>() ??
+                                     relicUiObject.GetComponentInChildren<BattleRelicUIItem>(true);
+        if (itemView != null)
+        {
+            itemView.Bind(relic);
+            return;
+        }
+
+        itemView = relicUiObject.AddComponent<BattleRelicUIItem>();
+        itemView.Bind(relic);
+    }
+
+    private IReadOnlyList<RelicBase> ResolveBattleRelics()
+    {
+        if (player != null && player.relics != null)
+            return player.relics;
+
+        return runManager?.CurrentRunSnapshot?.relics;
+    }
+
+    private void ClearSpawnedRelicUI()
+    {
+        for (int i = 0; i < spawnedRelicUiObjects.Count; i++)
+        {
+            GameObject relicUiObject = spawnedRelicUiObjects[i];
+            if (relicUiObject != null)
+                Destroy(relicUiObject);
+        }
+
+        spawnedRelicUiObjects.Clear();
+    }
+
+    private void SubscribeRunSnapshot()
+    {
+        if (runManager == null)
+            runManager = RunManager.Instance;
+
+        if (runManager == null)
+            return;
+
+        runManager.RunSnapshotChanged -= HandleRunSnapshotChanged;
+        runManager.RunSnapshotChanged += HandleRunSnapshotChanged;
+    }
+
+    private void UnsubscribeRunSnapshot()
+    {
+        if (runManager == null)
+            return;
+
+        runManager.RunSnapshotChanged -= HandleRunSnapshotChanged;
+    }
+
+    private void HandleRunSnapshotChanged(PlayerRunSnapshot snapshot)
+    {
+        RefreshRelicUI();
     }
 
     private void EnsurePhaseHintText()

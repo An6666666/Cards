@@ -74,7 +74,7 @@ public class PlayerDeckController : MonoBehaviour
         }
 #endif
 
-        deck = selectedDeck != null ? new List<CardBase>(selectedDeck) : new List<CardBase>();
+        deck = CloneCardsForRuntime(selectedDeck);
         hand.Clear();
         discardPile.Clear();
         exhaustPile.Clear();
@@ -179,7 +179,7 @@ public class PlayerDeckController : MonoBehaviour
         NotifyHandChanged();
     }
 
-    public void DiscardCards(int n, List<CardBase> relics)
+    public void DiscardCards(int n, List<RelicBase> relics)
     {
         if (hand.Count < n) n = hand.Count;
         BattleManager manager = GetBattleManager();
@@ -198,12 +198,9 @@ public class PlayerDeckController : MonoBehaviour
         }
         if (actualDiscarded > 0)
         {
-            foreach (CardBase r in relics)
+            foreach (RelicBase relic in relics)
             {
-                if (r is Relic_LunHuiZhuJian zhujian)
-                {
-                    zhujian.OnPlayerDiscard(owner, actualDiscarded);
-                }
+                relic?.OnPlayerDiscard(owner, actualDiscarded);
             }
 
             NotifyHandChanged();
@@ -211,19 +208,16 @@ public class PlayerDeckController : MonoBehaviour
         }
     }
 
-    public bool DiscardOneCard(List<CardBase> relics)
+    public bool DiscardOneCard(List<RelicBase> relics)
     {
         BattleManager manager = GetBattleManager();
         if (!TryRemoveDiscardableCardFromHand(manager, false, out CardBase c))
             return false;
         discardPile.Add(c);
 
-        foreach (CardBase r in relics)
+        foreach (RelicBase relic in relics)
         {
-            if (r is Relic_LunHuiZhuJian zhujian)
-            {
-                zhujian.OnPlayerDiscard(owner, 1);
-            }
+            relic?.OnPlayerDiscard(owner, 1);
         }
 
         NotifyHandChanged();
@@ -231,7 +225,7 @@ public class PlayerDeckController : MonoBehaviour
         return true;
     }
 
-    public bool DiscardRandomCard(List<CardBase> relics, bool triggerRelic = true)
+    public bool DiscardRandomCard(List<RelicBase> relics, bool triggerRelic = true)
     {
         BattleManager manager = GetBattleManager();
         if (!TryRemoveDiscardableCardFromHand(manager, true, out CardBase c))
@@ -243,12 +237,9 @@ public class PlayerDeckController : MonoBehaviour
 
         if (triggerRelic)
         {
-            foreach (CardBase r in relics)
+            foreach (RelicBase relic in relics)
             {
-                if (r is Relic_LunHuiZhuJian zhujian)
-                {
-                    zhujian.OnPlayerDiscard(owner, 1);
-                }
+                relic?.OnPlayerDiscard(owner, 1);
             }
         }
 
@@ -297,13 +288,20 @@ public class PlayerDeckController : MonoBehaviour
             return;
         }
 
+        bool addedToExhaustPile = false;
         if (!exhaustPile.Contains(card))
         {
             exhaustPile.Add(card);
+            addedToExhaustPile = true;
         }
 
         exhaustCountThisTurn++;
         NotifyDeckChanged();
+
+        if (addedToExhaustPile)
+        {
+            owner?.NotifyCardExhausted(card);
+        }
     }
 
     public bool CheckExhaustPlan()
@@ -415,6 +413,27 @@ public class PlayerDeckController : MonoBehaviour
     private void NotifyDeckChanged()
     {
         DeckChanged?.Invoke();
+    }
+
+    private static List<CardBase> CloneCardsForRuntime(IEnumerable<CardBase> source)
+    {
+        List<CardBase> result = new List<CardBase>();
+        if (source == null)
+        {
+            return result;
+        }
+
+        foreach (CardBase card in source)
+        {
+            if (card == null)
+            {
+                continue;
+            }
+
+            result.Add(UnityEngine.Object.Instantiate(card));
+        }
+
+        return result;
     }
 
     private bool TryRemoveDiscardableCardFromHand(BattleManager manager, bool randomIndex, out CardBase removedCard, CardBase excludedCard = null)

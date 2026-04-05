@@ -164,6 +164,7 @@ public class AttackSelectionController
             contextTarget = target;
             FaceUtils.Face(player.gameObject, target.transform);
             targetElementsBefore = new List<ElementType>(target.GetElementTags());
+            player.NotifyCardPlayStarted(execution.Card);
             execution.Card.ExecuteEffect(player, target);
             player.PlayAttackHitShake();
             targetElementsAfter = new List<ElementType>(target.GetElementTags());
@@ -172,9 +173,10 @@ public class AttackSelectionController
         GameEvents.RaiseCardPlayed(execution.Card);
         GameEvents.RaiseCardPlayedWithContext(
             new CardPlayContext(execution.Card, contextTarget, targetElementsBefore, targetElementsAfter));
+        player.NotifyCardPlayed(execution.Card);
 
         ConsumeCardAndEnergy(execution.Card, execution.LockedCost);
-        handUIController.UpdateHandMetaUI();
+        handUIController.RefreshHandUI(false);
 
         isResolvingAttack = false;
     }

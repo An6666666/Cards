@@ -3,6 +3,8 @@ using UnityEngine;
 
 public class DiNiu : Enemy
 {
+    public override bool SupportsSharedSquadTactics => false;
+
     [Header("Di Niu Settings")]
     [SerializeField] private int sleepDuration = 3;
     [SerializeField] private int fixedDamage = 1;

@@ -34,14 +34,7 @@ public partial class ShopUIManager
         {
             var relic = availableRelics[i];
             int price = GetRelicPrice(relic);
-
-            CreateOfferEntry(
-                removalEntryTemplate,
-                relicListParent,
-                relic.cardName,
-                price,
-                relic.description,
-                () => PurchaseRelic(relic, price));
+            CreateRelicOffer(relic, price);
         }
 
         UpdatePageUI(pageRelics, pageWindow.PageCount);
@@ -101,16 +94,20 @@ public partial class ShopUIManager
         if (inventory == null)
             return;
 
-        availableCards.AddRange(RunCardPoolSelector.GetShopChoices(inventory.PurchasableCards, inventory.CardOfferCount));
+        availableCards.AddRange(RunCardPoolSelector.GetShopChoices(
+            inventory.PurchasableCards,
+            inventory.AttackCardOfferCount,
+            inventory.SkillCardOfferCount,
+            inventory.MovementCardOfferCount));
         AddRandomSelections(inventory.PurchasableRelics, inventory.RelicOfferCount, availableRelics);
 
         offersGenerated = true;
         RefreshCurrentTabPage();
     }
 
-    private void AddRandomSelections(IReadOnlyList<CardBase> source, int desiredCount, List<CardBase> target)
+    private void AddRandomSelections(IReadOnlyList<RelicBase> source, int desiredCount, List<RelicBase> target)
     {
-        var pool = source?.Where(card => card != null).ToList();
+        var pool = source?.Where(relic => relic != null).ToList();
         if (pool == null || pool.Count == 0)
             return;
 
@@ -182,6 +179,69 @@ public partial class ShopUIManager
         button.onClick.AddListener(() => PurchaseCard(card, price));
     }
 
+    private void CreateRelicOffer(RelicBase relic, int price)
+    {
+        if (relic == null || relicListParent == null)
+            return;
+
+        GameObject template = relicOfferTemplate != null ? relicOfferTemplate : cardOfferTemplate;
+        if (template == null)
+            return;
+
+        GameObject entry = Instantiate(template, relicListParent);
+        entry.name = relic.cardName;
+        entry.SetActive(true);
+
+        Transform visualContainer = FindOfferVisualContainer(entry.transform);
+        Transform iconExcludeRoot = null;
+        Graphic buttonTargetGraphic = null;
+
+        if (relicIconPrefab != null)
+        {
+            Transform parent = visualContainer != null ? visualContainer : entry.transform;
+            GameObject relicObject = Instantiate(relicIconPrefab, parent, false);
+            relicObject.name = $"RelicUI_{relic.cardName}";
+            relicObject.SetActive(true);
+
+            ConfigureShopRelicInstance(entry, relicObject);
+
+            BattleRelicUIItem relicUiItem = relicObject.GetComponent<BattleRelicUIItem>() ??
+                                            relicObject.GetComponentInChildren<BattleRelicUIItem>(true);
+
+            if (relicUiItem != null)
+                relicUiItem.Bind(relic);
+            else
+                ApplyShopRelicPrefabIcon(relicObject, relic.cardImage);
+
+            iconExcludeRoot = relicObject.transform;
+            buttonTargetGraphic = FindOfferIconImage(relicObject);
+        }
+        else
+        {
+            buttonTargetGraphic = ApplyShopRelicOfferIcon(entry, relic.cardImage);
+        }
+
+        ApplyOfferTexts(
+            entry,
+            relic.cardName,
+            price,
+            relic.description,
+            iconExcludeRoot);
+
+        Button button = entry.GetComponent<Button>() ?? entry.GetComponentInChildren<Button>(true);
+        if (button == null)
+        {
+            button = entry.AddComponent<Button>();
+        }
+
+        if (button == null)
+            return;
+
+        button.targetGraphic = buttonTargetGraphic;
+        button.onClick.RemoveAllListeners();
+        button.onClick.AddListener(() => PurchaseRelic(relic, price));
+    }
+
     private void CreateRemovalEntry(CardBase card, int price, int cardIndex)
     {
         if (card == null || removalEntryTemplate == null || removalListParent == null)
@@ -240,7 +300,7 @@ public partial class ShopUIManager
         SyncRunState();
     }
 
-    private void PurchaseRelic(CardBase relic, int price)
+    private void PurchaseRelic(RelicBase relic, int price)
     {
         if (IsShopInteractionBlockedByTutorial())
             return;

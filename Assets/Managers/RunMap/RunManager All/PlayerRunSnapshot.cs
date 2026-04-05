@@ -10,7 +10,7 @@ public class PlayerRunSnapshot
     public int currentHP;
     public int gold;
     public List<CardBase> deck;
-    public List<CardBase> relics;
+    public List<RelicBase> relics;
     public List<CardBase> exhaustPile;
 
     public static PlayerRunSnapshot Capture(Player source)
@@ -19,7 +19,7 @@ public class PlayerRunSnapshot
             return new PlayerRunSnapshot
             {
                 deck = new List<CardBase>(),
-                relics = new List<CardBase>()
+                relics = new List<RelicBase>()
             };
 
         List<CardBase> mergedDeck = new List<CardBase>();
@@ -42,7 +42,7 @@ public class PlayerRunSnapshot
             gold = source.gold,
             deck = mergedDeck,
             
-            relics = source.relics != null ? new List<CardBase>(source.relics.Where(card => card != null)) : new List<CardBase>(),
+            relics = source.relics != null ? new List<RelicBase>(source.relics.Where(relic => relic != null)) : new List<RelicBase>(),
             exhaustPile = source.exhaustPile != null ? new List<CardBase>(source.exhaustPile.Where(card => card != null)) : new List<CardBase>()
         };
     }
@@ -55,7 +55,7 @@ public class PlayerRunSnapshot
             currentHP = this.currentHP,
             gold = this.gold,
             deck = this.deck != null ? new List<CardBase>(this.deck) : new List<CardBase>(),
-            relics = this.relics != null ? new List<CardBase>(this.relics) : new List<CardBase>(),
+            relics = this.relics != null ? new List<RelicBase>(this.relics) : new List<RelicBase>(),
             exhaustPile = this.exhaustPile != null ? new List<CardBase>(this.exhaustPile) : new List<CardBase>()
         };
     }
@@ -69,7 +69,7 @@ public class PlayerRunSnapshot
         target.currentHP = Mathf.Clamp(currentHP, 0, maxHP);
         target.gold = gold;
         target.deck = deck != null ? new List<CardBase>(deck) : new List<CardBase>();
-        target.relics = relics != null ? new List<CardBase>(relics) : new List<CardBase>();
+        target.relics = relics != null ? new List<RelicBase>(relics) : new List<RelicBase>();
 
         target.discardPile.Clear();
         target.Hand.Clear();

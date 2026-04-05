@@ -15,7 +15,7 @@ MonoBehaviour:
   cardName: "\u9748\u5DE7\u7A7F\u523A\u706B"
   cost: 1
   description: "\u706B\u5143\u7D205\u9EDE\u55AE\u9AD4\u50B7\u5BB3\uFF0C\u7372\u5F974\u9EDE\u8B77\u7532"
-  cardImage: {fileID: 21300000, guid: c4c2afc2dab0f494789df421a904cbc0, type: 3}
+  cardImage: {fileID: 21300000, guid: c32c78fa47ec4204891fb1d27f7375b3, type: 3}
   exhaustOnUse: 0
   shopPrice: 8
   cardType: 0

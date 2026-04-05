@@ -13,6 +13,7 @@ public sealed class BattleRuntimeContext
     public Player Player { get; }
     public Board Board { get; }
     public IReadOnlyList<Enemy> Enemies => enemies;
+    public EnemySquadCoordinator SquadCoordinator { get; }
 
     private readonly List<Enemy> enemies;
 
@@ -22,6 +23,7 @@ public sealed class BattleRuntimeContext
         Player = player;
         Board = board;
         this.enemies = enemies ?? new List<Enemy>();
+        SquadCoordinator = new EnemySquadCoordinator(this);
     }
 
     public void Activate()
@@ -42,4 +44,3 @@ public sealed class BattleRuntimeContext
         return enemy != null && enemy.currentHP > 0 && !enemy.IsDead;
     }
 }
-

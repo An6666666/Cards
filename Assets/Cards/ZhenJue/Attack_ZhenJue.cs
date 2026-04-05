@@ -49,8 +49,9 @@ public class Attack_ZhenJue : AttackCardBase
             totalDamage += bonusDamageWithArmor;
         }
 
+        totalDamage = GetDamageWithRelicBonus(player, enemy, totalDamage);
         int damage = enemy.ApplyElementalAttack(element, totalDamage, player);
-        enemy.TakeDamage(damage);
+        DealDamageAndNotify(player, enemy, damage);
 
         if (hitEffectPrefab != null)
         {

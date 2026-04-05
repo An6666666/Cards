@@ -1697,6 +1697,87 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 801418878}
   m_CullTransparentMesh: 1
+--- !u!1 &823852659
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 823852660}
+  - component: {fileID: 823852662}
+  - component: {fileID: 823852661}
+  m_Layer: 5
+  m_Name: Relics
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &823852660
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 823852659}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 4.8525, y: 4.8525, z: 4.8525}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 2121037502}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: -872, y: 432.5}
+  m_SizeDelta: {x: 36.9, y: 21.5}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &823852661
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 823852659}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f3a72480e4904bffb3764f68d58d422e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  contentRoot: {fileID: 823852660}
+  relicIconPrefab: {fileID: 1783318111576351439, guid: 08c15e7ff11ec82489c2496245076eb5, type: 3}
+  hideContentRootWhenEmpty: 0
+  createContentRootIfMissing: 1
+  autoContentSize: {x: 40, y: 20}
+  autoContentScale: {x: 4.8525, y: 4.8525, z: 4.8525}
+  autoCellSize: {x: 10, y: 10}
+  autoSpacing: {x: -23.8, y: -42.05}
+--- !u!114 &823852662
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 823852659}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8a8695521f0d02e499659fee002a26c2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Padding:
+    m_Left: 0
+    m_Right: 0
+    m_Top: 0
+    m_Bottom: 0
+  m_ChildAlignment: 2
+  m_StartCorner: 1
+  m_StartAxis: 0
+  m_CellSize: {x: 20, y: 20}
+  m_Spacing: {x: -43.27, y: -42.05}
+  m_Constraint: 2
+  m_ConstraintCount: 1
 --- !u!1 &831877678
 GameObject:
   m_ObjectHideFlags: 0
@@ -2369,6 +2450,7 @@ MonoBehaviour:
   uiText: {fileID: 993795118}
   tmpText: {fileID: 0}
   dialogueBubbleUI: {fileID: 976569382}
+  guideNPCPresenter: {fileID: 0}
   restoreDefaultWhenMessageHidden: 1
   textChangeSettleSeconds: 0.1
   randomSprites:
@@ -3259,6 +3341,7 @@ MonoBehaviour:
   viewport: {fileID: 353235554}
   bgRect: {fileID: 861074493}
   legendPanel: {fileID: 69363365}
+  relicIconPrefab: {fileID: 0}
   floorSpacing: 200
   nodeSpacing: 250
   connectionThickness: 8
@@ -3276,6 +3359,7 @@ MonoBehaviour:
   connectionAnchorJitter: 20
   topPadding: 0
   bottomPadding: 100
+  focusedNodeViewportY: 0.5
   defaultColor: {r: 0.3764706, g: 0.6313726, b: 0.6156863, a: 1}
   completedColor: {r: 0.2, g: 0.2, b: 0.2, a: 1}
   currentColor: {r: 1, g: 0.6431373, b: 0.20392157, a: 1}
@@ -4036,6 +4120,7 @@ RectTransform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 48822646}
+  - {fileID: 823852660}
   - {fileID: 1731840767}
   - {fileID: 69363366}
   - {fileID: 1019978389}

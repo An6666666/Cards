@@ -20,6 +20,8 @@ public partial class ShopUIManager : MonoBehaviour
 
     [SerializeField] private GameObject cardOfferTemplate;
     [SerializeField] private GameObject cardPrefab;
+    [SerializeField] private GameObject relicOfferTemplate;
+    [SerializeField] private GameObject relicIconPrefab;
     [SerializeField] private Transform cardListParent;
     [SerializeField] private Transform relicListParent;
     [SerializeField] private Transform removalListParent;
@@ -33,7 +35,7 @@ public partial class ShopUIManager : MonoBehaviour
     private ShopInventoryDefinition inventory;
 
     private readonly List<CardBase> availableCards = new();
-    private readonly List<CardBase> availableRelics = new();
+    private readonly List<RelicBase> availableRelics = new();
     private bool offersGenerated;
 
     private const int BaseCardPrice = 50;
@@ -67,6 +69,8 @@ public partial class ShopUIManager : MonoBehaviour
     private int pageCards;
     private int pageRelics;
     private int pageRemoval;
+
+    public GameObject RelicIconPrefab => relicIconPrefab;
 
     public enum ShopTab
     {
@@ -217,7 +221,7 @@ public partial class ShopUIManager : MonoBehaviour
         return Mathf.Max(BaseCardPrice, card.cost * 25);
     }
 
-    private int GetRelicPrice(CardBase relic)
+    private int GetRelicPrice(RelicBase relic)
     {
         if (relic == null)
             return BaseRelicPrice;
@@ -225,7 +229,7 @@ public partial class ShopUIManager : MonoBehaviour
         if (relic.shopPrice > 0)
             return relic.shopPrice;
 
-        return Mathf.Max(BaseRelicPrice, 100 + relic.cost * 10);
+        return BaseRelicPrice;
     }
 
     private void HideTemplates()
@@ -235,6 +239,9 @@ public partial class ShopUIManager : MonoBehaviour
 
         if (cardOfferTemplate != null)
             cardOfferTemplate.SetActive(false);
+
+        if (relicOfferTemplate != null)
+            relicOfferTemplate.SetActive(false);
     }
 
     private void UpdateShopTitle()

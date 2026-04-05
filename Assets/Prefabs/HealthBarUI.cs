@@ -12,6 +12,7 @@ public class HealthBarUI : MonoBehaviour
     [Header("UI")]
     public GameObject hp_fill;      // 指向 Fill
     public Text hpText;             // 顯示血量文字（可選）
+    public Text maxHpText;          // 額外同步顯示最大血量的文字
 
     [Header("數字貼圖（可選）")]
     [Tooltip("若指定 Sprites 將用精靈數字顯示血量(優先於文字）。")]
@@ -82,11 +83,16 @@ public class HealthBarUI : MonoBehaviour
         }
         
         string hpString = $"{current}";
-        if (TryUpdateDigitSprites(hpString)) return;
+        bool usedDigitSprites = TryUpdateDigitSprites(hpString);
 
-        if (hpText != null)
+        if (!usedDigitSprites && hpText != null)
         {
             hpText.text = hpString;
+        }
+
+        if (maxHpText != null)
+        {
+            maxHpText.text = $"{max}";
         }
     }
 

@@ -33,10 +33,12 @@ public abstract class Attack_JiJiRuLvLing : AttackCardBase
         if (enemy == null) return;
 
         ElementType element = Element;
-        int damage = enemy.ApplyElementalAttack(element, baseDamage, player);
-        enemy.TakeDamage(damage);
+        int bonusDamage = player != null ? player.GetAdditionalCardDamage(this, enemy) : 0;
+        int totalBaseDamage = Mathf.Max(0, baseDamage + bonusDamage);
+        int damage = enemy.ApplyElementalAttack(element, totalBaseDamage, player);
+        int hpDamage = DealDamageAndNotify(player, enemy, damage);
 
-        OnAfterDamage(player, enemy, element, damage);
+        OnAfterDamage(player, enemy, element, hpDamage);
 
         GameObject effectPrefab = EffectPrefab;
         if (effectPrefab != null)

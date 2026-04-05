@@ -52,8 +52,9 @@ public class Attack_PoXie : AttackCardBase, IAreaTargetingCard
                 continue;
             }
 
-            int elementalDamage = target.ApplyElementalAttack(element, calculatedDamage, player);
-            target.TakeTrueDamage(elementalDamage);
+            int totalDamage = Mathf.Max(0, calculatedDamage + GetRelicBonusDamage(player, target));
+            int elementalDamage = target.ApplyElementalAttack(element, totalDamage, player);
+            DealDamageAndNotify(player, target, elementalDamage, useTrueDamage: true);
 
             if (hitEffectPrefab != null)
             {

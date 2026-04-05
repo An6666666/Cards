@@ -22,7 +22,7 @@ public class Move_YiDong : MovementCardBase
     public override void ExecuteOnPosition(Player player, Vector2Int targetGridPos)
     {
         // === 實際移動玩家到 targetGridPos（與原檔一致：不在此做距離或阻擋判定） ===
-        player.MoveToPosition(targetGridPos);
+        player.MoveToPosition(targetGridPos, allowOccupiedTileRelic: true);
 
     }
 }

@@ -62,44 +62,12 @@ public class EnemyIntentController : MonoBehaviour
 
     public void DecideNextIntent(Player player)
     {
-        if (enemy == null) return;
-        if (player == null)
+        if (enemy == null)
         {
-            UpdateIntentIcon();
-            CacheStatusCounters();
             return;
         }
 
-        if (enemy.frozenTurns > 0)
-        {
-            enemy.nextIntent.type = EnemyIntentType.Idle;
-            enemy.nextIntent.value = 0;
-            UpdateIntentIcon();
-            CacheStatusCounters();
-            return;
-        }
-
-        if (enemy.Movement.IsPlayerInRange(player))
-        {
-            enemy.nextIntent.type = EnemyIntentType.Attack;
-            enemy.nextIntent.value = enemy.CalculateAttackDamage();
-            UpdateIntentIcon();
-            CacheStatusCounters();
-            return;
-        }
-
-        if (enemy.canMove)
-        {
-            enemy.nextIntent.type = EnemyIntentType.Move;
-            enemy.nextIntent.value = 0;
-        }
-        else
-        {
-            enemy.nextIntent.type = EnemyIntentType.Idle;
-            enemy.nextIntent.value = 0;
-        }
-
-        UpdateIntentIcon();
+        enemy.DecideNextIntent(player);
         CacheStatusCounters();
     }
 

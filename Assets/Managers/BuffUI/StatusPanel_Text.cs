@@ -21,11 +21,14 @@ public class StatusPanel_Text : MonoBehaviour
     private bool refreshQueued;
     private int lastKnownBurningTurns;
     private int lastKnownFrozenTurns;
+    private int lastKnownImmobilizedTurns;
     private int lastKnownChargedCount;
     private int lastKnownFrostStacks;
+    private CanvasGroup canvasGroup;
 
     private void Awake()
     {
+        EnsurePointerPassthrough();
         Hide(); // 一開始先隱藏，等 hover 再顯示
     }
 
@@ -127,6 +130,7 @@ public class StatusPanel_Text : MonoBehaviour
         {
             AddIntEffect(negative, "燃燒", enemy.burningTurns);
             AddIntEffect(negative, "冰凍", enemy.frozenTurns);
+            AddIntEffect(negative, "束縛", enemy.immobilizedTurns);
             AddIntEffect(negative, "雷擊", enemy.chargedCount);
             AddIntEffect(negative, "結霜", enemy.frostStacks);
         }
@@ -141,6 +145,7 @@ public class StatusPanel_Text : MonoBehaviour
         {
             lastKnownBurningTurns = enemy.burningTurns;
             lastKnownFrozenTurns = enemy.frozenTurns;
+            lastKnownImmobilizedTurns = enemy.immobilizedTurns;
             lastKnownChargedCount = enemy.chargedCount;
             lastKnownFrostStacks = enemy.frostStacks;
         }
@@ -148,12 +153,40 @@ public class StatusPanel_Text : MonoBehaviour
 
     private void Show()
     {
+        EnsurePointerPassthrough();
         gameObject.SetActive(true);
     }
 
     private void Hide()
     {
         gameObject.SetActive(false);
+    }
+
+    private void EnsurePointerPassthrough()
+    {
+        if (canvasGroup == null)
+        {
+            canvasGroup = GetComponent<CanvasGroup>();
+            if (canvasGroup == null)
+            {
+                canvasGroup = gameObject.AddComponent<CanvasGroup>();
+            }
+        }
+
+        canvasGroup.interactable = false;
+        canvasGroup.blocksRaycasts = false;
+
+        Graphic[] graphics = GetComponentsInChildren<Graphic>(true);
+        for (int i = 0; i < graphics.Length; i++)
+        {
+            Graphic graphic = graphics[i];
+            if (graphic == null)
+            {
+                continue;
+            }
+
+            graphic.raycastTarget = false;
+        }
     }
 
     public void SetTarget(GameObject target)
@@ -184,6 +217,7 @@ public class StatusPanel_Text : MonoBehaviour
         {
             lastKnownBurningTurns = enemy.burningTurns;
             lastKnownFrozenTurns = enemy.frozenTurns;
+            lastKnownImmobilizedTurns = enemy.immobilizedTurns;
             lastKnownChargedCount = enemy.chargedCount;
             lastKnownFrostStacks = enemy.frostStacks;
         }
@@ -215,6 +249,7 @@ public class StatusPanel_Text : MonoBehaviour
         refreshQueued = false;
         lastKnownBurningTurns = 0;
         lastKnownFrozenTurns = 0;
+        lastKnownImmobilizedTurns = 0;
         lastKnownChargedCount = 0;
         lastKnownFrostStacks = 0;
 

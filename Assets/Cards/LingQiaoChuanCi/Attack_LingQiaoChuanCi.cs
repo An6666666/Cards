@@ -36,8 +36,9 @@ public class Attack_LingQiaoChuanCi : AttackCardBase
         if (enemy == null) return;
 
         ElementType element = Element;
-        int dmg = enemy.ApplyElementalAttack(element, damage, player);
-        enemy.TakeDamage(dmg);
+        int totalDamage = GetDamageWithRelicBonus(player, enemy, damage);
+        int dmg = enemy.ApplyElementalAttack(element, totalDamage, player);
+        DealDamageAndNotify(player, enemy, dmg);
 
         if (hitEffectPrefab != null)
         {

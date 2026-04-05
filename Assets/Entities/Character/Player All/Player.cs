@@ -13,7 +13,7 @@ public class Player : MonoBehaviour
     [Header("Visual")]
     [SerializeField] private Transform visualRoot;
 
-    public List<CardBase> relics = new List<CardBase>();
+    public List<RelicBase> relics = new List<RelicBase>();
 
     private PlayerStats stats;
     private PlayerDeckController deckController;
@@ -26,6 +26,7 @@ public class Player : MonoBehaviour
     private PlayerLowHpFeedbackController lowHpFeedbackCtrl;
     private bool hasPendingTeleport;
     private Vector2Int pendingTeleportTarget;
+    private bool pendingTeleportAllowsOccupiedTileRelic;
 
     private PlayerStats Stats => stats ??= GetComponent<PlayerStats>();
     private PlayerDeckController DeckController => deckController ??= GetComponent<PlayerDeckController>();
@@ -98,6 +99,8 @@ public class Player : MonoBehaviour
 
     private void Awake()
     {
+        relics = InstantiateRelicCopies(relics);
+
         stats = GetComponent<PlayerStats>();
         deckController = GetComponent<PlayerDeckController>();
         movement = GetComponent<PlayerMovement>();
@@ -120,10 +123,33 @@ public class Player : MonoBehaviour
         RefreshLowHpFeedback();
     }
 
-    public void BeginTeleportSequence(Vector2Int targetGridPos)
+    private static List<RelicBase> InstantiateRelicCopies(List<RelicBase> sourceRelics)
+    {
+        if (sourceRelics == null || sourceRelics.Count == 0)
+        {
+            return new List<RelicBase>();
+        }
+
+        List<RelicBase> instantiatedRelics = new List<RelicBase>(sourceRelics.Count);
+        for (int i = 0; i < sourceRelics.Count; i++)
+        {
+            RelicBase relic = sourceRelics[i];
+            if (relic == null)
+            {
+                continue;
+            }
+
+            instantiatedRelics.Add(UnityEngine.Object.Instantiate(relic));
+        }
+
+        return instantiatedRelics;
+    }
+
+    public void BeginTeleportSequence(Vector2Int targetGridPos, bool allowOccupiedTileRelic = false)
     {
         pendingTeleportTarget = targetGridPos;
         hasPendingTeleport = true;
+        pendingTeleportAllowsOccupiedTileRelic = allowOccupiedTileRelic;
         PlayTeleportDisappearAnim();
     }
 
@@ -136,7 +162,7 @@ public class Player : MonoBehaviour
 
         PlayTeleportLeaveFX();
         SetVisualRootVisible(false);
-        movement.TeleportToPosition(pendingTeleportTarget);
+        movement.TeleportToPosition(pendingTeleportTarget, pendingTeleportAllowsOccupiedTileRelic);
     }
 
     public void FinishTeleportVisual()
@@ -145,6 +171,7 @@ public class Player : MonoBehaviour
         PlayTeleportAppearFX();
         PlayTeleportAppearAnim();
         hasPendingTeleport = false;
+        pendingTeleportAllowsOccupiedTileRelic = false;
     }
 
     public void StartTurn()
@@ -153,12 +180,9 @@ public class Player : MonoBehaviour
         deckController.StartTurn(baseHandCardCount);
         buffs.OnTurnStartReset();
 
-        foreach (CardBase r in relics)
+        foreach (RelicBase relic in relics)
         {
-            if (r is Relic_KuMuShuQian kk)
-            {
-                kk.OnTurnStart(this);
-            }
+            relic?.OnTurnStart(this);
         }
     }
 
@@ -177,6 +201,11 @@ public class Player : MonoBehaviour
             }
         }
 
+        foreach (RelicBase relic in relics)
+        {
+            relic?.OnTurnEnd(this);
+        }
+
         buffs.OnTurnEndReset(this);
     }
 
@@ -188,6 +217,11 @@ public class Player : MonoBehaviour
     public void RemoveEnemyNegativeEffects()
     {
         buffs.RemoveEnemyNegativeEffects(this);
+    }
+
+    public bool TryRemoveRandomNegativeEffect()
+    {
+        return buffs != null && buffs.TryRemoveRandomNegativeEffect(this);
     }
 
     public bool HasExhaustableCardInHand(CardBase excludedCard = null)
@@ -207,6 +241,17 @@ public class Player : MonoBehaviour
     public bool CheckExhaustPlan() => deckController.CheckExhaustPlan();
 
     public void UseEnergy(int cost) => stats.UseEnergy(cost);
+    public void GainEnergy(int amount)
+    {
+        stats.GainEnergy(amount);
+
+        BattleManager manager = BattleRuntimeContext.Active != null
+            ? BattleRuntimeContext.Active.Manager
+            : null;
+
+        manager?.RefreshHandMetaUI();
+    }
+
     public int CalculateAttackDamage(int baseDamage) => stats.CalculateAttackDamage(baseDamage);
     public void AddBlock(int amount) => stats.AddBlock(amount, relics);
     public void TakeDamage(int dmg) => stats.TakeDamage(dmg);
@@ -219,9 +264,142 @@ public class Player : MonoBehaviour
     public void AddCardCostModifier(CardBase card, int modifier) => deckController.AddCardCostModifier(card, modifier);
     public void ClearCardCostModifier(CardBase card) => deckController.ClearCardCostModifier(card);
     public void ExhaustCard(CardBase card) => deckController.ExhaustCard(card);
+    public void NotifyBattleStarted()
+    {
+        foreach (RelicBase relic in relics)
+        {
+            relic?.OnBattleStart(this);
+        }
+    }
 
-    public void MoveToPosition(Vector2Int targetGridPos) => movement.MoveToPosition(targetGridPos);
-    public void TeleportToPosition(Vector2Int targetPos) => movement.TeleportToPosition(targetPos);
+    public void NotifyTurnStarted()
+    {
+        foreach (RelicBase relic in relics)
+        {
+            relic?.OnTurnStart(this);
+        }
+    }
+
+    public void NotifyCardPlayed(CardBase card)
+    {
+        if (card == null)
+        {
+            return;
+        }
+
+        foreach (RelicBase relic in relics)
+        {
+            relic?.OnCardPlayed(this, card);
+        }
+    }
+
+    public void NotifyCardPlayStarted(CardBase card)
+    {
+        if (card == null)
+        {
+            return;
+        }
+
+        foreach (RelicBase relic in relics)
+        {
+            relic?.OnCardPlayStarted(this, card);
+        }
+    }
+
+    public void NotifyCardExhausted(CardBase card)
+    {
+        if (card == null)
+        {
+            return;
+        }
+
+        foreach (RelicBase relic in relics)
+        {
+            relic?.OnCardExhausted(this, card);
+        }
+    }
+
+    public void NotifyEnemyDefeated(Enemy enemy)
+    {
+        if (enemy == null)
+        {
+            return;
+        }
+
+        foreach (RelicBase relic in relics)
+        {
+            relic?.OnEnemyDefeated(this, enemy);
+        }
+    }
+
+    public void NotifyAttackCardDamagedEnemy(AttackCardBase card, Enemy target, int hpDamage)
+    {
+        if (card == null || target == null || hpDamage <= 0)
+        {
+            return;
+        }
+
+        foreach (RelicBase relic in relics)
+        {
+            relic?.OnAttackCardDamagedEnemy(this, card, target, hpDamage);
+        }
+    }
+
+    public void NotifyAttackCardHitEnemy(AttackCardBase card, Enemy target, int attemptedDamage, int hpDamage)
+    {
+        if (card == null || target == null || attemptedDamage <= 0)
+        {
+            return;
+        }
+
+        foreach (RelicBase relic in relics)
+        {
+            relic?.OnAttackCardHitEnemy(this, card, target, attemptedDamage, hpDamage);
+        }
+    }
+
+    public int GetAdditionalCardDamage(CardBase card, Enemy target = null)
+    {
+        if (card == null)
+        {
+            return 0;
+        }
+
+        int bonusDamage = 0;
+        foreach (RelicBase relic in relics)
+        {
+            if (relic == null)
+            {
+                continue;
+            }
+
+            bonusDamage += relic.GetAdditionalDamage(this, card, target);
+        }
+
+        return bonusDamage;
+    }
+
+    public bool HasRelic<T>() where T : RelicBase
+    {
+        for (int i = 0; i < relics.Count; i++)
+        {
+            if (relics[i] is T)
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    public bool CanMoveToPosition(Vector2Int targetGridPos, bool allowOccupiedTileRelic = false)
+        => Movement != null && Movement.CanMoveToPosition(targetGridPos, allowOccupiedTileRelic);
+
+    public void MoveToPosition(Vector2Int targetGridPos, bool allowOccupiedTileRelic = false)
+        => Movement.MoveToPosition(targetGridPos, allowOccupiedTileRelic);
+
+    public void TeleportToPosition(Vector2Int targetPos, bool allowOccupiedTileRelic = false)
+        => Movement.TeleportToPosition(targetPos, allowOccupiedTileRelic);
 
     private void ResolveVisualRoot()
     {

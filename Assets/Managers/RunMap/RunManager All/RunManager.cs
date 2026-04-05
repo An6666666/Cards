@@ -544,7 +544,7 @@ public class RunManager : MonoBehaviour
         currentRunSnapshot = new PlayerRunSnapshot
         {
             deck = new List<CardBase>(),
-            relics = new List<CardBase>(),
+            relics = new List<RelicBase>(),
             exhaustPile = new List<CardBase>()
         };
     }

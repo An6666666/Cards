@@ -41,8 +41,9 @@ public class Attack_ShouSha : AttackCardBase
             return;
         }
 
-        int damage = enemy.ApplyElementalAttack(element, blockValue, player);
-        enemy.TakeDamage(damage);
+        int totalDamage = GetDamageWithRelicBonus(player, enemy, blockValue);
+        int damage = enemy.ApplyElementalAttack(element, totalDamage, player);
+        DealDamageAndNotify(player, enemy, damage);
 
         if (hitEffectPrefab != null)
         {

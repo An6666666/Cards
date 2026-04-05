@@ -218,6 +218,7 @@ RectTransform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 2050619469}
+  - {fileID: 656490224}
   - {fileID: 369811685}
   - {fileID: 264523038}
   - {fileID: 1720306104}
@@ -1001,6 +1002,7 @@ MonoBehaviour:
   uiText: {fileID: 230941274}
   tmpText: {fileID: 0}
   dialogueBubbleUI: {fileID: 0}
+  guideNPCPresenter: {fileID: 0}
   restoreDefaultWhenMessageHidden: 1
   textChangeSettleSeconds: 0.1
   randomSprites:
@@ -1436,6 +1438,87 @@ MonoBehaviour:
   m_StartAxis: 0
   m_CellSize: {x: 785.5, y: 698.6}
   m_Spacing: {x: -29.5, y: 45.74}
+  m_Constraint: 2
+  m_ConstraintCount: 1
+--- !u!1 &656490223
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 656490224}
+  - component: {fileID: 656490226}
+  - component: {fileID: 656490225}
+  m_Layer: 5
+  m_Name: Relics
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &656490224
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 656490223}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 4.8525, y: 4.8525, z: 4.8525}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 5261331}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: -872, y: 432.5}
+  m_SizeDelta: {x: 36.9, y: 21.5}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &656490225
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 656490223}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f3a72480e4904bffb3764f68d58d422e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  contentRoot: {fileID: 656490224}
+  relicIconPrefab: {fileID: 1783318111576351439, guid: 08c15e7ff11ec82489c2496245076eb5, type: 3}
+  hideContentRootWhenEmpty: 0
+  createContentRootIfMissing: 1
+  autoContentSize: {x: 40, y: 20}
+  autoContentScale: {x: 4.8525, y: 4.8525, z: 4.8525}
+  autoCellSize: {x: 10, y: 10}
+  autoSpacing: {x: -23.8, y: -42.05}
+--- !u!114 &656490226
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 656490223}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8a8695521f0d02e499659fee002a26c2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Padding:
+    m_Left: 0
+    m_Right: 0
+    m_Top: 0
+    m_Bottom: 0
+  m_ChildAlignment: 2
+  m_StartCorner: 1
+  m_StartAxis: 0
+  m_CellSize: {x: 20, y: 20}
+  m_Spacing: {x: -43.27, y: -42.05}
   m_Constraint: 2
   m_ConstraintCount: 1
 --- !u!1 &656993342
@@ -2342,8 +2425,8 @@ MonoBehaviour:
   m_ChildAlignment: 1
   m_StartCorner: 0
   m_StartAxis: 0
-  m_CellSize: {x: 414.5, y: 498.8}
-  m_Spacing: {x: 0, y: 0}
+  m_CellSize: {x: 500, y: 500}
+  m_Spacing: {x: 332.48, y: 0}
   m_Constraint: 2
   m_ConstraintCount: 1
 --- !u!1 &1867043269
@@ -3007,6 +3090,8 @@ MonoBehaviour:
   shopNpcController: {fileID: 369811688}
   cardOfferTemplate: {fileID: 4632703402308143441, guid: a2bd1fc83a94d1b49ac1a4f133c1a388, type: 3}
   cardPrefab: {fileID: 4596475076482105628, guid: 100c1a32f1664694b821ff0756181848, type: 3}
+  relicOfferTemplate: {fileID: 8552403329263633270, guid: 40ff9ba0dbb3c0e4e82a73f3149a2acb, type: 3}
+  relicIconPrefab: {fileID: 1783318111576351439, guid: 08c15e7ff11ec82489c2496245076eb5, type: 3}
   cardListParent: {fileID: 608974873}
   relicListParent: {fileID: 1769872245}
   removalListParent: {fileID: 1152862178}

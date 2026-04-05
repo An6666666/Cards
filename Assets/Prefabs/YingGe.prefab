@@ -528,14 +528,13 @@ MonoBehaviour:
   enemyName: YingGe
   maxHP: 100
   currentHP: 0
-  block: 0
+  currentBlock: 0
   goldReward: 100
   burningTurns: 0
   frozenTurns: 0
   superconduct: 0
   chargedCount: 0
   frostStacks: 0
-  hasBerserk: 0
   gridPosition: {x: 0, y: 0}
   baseAttackDamage: 15
   attackRangeOffsets:
@@ -565,8 +564,8 @@ MonoBehaviour:
   idleRedObj: {fileID: 6932780525298542406}
   sortingOrderBase: 0
   sortingOrderMultiplier: 100
-  shakeDuration: 0.1
-  shakeMagnitude: 0.1
+  shakeDuration: 0.4
+  shakeMagnitude: 1.5
   scaleMultiplier: 1.1
   canMove: 1
   nextIntent:

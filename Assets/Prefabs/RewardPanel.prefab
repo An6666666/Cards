@@ -116,10 +116,10 @@ RectTransform:
   - {fileID: 8361913479290666556}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 1, y: 1}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 0, y: 15}
-  m_SizeDelta: {x: -698.1105, y: -364.4813}
+  m_SizeDelta: {x: 1221.8895, y: 715.5187}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &4473493121350484501
 CanvasRenderer:
@@ -175,6 +175,10 @@ MonoBehaviour:
   packButton: {fileID: 4503365198021094340}
   skipButton: {fileID: 3059196997462547697}
   cardParent: {fileID: 8361913479290666556}
+  useRewardCardScale: 1
+  rewardCardScale: {x: 0.8, y: 0.8, z: 1}
+  useRewardCardLayoutSize: 0
+  rewardCardPreferredSize: {x: 130, y: 270}
 --- !u!1 &4018172104098913856
 GameObject:
   m_ObjectHideFlags: 0
@@ -192,7 +196,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &1016804891507924713
 RectTransform:
   m_ObjectHideFlags: 0
@@ -268,7 +272,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &8361913479290666556
 RectTransform:
   m_ObjectHideFlags: 0
@@ -588,7 +592,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 16, y: 16.5}
+  m_AnchoredPosition: {x: 0, y: 16.5}
   m_SizeDelta: {x: 229.7055, y: 60.3844}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &3470886116528427403

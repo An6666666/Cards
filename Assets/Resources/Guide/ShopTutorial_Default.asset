@@ -74,6 +74,18 @@ MonoBehaviour:
     matchTargetRect: 0
     imageSize: {x: 0, y: 0}
     imageOffset: {x: 0, y: 0}
+  - stepId: shop_relics_one
+    dialogue: "\u9019\u5340\u584A\u662F\u5C55\u793A\u552E\u8CE3\u7684\u6CD5\u5668\uFF0C\u6CD5\u5668\u4E0B\u65B9\u6709\u5404\u6CD5\u5668\u7684\u50F9\u9322\uFF0C\u9EDE\u64CA\u8981\u8CB7\u7684\u6CD5\u5668\u5C31\u53EF\u4EE5\u8CFC\u8CB7\u4E86\u3002"
+    prompt: "\u95B1\u8B80\u5B8C\u5F8C\u6309\u4E0B\u7E7C\u7E8C"
+    focusAnchor: 11
+    requiredAction: 0
+    selectTabBeforeStep: 0
+    tabToSelect: 0
+    tutorialImage: {fileID: 21300000, guid: e9be6e1bb7f10ac4fbcdc83954e37dff, type: 3}
+    tutorialImageAlpha: 0.8
+    matchTargetRect: 0
+    imageSize: {x: 1920, y: 1080}
+    imageOffset: {x: 0, y: 0}
   - stepId: shop_removal
     dialogue: "\u6E05\u9664\u9801\u53EF\u4EE5\u82B1\u8CBB\u91D1\u5E63\u79FB\u9664\u724C\u7D44\u4E2D\u7684\u4E00\u5F35\u5361\u7247\u3002"
     prompt: "\u9EDE\u64CA\u6E05\u9664\u6309\u9215\u5207\u63DB\u5230\u6E05\u9664\u9801\u9762\u3002"

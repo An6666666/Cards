@@ -67,6 +67,8 @@ public class YingGe : Enemy, IEnemyCooldownProvider
 
     public void PlaySkillEnd() => Visual?.PlaySkillEnd();
 
+    public override bool SupportsSharedSquadTactics => false;
+
     protected override void Awake()
     {
         enemyName = "鸚哥";
@@ -140,6 +142,69 @@ public class YingGe : Enemy, IEnemyCooldownProvider
         GainEndOfTurnArmor();
     }
 
+    public override void DecideNextIntent(Player player)
+    {
+        if (awaitingRespawn)
+        {
+            nextIntent.type = EnemyIntentType.Idle;
+            nextIntent.value = 0;
+            UpdateIntentIcon();
+            return;
+        }
+
+        if (player == null || frozenTurns > 0)
+        {
+            nextIntent.type = EnemyIntentType.Idle;
+            nextIntent.value = 0;
+            UpdateIntentIcon();
+            return;
+        }
+
+        if (stoneFeatherPending || waitingForStoneFeatherTakeOff)
+        {
+            nextIntent.type = EnemyIntentType.Skill;
+            nextIntent.value = stoneFeatherDamage;
+            UpdateIntentIcon();
+            return;
+        }
+
+        if (phaseTwoSummonPending)
+        {
+            nextIntent.type = EnemyIntentType.Skill;
+            nextIntent.value = 0;
+            UpdateIntentIcon();
+            return;
+        }
+
+        if (CanUseStoneFeatherInCurrentPhase()
+            && stoneFeatherCooldownTimer >= stoneFeatherCooldown
+            && CanPreviewStoneFeather(player))
+        {
+            nextIntent.type = EnemyIntentType.Skill;
+            nextIntent.value = stoneFeatherDamage;
+            UpdateIntentIcon();
+            return;
+        }
+
+        if (IsPlayerInRange(player))
+        {
+            nextIntent.type = EnemyIntentType.Attack;
+            nextIntent.value = CalculateAttackDamage();
+        }
+        else if (CanMoveThisTurn())
+        {
+            nextIntent.type = EnemyIntentType.Move;
+            nextIntent.value = 0;
+        }
+        else
+        {
+            nextIntent.type = EnemyIntentType.Idle;
+            nextIntent.value = 0;
+        }
+
+        UpdateIntentIcon();
+    }
+
     protected internal override void Die()
     {
         if (!resurrectionTriggered && !hasRespawned && TryHandleFirstDeath())
@@ -193,6 +258,37 @@ public class YingGe : Enemy, IEnemyCooldownProvider
     private bool CanUseStoneFeatherInCurrentPhase()
     {
         return !inPhaseTwo || allowStoneFeatherInPhaseTwo;
+    }
+
+    private bool CanPreviewStoneFeather(Player player)
+    {
+        if (player == null)
+        {
+            return false;
+        }
+
+        Board board = FindObjectOfType<Board>();
+        if (board == null)
+        {
+            return false;
+        }
+
+        Vector2Int playerPos = player.position;
+        int[] rowCandidates = { playerPos.y, playerPos.y + 2, playerPos.y - 2 };
+        List<Vector2Int> allPositions = board.GetAllPositions();
+
+        foreach (Vector2Int pos in allPositions)
+        {
+            for (int i = 0; i < rowCandidates.Length; i++)
+            {
+                if (pos.y == rowCandidates[i])
+                {
+                    return true;
+                }
+            }
+        }
+
+        return false;
     }
 
     private void AdvanceStoneFeatherCooldown()

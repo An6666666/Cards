@@ -104,9 +104,15 @@ public class EnemyCombat : MonoBehaviour
 
     private int ApplyFrostBonus(int dmg)
     {
-        if (dmg <= 0 || enemy == null || enemy.frostStacks <= 0)
+        if (dmg <= 0 || enemy == null)
             return dmg;
 
-        return dmg + enemy.frostStacks * 2;
+        int frostStacksForThisHit = enemy.ConsumeFrostStacksForDamage();
+        if (frostStacksForThisHit <= 0)
+        {
+            return dmg;
+        }
+
+        return dmg + frostStacksForThisHit * 2;
     }
 }

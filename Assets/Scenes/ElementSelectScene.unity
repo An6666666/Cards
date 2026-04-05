@@ -316,10 +316,10 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 1614458069}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 1}
-  m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 363.50748, y: 0}
-  m_SizeDelta: {x: 727.01495, y: 28}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 1}
 --- !u!114 &256877155
 MonoBehaviour:
@@ -392,7 +392,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c9774f6c530913f4a9201ebcfc29a6f3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  requiredSelections: 5
+  requiredSelections: 2
   runSceneName: RunScene
   titleText: {fileID: 0}
   elementButtons:

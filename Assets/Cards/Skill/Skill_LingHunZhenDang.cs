@@ -27,7 +27,7 @@ public class Skill_LingHunZhenDang : CardBase
             return;
         }
 
-        player.energy += energyGain;
+        player.GainEnergy(energyGain);
         player.TakeDamageDirect(selfDamage);
     }
 }

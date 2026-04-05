@@ -307,6 +307,7 @@ MonoBehaviour:
   enemy: {fileID: 0}
   hp_fill: {fileID: 0}
   hpText: {fileID: 0}
+  maxHpText: {fileID: 0}
   digitSprites: []
   digitImages: []
   digitSpriteRenderers: []

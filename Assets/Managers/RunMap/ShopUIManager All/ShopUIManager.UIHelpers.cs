@@ -36,10 +36,13 @@ public partial class ShopUIManager
         if (cardOfferTemplate != null && child == cardOfferTemplate.transform)
             return true;
 
+        if (relicOfferTemplate != null && child == relicOfferTemplate.transform)
+            return true;
+
         return false;
     }
 
-    private void CreateOfferEntry(
+    private GameObject CreateOfferEntry(
         GameObject template,
         Transform parent,
         string title,
@@ -48,13 +51,19 @@ public partial class ShopUIManager
         UnityEngine.Events.UnityAction onClick)
     {
         if (template == null || parent == null)
-            return;
+            return null;
 
         var entry = Instantiate(template, parent);
         entry.name = title;
         entry.SetActive(true);
 
         var button = entry.GetComponent<Button>() ?? entry.GetComponentInChildren<Button>(true);
+        if (button == null)
+        {
+            button = entry.AddComponent<Button>();
+            button.targetGraphic = entry.GetComponent<Image>() ?? entry.GetComponentInChildren<Image>(true);
+        }
+
         if (button != null)
         {
             button.onClick.RemoveAllListeners();
@@ -63,6 +72,170 @@ public partial class ShopUIManager
         }
 
         ApplyOfferTexts(entry, title, price, description);
+        return entry;
+    }
+
+    private void ApplyOfferIcon(GameObject entry, Sprite sprite, bool createIfMissing = true)
+    {
+        if (entry == null)
+            return;
+
+        Image iconImage = FindOfferIconImage(entry);
+        if (iconImage == null && createIfMissing)
+            iconImage = CreateOfferIconImage(entry.transform);
+
+        if (iconImage == null)
+            return;
+
+        iconImage.sprite = sprite;
+        iconImage.enabled = sprite != null;
+        iconImage.preserveAspect = true;
+    }
+
+    private Image ApplyShopRelicOfferIcon(GameObject entry, Sprite sprite)
+    {
+        if (entry == null)
+            return null;
+
+        HideShopRelicEntryBackground(entry);
+
+        Image templateImage = FindShopRelicTemplateImage(entry.transform);
+        if (templateImage != null)
+        {
+            templateImage.sprite = sprite;
+            templateImage.enabled = sprite != null;
+            templateImage.preserveAspect = true;
+            return templateImage;
+        }
+
+        ApplyOfferIcon(entry, sprite);
+        return FindOfferIconImage(entry);
+    }
+
+    private void ConfigureShopRelicInstance(GameObject entry, GameObject relicObject)
+    {
+        if (entry == null || relicObject == null)
+            return;
+
+        HideShopRelicEntryBackground(entry);
+
+        RectTransform relicRect = relicObject.GetComponent<RectTransform>();
+        RectTransform parentRect = relicObject.transform.parent as RectTransform;
+        if (relicRect != null && parentRect != null)
+            StretchRectTransformToParent(relicRect);
+
+        Image relicImage = FindOfferIconImage(relicObject);
+        if (relicImage == null)
+        {
+            ApplyShopRelicTooltipLayout(entry, relicObject);
+            return;
+        }
+
+        relicImage.preserveAspect = true;
+
+        RectTransform imageRect = relicImage.rectTransform;
+        if (imageRect != null)
+            StretchRectTransformToParent(imageRect);
+
+        ApplyShopRelicTooltipLayout(entry, relicObject);
+    }
+
+    private Image ApplyShopRelicPrefabIcon(GameObject iconObject, Sprite sprite)
+    {
+        if (iconObject == null)
+            return null;
+
+        Image iconImage = FindOfferIconImage(iconObject);
+        if (iconImage == null)
+        {
+            ApplyOfferIcon(iconObject, sprite);
+            return FindOfferIconImage(iconObject);
+        }
+
+        iconImage.sprite = sprite;
+        iconImage.enabled = sprite != null;
+        iconImage.preserveAspect = true;
+        return iconImage;
+    }
+
+    private void ApplyShopRelicTemplateLayout(GameObject entry, RectTransform targetRect)
+    {
+        if (entry == null || targetRect == null)
+            return;
+
+        HideShopRelicEntryBackground(entry);
+
+        Image templateImage = FindShopRelicTemplateImage(entry.transform);
+        if (templateImage == null)
+            return;
+
+        RectTransform sourceRect = templateImage.rectTransform;
+        targetRect.anchorMin = sourceRect.anchorMin;
+        targetRect.anchorMax = sourceRect.anchorMax;
+        targetRect.pivot = sourceRect.pivot;
+        targetRect.anchoredPosition = sourceRect.anchoredPosition;
+        targetRect.sizeDelta = sourceRect.sizeDelta;
+        targetRect.localRotation = sourceRect.localRotation;
+        targetRect.localScale = sourceRect.localScale;
+
+        templateImage.enabled = false;
+        templateImage.raycastTarget = false;
+    }
+
+    private void StretchRectTransformToParent(RectTransform rectTransform)
+    {
+        if (rectTransform == null)
+            return;
+
+        rectTransform.anchorMin = Vector2.zero;
+        rectTransform.anchorMax = Vector2.one;
+        rectTransform.pivot = new Vector2(0.5f, 0.5f);
+        rectTransform.anchoredPosition = Vector2.zero;
+        rectTransform.sizeDelta = Vector2.zero;
+        rectTransform.localRotation = Quaternion.identity;
+        rectTransform.localScale = Vector3.one;
+    }
+
+    private void HideShopRelicEntryBackground(GameObject entry)
+    {
+        if (entry == null)
+            return;
+
+        Image rootImage = entry.GetComponent<Image>();
+        if (rootImage != null && rootImage.sprite == null)
+        {
+            rootImage.enabled = false;
+            rootImage.color = Color.clear;
+            rootImage.raycastTarget = false;
+        }
+
+        Image backgroundImage = FindDirectChildImage(entry.transform, "BG");
+        if (backgroundImage != null && backgroundImage.sprite == null)
+        {
+            backgroundImage.enabled = false;
+            backgroundImage.color = Color.clear;
+            backgroundImage.raycastTarget = false;
+        }
+    }
+
+    private void ApplyShopRelicTooltipLayout(GameObject entry, GameObject relicObject)
+    {
+        if (entry == null || relicObject == null)
+            return;
+
+        BattleRelicUIItem relicUiItem = relicObject.GetComponent<BattleRelicUIItem>() ??
+                                        relicObject.GetComponentInChildren<BattleRelicUIItem>(true);
+        if (relicUiItem == null)
+            return;
+
+        RectTransform tooltipAnchor = FindNamedRectTransform(entry.transform, "RelicTooltipAnchor");
+        if (tooltipAnchor == null)
+        {
+            relicUiItem.ClearTooltipTransformOverride();
+            return;
+        }
+
+        relicUiItem.SetTooltipTransformOverride(tooltipAnchor);
     }
 
     private void ApplyOfferTexts(GameObject entry, string title, int price, string description, Transform excludeRoot = null)
@@ -261,6 +434,30 @@ public partial class ShopUIManager
         return null;
     }
 
+    private Transform FindOfferVisualContainer(Transform root)
+    {
+        if (root == null)
+            return null;
+
+        foreach (Transform current in root.GetComponentsInChildren<Transform>(true))
+        {
+            if (current == root)
+                continue;
+
+            string lowerName = current.name.ToLowerInvariant();
+            if (lowerName.Contains("reliccontainer") ||
+                lowerName.Contains("iconcontainer") ||
+                lowerName.Contains("iconroot") ||
+                lowerName.Contains("artroot") ||
+                lowerName.Contains("visualroot"))
+            {
+                return current;
+            }
+        }
+
+        return FindCardContainer(root);
+    }
+
     private void ResetTransform(Transform target)
     {
         if (target == null)
@@ -276,5 +473,130 @@ public partial class ShopUIManager
             rectTransform.anchorMax = new Vector2(0.5f, 0.5f);
             rectTransform.anchoredPosition = Vector2.zero;
         }
+    }
+
+    private Image FindOfferIconImage(GameObject entry)
+    {
+        if (entry == null)
+            return null;
+
+        Image[] images = entry.GetComponentsInChildren<Image>(true);
+        for (int i = 0; i < images.Length; i++)
+        {
+            Image image = images[i];
+            if (image == null)
+                continue;
+
+            string lowerName = image.name.ToLowerInvariant();
+            if (lowerName == "image" ||
+                lowerName == "icon" ||
+                lowerName.Contains("offericon") ||
+                lowerName.Contains("relicicon") ||
+                lowerName.Contains("iconimage"))
+            {
+                return image;
+            }
+        }
+
+        if (images.Length == 1)
+            return images[0];
+
+        return null;
+    }
+
+    private Image FindShopRelicTemplateImage(Transform root)
+    {
+        if (root == null)
+            return null;
+
+        foreach (Transform child in root.GetComponentsInChildren<Transform>(true))
+        {
+            string lowerName = child.name.ToLowerInvariant();
+            if (lowerName == "image" || lowerName == "relicimage" || lowerName == "relicofferimage")
+            {
+                Image image = child.GetComponent<Image>();
+                if (image != null)
+                    return image;
+            }
+
+            if (lowerName == "bg")
+            {
+                Image image = child.GetComponent<Image>();
+                if (image != null && image.sprite != null)
+                    return image;
+            }
+        }
+
+        return null;
+    }
+
+    private Image FindDirectChildImage(Transform root, string childName)
+    {
+        if (root == null || string.IsNullOrWhiteSpace(childName))
+            return null;
+
+        foreach (Transform child in root)
+        {
+            if (!string.Equals(child.name, childName, StringComparison.OrdinalIgnoreCase))
+                continue;
+
+            Image image = child.GetComponent<Image>();
+            if (image != null)
+                return image;
+        }
+
+        return null;
+    }
+
+    private RectTransform FindNamedRectTransform(Transform root, string name)
+    {
+        if (root == null || string.IsNullOrWhiteSpace(name))
+            return null;
+
+        foreach (Transform child in root.GetComponentsInChildren<Transform>(true))
+        {
+            if (string.Equals(child.name, name, StringComparison.OrdinalIgnoreCase))
+                return child as RectTransform;
+        }
+
+        return null;
+    }
+
+    private Image CreateOfferIconImage(Transform parent)
+    {
+        if (parent == null)
+            return null;
+
+        GameObject frameObject = new GameObject("RelicOfferIconFrame", typeof(RectTransform), typeof(Image));
+        RectTransform frameRect = frameObject.GetComponent<RectTransform>();
+        frameRect.SetParent(parent, false);
+        frameRect.anchorMin = new Vector2(0.5f, 0.5f);
+        frameRect.anchorMax = new Vector2(0.5f, 0.5f);
+        frameRect.pivot = new Vector2(0.5f, 0.5f);
+        frameRect.sizeDelta = new Vector2(132f, 132f);
+        frameRect.anchoredPosition = new Vector2(0f, 34f);
+
+        Image frameImage = frameObject.GetComponent<Image>();
+        frameImage.color = new Color(1f, 1f, 1f, 0.1f);
+        frameImage.raycastTarget = false;
+
+        Outline outline = frameObject.AddComponent<Outline>();
+        outline.effectColor = new Color(0f, 0f, 0f, 0.4f);
+        outline.effectDistance = new Vector2(1.5f, -1.5f);
+        outline.useGraphicAlpha = true;
+
+        GameObject iconObject = new GameObject("RelicOfferIcon", typeof(RectTransform), typeof(Image));
+        RectTransform iconRect = iconObject.GetComponent<RectTransform>();
+        iconRect.SetParent(frameRect, false);
+        iconRect.anchorMin = new Vector2(0.5f, 0.5f);
+        iconRect.anchorMax = new Vector2(0.5f, 0.5f);
+        iconRect.pivot = new Vector2(0.5f, 0.5f);
+        iconRect.sizeDelta = new Vector2(108f, 108f);
+        iconRect.anchoredPosition = Vector2.zero;
+
+        Image iconImage = iconObject.GetComponent<Image>();
+        iconImage.raycastTarget = false;
+
+        return iconImage;
     }
 }

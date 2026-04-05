@@ -1,20 +1,40 @@
-﻿using System.Collections;                     // 雿輻???賊?憿嚗Enumerator 蝑?
-using System.Collections.Generic;             // 雿輻瘜???嚗ist<T> 蝑?
-using UnityEngine;                            // 雿輻 Unity 撘??詨? API
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
 
-public class BattleEncounterLoader            // 鞎痊???交擛仿?韏瑕?雿蔭???鈭箝??批憿?
+/// <summary>
+/// 負責載入本場戰鬥的遭遇資料、生成妖怪，
+/// 並安排開場的「妖怪進場 -> 玩家選擇落點 -> 正式開始戰鬥」流程。
+/// </summary>
+public class BattleEncounterLoader
 {
-    private readonly BattleManager battleManager;          // ?圈洛蝞∠??剁??詨?蝮賜恣嚗??怎摰嗉絲憪?蝵桃?閮剖?嚗?
-    private readonly Board board;                          // 璉嚗靘?敺??摮漣璅?嚗?
-    private readonly Player player;                        // ?拙振?拐辣
-    private readonly List<Enemy> enemies;                  // ?港??萎犖皜嚗 BattleManager ????銵剁?
-    private readonly List<EnemySpawnConfig> enemySpawnConfigs; // ?萎犖??閮剖?皜嚗refab + ?賊?嚗?
-    private readonly BattleStateMachine stateMachine;      // ?圈洛???嚗???PlayerTurn / EnemyTurn 蝑?
+    // 開場時等待妖怪進場動畫的最長秒數，避免動畫狀態異常時卡住流程。
+    private const float InitialEnemyEntranceWaitCapSeconds = 1.0f;
+    // 顯示「選擇落點回合」提示時的停留秒數。
+    private const float SelectStartTileHintDurationSeconds = 0.2f;
+
+    // 戰鬥主控制器。
+    private readonly BattleManager battleManager;
+    // 棋盤資料，用來查格子與可選位置。
+    private readonly Board board;
+    // 玩家物件。
+    private readonly Player player;
+    // 當前場上的妖怪清單，由 BattleManager 持有並共用。
+    private readonly List<Enemy> enemies;
+    // 本場戰鬥要生成的妖怪設定。
+    private readonly List<EnemySpawnConfig> enemySpawnConfigs;
+    // 戰鬥狀態機，用來切換到玩家回合。
+    private readonly BattleStateMachine stateMachine;
+    // 教學戰鬥控制器；沒有教學時可為 null。
     private readonly TutorialBattleController tutorialController;
 
-    private bool isSelectingStartTile = false;             // ?臬甇??豢??拙振韏瑕??潛???
+    // 目前是否正處於玩家選擇起始落點的階段。
+    private bool isSelectingStartTile = false;
 
-    public BattleEncounterLoader(                         // 撱箸?摮??其?瘜典???閬??訾??拐辣
+    /// <summary>
+    /// 建立戰鬥遭遇載入器，接收本場戰鬥會用到的核心參考。
+    /// </summary>
+    public BattleEncounterLoader(
         BattleManager battleManager,
         Board board,
         Player player,
@@ -23,182 +43,299 @@ public class BattleEncounterLoader            // 鞎痊???交擛仿?
         BattleStateMachine stateMachine,
         TutorialBattleController tutorialController)
     {
-        this.battleManager = battleManager;                // ???圈洛蝞∠???
-        this.board = board;                                // ??璉
-        this.player = player;                              // ???拙振
-        this.enemies = enemies;                            // ???萎犖?”嚗?鋡怠‵皛選?
-        this.enemySpawnConfigs = enemySpawnConfigs;        // ???萎犖??閮剖??”
-        this.stateMachine = stateMachine;                  // ???圈洛???
-        this.tutorialController = tutorialController;      // ???飛?批?剁??舐 null嚗?
+        this.battleManager = battleManager;
+        this.board = board;
+        this.player = player;
+        this.enemies = enemies;
+        this.enemySpawnConfigs = enemySpawnConfigs;
+        this.stateMachine = stateMachine;
+        this.tutorialController = tutorialController;
     }
 
+    /// <summary>
+    /// 從 RunManager 讀取目前節點的遭遇內容，整理成可生成的妖怪設定清單。
+    /// </summary>
     public void LoadEncounterFromRunManager()
     {
-        var runManager = RunManager.Instance;              // 敺靘?敺?RunManager
-        var encounter = runManager?.ActiveNode?.Encounter; // 敺???暺?敺?Encounter 閮剖?嚗?賜 null嚗?
+        var runManager = RunManager.Instance;
+        var encounter = runManager?.ActiveNode?.Encounter;
 
-        if (encounter == null)                             // ?交??身摰?Encounter
-            return;                                        // ?湔蝯?嚗?頛?萎犖?蔭嚗?
-
-        if (enemySpawnConfigs == null)                     // ?亙??冽??策??閮剖??”
-            return;                                        // ?湔蝯?
-
-        enemySpawnConfigs.Clear();                         // ??蝛箏??祉???閮剖?
-
-        var enemyGroups = encounter.EnemyGroups;           // 敺?Encounter ???萎犖蝢斤?鞈?嚗?蝯?enemyPrefab + count嚗?
-        if (enemyGroups == null)                           // 瘝??停銝???
-            return;
-
-        foreach (var group in enemyGroups)                 // 撠?銝蝯鈭箇黎蝯脰???
+        if (encounter == null || enemySpawnConfigs == null)
         {
-            if (group == null)                             // ?脣?嚗黎蝯?賜 null
-                continue;
+            return;
+        }
 
-            var configCopy = new EnemySpawnConfig          // 撱箇?銝???EnemySpawnConfig 銴
+        enemySpawnConfigs.Clear();
+
+        var enemyGroups = encounter.EnemyGroups;
+        if (enemyGroups == null)
+        {
+            return;
+        }
+
+        foreach (var group in enemyGroups)
+        {
+            if (group == null)
             {
-                enemyPrefab = group.enemyPrefab,           // ???萎犖?ˊ??
-                count = group.count                        // ??閬????賊?
+                continue;
+            }
+
+            var configCopy = new EnemySpawnConfig
+            {
+                enemyPrefab = group.enemyPrefab,
+                count = group.count
             };
 
-            enemySpawnConfigs.Add(configCopy);             // ??唳?啁???閮剖?皜
+            enemySpawnConfigs.Add(configCopy);
         }
     }
 
+    /// <summary>
+    /// 戰鬥開場主流程。
+    /// 先生成妖怪並等待進場，再讓玩家選擇落點，最後切入正式戰鬥。
+    /// </summary>
     public IEnumerator GameStartRoutine()
     {
-        if (board != null)                                 // ?交?璉摮
-            {
-            Vector2Int startPos;
-            bool overrideStart = false;
+        Vector2Int tutorialStartPos = default;
+        bool hasTutorialFixedStart = false;
+
+        if (board != null)
+        {
             if (tutorialController != null)
             {
-                overrideStart = tutorialController.TryGetPlayerStartPosition(out startPos);
+                hasTutorialFixedStart = tutorialController.TryGetPlayerStartPosition(out tutorialStartPos);
             }
-            else
+
+            if (hasTutorialFixedStart)
             {
-                startPos = default;
+                battleManager.playerStartPos = tutorialStartPos;
             }
-            if (overrideStart)
+        }
+
+        SpawnInitialEnemies(hasTutorialFixedStart);
+        battleManager.RefreshEnemiesFromScene();
+        yield return WaitForInitialEnemyEntrance();
+
+        if (board != null)
+        {
+            if (hasTutorialFixedStart)
             {
-                battleManager.playerStartPos = startPos;
                 SetupPlayer();
             }
             else
             {
                 yield return battleManager.StartCoroutine(SelectPlayerStartTile());
-                // 鈭斤策 BattleManager ????嚗??拙振?豢?韏瑕?蝡??澆?嚗?敺摰園??賂?
             }
         }
 
-        SpawnInitialEnemies();                             // ?冽??支??????萎犖
-        battleManager.RefreshEnemiesFromScene();
+        player?.NotifyBattleStarted();
 
-        battleManager.SetBattleStarted(true);              // ?迄 BattleManager嚗擛交迤撘?憪?
-        battleManager.SetEndTurnButtonInteractable(false); // ???雿??踹??飛撠店???舀???????
+        battleManager.SetBattleStarted(true);
+        battleManager.SetEndTurnButtonInteractable(false);
         tutorialController?.HandleBattleStarted();
+
         while (tutorialController != null && tutorialController.IsWaitingForOpeningDialogue)
         {
             yield return null;
         }
 
         stateMachine.ChangeState(new PlayerTurnState(battleManager));
-        // 撠擛亦?????摰嗅?????PlayerTurnState嚗?
     }
 
+    /// <summary>
+    /// 進入玩家選擇起始落點的階段，將所有可選格子標示為可點擊。
+    /// </summary>
     private IEnumerator SelectPlayerStartTile()
     {
-        yield return battleManager.ShowBattlePhaseHintAndWait("選擇落點回合");
-        isSelectingStartTile = true;                       // 閮剜??迤?券?絲憪??
+        battleManager.ShowBattlePhaseHint("選擇落點回合", SelectStartTileHintDurationSeconds);
+        isSelectingStartTile = true;
 
-        List<Vector2Int> positions = board.GetAllPositions(); // ??璉銝??摮?摨扳?
-        foreach (var pos in positions)                        // 撠?銝?摮脰???
+        List<Vector2Int> positions = board.GetAllPositions();
+        foreach (var pos in positions)
         {
-            BoardTile t = board.GetTileAt(pos);               // ??閰脖?蝵桀??? BoardTile
-            if (t.GetComponent<BoardTileSelectable>() == null)
-                t.gameObject.AddComponent<BoardTileSelectable>();
-            // ?亥府?潭???BoardTileSelectable ?辣嚗停??嚗?摰隞亥◤暺??豢?
+            BoardTile tile = board.GetTileAt(pos);
+            if (tile == null)
+            {
+                continue;
+            }
 
-            if (t.GetComponent<BoardTileHoverHighlight>() == null)
-                t.gameObject.AddComponent<BoardTileHoverHighlight>();
-            // ?亥府?潭???曌??鈭桀?隞塚?撠勗?銝?霈?曌宏?憿舐內擃漁
+            // 已被妖怪佔據的格子不能選。
+            if (board.IsTileOccupied(pos))
+            {
+                tile.SetSelectable(false);
+                tile.SetHighlight(false);
+                continue;
+            }
+
+            if (tile.GetComponent<BoardTileSelectable>() == null)
+            {
+                tile.gameObject.AddComponent<BoardTileSelectable>();
+            }
+
+            if (tile.GetComponent<BoardTileHoverHighlight>() == null)
+            {
+                tile.gameObject.AddComponent<BoardTileHoverHighlight>();
+            }
         }
 
-        while (isSelectingStartTile)                        // ??isSelectingStartTile ??true嚗??芷摰?
-            yield return null;                              // 瘥?蝑?嚗?唳??? isSelectingStartTile 閮剔 false嚗?
-
-        foreach (var pos in positions)                      // ?拙振撌脩??詨?韏瑕??潘?皜??冽???
+        while (isSelectingStartTile)
         {
-            BoardTile t = board.GetTileAt(pos);             // ?活??瘥??摮?
-            BoardTileHoverHighlight hover = t.GetComponent<BoardTileHoverHighlight>();
-            if (hover) Object.Destroy(hover);               // ?交? HoverHighlight嚗停?芣?甇文?隞?
-            t.SetHighlight(false);                          // ???澆?擃漁
+            yield return null;
         }
 
-        SetupPlayer();                                      // 撠摰嗆?圈憟賜?韏瑕??潔?蝵桐?
-        board.ResetAllTilesSelectable();                    // ?蔭??摮??舫????蝘駁 BoardTileSelectable 銝??詨????
+        // 結束選位後，清掉這一階段臨時加上的高亮與互動效果。
+        foreach (var pos in positions)
+        {
+            BoardTile tile = board.GetTileAt(pos);
+            if (tile == null)
+            {
+                continue;
+            }
+
+            BoardTileHoverHighlight hover = tile.GetComponent<BoardTileHoverHighlight>();
+            if (hover)
+            {
+                Object.Destroy(hover);
+            }
+
+            tile.SetHighlight(false);
+        }
+
+        SetupPlayer();
+        board.ResetAllTilesSelectable();
     }
 
+    /// <summary>
+    /// 將玩家放到目前記錄的起始格。
+    /// </summary>
     private void SetupPlayer()
     {
-        if (player == null || board == null) return;        // ?亦摰嗆?璉銝??典停?湔頝喳
+        if (player == null || board == null)
+        {
+            return;
+        }
 
         BoardTile tile = board.GetTileAt(battleManager.playerStartPos);
-        // 敺?BattleManager 銝? playerStartPos ??撠??摮?
-
-        if (tile != null)                                   // ?亥府?澆?摮
+        if (tile != null)
         {
             player.MoveToPosition(battleManager.playerStartPos);
-            // ?摰嗥??摩摨扳?嚗ridPosition嚗宏?閰脖?蝵殷?銝血?甇亙祕??transform.position
         }
     }
 
-    private void SpawnInitialEnemies()
+    /// <summary>
+    /// 等待開場的妖怪進場動畫播完，但最多只等固定上限秒數。
+    /// </summary>
+    private IEnumerator WaitForInitialEnemyEntrance()
     {
-        if (board == null || enemySpawnConfigs == null) return;
-        // ?交??斗??萎犖??閮剖??”銝??剁?撠曹????萎犖
+        if (enemies == null || enemies.Count == 0)
+        {
+            yield break;
+        }
+
+        // 先等一幀，讓新生成的妖怪有機會完成 Awake/Start 並觸發 Appear。
+        yield return null;
+
+        float elapsed = 0f;
+        while (elapsed < InitialEnemyEntranceWaitCapSeconds && AreAnyEnemiesPlayingAppearAnimation())
+        {
+            elapsed += Time.deltaTime;
+            yield return null;
+        }
+    }
+
+    /// <summary>
+    /// 檢查目前場上是否仍有妖怪正在播放進場動畫。
+    /// </summary>
+    private bool AreAnyEnemiesPlayingAppearAnimation()
+    {
+        for (int i = 0; i < enemies.Count; i++)
+        {
+            Enemy enemy = enemies[i];
+            if (enemy != null && enemy.Visual != null && enemy.Visual.IsAppearAnimationPlaying())
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /// <summary>
+    /// 根據遭遇設定隨機把妖怪生成到棋盤上。
+    /// 若需要保留玩家起始格，會先把那格從可生成清單中排除。
+    /// </summary>
+    private void SpawnInitialEnemies(bool reservePlayerStartTile)
+    {
+        if (board == null || enemySpawnConfigs == null)
+        {
+            return;
+        }
+
+        // 教學戰鬥的生成交給教學控制器負責。
         if (tutorialController != null && tutorialController.IsActive)
         {
             tutorialController.SpawnEnemiesForCurrentStep();
             return;
         }
-        List<Vector2Int> positions = board.GetAllPositions();   // ?踹????支?蝵?
-        positions.Remove(battleManager.playerStartPos);         // ?摰嗉絲憪?蝵桀??舐雿蔭銝剔宏?歹??踹??萎犖蝡?拙振?凋?嚗?
 
-        foreach (var config in enemySpawnConfigs)               // 撠?銝蝔格鈭粹?蝵桅脰?餈游?
+        List<Vector2Int> positions = board.GetAllPositions();
+        if (reservePlayerStartTile)
         {
-            if (config == null || config.enemyPrefab == null) continue;
-            // ?仿?蝵桐?摮???? Prefab嚗停頝喲?
+            positions.Remove(battleManager.playerStartPos);
+        }
 
-            int spawnCount = Mathf.Max(0, config.count);        // ?脣?嚗????撠 0
+        foreach (var config in enemySpawnConfigs)
+        {
+            if (config == null || config.enemyPrefab == null)
+            {
+                continue;
+            }
+
+            int spawnCount = Mathf.Max(0, config.count);
             for (int i = 0; i < spawnCount && positions.Count > 0; i++)
             {
                 int idx = UnityEngine.Random.Range(0, positions.Count);
-                // ?函?擗??舐雿蔭銝剝璈銝??index
+                Vector2Int pos = positions[idx];
+                positions.RemoveAt(idx);
 
-                Vector2Int pos = positions[idx];                // ???詨?漣璅?
-                positions.RemoveAt(idx);                        // 敺?銵其葉蝘駁??蝵殷??踹?????嚗?
+                BoardTile tile = board.GetTileAt(pos);
+                if (tile == null)
+                {
+                    continue;
+                }
 
-                BoardTile tile = board.GetTileAt(pos);          // ??閰脣漣璅??摮?
-                if (tile == null) continue;                     // ?交摮?摮撠梯歲??
+                Enemy enemy = Object.Instantiate(
+                    config.enemyPrefab,
+                    tile.transform.position,
+                    Quaternion.identity);
 
-                Enemy e = Object.Instantiate(
-                    config.enemyPrefab,                         // 閬????萎犖 Prefab
-                    tile.transform.position,                    // ?曉閰脫摮?銝?摨扳?雿蔭
-                    Quaternion.identity);                       // 銝?頧????身?孵?嚗?
-
-                e.gridPosition = pos;                           // 閮剖??萎犖??頛舀摮漣璅?
+                enemy.gridPosition = pos;
             }
 
-            if (positions.Count == 0)                           // 憒?撌脩?瘝??舐雿蔭?臭誑?暹鈭?
-                break;                                          // 蝯?憭惜餈游?嚗????憭鈭?
+            if (positions.Count == 0)
+            {
+                break;
+            }
         }
     }
 
+    /// <summary>
+    /// 處理玩家在選位階段點到格子的事件。
+    /// </summary>
     public bool HandleTileSelection(BoardTile tile)
     {
-        if (!isSelectingStartTile) return false;                // ?亦???臬?貉絲憪?挾嚗?亙蕭??
-        battleManager.playerStartPos = tile.gridPosition;       // 撠摰嗉絲憪?蝵株身?箄◤暺??
-        isSelectingStartTile = false;                           // 蝯??詨?瘚?嚗electPlayerStartTile ??while ?歲?綽?
-        return true;                                            // ? true 銵函內?活暺??◤??嚗??暺?
+        if (!isSelectingStartTile || tile == null)
+        {
+            return false;
+        }
+
+        if (board != null && board.IsTileOccupied(tile.gridPosition))
+        {
+            return false;
+        }
+
+        battleManager.playerStartPos = tile.gridPosition;
+        isSelectingStartTile = false;
+        return true;
     }
 }

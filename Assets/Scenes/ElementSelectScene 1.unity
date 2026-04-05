@@ -426,6 +426,7 @@ MonoBehaviour:
   uiText: {fileID: 565577536}
   tmpText: {fileID: 0}
   dialogueBubbleUI: {fileID: 0}
+  guideNPCPresenter: {fileID: 0}
   restoreDefaultWhenMessageHidden: 1
   textChangeSettleSeconds: 0.1
   randomSprites:
@@ -827,10 +828,10 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 543922553}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 0, y: 0}
+  m_AnchorMin: {x: 0, y: 1}
+  m_AnchorMax: {x: 0, y: 1}
+  m_AnchoredPosition: {x: 363.50748, y: 0}
+  m_SizeDelta: {x: 727.01495, y: 28}
   m_Pivot: {x: 0.5, y: 1}
 --- !u!114 &371713318
 MonoBehaviour:

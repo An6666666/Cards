@@ -35,6 +35,9 @@ public class GuideNPCPresenter : MonoBehaviour
     private Graphic[] selfGraphics;
     private float[] selfGraphicBaseAlphas;
     private bool isHiding;
+    private bool selfGraphicsVisible = true;
+
+    public bool AreSelfGraphicsVisible => selfGraphicsVisible;
 
     public void AssignDialogueUI(DialogueBubbleUI ui)
     {
@@ -159,6 +162,7 @@ public class GuideNPCPresenter : MonoBehaviour
     public void Show()
     {
         ResolveSceneReferencesIfNeeded();
+        DisableSelfGraphicRaycasts();
         bool shouldContinueWithoutFade = IsWaitingDelayedHide() || (!isHiding && IsFullyVisible());
         KillDelayedHideTween();
         if (shouldContinueWithoutFade)
@@ -213,6 +217,7 @@ public class GuideNPCPresenter : MonoBehaviour
     {
         KillDelayedHideTween();
         KillVisibilityTween();
+        DisableSelfGraphicRaycasts();
         if (!animateVisibility)
         {
             if (canvasGroup != null)
@@ -278,6 +283,7 @@ public class GuideNPCPresenter : MonoBehaviour
     private void Awake()
     {
         CacheSelfGraphicsIfNeeded();
+        DisableSelfGraphicRaycasts();
         ResolveSceneReferencesIfNeeded();
     }
     private void OnEnable()
@@ -337,6 +343,7 @@ public class GuideNPCPresenter : MonoBehaviour
     private void SetSelfGraphicsVisible(bool visible)
     {
         CacheSelfGraphicsIfNeeded();
+        selfGraphicsVisible = visible;
         if (selfGraphics == null || selfGraphics.Length == 0)
         {
             return;
@@ -348,6 +355,7 @@ public class GuideNPCPresenter : MonoBehaviour
             if (graphic == null)
                 continue;
 
+            graphic.raycastTarget = false;
             graphic.enabled = visible;
             if (visible)
             {
@@ -386,6 +394,11 @@ public class GuideNPCPresenter : MonoBehaviour
         if (selfGraphics == null || selfGraphics.Length == 0)
             return null;
 
+        if (visible)
+        {
+            selfGraphicsVisible = true;
+        }
+
         Sequence sequence = DOTween.Sequence();
         bool hasTween = false;
         for (int i = 0; i < selfGraphics.Length; i++)
@@ -394,6 +407,7 @@ public class GuideNPCPresenter : MonoBehaviour
             if (graphic == null)
                 continue;
 
+            graphic.raycastTarget = false;
             float targetAlpha = i < selfGraphicBaseAlphas.Length ? selfGraphicBaseAlphas[i] : graphic.color.a;
             if (visible)
             {
@@ -423,6 +437,21 @@ public class GuideNPCPresenter : MonoBehaviour
         }
 
         return sequence;
+    }
+    private void DisableSelfGraphicRaycasts()
+    {
+        CacheSelfGraphicsIfNeeded();
+        if (selfGraphics == null || selfGraphics.Length == 0)
+            return;
+
+        for (int i = 0; i < selfGraphics.Length; i++)
+        {
+            Graphic graphic = selfGraphics[i];
+            if (graphic == null)
+                continue;
+
+            graphic.raycastTarget = false;
+        }
     }
     private bool IsWaitingDelayedHide()
     {

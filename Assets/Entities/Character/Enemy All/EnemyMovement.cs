@@ -6,6 +6,7 @@ public class EnemyMovement : MonoBehaviour
 {
     private Enemy enemy;
     private Tween moveTween;
+    private Vector2Int? previousGridPosition;
 
     public void Init(Enemy owner)
     {
@@ -19,12 +20,23 @@ public class EnemyMovement : MonoBehaviour
     }
 
     public List<Vector2Int> AttackRangeOffsets => enemy.attackRangeOffsets;
+    public Vector2Int? PreviousGridPosition => previousGridPosition;
+    public bool IsMoving => moveTween != null && moveTween.IsActive();
 
     public virtual bool IsPlayerInRange(Player player)
     {
-        foreach (Vector2Int off in enemy.attackRangeOffsets)
+        return player != null && CanAttackFrom(enemy.gridPosition, player.position);
+    }
+
+    public bool CanAttackFrom(Vector2Int origin, Vector2Int target)
+    {
+        List<Vector2Int> offsets = AttackRangeOffsets;
+        for (int i = 0; i < offsets.Count; i++)
         {
-            if (enemy.gridPosition + off == player.position) return true;
+            if (origin + offsets[i] == target)
+            {
+                return true;
+            }
         }
 
         return false;
@@ -32,34 +44,12 @@ public class EnemyMovement : MonoBehaviour
 
     public virtual void MoveOneStepTowards(Player player)
     {
-        Board board = ResolveBoard();
-        if (board == null || player == null)
+        if (enemy == null || player == null)
         {
             return;
         }
 
-        List<BoardTile> adjacentTiles = board.GetAdjacentTiles(enemy.gridPosition);
-        Vector2Int bestPos = enemy.gridPosition;
-        float bestDistance = Vector2Int.Distance(enemy.gridPosition, player.position);
-
-        for (int i = 0; i < adjacentTiles.Count; i++)
-        {
-            BoardTile tile = adjacentTiles[i];
-            Vector2Int pos = tile.gridPosition;
-            if (board.IsTileOccupied(pos) || player.position == pos)
-            {
-                continue;
-            }
-
-            float distance = Vector2Int.Distance(pos, player.position);
-            if (distance < bestDistance)
-            {
-                bestDistance = distance;
-                bestPos = pos;
-            }
-        }
-
-        if (bestPos != enemy.gridPosition)
+        if (EnemyActionScoringSystem.TryEvaluateBestMove(enemy, player, previousGridPosition, out Vector2Int bestPos, out _))
         {
             MoveToPosition(bestPos);
         }
@@ -85,6 +75,7 @@ public class EnemyMovement : MonoBehaviour
             return;
         }
 
+        previousGridPosition = enemy.gridPosition;
         enemy.gridPosition = targetGridPos;
         enemy.Visual.SetMoveBool(true);
 

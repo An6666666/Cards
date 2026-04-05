@@ -1,4 +1,5 @@
 using System.Collections;
+using System;
 using UnityEngine;
 
 public class EnemyVisual : MonoBehaviour
@@ -10,6 +11,10 @@ public class EnemyVisual : MonoBehaviour
     private bool spriteDefaultsInitialized = false;
     private Animator spriteAnimator;
     private Animator highlightAnimator;
+    private bool appearAnimationStarted;
+    private float appearAnimationFallbackEndTime;
+
+    private const float DefaultAppearFallbackDuration = 0.8f;
 
     private static readonly int HashAppear = Animator.StringToHash("Appear");
     private static readonly int HashAttack = Animator.StringToHash("Attack");
@@ -75,8 +80,31 @@ public class EnemyVisual : MonoBehaviour
         if (spriteAnimator == null) return;
 
         hasAppeared = true;
+        appearAnimationStarted = false;
+        appearAnimationFallbackEndTime = Time.time + ResolveAppearFallbackDuration();
         enemy.HideIdleOverlaysInternal();
         spriteAnimator.SetTrigger(HashAppear);
+    }
+
+    public bool IsAppearAnimationPlaying()
+    {
+        if (enemy == null || !enemy.useAppearAnimation || !hasAppeared)
+            return false;
+
+        EnsureAnimators();
+        if (spriteAnimator == null)
+            return false;
+
+        if (IsAppearClipPlaying())
+        {
+            appearAnimationStarted = true;
+            return true;
+        }
+
+        if (!appearAnimationStarted && Time.time < appearAnimationFallbackEndTime)
+            return true;
+
+        return false;
     }
 
     public void SetMoveBool(bool moving)
@@ -263,5 +291,62 @@ public class EnemyVisual : MonoBehaviour
         }
 
         return false;
+    }
+
+    private bool IsAppearClipPlaying()
+    {
+        if (spriteAnimator == null)
+            return false;
+
+        if (ContainsAppearClip(spriteAnimator.GetCurrentAnimatorClipInfo(0)))
+            return true;
+
+        if (spriteAnimator.IsInTransition(0) && ContainsAppearClip(spriteAnimator.GetNextAnimatorClipInfo(0)))
+            return true;
+
+        return false;
+    }
+
+    private float ResolveAppearFallbackDuration()
+    {
+        if (spriteAnimator == null || spriteAnimator.runtimeAnimatorController == null)
+            return DefaultAppearFallbackDuration;
+
+        float longestAppearClip = 0f;
+        AnimationClip[] clips = spriteAnimator.runtimeAnimatorController.animationClips;
+        for (int i = 0; i < clips.Length; i++)
+        {
+            AnimationClip clip = clips[i];
+            if (clip == null || !IsAppearName(clip.name))
+                continue;
+
+            longestAppearClip = Mathf.Max(longestAppearClip, clip.length);
+        }
+
+        if (longestAppearClip <= 0f)
+            return DefaultAppearFallbackDuration;
+
+        return longestAppearClip + 0.35f;
+    }
+
+    private static bool ContainsAppearClip(AnimatorClipInfo[] clipInfos)
+    {
+        if (clipInfos == null || clipInfos.Length == 0)
+            return false;
+
+        for (int i = 0; i < clipInfos.Length; i++)
+        {
+            AnimationClip clip = clipInfos[i].clip;
+            if (clip != null && IsAppearName(clip.name))
+                return true;
+        }
+
+        return false;
+    }
+
+    private static bool IsAppearName(string clipName)
+    {
+        return !string.IsNullOrWhiteSpace(clipName) &&
+               clipName.IndexOf("Appear", StringComparison.OrdinalIgnoreCase) >= 0;
     }
 }

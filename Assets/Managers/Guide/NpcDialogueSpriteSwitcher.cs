@@ -22,6 +22,7 @@ public class NpcDialogueSpriteSwitcher : MonoBehaviour
     [SerializeField] private Text uiText;
     [SerializeField] private TMP_Text tmpText;
     [SerializeField] private DialogueBubbleUI dialogueBubbleUI;
+    [SerializeField] private GuideNPCPresenter guideNPCPresenter;
 
     [Header("Behavior")]
     [SerializeField] private bool restoreDefaultWhenMessageHidden = true;
@@ -87,6 +88,21 @@ public class NpcDialogueSpriteSwitcher : MonoBehaviour
     {
         CacheDefaultSpriteIfNeeded();
 
+        if (guideNPCPresenter != null && !guideNPCPresenter.AreSelfGraphicsVisible)
+        {
+            if (npcImage != null)
+            {
+                npcImage.enabled = false;
+                npcImage.raycastTarget = false;
+            }
+
+            lastAppliedDialogueText = string.Empty;
+            lastObservedText = currentText ?? string.Empty;
+            lastMessageHidden = messageHidden;
+            lastWasTyping = isTyping;
+            return;
+        }
+
         if (restoreDefaultWhenMessageHidden && messageHidden)
         {
             ApplySprite(defaultSprite);
@@ -118,11 +134,16 @@ public class NpcDialogueSpriteSwitcher : MonoBehaviour
         if (npcImage == null)
             return;
 
-        if (lastAppliedSprite == sprite && npcImage.sprite == sprite)
+        bool shouldEnable = sprite != null;
+        if (lastAppliedSprite == sprite && npcImage.sprite == sprite && npcImage.enabled == shouldEnable)
+        {
+            npcImage.raycastTarget = false;
             return;
+        }
 
         npcImage.sprite = sprite;
-        npcImage.enabled = sprite != null;
+        npcImage.enabled = shouldEnable;
+        npcImage.raycastTarget = false;
         lastAppliedSprite = sprite;
     }
 
@@ -189,6 +210,15 @@ public class NpcDialogueSpriteSwitcher : MonoBehaviour
 
     private void ResolveReferencesIfNeeded()
     {
+        if (guideNPCPresenter == null)
+        {
+            guideNPCPresenter = GetComponent<GuideNPCPresenter>();
+            if (guideNPCPresenter == null)
+            {
+                guideNPCPresenter = GetComponentInParent<GuideNPCPresenter>(true);
+            }
+        }
+
         if (npcImage == null)
         {
             npcImage = GetComponent<Image>();

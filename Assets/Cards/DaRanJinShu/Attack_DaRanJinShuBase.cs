@@ -60,8 +60,9 @@ public abstract class Attack_DaRanJinShuBase : AttackCardBase, IAreaTargetingCar
                 continue;
             }
 
-            int appliedDamage = target.ApplyElementalAttack(element, totalDamage, player);
-            target.TakeDamage(appliedDamage);
+            int totalDamageWithRelic = GetDamageWithRelicBonus(player, target, totalDamage);
+            int appliedDamage = target.ApplyElementalAttack(element, totalDamageWithRelic, player);
+            DealDamageAndNotify(player, target, appliedDamage);
             hitAnyTarget = true;
 
             if (hitEffectPrefab != null)

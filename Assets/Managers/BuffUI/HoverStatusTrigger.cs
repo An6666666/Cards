@@ -12,7 +12,7 @@ public class HoverStatusTrigger : MonoBehaviour
 
     private void OnMouseEnter()
     {
-        if (PointerUiBlocker.IsPointerBlockedByUi())
+        if (ShouldBlockPanelTrigger())
             return;
 
         hovering = true;
@@ -29,17 +29,28 @@ public class HoverStatusTrigger : MonoBehaviour
 
     private void Update()
     {
-        if (!hovering || !PointerUiBlocker.IsPointerBlockedByUi())
+        if (!hovering)
             return;
 
-        hovering = false;
-        if (panel != null)
-            panel.ClearTarget();
+        if (ShouldBlockPanelTrigger())
+        {
+            hovering = false;
+            if (panel != null)
+                panel.ClearTarget();
+        }
     }
 
     private void OnDisable()
     {
         if (hovering && panel != null)
             panel.ClearTarget();
+    }
+
+    private static bool ShouldBlockPanelTrigger()
+    {
+        if (CardDragHandler.IsAnyCardDragging)
+            return true;
+
+        return PointerUiBlocker.IsPointerBlockedByUi();
     }
 }

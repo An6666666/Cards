@@ -25,7 +25,7 @@ public class EnemyElements : MonoBehaviour
         elementOrder.Remove(e);
         elementOrder.Add(e);
 
-        ResolveWaterWoodConflict();
+        ResolveExclusiveElementConflicts();
 
         if (addedNew)
         {
@@ -38,23 +38,29 @@ public class EnemyElements : MonoBehaviour
         }
     }
 
-    private void ResolveWaterWoodConflict()
+    private void ResolveExclusiveElementConflicts()
     {
-        if (!elementTags.Contains(ElementType.Water) || !elementTags.Contains(ElementType.Wood))
+        ResolveLatestOnlyConflict(ElementType.Water, ElementType.Wood);
+        ResolveLatestOnlyConflict(ElementType.Water, ElementType.Thunder);
+    }
+
+    private void ResolveLatestOnlyConflict(ElementType first, ElementType second)
+    {
+        if (!elementTags.Contains(first) || !elementTags.Contains(second))
         {
             return;
         }
 
-        int waterIndex = elementOrder.IndexOf(ElementType.Water);
-        int woodIndex = elementOrder.IndexOf(ElementType.Wood);
+        int firstIndex = elementOrder.IndexOf(first);
+        int secondIndex = elementOrder.IndexOf(second);
 
-        if (waterIndex < woodIndex)
+        if (firstIndex < secondIndex)
         {
-            RemoveElementTag(ElementType.Water);
+            RemoveElementTag(first);
         }
-        else if (woodIndex < waterIndex)
+        else if (secondIndex < firstIndex)
         {
-            RemoveElementTag(ElementType.Wood);
+            RemoveElementTag(second);
         }
     }
     
@@ -85,6 +91,7 @@ public class EnemyElements : MonoBehaviour
 
     public int ApplyElementalAttack(ElementType e, int baseDamage, Player player)
     {
+        enemy?.SnapshotFrostStacksForNextDamage();
         var strat = ElementalStrategyProvider.Get(e);
         return strat.CalculateDamage(player, enemy, baseDamage);
     }

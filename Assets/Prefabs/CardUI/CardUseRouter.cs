@@ -51,7 +51,7 @@ public class CardUseRouter : MonoBehaviour
         if (cardData.cardType == CardType.Attack)
             used = TryUseAttack(hit);
         else if (cardData.cardType == CardType.Movement)
-            used = TryUseMovement(hit);
+            used = TryUseMovement(hit, worldPos);
         else if (cardData.cardType == CardType.Skill)
             used = TryUseSkill(hit);
 
@@ -93,15 +93,51 @@ public class CardUseRouter : MonoBehaviour
         return false;
     }
 
-    private bool TryUseMovement(Collider2D hit)
+    private bool TryUseMovement(Collider2D hit, Vector2 worldPos)
     {
-        if (hit != null)
+        if (TryUseMovementHit(hit))
         {
-            BoardTile tile;
-            if (hit.TryGetComponent(out tile))
-                return battleManager.OnTileClicked(tile);
+            return true;
         }
+
+        Collider2D[] overlaps = Physics2D.OverlapPointAll(worldPos);
+        for (int i = 0; i < overlaps.Length; i++)
+        {
+            if (TryUseMovementHit(overlaps[i]))
+            {
+                return true;
+            }
+        }
+
         battleManager.CancelMovementSelection();
+        return false;
+    }
+
+    private bool TryUseMovementHit(Collider2D hit)
+    {
+        if (hit == null)
+        {
+            return false;
+        }
+
+        BoardTile tile;
+        if (hit.TryGetComponent(out tile))
+        {
+            return battleManager.OnTileClicked(tile);
+        }
+
+        tile = hit.GetComponentInParent<BoardTile>();
+        if (tile != null)
+        {
+            return battleManager.OnTileClicked(tile);
+        }
+
+        Enemy enemy = hit.GetComponentInParent<Enemy>();
+        if (enemy != null)
+        {
+            return battleManager.OnEnemyClicked(enemy);
+        }
+
         return false;
     }
 

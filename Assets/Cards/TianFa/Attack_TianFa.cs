@@ -38,8 +38,9 @@ public class Attack_TianFa : AttackCardBase, IAreaTargetingCard
 
         foreach (Enemy target in targets)
         {
-            int damage = target.ApplyElementalAttack(element, baseDamage, player);
-            target.TakeDamage(damage);
+            int totalDamage = GetDamageWithRelicBonus(player, target, baseDamage);
+            int damage = target.ApplyElementalAttack(element, totalDamage, player);
+            DealDamageAndNotify(player, target, damage);
 
             if (hitEffectPrefab != null)
             {

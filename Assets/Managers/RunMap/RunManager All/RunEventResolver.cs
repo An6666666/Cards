@@ -111,12 +111,12 @@ public class RunEventResolver
 
         if (option.rewardCards != null && option.rewardCards.Count > 0)
         {
-            target.deck.AddRange(option.rewardCards.Where(card => card != null));
+            target.deck.AddRange(InstantiateCards(option.rewardCards));
         }
 
         if (option.rewardRelics != null && option.rewardRelics.Count > 0)
         {
-            target.relics.AddRange(option.rewardRelics.Where(card => card != null));
+            target.relics.AddRange(InstantiateRelics(option.rewardRelics));
         }
     }
 
@@ -140,12 +140,12 @@ public class RunEventResolver
 
         if (option.rewardCards != null && option.rewardCards.Count > 0)
         {
-            currentRunSnapshot.deck.AddRange(option.rewardCards.Where(card => card != null));
+            currentRunSnapshot.deck.AddRange(InstantiateCards(option.rewardCards));
         }
 
         if (option.rewardRelics != null && option.rewardRelics.Count > 0)
         {
-            currentRunSnapshot.relics.AddRange(option.rewardRelics.Where(card => card != null));
+            currentRunSnapshot.relics.AddRange(InstantiateRelics(option.rewardRelics));
         }
     }
 
@@ -166,8 +166,44 @@ public class RunEventResolver
             currentHP = player != null ? player.currentHP : 0,
             gold = player != null ? player.gold : 0,
             deck = new List<CardBase>(),
-            relics = new List<CardBase>(),
+            relics = new List<RelicBase>(),
             exhaustPile = new List<CardBase>()
         };
+    }
+
+    private static IEnumerable<CardBase> InstantiateCards(IEnumerable<CardBase> source)
+    {
+        if (source == null)
+        {
+            yield break;
+        }
+
+        foreach (CardBase card in source)
+        {
+            if (card == null)
+            {
+                continue;
+            }
+
+            yield return UnityEngine.Object.Instantiate(card);
+        }
+    }
+
+    private static IEnumerable<RelicBase> InstantiateRelics(IEnumerable<RelicBase> source)
+    {
+        if (source == null)
+        {
+            yield break;
+        }
+
+        foreach (RelicBase relic in source)
+        {
+            if (relic == null)
+            {
+                continue;
+            }
+
+            yield return UnityEngine.Object.Instantiate(relic);
+        }
     }
 }
