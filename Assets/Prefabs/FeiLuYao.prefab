@@ -27,8 +27,8 @@ Transform:
   m_GameObject: {fileID: 153131917641067011}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -0.5, y: 1.34, z: 0}
-  m_LocalScale: {x: 1.2828, y: 1.2828, z: 0}
+  m_LocalPosition: {x: -0.692, y: 3.372, z: 0}
+  m_LocalScale: {x: 2.146254, y: 1.947801, z: 0}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 7500090528450079468}
@@ -74,7 +74,7 @@ SpriteRenderer:
   m_SortingLayerID: 1754066667
   m_SortingLayer: 4
   m_SortingOrder: 1
-  m_Sprite: {fileID: 21300000, guid: 11623a362b1669347b4426f0c00322b9, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 0ee0ca204cee50243890e60790b72c85, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -95,7 +95,7 @@ Animator:
   m_GameObject: {fileID: 153131917641067011}
   m_Enabled: 1
   m_Avatar: {fileID: 0}
-  m_Controller: {fileID: 9100000, guid: 0fc904c66d3f090498553cedcce08fa4, type: 2}
+  m_Controller: {fileID: 9100000, guid: 23cdbeda82f8a0f4a8f3f7421ceb5937, type: 2}
   m_CullingMode: 0
   m_UpdateMode: 0
   m_ApplyRootMotion: 0
@@ -133,8 +133,8 @@ Transform:
   m_GameObject: {fileID: 3983805566650552538}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 1.91, y: 1.34, z: 0}
-  m_LocalScale: {x: 0.7130214, y: 0.6558076, z: 1}
+  m_LocalPosition: {x: -0.692, y: 3.372, z: 0}
+  m_LocalScale: {x: 2.046254, y: 1.847801, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 7500090528450079468}
@@ -180,7 +180,7 @@ SpriteRenderer:
   m_SortingLayerID: -19661165
   m_SortingLayer: 3
   m_SortingOrder: 0
-  m_Sprite: {fileID: 21300000, guid: ea7c4e2aa2ada2847a84c9516edbabac, type: 3}
+  m_Sprite: {fileID: 21300000, guid: e1ce2c84f6ec25e4caca3ccc4972896c, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -201,7 +201,7 @@ Animator:
   m_GameObject: {fileID: 3983805566650552538}
   m_Enabled: 1
   m_Avatar: {fileID: 0}
-  m_Controller: {fileID: 9100000, guid: 09d6f3d9217971449bb45e3a4603acf1, type: 2}
+  m_Controller: {fileID: 9100000, guid: f96a970bdb2001a4687b2db4168a58fb, type: 2}
   m_CullingMode: 0
   m_UpdateMode: 0
   m_ApplyRootMotion: 0
@@ -292,8 +292,8 @@ Transform:
   m_GameObject: {fileID: 7976853016657536233}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 1.91, y: 1.34, z: 0}
-  m_LocalScale: {x: 0.7130214, y: 0.6558076, z: 0}
+  m_LocalPosition: {x: -0.692, y: 3.372, z: 0}
+  m_LocalScale: {x: 2.0462542, y: 1.8478014, z: 0}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 7500090528450079468}
@@ -339,7 +339,7 @@ SpriteRenderer:
   m_SortingLayerID: 632128979
   m_SortingLayer: 5
   m_SortingOrder: 2
-  m_Sprite: {fileID: 21300000, guid: ea7c4e2aa2ada2847a84c9516edbabac, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 0dd555a225b5eb7439281856f376aabb, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -375,7 +375,7 @@ Animator:
   m_GameObject: {fileID: 7976853016657536233}
   m_Enabled: 1
   m_Avatar: {fileID: 0}
-  m_Controller: {fileID: 9100000, guid: 09d6f3d9217971449bb45e3a4603acf1, type: 2}
+  m_Controller: {fileID: 9100000, guid: d4493fc0a08899b41af0d927f72406f1, type: 2}
   m_CullingMode: 0
   m_UpdateMode: 0
   m_ApplyRootMotion: 0
@@ -446,10 +446,11 @@ MonoBehaviour:
   enemyName: Slime
   maxHP: 40
   currentHP: 0
-  block: 0
+  currentBlock: 0
   goldReward: 4
   burningTurns: 0
   frozenTurns: 0
+  immobilizedTurns: 0
   superconduct: 0
   chargedCount: 0
   frostStacks: 0
@@ -787,7 +788,7 @@ PrefabInstance:
     - target: {fileID: 2955211467787434944, guid: aa327d458a92acc48ba8ff8e60ec1976, type: 3}
       propertyPath: skillEntries.Array.data[0].icon
       value: 
-      objectReference: {fileID: 21300000, guid: 20de9e0d515b7064f8fc3255602432d7, type: 3}
+      objectReference: {fileID: 21300000, guid: 1b1a635b043879e4a9c5c5a1db9ced7f, type: 3}
     - target: {fileID: 2955211467787434944, guid: aa327d458a92acc48ba8ff8e60ec1976, type: 3}
       propertyPath: skillEntries.Array.data[0].cooldownSlotIndex
       value: -1

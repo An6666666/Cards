@@ -120,7 +120,7 @@ public class PlayerBuffController : MonoBehaviour
         drawBlockedThisTurn = false;
     }
 
-    public void TickDebuffsOnPlayerTurnEnd()
+    public void TickDebuffsOnPlayerTurnEnd(Player owner)
     {
         if (weak > 0)
         {
@@ -160,6 +160,8 @@ public class PlayerBuffController : MonoBehaviour
                 }
             }
         }
+
+        RefreshNegativeEffectVisuals(owner);
     }
 
     public bool CanMove()
@@ -179,6 +181,7 @@ public class PlayerBuffController : MonoBehaviour
         imprisonFromEnemies = 0;
         needRandomDiscardAtEnd = 0;
         drawBlockedThisTurn = false;
+        RefreshNegativeEffectVisuals(owner);
     }
 
     public void RemoveEnemyNegativeEffects(Player owner)
@@ -200,6 +203,8 @@ public class PlayerBuffController : MonoBehaviour
             imprison = Mathf.Max(0, imprison - imprisonFromEnemies);
             imprisonFromEnemies = 0;
         }
+
+        RefreshNegativeEffectVisuals(owner);
     }
 
     public bool TryRemoveRandomNegativeEffect(Player owner)
@@ -220,6 +225,7 @@ public class PlayerBuffController : MonoBehaviour
 
         NegativeEffectType removedEffect = removableEffects[Random.Range(0, removableEffects.Count)];
         RemoveNegativeEffect(removedEffect);
+        RefreshNegativeEffectVisuals(owner);
         return true;
     }
 
@@ -228,6 +234,7 @@ public class PlayerBuffController : MonoBehaviour
         int storedDuration = GetStoredDebuffDuration(duration);
         weak = Mathf.Max(weak, storedDuration);
         weakFromEnemies = Mathf.Max(weakFromEnemies, Mathf.Min(storedDuration, weak));
+        RefreshNegativeEffectVisuals(GetComponent<Player>());
     }
 
     public void IncreaseWeakFromPlayer(int amount)
@@ -238,6 +245,7 @@ public class PlayerBuffController : MonoBehaviour
         }
 
         weak = Mathf.Max(0, weak + amount);
+        RefreshNegativeEffectVisuals(GetComponent<Player>());
     }
 
     public void ApplyBleedFromEnemy(int duration)
@@ -245,6 +253,7 @@ public class PlayerBuffController : MonoBehaviour
         int storedDuration = GetStoredDebuffDuration(duration);
         bleed = Mathf.Max(bleed, storedDuration);
         bleedFromEnemies = Mathf.Max(bleedFromEnemies, Mathf.Min(storedDuration, bleed));
+        RefreshNegativeEffectVisuals(GetComponent<Player>());
     }
 
     public void ApplyImprisonFromEnemy(int duration)
@@ -252,6 +261,7 @@ public class PlayerBuffController : MonoBehaviour
         int storedDuration = GetStoredDebuffDuration(duration);
         imprison = Mathf.Max(imprison, storedDuration);
         imprisonFromEnemies = Mathf.Max(imprisonFromEnemies, Mathf.Min(storedDuration, imprison));
+        RefreshNegativeEffectVisuals(GetComponent<Player>());
     }
 
     public void ResetAll()
@@ -276,6 +286,7 @@ public class PlayerBuffController : MonoBehaviour
         blockGainAtTurnEnd = 0;
         retainBlockNextTurn = false;
         guardianSpiritCharges.Clear();
+        RefreshNegativeEffectVisuals(GetComponent<Player>());
     }
 
     private struct GuardianSpiritCharge
@@ -306,5 +317,10 @@ public class PlayerBuffController : MonoBehaviour
     private static int GetStoredDebuffDuration(int duration)
     {
         return Mathf.Max(0, duration);
+    }
+
+    private static void RefreshNegativeEffectVisuals(Player owner)
+    {
+        owner?.RefreshDebuffFX();
     }
 }

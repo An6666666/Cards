@@ -207,6 +207,7 @@ MonoBehaviour:
   goldReward: 20
   burningTurns: 0
   frozenTurns: 0
+  immobilizedTurns: 0
   superconduct: 0
   chargedCount: 0
   frostStacks: 0
@@ -512,7 +513,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0.33, y: 3.42, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 0}
+  m_LocalScale: {x: 1.05, y: 1.05, z: 0}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 1341319821378648418}
@@ -735,19 +736,19 @@ PrefabInstance:
     - target: {fileID: 2955211467787434944, guid: aa327d458a92acc48ba8ff8e60ec1976, type: 3}
       propertyPath: skillEntries.Array.data[0].icon
       value: 
-      objectReference: {fileID: 21300000, guid: 092e36103958ae24bbcd4f91933c1e43, type: 3}
+      objectReference: {fileID: 21300000, guid: 65ed590b45787d341bee5179f79c7dc3, type: 3}
     - target: {fileID: 2955211467787434944, guid: aa327d458a92acc48ba8ff8e60ec1976, type: 3}
       propertyPath: skillEntries.Array.data[1].icon
       value: 
-      objectReference: {fileID: 21300000, guid: 092e36103958ae24bbcd4f91933c1e43, type: 3}
+      objectReference: {fileID: 21300000, guid: 9e54b3ca87b13d844913922c1f4016bf, type: 3}
     - target: {fileID: 2955211467787434944, guid: aa327d458a92acc48ba8ff8e60ec1976, type: 3}
       propertyPath: skillEntries.Array.data[2].icon
       value: 
-      objectReference: {fileID: 21300000, guid: 13268628998ff1d4eb8e4fd7421eb76c, type: 3}
+      objectReference: {fileID: 21300000, guid: a99eb3da60b66ba4fb3da1b1e1963ae3, type: 3}
     - target: {fileID: 2955211467787434944, guid: aa327d458a92acc48ba8ff8e60ec1976, type: 3}
       propertyPath: skillEntries.Array.data[3].icon
       value: 
-      objectReference: {fileID: 21300000, guid: 13268628998ff1d4eb8e4fd7421eb76c, type: 3}
+      objectReference: {fileID: 21300000, guid: 26d7201849d51e74ca08ff6147d7ed23, type: 3}
     - target: {fileID: 2955211467787434944, guid: aa327d458a92acc48ba8ff8e60ec1976, type: 3}
       propertyPath: skillEntries.Array.data[0].cooldownSlotIndex
       value: -1

@@ -408,10 +408,11 @@ MonoBehaviour:
   enemyName: YingGeStone
   maxHP: 100
   currentHP: 0
-  block: 0
+  currentBlock: 0
   goldReward: 0
   burningTurns: 0
   frozenTurns: 0
+  immobilizedTurns: 0
   superconduct: 0
   chargedCount: 0
   frostStacks: 0
@@ -746,7 +747,7 @@ PrefabInstance:
     - target: {fileID: 2955211467787434944, guid: aa327d458a92acc48ba8ff8e60ec1976, type: 3}
       propertyPath: skillEntries.Array.data[0].icon
       value: 
-      objectReference: {fileID: 21300000, guid: 7753c99243f14ac4a813cb8ffe3d8bfb, type: 3}
+      objectReference: {fileID: 21300000, guid: 76cb6ac3d6f21f649945859200e081dd, type: 3}
     - target: {fileID: 5227435389389655221, guid: aa327d458a92acc48ba8ff8e60ec1976, type: 3}
       propertyPath: m_LocalPosition.x
       value: 12.2

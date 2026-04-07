@@ -41,7 +41,7 @@ public class BattleTurnController
         battleManager.DiscardAllHand();
 
         player.EndTurn();
-        player.buffs.TickDebuffsOnPlayerTurnEnd();
+        player.buffs.TickDebuffsOnPlayerTurnEnd(player);
 
         ApplyPlayerMiasmaDamage();
         ApplyEnemyEndTurnEffects();

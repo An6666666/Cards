@@ -390,7 +390,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: -15.27, y: 7.33, z: 0}
-  m_LocalScale: {x: 1.664655, y: 1.552404, z: 0}
+  m_LocalScale: {x: 1.714655, y: 1.602404, z: 0}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 800236587445041992}
@@ -532,6 +532,7 @@ MonoBehaviour:
   goldReward: 100
   burningTurns: 0
   frozenTurns: 0
+  immobilizedTurns: 0
   superconduct: 0
   chargedCount: 0
   frostStacks: 0
@@ -935,23 +936,23 @@ PrefabInstance:
     - target: {fileID: 2955211467787434944, guid: aa327d458a92acc48ba8ff8e60ec1976, type: 3}
       propertyPath: skillEntries.Array.data[0].icon
       value: 
-      objectReference: {fileID: 21300000, guid: 7753c99243f14ac4a813cb8ffe3d8bfb, type: 3}
+      objectReference: {fileID: 21300000, guid: 89f679c40604fd64386d5021bf45cd13, type: 3}
     - target: {fileID: 2955211467787434944, guid: aa327d458a92acc48ba8ff8e60ec1976, type: 3}
       propertyPath: skillEntries.Array.data[1].icon
       value: 
-      objectReference: {fileID: 21300000, guid: 7753c99243f14ac4a813cb8ffe3d8bfb, type: 3}
+      objectReference: {fileID: 21300000, guid: a2bb19c937c67694aa453a28a9dda4cd, type: 3}
     - target: {fileID: 2955211467787434944, guid: aa327d458a92acc48ba8ff8e60ec1976, type: 3}
       propertyPath: skillEntries.Array.data[2].icon
       value: 
-      objectReference: {fileID: 21300000, guid: 7753c99243f14ac4a813cb8ffe3d8bfb, type: 3}
+      objectReference: {fileID: 21300000, guid: 9ef36af55ebf1764fbdda7db9feb3565, type: 3}
     - target: {fileID: 2955211467787434944, guid: aa327d458a92acc48ba8ff8e60ec1976, type: 3}
       propertyPath: skillEntries.Array.data[3].icon
       value: 
-      objectReference: {fileID: 21300000, guid: 7753c99243f14ac4a813cb8ffe3d8bfb, type: 3}
+      objectReference: {fileID: 21300000, guid: 3285246107336f442843695673033e52, type: 3}
     - target: {fileID: 2955211467787434944, guid: aa327d458a92acc48ba8ff8e60ec1976, type: 3}
       propertyPath: skillEntries.Array.data[4].icon
       value: 
-      objectReference: {fileID: 21300000, guid: 7753c99243f14ac4a813cb8ffe3d8bfb, type: 3}
+      objectReference: {fileID: 21300000, guid: 76cb6ac3d6f21f649945859200e081dd, type: 3}
     - target: {fileID: 2955211467787434944, guid: aa327d458a92acc48ba8ff8e60ec1976, type: 3}
       propertyPath: skillEntries.Array.data[1].showCooldown
       value: 0

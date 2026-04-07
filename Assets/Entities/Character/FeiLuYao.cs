@@ -44,6 +44,7 @@ public class FeiLuYao : Enemy
         if (player == null)
             return;
 
+        Visual?.PlayAttackAnimation();
         ApplyRandomDebuff(player);
     }
 
