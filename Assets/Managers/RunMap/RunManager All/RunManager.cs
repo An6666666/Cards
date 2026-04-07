@@ -430,6 +430,10 @@ public class RunManager : MonoBehaviour
         if (runCompleted)
         {
             ResetRun();         // 憒? run 撌脩?摰?鈭?撠梁?仿???撘菜??
+            activeNode = null;
+            sceneRouter.LoadDeathReturnScene();
+            MapStateChanged?.Invoke();
+            return;
         }
 
         activeNode = null;      // 銝??迤?券脰???暺?

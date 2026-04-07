@@ -469,8 +469,12 @@ public class RewardUI : MonoBehaviour
 
         for (int i = 0; i < rewardCardUIs.Count; i++)
         {
-            if (rewardCardUIs[i] != null)
-                rewardCardUIs[i].SetInteractable(value);
+            if (rewardCardUIs[i] == null)
+                continue;
+
+            rewardCardUIs[i].SetInteractable(value);
+            CardRaycastController raycastController = rewardCardUIs[i].GetComponent<CardRaycastController>();
+            raycastController?.SetBlocksRaycasts(value);
         }
     }
 
