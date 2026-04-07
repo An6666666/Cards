@@ -37,6 +37,8 @@ public class Player : MonoBehaviour
     public void PlayUtilityAnim() => animCtrl?.PlayUtility();
     public void PlayMoveCardAnim() => animCtrl?.PlayMoveCard();
     public void PlayMoveStarAnim() => animCtrl?.PlayMoveStar();
+    public void PlayShieldHitFX() => effectCtrl?.PlayShieldHitFX();
+    public void PlayShieldBreakFX() => effectCtrl?.PlayShieldBreakFX();
     public void PlayMoveStarFX() => effectCtrl?.PlayMoveStarFX();
     public void PlayTeleportDisappearAnim() => animCtrl?.PlayTeleportDisappear();
     public void PlayTeleportLeaveFX() => effectCtrl?.PlayTeleportLeaveFX();
@@ -49,6 +51,10 @@ public class Player : MonoBehaviour
     public void SetMovingAnim(bool moving) => animCtrl?.SetMoving(moving);
     public void SetDeadAnim(bool dead) => animCtrl?.SetDead(dead);
     public void SetShieldFXActive(bool active) => effectCtrl?.SetShieldActive(active);
+    public void RefreshDebuffFX() => effectCtrl?.SetDebuffFxState(
+        buffs != null && buffs.bleed > 0,
+        buffs != null && buffs.weak > 0,
+        buffs != null && buffs.imprison > 0);
 
     public int maxHP
     {
@@ -121,6 +127,7 @@ public class Player : MonoBehaviour
         }
 
         RefreshLowHpFeedback();
+        RefreshDebuffFX();
     }
 
     private static List<RelicBase> InstantiateRelicCopies(List<RelicBase> sourceRelics)

@@ -356,10 +356,11 @@ MonoBehaviour:
   enemyName: Slime
   maxHP: 40
   currentHP: 0
-  block: 0
+  currentBlock: 0
   goldReward: 4
   burningTurns: 0
   frozenTurns: 0
+  immobilizedTurns: 0
   superconduct: 0
   chargedCount: 0
   frostStacks: 0
@@ -802,11 +803,11 @@ PrefabInstance:
     - target: {fileID: 2955211467787434944, guid: aa327d458a92acc48ba8ff8e60ec1976, type: 3}
       propertyPath: skillEntries.Array.data[0].icon
       value: 
-      objectReference: {fileID: 21300000, guid: 7753c99243f14ac4a813cb8ffe3d8bfb, type: 3}
+      objectReference: {fileID: 21300000, guid: a9c79afb3078bba40ac94b9399842016, type: 3}
     - target: {fileID: 2955211467787434944, guid: aa327d458a92acc48ba8ff8e60ec1976, type: 3}
       propertyPath: skillEntries.Array.data[1].icon
       value: 
-      objectReference: {fileID: 21300000, guid: 30d19b24cba0dab488c62feb4cf50530, type: 3}
+      objectReference: {fileID: 21300000, guid: ddd8ad9d6f450a3479dc3440714c123e, type: 3}
     - target: {fileID: 2955211467787434944, guid: aa327d458a92acc48ba8ff8e60ec1976, type: 3}
       propertyPath: skillEntries.Array.data[0].cooldownSlotIndex
       value: -1

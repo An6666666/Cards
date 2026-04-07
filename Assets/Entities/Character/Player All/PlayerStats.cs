@@ -88,6 +88,7 @@ public class PlayerStats : MonoBehaviour
 
     public void TakeDamage(int dmg)
     {
+        int previousBlock = block;
         int incoming = dmg;
         if (buffController.weak > 0)
         {
@@ -102,6 +103,7 @@ public class PlayerStats : MonoBehaviour
 
         float realDmgF = reduced * buffController.damageTakenRatio;
         int realDmg = Mathf.CeilToInt(realDmgF);
+        int blockedDamage = Mathf.Min(previousBlock, realDmg);
 
         int remain = realDmg - block;
         if (remain > 0)
@@ -117,6 +119,7 @@ public class PlayerStats : MonoBehaviour
             block -= realDmg;
         }
 
+        NotifyShieldDamageFeedback(previousBlock, blockedDamage);
         NotifyBlockChanged();
     }
 
@@ -140,6 +143,7 @@ public class PlayerStats : MonoBehaviour
             return;
         }
 
+        int previousBlock = block;
         int remaining = dmg;
 
         if (block > 0)
@@ -163,6 +167,8 @@ public class PlayerStats : MonoBehaviour
             NotifyActualHpDamage();
         }
 
+        int blockedDamage = Mathf.Min(previousBlock, dmg);
+        NotifyShieldDamageFeedback(previousBlock, blockedDamage);
         NotifyBlockChanged();
     }
 
@@ -173,7 +179,14 @@ public class PlayerStats : MonoBehaviour
 
     public void SetBlock(int value)
     {
+        int previousBlock = block;
         block = Mathf.Max(0, value);
+
+        if (previousBlock > 0 && block <= 0)
+        {
+            owner?.PlayShieldBreakFX();
+        }
+
         NotifyBlockChanged();
     }
 
@@ -210,5 +223,21 @@ public class PlayerStats : MonoBehaviour
     private void NotifyBlockChanged()
     {
         owner?.SetShieldFXActive(block > 0);
+    }
+
+    private void NotifyShieldDamageFeedback(int previousBlock, int blockedDamage)
+    {
+        if (previousBlock <= 0 || blockedDamage <= 0)
+        {
+            return;
+        }
+
+        if (block <= 0)
+        {
+            owner?.PlayShieldBreakFX();
+            return;
+        }
+
+        owner?.PlayShieldHitFX();
     }
 }

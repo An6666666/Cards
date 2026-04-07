@@ -341,10 +341,11 @@ MonoBehaviour:
   enemyName: GouShe
   maxHP: 50
   currentHP: 0
-  block: 0
+  currentBlock: 0
   goldReward: 10
   burningTurns: 0
   frozenTurns: 0
+  immobilizedTurns: 0
   superconduct: 0
   chargedCount: 0
   frostStacks: 0
@@ -878,19 +879,19 @@ PrefabInstance:
     - target: {fileID: 2955211467787434944, guid: aa327d458a92acc48ba8ff8e60ec1976, type: 3}
       propertyPath: skillEntries.Array.data[0].icon
       value: 
-      objectReference: {fileID: 21300000, guid: b73ecaa923679314ca19d516e6ecea9f, type: 3}
+      objectReference: {fileID: 21300000, guid: 2e4b69359f06b064abdc21bdbafefabd, type: 3}
     - target: {fileID: 2955211467787434944, guid: aa327d458a92acc48ba8ff8e60ec1976, type: 3}
       propertyPath: skillEntries.Array.data[1].icon
       value: 
-      objectReference: {fileID: 21300000, guid: b73ecaa923679314ca19d516e6ecea9f, type: 3}
+      objectReference: {fileID: 21300000, guid: 38d7aa48e609aec40a03e5b3bfa8ed78, type: 3}
     - target: {fileID: 2955211467787434944, guid: aa327d458a92acc48ba8ff8e60ec1976, type: 3}
       propertyPath: skillEntries.Array.data[2].icon
       value: 
-      objectReference: {fileID: 21300000, guid: b73ecaa923679314ca19d516e6ecea9f, type: 3}
+      objectReference: {fileID: 21300000, guid: 20ae7b8301669264ea19819fa2216b97, type: 3}
     - target: {fileID: 2955211467787434944, guid: aa327d458a92acc48ba8ff8e60ec1976, type: 3}
       propertyPath: skillEntries.Array.data[3].icon
       value: 
-      objectReference: {fileID: 21300000, guid: b73ecaa923679314ca19d516e6ecea9f, type: 3}
+      objectReference: {fileID: 21300000, guid: 247b555f7745eeb419f7287da6249684, type: 3}
     - target: {fileID: 2955211467787434944, guid: aa327d458a92acc48ba8ff8e60ec1976, type: 3}
       propertyPath: skillEntries.Array.data[1].cooldownSlotIndex
       value: 1

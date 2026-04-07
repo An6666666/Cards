@@ -448,10 +448,11 @@ MonoBehaviour:
   enemyName: HuGuPo
   maxHP: 50
   currentHP: 0
-  block: 0
+  currentBlock: 0
   goldReward: 10
   burningTurns: 0
   frozenTurns: 0
+  immobilizedTurns: 0
   superconduct: 0
   chargedCount: 0
   frostStacks: 0
@@ -892,15 +893,15 @@ PrefabInstance:
     - target: {fileID: 2955211467787434944, guid: aa327d458a92acc48ba8ff8e60ec1976, type: 3}
       propertyPath: skillEntries.Array.data[0].icon
       value: 
-      objectReference: {fileID: 21300000, guid: b73ecaa923679314ca19d516e6ecea9f, type: 3}
+      objectReference: {fileID: 21300000, guid: 879b1fa9cd2d72c4d9fcef81f3278429, type: 3}
     - target: {fileID: 2955211467787434944, guid: aa327d458a92acc48ba8ff8e60ec1976, type: 3}
       propertyPath: skillEntries.Array.data[1].icon
       value: 
-      objectReference: {fileID: 21300000, guid: 99b9a182070514b49b5a6b320ddf5702, type: 3}
+      objectReference: {fileID: 21300000, guid: 3c1520c617b024845acb26020613f195, type: 3}
     - target: {fileID: 2955211467787434944, guid: aa327d458a92acc48ba8ff8e60ec1976, type: 3}
       propertyPath: skillEntries.Array.data[2].icon
       value: 
-      objectReference: {fileID: 21300000, guid: 99b9a182070514b49b5a6b320ddf5702, type: 3}
+      objectReference: {fileID: 21300000, guid: d0bd8d3d0399e3c44a266b7b7fa5754a, type: 3}
     - target: {fileID: 2955211467787434944, guid: aa327d458a92acc48ba8ff8e60ec1976, type: 3}
       propertyPath: skillEntries.Array.data[1].showCooldown
       value: 1

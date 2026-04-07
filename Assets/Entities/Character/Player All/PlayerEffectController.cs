@@ -1,8 +1,11 @@
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class PlayerEffectController : MonoBehaviour
 {
     private static readonly int HashHasShield = Animator.StringToHash("HasShield");
+    private static readonly int HashPlayShieldHitFX = Animator.StringToHash("PlayShieldHitFX");
+    private static readonly int HashPlayShieldBreakFX = Animator.StringToHash("PlayShieldBreakFX");
     private static readonly int HashPlayMoveStarFX = Animator.StringToHash("PlayMoveStarFX");
     private static readonly int HashPlayTeleportLeaveFX = Animator.StringToHash("PlayTeleportLeaveFX");
     private static readonly int HashPlayTeleportAppearFX = Animator.StringToHash("PlayTeleportAppearFX");
@@ -11,19 +14,29 @@ public class PlayerEffectController : MonoBehaviour
     [SerializeField] private Animator shieldFxAnimator;
     [SerializeField] private Animator actionFxAnimator;
 
+    [Header("Debuff FX")]
+    [SerializeField] private GameObject bleedFxRoot;
+    [SerializeField] private GameObject weakFxRoot;
+    [SerializeField] private GameObject imprisonEnterFxRoot;
+    [SerializeField] private GameObject imprisonIdleFxRoot;
+
     private bool hasShieldParam;
+    private bool hasShieldHitFxParam;
+    private bool hasShieldBreakFxParam;
     private bool hasMoveStarFxParam;
     private bool hasTeleportLeaveFxParam;
     private bool hasTeleportAppearFxParam;
+    private bool wasImprisonActive;
 
     private void Awake()
     {
-        ResolveAnimators();
-        CacheParameterFlags();
+        EnsureResolved();
     }
 
     public void SetShieldActive(bool active)
     {
+        EnsureResolved();
+
         if (shieldFxAnimator == null || !hasShieldParam)
         {
             return;
@@ -32,19 +45,72 @@ public class PlayerEffectController : MonoBehaviour
         shieldFxAnimator.SetBool(HashHasShield, active);
     }
 
+    public void PlayShieldHitFX()
+    {
+        EnsureResolved();
+
+        if (shieldFxAnimator == null || !hasShieldHitFxParam)
+        {
+            return;
+        }
+
+        shieldFxAnimator.SetTrigger(HashPlayShieldHitFX);
+    }
+
+    public void PlayShieldBreakFX()
+    {
+        EnsureResolved();
+
+        if (shieldFxAnimator == null || !hasShieldBreakFxParam)
+        {
+            return;
+        }
+
+        shieldFxAnimator.SetTrigger(HashPlayShieldBreakFX);
+    }
+
     public void PlayMoveStarFX()
     {
+        EnsureResolved();
         TrySetActionTrigger(HashPlayMoveStarFX, hasMoveStarFxParam);
     }
 
     public void PlayTeleportLeaveFX()
     {
+        EnsureResolved();
         TrySetActionTrigger(HashPlayTeleportLeaveFX, hasTeleportLeaveFxParam);
     }
 
     public void PlayTeleportAppearFX()
     {
+        EnsureResolved();
         TrySetActionTrigger(HashPlayTeleportAppearFX, hasTeleportAppearFxParam);
+    }
+
+    public void SetDebuffFxState(bool hasBleed, bool hasWeak, bool hasImprison)
+    {
+        EnsureResolved();
+
+        SetFxActive(bleedFxRoot, hasBleed);
+        SetFxActive(weakFxRoot, hasWeak);
+        SetFxActive(imprisonIdleFxRoot, hasImprison);
+
+        if (hasImprison && !wasImprisonActive)
+        {
+            ReplayFx(imprisonEnterFxRoot);
+        }
+        else if (!hasImprison)
+        {
+            SetFxActive(imprisonEnterFxRoot, false);
+        }
+
+        wasImprisonActive = hasImprison;
+    }
+
+    private void EnsureResolved()
+    {
+        ResolveAnimators();
+        CacheParameterFlags();
     }
 
     private void ResolveAnimators()
@@ -66,11 +132,52 @@ public class PlayerEffectController : MonoBehaviour
                 actionFxAnimator = actionRoot.GetComponent<Animator>();
             }
         }
+
+        bleedFxRoot = ResolveFxRoot(bleedFxRoot, "BleedFXRoot", "BleedEffectRoot", "DebuffBleedFXRoot");
+        weakFxRoot = ResolveFxRoot(weakFxRoot, "WeakFXRoot", "WeakEffectRoot", "DebuffWeakFXRoot");
+
+        Transform imprisonRoot = ResolveFxTransform(null, "ImprisonFXRoot", "DebuffImprisonFXRoot");
+        imprisonEnterFxRoot = ResolveFxRoot(
+            imprisonEnterFxRoot,
+            "ImprisonEnterFXRoot",
+            "ImprisonStartFXRoot",
+            "DebuffImprisonEnterFXRoot",
+            "Enter",
+            "confine_start_00");
+        imprisonIdleFxRoot = ResolveFxRoot(
+            imprisonIdleFxRoot,
+            "ImprisonIdleFXRoot",
+            "DebuffImprisonIdleFXRoot",
+            "Idle",
+            "standby_00");
+
+        if (imprisonRoot != null)
+        {
+            if (imprisonEnterFxRoot == null)
+            {
+                Transform enter = FindChildByName(imprisonRoot, "Enter") ?? FindChildByName(imprisonRoot, "confine_start_00");
+                if (enter != null)
+                {
+                    imprisonEnterFxRoot = enter.gameObject;
+                }
+            }
+
+            if (imprisonIdleFxRoot == null)
+            {
+                Transform idle = FindChildByName(imprisonRoot, "Idle") ?? FindChildByName(imprisonRoot, "standby_00");
+                if (idle != null)
+                {
+                    imprisonIdleFxRoot = idle.gameObject;
+                }
+            }
+        }
     }
 
     private void CacheParameterFlags()
     {
         hasShieldParam = HasParameter(shieldFxAnimator, HashHasShield, AnimatorControllerParameterType.Bool);
+        hasShieldHitFxParam = HasParameter(shieldFxAnimator, HashPlayShieldHitFX, AnimatorControllerParameterType.Trigger);
+        hasShieldBreakFxParam = HasParameter(shieldFxAnimator, HashPlayShieldBreakFX, AnimatorControllerParameterType.Trigger);
         hasMoveStarFxParam = HasParameter(actionFxAnimator, HashPlayMoveStarFX, AnimatorControllerParameterType.Trigger);
         hasTeleportLeaveFxParam = HasParameter(actionFxAnimator, HashPlayTeleportLeaveFX, AnimatorControllerParameterType.Trigger);
         hasTeleportAppearFxParam = HasParameter(actionFxAnimator, HashPlayTeleportAppearFX, AnimatorControllerParameterType.Trigger);
@@ -84,6 +191,90 @@ public class PlayerEffectController : MonoBehaviour
         }
 
         actionFxAnimator.SetTrigger(hash);
+    }
+
+    private static void SetFxActive(GameObject fxRoot, bool active)
+    {
+        if (fxRoot == null)
+        {
+            return;
+        }
+
+        if (fxRoot.activeSelf != active)
+        {
+            fxRoot.SetActive(active);
+        }
+    }
+
+    private static void ReplayFx(GameObject fxRoot)
+    {
+        if (fxRoot == null)
+        {
+            return;
+        }
+
+        fxRoot.SetActive(false);
+        fxRoot.SetActive(true);
+
+        Animator animator = fxRoot.GetComponent<Animator>();
+        if (animator == null)
+        {
+            animator = fxRoot.GetComponentInChildren<Animator>(true);
+        }
+
+        if (animator != null)
+        {
+            animator.Rebind();
+            animator.Update(0f);
+        }
+    }
+
+    private GameObject ResolveFxRoot(GameObject current, params string[] names)
+    {
+        if (current != null)
+        {
+            return current;
+        }
+
+        Transform match = ResolveFxTransform(null, names);
+        return match != null ? match.gameObject : null;
+    }
+
+    private Transform ResolveFxTransform(Transform current, params string[] names)
+    {
+        if (current != null)
+        {
+            return current;
+        }
+
+        for (int i = 0; i < names.Length; i++)
+        {
+            Transform child = FindChildByName(transform, names[i]);
+            if (child != null)
+            {
+                return child;
+            }
+        }
+
+        Scene activeScene = gameObject.scene;
+        if (activeScene.IsValid())
+        {
+            GameObject[] roots = activeScene.GetRootGameObjects();
+            for (int i = 0; i < roots.Length; i++)
+            {
+                Transform root = roots[i].transform;
+                for (int j = 0; j < names.Length; j++)
+                {
+                    Transform child = FindChildByName(root, names[j]);
+                    if (child != null)
+                    {
+                        return child;
+                    }
+                }
+            }
+        }
+
+        return null;
     }
 
     private static bool HasParameter(Animator animator, int hash, AnimatorControllerParameterType expectedType)
