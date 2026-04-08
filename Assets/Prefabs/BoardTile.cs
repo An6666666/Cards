@@ -15,9 +15,12 @@ public class BoardTile : MonoBehaviour
     [SerializeField] private GameObject woodElementIcon;  // 木屬性圖示
     [SerializeField] private GameObject miasmaEffectObject; // 瘴氣效果顯示
     [SerializeField] private PoisonTileAnimatorController miasmaAnimatorController;
+    [SerializeField] private GameObject yingGeSkillEffectObject;
 
     // 元素標籤紀錄
     private HashSet<ElementType> elements = new HashSet<ElementType>();
+    private Animator yingGeSkillAnimator;
+    private Coroutine yingGeSkillFxRoutine;
     public bool growthTrap = false; // 水+木產生的陷阱
     private bool hasMiasma = false;                     // 是否佈滿瘴氣
     private int miasmaDamage = 0;                       // 瘴氣造成的傷害
@@ -26,6 +29,7 @@ public class BoardTile : MonoBehaviour
      private void Awake()
     {
         ResolveMiasmaVisualController();
+        ResolveYingGeSkillEffect();
         UpdateElementIcons();
     }
 
@@ -121,6 +125,7 @@ public class BoardTile : MonoBehaviour
         growthTrap = false;
         hasMiasma = false;
         miasmaDamage = 0;
+        StopYingGeSkillFx();
 
         if (miasmaEffectObject)
         {
@@ -166,6 +171,22 @@ public class BoardTile : MonoBehaviour
             return;
         }
     }
+
+    public void PlayYingGeSkillFx(float visibleDuration = 0.5f)
+    {
+        ResolveYingGeSkillEffect();
+        if (yingGeSkillEffectObject == null)
+        {
+            return;
+        }
+
+        if (yingGeSkillFxRoutine != null)
+        {
+            StopCoroutine(yingGeSkillFxRoutine);
+        }
+
+        yingGeSkillFxRoutine = StartCoroutine(PlayYingGeSkillFxRoutine(Mathf.Max(0f, visibleDuration)));
+    }
     
     private void UpdateElementIcons()
     {
@@ -188,6 +209,7 @@ public class BoardTile : MonoBehaviour
     private void OnEnable()
     {
         ResolveMiasmaVisualController();
+        ResolveYingGeSkillEffect();
         UpdateGrowthTrapVisual();
         UpdateElementIcons();
     }
@@ -201,6 +223,23 @@ public class BoardTile : MonoBehaviour
             {
                 miasmaAnimatorController = miasmaEffectObject.GetComponentInChildren<PoisonTileAnimatorController>(true);
             }
+        }
+    }
+
+    private void ResolveYingGeSkillEffect()
+    {
+        if (yingGeSkillEffectObject == null)
+        {
+            Transform skillFx = transform.Find("YingGe_skill");
+            if (skillFx != null)
+            {
+                yingGeSkillEffectObject = skillFx.gameObject;
+            }
+        }
+
+        if (yingGeSkillAnimator == null && yingGeSkillEffectObject != null)
+        {
+            yingGeSkillAnimator = yingGeSkillEffectObject.GetComponent<Animator>();
         }
     }
 
@@ -232,6 +271,54 @@ public class BoardTile : MonoBehaviour
         if (growthTrapIcon)
         {
             growthTrapIcon.SetActive(growthTrap);
+        }
+    }
+
+    private IEnumerator PlayYingGeSkillFxRoutine(float visibleDuration)
+    {
+        if (yingGeSkillEffectObject.activeSelf)
+        {
+            yingGeSkillEffectObject.SetActive(false);
+            yield return null;
+        }
+
+        yingGeSkillEffectObject.SetActive(true);
+
+        if (yingGeSkillAnimator != null)
+        {
+            yingGeSkillAnimator.Rebind();
+            yingGeSkillAnimator.Update(0f);
+
+            if (yingGeSkillAnimator.runtimeAnimatorController != null && yingGeSkillAnimator.layerCount > 0)
+            {
+                yingGeSkillAnimator.Play(0, 0, 0f);
+            }
+        }
+
+        if (visibleDuration > 0f)
+        {
+            yield return new WaitForSeconds(visibleDuration);
+        }
+
+        if (yingGeSkillEffectObject != null)
+        {
+            yingGeSkillEffectObject.SetActive(false);
+        }
+
+        yingGeSkillFxRoutine = null;
+    }
+
+    private void StopYingGeSkillFx()
+    {
+        if (yingGeSkillFxRoutine != null)
+        {
+            StopCoroutine(yingGeSkillFxRoutine);
+            yingGeSkillFxRoutine = null;
+        }
+
+        if (yingGeSkillEffectObject != null)
+        {
+            yingGeSkillEffectObject.SetActive(false);
         }
     }
 }

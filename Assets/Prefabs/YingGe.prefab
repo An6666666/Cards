@@ -593,6 +593,9 @@ MonoBehaviour:
   miasmaCenters: 3
   stoneFeatherDamage: 15
   stoneFeatherCooldown: 3
+  stoneFeatherColumnFxInterval: 0.03
+  stoneFeatherTileFxDuration: 0.5
+  stoneFeatherFullScreenFxDuration: 1
   stonePrefab: {fileID: 5009010696390418974, guid: ef95fb2219afd6e4193794239db46df1, type: 3}
   stoneHealth: 100
   stoneRespawnWaitTurns: 2
