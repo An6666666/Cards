@@ -1,5 +1,7 @@
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class YingGe : Enemy, IEnemyCooldownProvider
 {
@@ -22,6 +24,9 @@ public class YingGe : Enemy, IEnemyCooldownProvider
     [SerializeField] private int miasmaCenters = 2;
     [SerializeField] private int stoneFeatherDamage = 15;
     [SerializeField] private int stoneFeatherCooldown = 4;
+    [SerializeField] private float stoneFeatherColumnFxInterval = 0.25f;
+    [SerializeField] private float stoneFeatherTileFxDuration = 0.5f;
+    [SerializeField] private float stoneFeatherFullScreenFxDuration = 0.8f;
 
     [Header("Resurrection Stone Settings")]
     [SerializeField] private YingGeStone stonePrefab;
@@ -46,6 +51,9 @@ public class YingGe : Enemy, IEnemyCooldownProvider
     private BattleManager battleManager;
     private SpriteRenderer[] cachedRenderers;
     private EnemyElementStatusDisplay elementStatusDisplay;
+    private GameObject yingGeFullScreenFxObject;
+    private Animator yingGeFullScreenFxAnimator;
+    private Coroutine yingGeFullScreenFxHideRoutine;
 
     private bool resurrectionTriggered;
     private bool awaitingRespawn;
@@ -116,8 +124,6 @@ public class YingGe : Enemy, IEnemyCooldownProvider
 
         if (stoneFeatherPending)
         {
-            ResolveStoneFeather(player);
-            GainEndOfTurnArmor();
             return;
         }
 
@@ -140,6 +146,32 @@ public class YingGe : Enemy, IEnemyCooldownProvider
 
         base.EnemyAction(player);
         GainEndOfTurnArmor();
+    }
+
+    public override IEnumerator EnemyActionRoutine(Player player)
+    {
+        bool wasFrozenBeforeAction = frozenTurns > 0;
+        EnemyIntentType plannedIntent = nextIntent.type;
+
+        if (stoneFeatherPending)
+        {
+            yield return ResolveStoneFeatherRoutine(player);
+
+            if (immobilizedTurns > 0)
+            {
+                SetImmobilizedTurns(immobilizedTurns - 1);
+            }
+
+            float delay = GetSequentialActionDelay(plannedIntent, wasFrozenBeforeAction);
+            if (delay > 0f)
+            {
+                yield return new WaitForSeconds(delay);
+            }
+
+            yield break;
+        }
+
+        yield return base.EnemyActionRoutine(player);
     }
 
     public override void DecideNextIntent(Player player)
@@ -385,6 +417,159 @@ public class YingGe : Enemy, IEnemyCooldownProvider
         stoneFeatherPending = false;
         ClearStoneFeatherIndicators();
         ReappearAfterStoneFeather();
+    }
+
+    private IEnumerator ResolveStoneFeatherRoutine(Player player)
+    {
+        Board board = FindObjectOfType<Board>();
+        List<BoardTile> targetTiles = GetStoneFeatherTargetTiles(board);
+
+        PlayStoneFeatherFullScreenFx();
+
+        if (board != null && targetTiles.Count > 0)
+        {
+            yield return board.PlayYingGeSkillFxSequence(
+                targetTiles,
+                stoneFeatherColumnFxInterval,
+                stoneFeatherTileFxDuration);
+        }
+
+        ResolveStoneFeather(player);
+        GainEndOfTurnArmor();
+    }
+
+    private List<BoardTile> GetStoneFeatherTargetTiles(Board board)
+    {
+        List<BoardTile> targetTiles = new List<BoardTile>();
+        if (board == null)
+        {
+            return targetTiles;
+        }
+
+        foreach (Vector2Int pos in stoneFeatherTargets)
+        {
+            BoardTile tile = board.GetTileAt(pos);
+            if (tile != null)
+            {
+                targetTiles.Add(tile);
+            }
+        }
+
+        return targetTiles;
+    }
+
+    private void PlayStoneFeatherFullScreenFx()
+    {
+        ResolveStoneFeatherFullScreenFx();
+        if (yingGeFullScreenFxObject == null)
+        {
+            return;
+        }
+
+        bool hasPlayableAnimator = yingGeFullScreenFxAnimator != null
+            && yingGeFullScreenFxAnimator.runtimeAnimatorController != null
+            && yingGeFullScreenFxAnimator.layerCount > 0;
+
+        bool hasPlayTrigger = HasAnimatorTrigger(yingGeFullScreenFxAnimator, "Play");
+
+        if (!hasPlayTrigger && yingGeFullScreenFxObject.activeSelf)
+        {
+            yingGeFullScreenFxObject.SetActive(false);
+        }
+
+        yingGeFullScreenFxObject.SetActive(true);
+
+        if (hasPlayableAnimator)
+        {
+            yingGeFullScreenFxAnimator.Rebind();
+            yingGeFullScreenFxAnimator.Update(0f);
+
+            if (hasPlayTrigger)
+            {
+                yingGeFullScreenFxAnimator.ResetTrigger("Play");
+                yingGeFullScreenFxAnimator.SetTrigger("Play");
+            }
+            else
+            {
+                yingGeFullScreenFxAnimator.Play(0, 0, 0f);
+            }
+        }
+
+        if (yingGeFullScreenFxHideRoutine != null)
+        {
+            StopCoroutine(yingGeFullScreenFxHideRoutine);
+        }
+
+        yingGeFullScreenFxHideRoutine = StartCoroutine(HideStoneFeatherFullScreenFxAfterDelay());
+    }
+
+    private void ResolveStoneFeatherFullScreenFx()
+    {
+        if (yingGeFullScreenFxObject != null)
+        {
+            if (yingGeFullScreenFxAnimator == null)
+            {
+                yingGeFullScreenFxAnimator = yingGeFullScreenFxObject.GetComponent<Animator>();
+            }
+            return;
+        }
+
+        Scene activeScene = SceneManager.GetActiveScene();
+        GameObject[] roots = activeScene.GetRootGameObjects();
+        for (int i = 0; i < roots.Length; i++)
+        {
+            GameObject root = roots[i];
+            if (root == null || root.name != "Canvas")
+            {
+                continue;
+            }
+
+            Transform fxTransform = root.transform.Find("BossSkillFXRoot/YingGeFullScreenFX");
+            if (fxTransform == null)
+            {
+                continue;
+            }
+
+            yingGeFullScreenFxObject = fxTransform.gameObject;
+            yingGeFullScreenFxAnimator = yingGeFullScreenFxObject.GetComponent<Animator>();
+            break;
+        }
+    }
+
+    private IEnumerator HideStoneFeatherFullScreenFxAfterDelay()
+    {
+        float duration = Mathf.Max(0f, stoneFeatherFullScreenFxDuration);
+        if (duration > 0f)
+        {
+            yield return new WaitForSeconds(duration);
+        }
+
+        if (yingGeFullScreenFxObject != null)
+        {
+            yingGeFullScreenFxObject.SetActive(false);
+        }
+
+        yingGeFullScreenFxHideRoutine = null;
+    }
+
+    private static bool HasAnimatorTrigger(Animator animator, string triggerName)
+    {
+        if (animator == null || string.IsNullOrEmpty(triggerName))
+        {
+            return false;
+        }
+
+        AnimatorControllerParameter[] parameters = animator.parameters;
+        for (int i = 0; i < parameters.Length; i++)
+        {
+            AnimatorControllerParameter parameter = parameters[i];
+            if (parameter.type == AnimatorControllerParameterType.Trigger && parameter.name == triggerName)
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     private void HighlightRow(Board board, int row)

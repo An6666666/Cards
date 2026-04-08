@@ -40,6 +40,7 @@ public class StartingElementSelectionUI : MonoBehaviour // 起始元素選擇介
     [SerializeField] private Color startDisabledColor = new Color(0.5f, 0.5f, 0.5f); // 不可開始時開始按鈕顏色（灰色）
 
     public event Action<ElementType> ElementSelected;
+    public event Action<IReadOnlyList<ElementType>> SelectionChanged;
 
     // =========================
     // ✅ Left Info Panel (新增)
@@ -68,6 +69,7 @@ public class StartingElementSelectionUI : MonoBehaviour // 起始元素選擇介
 
     private readonly Dictionary<ElementType, string> elementDescLookup = new Dictionary<ElementType, string>();
     private readonly Dictionary<ReactionKey, ReactionInfo> reactionLookup = new Dictionary<ReactionKey, ReactionInfo>();
+    private readonly Dictionary<ReactionKey, string> defaultReactionNameLookup = new Dictionary<ReactionKey, string>();
 
     private struct ReactionKey : IEquatable<ReactionKey>
     {
@@ -105,11 +107,13 @@ public class StartingElementSelectionUI : MonoBehaviour // 起始元素選擇介
 
         // ✅ 新增：建立左邊說明查表（不影響原本功能）
         BuildInfoLookup();
+        BuildDefaultReactionNames();
 
         RefreshButtonStates(); // 依目前 selectedElements 刷新 UI（選擇環、開始按鈕可用狀態）
 
         // ✅ 新增：初始化左邊文字
         UpdateLeftInfoPanel();
+        NotifySelectionChanged();
     }
 
     private void BuildLookup() // 建立元素按鈕的查表與選擇環
@@ -159,6 +163,7 @@ public class StartingElementSelectionUI : MonoBehaviour // 起始元素選擇介
 
         // ✅ 新增：同步更新左邊文字（不影響原本功能）
         UpdateLeftInfoPanel();
+        NotifySelectionChanged();
     }
 
     private void RefreshButtonStates() // 刷新所有按鈕狀態與開始按鈕狀態
@@ -308,6 +313,21 @@ public class StartingElementSelectionUI : MonoBehaviour // 起始元素選擇介
         }
     }
 
+    private void BuildDefaultReactionNames()
+    {
+        defaultReactionNameLookup.Clear();
+        defaultReactionNameLookup[new ReactionKey(ElementType.Fire, ElementType.Water)] = "蒸發";
+        defaultReactionNameLookup[new ReactionKey(ElementType.Water, ElementType.Thunder)] = "導電";
+        defaultReactionNameLookup[new ReactionKey(ElementType.Fire, ElementType.Thunder)] = "超載";
+        defaultReactionNameLookup[new ReactionKey(ElementType.Water, ElementType.Wood)] = "生長";
+        defaultReactionNameLookup[new ReactionKey(ElementType.Water, ElementType.Ice)] = "冰凍";
+        defaultReactionNameLookup[new ReactionKey(ElementType.Fire, ElementType.Wood)] = "燃燒";
+        defaultReactionNameLookup[new ReactionKey(ElementType.Fire, ElementType.Ice)] = "融化";
+        defaultReactionNameLookup[new ReactionKey(ElementType.Wood, ElementType.Thunder)] = "雷擊";
+        defaultReactionNameLookup[new ReactionKey(ElementType.Thunder, ElementType.Ice)] = "超導";
+        defaultReactionNameLookup[new ReactionKey(ElementType.Wood, ElementType.Ice)] = "結霜";
+    }
+
     private void UpdateLeftInfoPanel()
     {
         if (leftInfoText == null) return;
@@ -389,6 +409,58 @@ public class StartingElementSelectionUI : MonoBehaviour // 起始元素選擇介
             sb.AppendLine("（尚未形成反應）");
 
         leftInfoText.text = sb.ToString();
+    }
+
+    public int RequiredSelections => requiredSelections;
+
+    public IReadOnlyList<ElementType> GetSelectedElementsSnapshot()
+    {
+        return new List<ElementType>(selectedElements);
+    }
+
+    public string GetElementDisplayName(ElementType element)
+    {
+        return element switch
+        {
+            ElementType.Wood => "木",
+            ElementType.Water => "水",
+            ElementType.Fire => "火",
+            ElementType.Thunder => "雷",
+            ElementType.Ice => "冰",
+            _ => element.ToString()
+        };
+    }
+
+    public string GetReactionDisplayName(ElementType a, ElementType b)
+    {
+        if (reactionLookup.TryGetValue(new ReactionKey(a, b), out ReactionInfo reaction) && reaction != null)
+        {
+            if (!string.IsNullOrWhiteSpace(reaction.title))
+                return reaction.title;
+        }
+
+        if (defaultReactionNameLookup.TryGetValue(new ReactionKey(a, b), out string defaultReactionName))
+            return defaultReactionName;
+
+        return $"{GetElementDisplayName(a)} + {GetElementDisplayName(b)}";
+    }
+
+    public string GetReactionDescription(ElementType a, ElementType b)
+    {
+        if (reactionLookup.TryGetValue(new ReactionKey(a, b), out ReactionInfo reaction) && reaction != null)
+            return reaction.description ?? string.Empty;
+
+        return string.Empty;
+    }
+
+    public bool TryGetReactionInfo(ElementType a, ElementType b, out ReactionInfo reaction)
+    {
+        return reactionLookup.TryGetValue(new ReactionKey(a, b), out reaction);
+    }
+
+    private void NotifySelectionChanged()
+    {
+        SelectionChanged?.Invoke(GetSelectedElementsSnapshot());
     }
 
 }

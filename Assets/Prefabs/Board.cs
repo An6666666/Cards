@@ -59,6 +59,66 @@ public class Board : MonoBehaviour
         return result;
     }
     
+    public IEnumerator PlayYingGeSkillFxSequence(IEnumerable<BoardTile> targetTiles, float columnInterval = 0.25f, float tileVisibleDuration = 0.5f)
+    {
+        if (targetTiles == null)
+        {
+            yield break;
+        }
+
+        Dictionary<float, List<BoardTile>> columns = new Dictionary<float, List<BoardTile>>();
+        foreach (BoardTile tile in targetTiles)
+        {
+            if (tile == null)
+            {
+                continue;
+            }
+
+            float columnX = Mathf.Round(tile.transform.position.x * 100f) / 100f;
+            if (!columns.TryGetValue(columnX, out List<BoardTile> columnTiles))
+            {
+                columnTiles = new List<BoardTile>();
+                columns.Add(columnX, columnTiles);
+            }
+
+            if (!columnTiles.Contains(tile))
+            {
+                columnTiles.Add(tile);
+            }
+        }
+
+        if (columns.Count == 0)
+        {
+            yield break;
+        }
+
+        List<float> orderedColumns = new List<float>(columns.Keys);
+        orderedColumns.Sort((left, right) => right.CompareTo(left));
+
+        float interval = Mathf.Max(0f, columnInterval);
+        float visibleDuration = Mathf.Max(0f, tileVisibleDuration);
+
+        for (int i = 0; i < orderedColumns.Count; i++)
+        {
+            List<BoardTile> columnTiles = columns[orderedColumns[i]];
+            for (int j = 0; j < columnTiles.Count; j++)
+            {
+                columnTiles[j].PlayYingGeSkillFx(visibleDuration);
+            }
+
+            if (i < orderedColumns.Count - 1 && interval > 0f)
+            {
+                yield return new WaitForSeconds(interval);
+            }
+        }
+
+        float tailDelay = Mathf.Max(0f, visibleDuration - interval);
+        if (tailDelay > 0f)
+        {
+            yield return new WaitForSeconds(tailDelay);
+        }
+    }
+
     // 取得所有格子的座標列表
     public List<Vector2Int> GetAllPositions()
     {
