@@ -136,7 +136,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 0.09803922}
+  m_Color: {r: 1, g: 1, b: 1, a: 0.003921569}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -1621,6 +1621,7 @@ MonoBehaviour:
   globalExtrasRoot: {fileID: 0}
   settingsScrollRect: {fileID: 1353340113867309685}
   closeButton: {fileID: 4485328027702533135}
+  quitButton: {fileID: 0}
 --- !u!223 &8490332127738633369
 Canvas:
   m_ObjectHideFlags: 0

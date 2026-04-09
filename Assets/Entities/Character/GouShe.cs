@@ -1,5 +1,6 @@
 using System.Collections.Generic;         // 使用泛型集合，例如 List<T>
 using UnityEngine;                        // 使用 Unity 引擎的核心功能
+using UnityEngine.SceneManagement;
 
 public class GouShe : Enemy, IEnemyCooldownProvider               // 鉤蛇怪物類別，繼承自 Enemy 基底類
 {
@@ -17,7 +18,11 @@ public class GouShe : Enemy, IEnemyCooldownProvider               // 鉤蛇怪�
     // 普通攻擊時額外多打一段傷害的機率（0~1 之間）
 
     [SerializeField, Range(0f, 1f)] private float extraStrikeDamageRatio = 0.3f;
-    // 額外一段傷害的比例（相對於本次攻擊傷害）
+
+    [Header("Column Strike FX")]
+    [SerializeField] private string columnStrikeAnimationTriggerName = "SkillStart";
+    [SerializeField] private float columnStrikeAnimationDuration = 0.8f;
+    [SerializeField] private float columnStrikeFullScreenFxDuration = 0.8f;    // 額外一段傷害的比例（相對於本次攻擊傷害）
 
     private int columnStrikeCooldownRemaining;              // 目前距離直線打擊可用還剩幾回合冷卻
     private bool columnStrikePending = false;                    // 是否已經進入「直線打擊準備完成，等待發動」狀態
@@ -30,7 +35,9 @@ public class GouShe : Enemy, IEnemyCooldownProvider               // 鉤蛇怪�
     private SpriteRenderer[] cachedRenderers;                    // 快取身上所有 SpriteRenderer，方便一鍵隱藏/顯示
     private EnemyElementStatusDisplay elementStatusDisplay;      //  新增：元素圖示控制元件的參考
     private bool initialWaterPrepared = false;                   // 是否已經建立過初始水域區域
-
+    private GameObject gouSheFullScreenFxObject;
+    private Animator gouSheFullScreenFxAnimator;
+    private Coroutine gouSheFullScreenFxHideRoutine;
     public override bool SupportsSharedSquadTactics => false;
 
     protected override void Awake()
@@ -498,6 +505,8 @@ public class GouShe : Enemy, IEnemyCooldownProvider               // 鉤蛇怪�
         MoveToPosition(targetPos);                                    // 將敵人移動到該位置（更新座標與位置）
         SetHidden(false);                                             // 顯示自己（恢復 SpriteRenderer）
         SetForceHideIntent(false);                                    // 回到場上時，意圖再次顯示
+        PlayColumnStrikeAnimation();
+        PlayColumnStrikeFullScreenFx();
 
         columnStrikePending = false;                                  // 不再處於待發動狀態
         columnStrikeTargetColumns.Clear();                            // 清空目標欄位
@@ -568,15 +577,150 @@ public class GouShe : Enemy, IEnemyCooldownProvider               // 鉤蛇怪�
 
     private void ClearColumnHighlights()
     {
-        foreach (BoardTile tile in columnStrikeHighlightedTiles)      // 將之前紀錄的高亮格子逐一清除
+        foreach (BoardTile tile in columnStrikeHighlightedTiles)
         {
             if (tile != null)
             {
-                tile.SetAttackHighlight(false);                       // 關閉攻擊預告高亮
+                tile.SetAttackHighlight(false);
             }
         }
 
-        columnStrikeHighlightedTiles.Clear();                         // 清空清單
+        columnStrikeHighlightedTiles.Clear();
+    }
+
+    private void PlayColumnStrikeAnimation()
+    {
+        if (string.IsNullOrWhiteSpace(columnStrikeAnimationTriggerName))
+        {
+            return;
+        }
+
+        Visual?.PlaySkillStart();
+
+        Animator bodyAnimator = ResolveBodyAnimator();
+        if (!HasAnimatorTrigger(bodyAnimator, columnStrikeAnimationTriggerName))
+        {
+            return;
+        }
+
+        bodyAnimator.ResetTrigger(columnStrikeAnimationTriggerName);
+        bodyAnimator.SetTrigger(columnStrikeAnimationTriggerName);
+    }
+
+    private void PlayColumnStrikeFullScreenFx()
+    {
+        ResolveColumnStrikeFullScreenFx();
+        if (gouSheFullScreenFxObject == null)
+        {
+            return;
+        }
+
+        bool hasPlayableAnimator = gouSheFullScreenFxAnimator != null
+            && gouSheFullScreenFxAnimator.runtimeAnimatorController != null
+            && gouSheFullScreenFxAnimator.layerCount > 0;
+
+        if (gouSheFullScreenFxObject.activeSelf)
+        {
+            gouSheFullScreenFxObject.SetActive(false);
+        }
+
+        gouSheFullScreenFxObject.SetActive(true);
+
+        if (hasPlayableAnimator)
+        {
+            gouSheFullScreenFxAnimator.Rebind();
+            gouSheFullScreenFxAnimator.Update(0f);
+            gouSheFullScreenFxAnimator.Play(0, 0, 0f);
+        }
+
+        if (gouSheFullScreenFxHideRoutine != null)
+        {
+            StopCoroutine(gouSheFullScreenFxHideRoutine);
+        }
+
+        gouSheFullScreenFxHideRoutine = StartCoroutine(HideColumnStrikeFullScreenFxAfterDelay());
+    }
+
+    private void ResolveColumnStrikeFullScreenFx()
+    {
+        if (gouSheFullScreenFxObject != null)
+        {
+            if (gouSheFullScreenFxAnimator == null)
+            {
+                gouSheFullScreenFxAnimator = gouSheFullScreenFxObject.GetComponent<Animator>();
+            }
+            return;
+        }
+
+        Scene activeScene = SceneManager.GetActiveScene();
+        GameObject[] roots = activeScene.GetRootGameObjects();
+        for (int i = 0; i < roots.Length; i++)
+        {
+            GameObject root = roots[i];
+            if (root == null || root.name != "Canvas")
+            {
+                continue;
+            }
+
+            Transform fxTransform = root.transform.Find("BossSkillFXRoot/GouSheFullScreenFX");
+            if (fxTransform == null)
+            {
+                continue;
+            }
+
+            gouSheFullScreenFxObject = fxTransform.gameObject;
+            gouSheFullScreenFxAnimator = gouSheFullScreenFxObject.GetComponent<Animator>();
+            break;
+        }
+    }
+
+    private System.Collections.IEnumerator HideColumnStrikeFullScreenFxAfterDelay()
+    {
+        float duration = Mathf.Max(0f, columnStrikeFullScreenFxDuration);
+        if (duration > 0f)
+        {
+            yield return new WaitForSeconds(duration);
+        }
+
+        if (gouSheFullScreenFxObject != null)
+        {
+            gouSheFullScreenFxObject.SetActive(false);
+        }
+
+        gouSheFullScreenFxHideRoutine = null;
+    }
+
+    private static bool HasAnimatorTrigger(Animator animator, string triggerName)
+    {
+        if (animator == null || string.IsNullOrEmpty(triggerName))
+        {
+            return false;
+        }
+
+        AnimatorControllerParameter[] parameters = animator.parameters;
+        for (int i = 0; i < parameters.Length; i++)
+        {
+            AnimatorControllerParameter parameter = parameters[i];
+            if (parameter.type == AnimatorControllerParameterType.Trigger
+                && parameter.name == triggerName)
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private Animator ResolveBodyAnimator()
+    {
+        Transform root = spriteRoot != null ? spriteRoot : transform;
+        Animator animator = root.GetComponent<Animator>();
+        if (animator == null)
+        {
+            animator = root.GetComponentInChildren<Animator>(true);
+        }
+
+        return animator;
     }
 
     private void PrepareInitialWaterZones()
@@ -658,6 +802,11 @@ public class GouShe : Enemy, IEnemyCooldownProvider               // 鉤蛇怪�
         if (elementStatusDisplay != null)
         {
             elementStatusDisplay.gameObject.SetActive(!hidden);
+        }
+
+        if (bottomHud != null)
+        {
+            bottomHud.gameObject.SetActive(!hidden);
         }
     }
 
