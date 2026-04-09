@@ -24,6 +24,12 @@ public class HealthBarUI : MonoBehaviour
     [Tooltip("若在世界空間用 SpriteRenderer（例如 2D Square）顯示血量，依序放置這些 Renderer（左到右）。")]
     public SpriteRenderer[] digitSpriteRenderers;
 
+    private void Awake()
+    {
+        ConfigureHpText(hpText);
+        ConfigureHpText(maxHpText);
+    }
+
     void Update()
     {
         float percent = 1f;
@@ -94,6 +100,15 @@ public class HealthBarUI : MonoBehaviour
         {
             maxHpText.text = $"{max}";
         }
+    }
+
+    private static void ConfigureHpText(Text text)
+    {
+        if (text == null) return;
+
+        text.horizontalOverflow = HorizontalWrapMode.Overflow;
+        text.verticalOverflow = VerticalWrapMode.Overflow;
+        text.alignByGeometry = true;
     }
 
     private bool TryUpdateDigitSprites(string hpString)

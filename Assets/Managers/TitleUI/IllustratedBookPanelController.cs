@@ -447,6 +447,7 @@ public class IllustratedBookPanelController : MonoBehaviour
 
     private void Awake()
     {
+        EnsureButtonSfxForChildren(illustratedBookPanel != null ? illustratedBookPanel.transform : transform);
         WireButtons();
 
         if (hidePanelOnAwake)
@@ -650,6 +651,20 @@ public class IllustratedBookPanelController : MonoBehaviour
         }
 
         cardDetail?.BindVariantButtons(ShowPreviousCardVariant, ShowNextCardVariant);
+    }
+
+    private static void EnsureButtonSfxForChildren(Transform root)
+    {
+        if (root == null) return;
+
+        Button[] buttons = root.GetComponentsInChildren<Button>(true);
+        for (int i = 0; i < buttons.Length; i++)
+        {
+            Button button = buttons[i];
+            if (button == null || button.GetComponent<UIButtonSfxPlayer>() != null) continue;
+
+            button.gameObject.AddComponent<UIButtonSfxPlayer>();
+        }
     }
 
     private void WirePerCategoryPaginationButtons()
