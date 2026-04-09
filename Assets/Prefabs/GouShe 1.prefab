@@ -47,7 +47,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 477b3e84d66bf5246a06c3cd6f410677, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  masterAnimator: {fileID: 0}
+  masterAnimator: {fileID: 7331868277991066326}
   slaveAnimators:
   - {fileID: 6005999775986114438}
   - {fileID: 2539748516668764657}
@@ -79,8 +79,8 @@ Transform:
   m_GameObject: {fileID: 7942508689091165911}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 1.12, y: 1.343084, z: 0}
-  m_LocalScale: {x: 0.7130215, y: 0.6558077, z: 1}
+  m_LocalPosition: {x: -0.978, y: 2.84, z: 0}
+  m_LocalScale: {x: 1.382668, y: 1.250348, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 7004158491707192783}
@@ -126,7 +126,7 @@ SpriteRenderer:
   m_SortingLayerID: -19661165
   m_SortingLayer: 3
   m_SortingOrder: 0
-  m_Sprite: {fileID: 21300000, guid: 49bf5e1bfe8c6a54dae34b36ea069e17, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 8541a382dd984e74588ace9174cacc06, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -147,7 +147,7 @@ Animator:
   m_GameObject: {fileID: 7942508689091165911}
   m_Enabled: 1
   m_Avatar: {fileID: 0}
-  m_Controller: {fileID: 9100000, guid: 0835595f16f6241488481db2046beabe, type: 2}
+  m_Controller: {fileID: 9100000, guid: 5e4017ab54bc95a45b92ce3d2e011d78, type: 2}
   m_CullingMode: 0
   m_UpdateMode: 0
   m_ApplyRootMotion: 0
@@ -186,8 +186,8 @@ Transform:
   m_GameObject: {fileID: 7976853016657536233}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 1.12, y: 1.343084, z: 0}
-  m_LocalScale: {x: 0.71302146, y: 0.65580773, z: 0}
+  m_LocalPosition: {x: -0.978, y: 2.84, z: 0}
+  m_LocalScale: {x: 1.382668, y: 1.250348, z: 0}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 7004158491707192783}
@@ -233,7 +233,7 @@ SpriteRenderer:
   m_SortingLayerID: 632128979
   m_SortingLayer: 5
   m_SortingOrder: 2
-  m_Sprite: {fileID: 21300000, guid: 49bf5e1bfe8c6a54dae34b36ea069e17, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 24752bf0b249c6c48a109fe327160132, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -269,7 +269,7 @@ Animator:
   m_GameObject: {fileID: 7976853016657536233}
   m_Enabled: 1
   m_Avatar: {fileID: 0}
-  m_Controller: {fileID: 9100000, guid: 0835595f16f6241488481db2046beabe, type: 2}
+  m_Controller: {fileID: 9100000, guid: b0f66d06c9bc0ab4a8aa03a28d4d33ba, type: 2}
   m_CullingMode: 0
   m_UpdateMode: 0
   m_ApplyRootMotion: 0
@@ -403,6 +403,9 @@ MonoBehaviour:
   columnStrikeCooldownTurns: 3
   extraStrikeChance: 0.5
   extraStrikeDamageRatio: 0.3
+  columnStrikeAnimationTriggerName: SkillStart
+  columnStrikeAnimationDuration: 1.2
+  columnStrikeFullScreenFxDuration: 1
 --- !u!61 &8062545072184826831
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -579,7 +582,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &7955763650958768327
 Transform:
   m_ObjectHideFlags: 0
@@ -589,8 +592,8 @@ Transform:
   m_GameObject: {fileID: 8460968895802072183}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -1.2, y: 0.97, z: 0}
-  m_LocalScale: {x: 1.4035826, y: 1.3007001, z: 0}
+  m_LocalPosition: {x: -0.978, y: 2.84, z: 0}
+  m_LocalScale: {x: 1.422668, y: 1.290348, z: 0}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 7004158491707192783}
@@ -636,7 +639,7 @@ SpriteRenderer:
   m_SortingLayerID: 1754066667
   m_SortingLayer: 4
   m_SortingOrder: 1
-  m_Sprite: {fileID: 21300000, guid: 11623a362b1669347b4426f0c00322b9, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 403156fff6a8c7b4fa63ae236a5406ab, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -657,7 +660,7 @@ Animator:
   m_GameObject: {fileID: 8460968895802072183}
   m_Enabled: 1
   m_Avatar: {fileID: 0}
-  m_Controller: {fileID: 9100000, guid: 0fc904c66d3f090498553cedcce08fa4, type: 2}
+  m_Controller: {fileID: 9100000, guid: 2cf4fa64d27d163459d455bbf8fffda4, type: 2}
   m_CullingMode: 0
   m_UpdateMode: 0
   m_ApplyRootMotion: 0

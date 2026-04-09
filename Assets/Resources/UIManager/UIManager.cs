@@ -63,8 +63,10 @@ public class UIManager : MonoBehaviour
     public void OpenRulePanel() => ruleController?.Open();
     public void CloseRulePanel() => ruleController?.Close();
 
-    public void NextRulePage() => ruleController?.NextPage();
-    public void PrevRulePage() => ruleController?.PrevPage();
+    // Legacy hooks kept so existing UnityEvents don't break after the rule panel
+    // moved away from the old page-flip model.
+    public void NextRulePage() { }
+    public void PrevRulePage() { }
 
     public void SwitchDeckDiscard() => deckController?.SwitchPanel();
     public void OnDeckCounterClicked() => deckController?.OpenDeckPanel();
