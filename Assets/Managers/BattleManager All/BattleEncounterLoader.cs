@@ -75,12 +75,14 @@ public class BattleEncounterLoader
 
         if (encounter == null)
         {
+            Debug.LogWarning($"BattleEncounterLoader: active run node '{activeNode.NodeId}' has no encounter. Enemy spawn configs were cleared.", runManager);
             return;
         }
 
         var enemyGroups = encounter.EnemyGroups;
-        if (enemyGroups == null)
+        if (enemyGroups == null || enemyGroups.Count == 0)
         {
+            Debug.LogWarning($"BattleEncounterLoader: encounter '{encounter.EncounterId}' has no enemy groups.", encounter);
             return;
         }
 
