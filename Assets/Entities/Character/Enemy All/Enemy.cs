@@ -308,6 +308,13 @@ public class Enemy : MonoBehaviour
     public void SetForceHideIntent(bool hide)
     {
         forceHideIntent = hide;
+
+        // Hidden/off-board transitions should always clear targeting previews
+        // so they do not persist when the enemy later reappears.
+        SetCardTargeted(false);
+        SetAreaDamagePreview(false);
+
+        SetEnemyCollidersEnabled(!hide);
         UpdateIntentIcon();
     }
 
@@ -983,6 +990,29 @@ public class Enemy : MonoBehaviour
     /// <summary>
     /// 將目前所有啟用中的敵人填入外部提供的 List。
     /// </summary>
+    protected void SetEnemyCollidersEnabled(bool enabled)
+    {
+        Collider2D[] colliders2D = GetComponentsInChildren<Collider2D>(true);
+        for (int i = 0; i < colliders2D.Length; i++)
+        {
+            Collider2D collider = colliders2D[i];
+            if (collider != null)
+            {
+                collider.enabled = enabled;
+            }
+        }
+
+        Collider[] colliders3D = GetComponentsInChildren<Collider>(true);
+        for (int i = 0; i < colliders3D.Length; i++)
+        {
+            Collider collider = colliders3D[i];
+            if (collider != null)
+            {
+                collider.enabled = enabled;
+            }
+        }
+    }
+
     public static void FillActiveEnemies(List<Enemy> results)
     {
         if (results == null)

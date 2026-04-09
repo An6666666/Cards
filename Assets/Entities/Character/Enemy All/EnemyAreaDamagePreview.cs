@@ -50,8 +50,18 @@ public class EnemyAreaDamagePreview : MonoBehaviour
 
     private void LateUpdate()
     {
-        if (!ShouldShowPreview() || previewRenderer == null || !previewRenderer.enabled)
+        if (previewRenderer == null)
         {
+            return;
+        }
+
+        if (!ShouldShowPreview())
+        {
+            if (previewRenderer.enabled)
+            {
+                previewRenderer.enabled = false;
+            }
+
             return;
         }
 

@@ -957,10 +957,18 @@ public class YingGe : Enemy, IEnemyCooldownProvider
         EnsureRendererCache();
         foreach (SpriteRenderer renderer in cachedRenderers)
         {
-            if (renderer != null)
+            if (renderer == null)
             {
-                renderer.enabled = !hidden;
+                continue;
             }
+
+            if (renderer.gameObject.name == "AreaDamagePreviewIcon")
+            {
+                renderer.enabled = false;
+                continue;
+            }
+
+            renderer.enabled = !hidden;
         }
 
         SetForceHideIntent(hidden);

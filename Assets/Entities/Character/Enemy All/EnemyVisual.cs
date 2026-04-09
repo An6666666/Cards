@@ -6,6 +6,7 @@ public class EnemyVisual : MonoBehaviour
 {
     private Enemy enemy;
     private Coroutine shakeRoutine;
+    private Coroutine attackLungeRoutine;
     private Vector3 spriteDefaultLocalPosition;
     private Vector3 spriteDefaultLocalScale;
     private bool spriteDefaultsInitialized = false;
@@ -15,6 +16,12 @@ public class EnemyVisual : MonoBehaviour
     private float appearAnimationFallbackEndTime;
 
     private const float DefaultAppearFallbackDuration = 0.8f;
+    private const float AttackLungeForwardDuration = 0.08f;
+    private const float AttackLungeReturnDuration = 0.12f;
+    private const float AttackLungeDistanceRatio = 0.42f;
+    private const float AttackLungeMinDistance = 0.45f;
+    private const float AttackLungeMaxDistance = 1.65f;
+    private const float AttackLungeScaleMultiplier = 1.05f;
 
     private static readonly int HashAppear = Animator.StringToHash("Appear");
     private static readonly int HashAttack = Animator.StringToHash("Attack");
@@ -44,6 +51,22 @@ public class EnemyVisual : MonoBehaviour
     public void HandleOnEnable()
     {
         SyncHighlightAnimation();
+    }
+
+    public void HandleOnDisable()
+    {
+        StopAttackLunge(resetVisual: false);
+
+        if (shakeRoutine != null)
+        {
+            StopCoroutine(shakeRoutine);
+            shakeRoutine = null;
+        }
+
+        if (spriteDefaultsInitialized)
+        {
+            ResetSpriteVisual();
+        }
     }
 
     public void HandleLateUpdate()
@@ -122,6 +145,12 @@ public class EnemyVisual : MonoBehaviour
         spriteAnimator.SetTrigger(HashAttack);
     }
 
+    public void PlayContactAttackToPlayer(Player player)
+    {
+        PlayAttackAnimation();
+        PlayAttackLunge(player);
+    }
+
     public void PlayHitAnimation()
     {
         EnsureAnimators();
@@ -158,6 +187,8 @@ public class EnemyVisual : MonoBehaviour
 
     public void PlayHitShake()
     {
+        StopAttackLunge(resetVisual: true);
+
         if (shakeRoutine != null)
         {
             StopCoroutine(shakeRoutine);
@@ -227,6 +258,148 @@ public class EnemyVisual : MonoBehaviour
     private Transform GetSpriteRoot()
     {
         return enemy.spriteRoot ? enemy.spriteRoot : enemy.transform;
+    }
+
+    private Transform GetAttackMotionRoot()
+    {
+        Transform root = GetSpriteRoot();
+        if (root != null && root != enemy.transform)
+        {
+            return root;
+        }
+
+        EnsureAnimators();
+        if (spriteAnimator != null && spriteAnimator.transform != enemy.transform)
+        {
+            return spriteAnimator.transform;
+        }
+
+        return null;
+    }
+
+    private void PlayAttackLunge(Player player)
+    {
+        if (enemy == null || player == null || enemy.IsDead)
+        {
+            return;
+        }
+
+        Transform root = GetAttackMotionRoot();
+        if (root == null)
+        {
+            return;
+        }
+
+        StopAttackLunge(resetVisual: true);
+
+        if (shakeRoutine != null)
+        {
+            StopCoroutine(shakeRoutine);
+            shakeRoutine = null;
+        }
+
+        EnsureSpriteDefaults();
+
+        Vector3 localOffset = ResolveAttackLungeLocalOffset(root, player.transform.position);
+        if (localOffset.sqrMagnitude <= 0.0001f)
+        {
+            return;
+        }
+
+        attackLungeRoutine = StartCoroutine(AttackLungeRoutine(root, localOffset));
+    }
+
+    private Vector3 ResolveAttackLungeLocalOffset(Transform root, Vector3 playerWorldPosition)
+    {
+        Vector3 attackOrigin = root.position;
+        Vector3 worldDirection = playerWorldPosition - attackOrigin;
+        worldDirection.z = 0f;
+
+        float worldDistance = worldDirection.magnitude;
+        if (worldDistance <= 0.001f)
+        {
+            return Vector3.zero;
+        }
+
+        float lungeDistance = Mathf.Clamp(
+            worldDistance * AttackLungeDistanceRatio,
+            AttackLungeMinDistance,
+            AttackLungeMaxDistance);
+
+        Vector3 worldOffset = worldDirection.normalized * lungeDistance;
+        Transform parent = root.parent;
+        return parent != null ? parent.InverseTransformVector(worldOffset) : worldOffset;
+    }
+
+    private IEnumerator AttackLungeRoutine(Transform root, Vector3 localOffset)
+    {
+        Vector3 startPosition = spriteDefaultLocalPosition;
+        Vector3 impactPosition = startPosition + localOffset;
+        Vector3 startScale = spriteDefaultLocalScale;
+        Vector3 impactScale = startScale * AttackLungeScaleMultiplier;
+
+        yield return AnimateLungeStep(root, startPosition, impactPosition, startScale, impactScale, AttackLungeForwardDuration, EaseOutCubic);
+        yield return AnimateLungeStep(root, impactPosition, startPosition, impactScale, startScale, AttackLungeReturnDuration, EaseInCubic);
+
+        attackLungeRoutine = null;
+        ResetSpriteVisual();
+    }
+
+    private IEnumerator AnimateLungeStep(
+        Transform root,
+        Vector3 fromPosition,
+        Vector3 toPosition,
+        Vector3 fromScale,
+        Vector3 toScale,
+        float duration,
+        Func<float, float> easing)
+    {
+        if (duration <= 0f)
+        {
+            root.localPosition = toPosition;
+            root.localScale = toScale;
+            yield break;
+        }
+
+        float elapsed = 0f;
+        while (elapsed < duration)
+        {
+            float t = Mathf.Clamp01(elapsed / duration);
+            float eased = easing != null ? easing(t) : t;
+            root.localPosition = Vector3.LerpUnclamped(fromPosition, toPosition, eased);
+            root.localScale = Vector3.LerpUnclamped(fromScale, toScale, eased);
+            elapsed += Time.deltaTime;
+            yield return null;
+        }
+
+        root.localPosition = toPosition;
+        root.localScale = toScale;
+    }
+
+    private void StopAttackLunge(bool resetVisual)
+    {
+        if (attackLungeRoutine != null)
+        {
+            StopCoroutine(attackLungeRoutine);
+            attackLungeRoutine = null;
+        }
+
+        if (resetVisual && spriteDefaultsInitialized)
+        {
+            ResetSpriteVisual();
+        }
+    }
+
+    private static float EaseOutCubic(float t)
+    {
+        float inv = 1f - Mathf.Clamp01(t);
+        return 1f - inv * inv * inv;
+    }
+
+    private static float EaseInCubic(float t)
+    {
+        t = Mathf.Clamp01(t);
+        return t * t * t;
     }
 
     private IEnumerator HitShake()
