@@ -10,6 +10,7 @@ public class BattleRewardController
     private readonly RewardUI rewardUIPrefab;
     private readonly Transform handPanel;
     private readonly float normalBattleRelicRewardChance;
+    private readonly float eliteBattleRelicRewardChance;
     private readonly int normalBattleRelicChoiceCount;
 
     private int defeatedEnemyCount;
@@ -23,6 +24,7 @@ public class BattleRewardController
         RewardUI rewardUIPrefab,
         Transform handPanel,
         float normalBattleRelicRewardChance,
+        float eliteBattleRelicRewardChance,
         int normalBattleRelicChoiceCount)
     {
         this.battleManager = battleManager;
@@ -31,6 +33,7 @@ public class BattleRewardController
         this.rewardUIPrefab = rewardUIPrefab;
         this.handPanel = handPanel;
         this.normalBattleRelicRewardChance = Mathf.Clamp01(normalBattleRelicRewardChance);
+        this.eliteBattleRelicRewardChance = Mathf.Clamp01(eliteBattleRelicRewardChance);
         this.normalBattleRelicChoiceCount = Mathf.Max(1, normalBattleRelicChoiceCount);
     }
 
@@ -57,14 +60,15 @@ public class BattleRewardController
 
     private List<RelicBase> BuildRelicRewardChoices()
     {
-        if (normalBattleRelicRewardChance <= 0f)
+        RunManager runManager = RunManager.Instance;
+        MapNodeData activeNode = runManager != null ? runManager.ActiveNode : null;
+        if (activeNode == null)
         {
             return null;
         }
 
-        RunManager runManager = RunManager.Instance;
-        MapNodeData activeNode = runManager != null ? runManager.ActiveNode : null;
-        if (activeNode == null || activeNode.NodeType != MapNodeType.Battle)
+        float rewardChance = GetRelicRewardChance(activeNode.NodeType);
+        if (rewardChance <= 0f)
         {
             return null;
         }
@@ -74,7 +78,7 @@ public class BattleRewardController
             return null;
         }
 
-        if (UnityEngine.Random.value > normalBattleRelicRewardChance)
+        if (UnityEngine.Random.value > rewardChance)
         {
             return null;
         }
@@ -88,20 +92,6 @@ public class BattleRewardController
             return null;
         }
 
-        HashSet<string> ownedRelicKeys = new HashSet<string>(StringComparer.Ordinal);
-        IReadOnlyList<RelicBase> ownedRelics = player != null ? player.relics : runManager.CurrentRunSnapshot?.relics;
-        if (ownedRelics != null)
-        {
-            for (int i = 0; i < ownedRelics.Count; i++)
-            {
-                string key = GetRelicKey(ownedRelics[i]);
-                if (!string.IsNullOrEmpty(key))
-                {
-                    ownedRelicKeys.Add(key);
-                }
-            }
-        }
-
         List<RelicBase> availablePool = new List<RelicBase>();
         HashSet<string> addedKeys = new HashSet<string>(StringComparer.Ordinal);
         for (int i = 0; i < sourcePool.Count; i++)
@@ -113,7 +103,7 @@ public class BattleRewardController
             }
 
             string key = GetRelicKey(relic);
-            if (string.IsNullOrEmpty(key) || ownedRelicKeys.Contains(key) || !addedKeys.Add(key))
+            if (string.IsNullOrEmpty(key) || !addedKeys.Add(key))
             {
                 continue;
             }
@@ -136,6 +126,19 @@ public class BattleRewardController
         }
 
         return selections;
+    }
+
+    private float GetRelicRewardChance(MapNodeType nodeType)
+    {
+        switch (nodeType)
+        {
+            case MapNodeType.Battle:
+                return normalBattleRelicRewardChance;
+            case MapNodeType.EliteBattle:
+                return eliteBattleRelicRewardChance;
+            default:
+                return 0f;
+        }
     }
 
     private static string GetRelicKey(RelicBase relic)

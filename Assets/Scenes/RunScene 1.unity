@@ -3414,6 +3414,7 @@ MonoBehaviour:
   topPadding: 0
   bottomPadding: 100
   focusedNodeViewportY: 0.5
+  focusedNodeForwardPreviewOffset: 160
   defaultColor: {r: 0.3764706, g: 0.6313726, b: 0.6156863, a: 1}
   completedColor: {r: 0.2, g: 0.2, b: 0.2, a: 1}
   currentColor: {r: 1, g: 0.6431373, b: 0.20392157, a: 1}

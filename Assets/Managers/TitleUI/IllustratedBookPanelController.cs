@@ -95,8 +95,12 @@ public class IllustratedBookPanelController : MonoBehaviour
         [SerializeField, InspectorName("Area Image")] private Image areaImage;
         [SerializeField, InspectorName("Intro Text")] private UITextBinding introText;
         [SerializeField, InspectorName("Concept Text")] private UITextBinding conceptText;
+        [SerializeField, InspectorName("Previous Variant Button")] private Button previousVariantButton;
+        [SerializeField, InspectorName("Next Variant Button")] private Button nextVariantButton;
 
         public GameObject Root => root;
+        public Button PreviousVariantButton => previousVariantButton;
+        public Button NextVariantButton => nextVariantButton;
 
         public void Fill(CardBookData data)
         {
@@ -108,6 +112,65 @@ public class IllustratedBookPanelController : MonoBehaviour
 
             SetImage(cardImage, data.CardSprite);
             SetImage(areaImage, data.AreaSprite);
+        }
+
+        public void BindVariantButtons(UnityEngine.Events.UnityAction previousAction, UnityEngine.Events.UnityAction nextAction)
+        {
+            EnsureVariantButtons();
+            BindButton(previousVariantButton, previousAction);
+            BindButton(nextVariantButton, nextAction);
+        }
+
+        public void SetVariantNavigation(bool visible, bool canPrevious, bool canNext)
+        {
+            EnsureVariantButtons();
+
+            if (previousVariantButton != null)
+            {
+                previousVariantButton.gameObject.SetActive(visible);
+                previousVariantButton.interactable = canPrevious;
+            }
+
+            if (nextVariantButton != null)
+            {
+                nextVariantButton.gameObject.SetActive(visible);
+                nextVariantButton.interactable = canNext;
+            }
+        }
+
+        private void EnsureVariantButtons()
+        {
+            if (root == null || (previousVariantButton != null && nextVariantButton != null)) return;
+
+            Button[] buttons = root.GetComponentsInChildren<Button>(true);
+            for (int i = 0; i < buttons.Length; i++)
+            {
+                Button button = buttons[i];
+                if (button == null) continue;
+
+                string buttonName = button.name;
+                if (previousVariantButton == null &&
+                    (buttonName.IndexOf("prev", StringComparison.OrdinalIgnoreCase) >= 0 ||
+                     buttonName.IndexOf("previous", StringComparison.OrdinalIgnoreCase) >= 0))
+                {
+                    previousVariantButton = button;
+                    continue;
+                }
+
+                if (nextVariantButton == null &&
+                    buttonName.IndexOf("next", StringComparison.OrdinalIgnoreCase) >= 0)
+                {
+                    nextVariantButton = button;
+                }
+            }
+
+        }
+
+        private static void BindButton(Button button, UnityEngine.Events.UnityAction action)
+        {
+            if (button == null || action == null) return;
+            button.onClick.RemoveAllListeners();
+            button.onClick.AddListener(action);
         }
 
         private static void SetImage(Image target, Sprite sprite)
@@ -269,6 +332,9 @@ public class IllustratedBookPanelController : MonoBehaviour
     [Serializable]
     public class CardBookData : BookDataBase
     {
+        [SerializeField, InspectorName("Card Kind")] private string cardKind;
+        [SerializeField, InspectorName("Element ID")] private string elementId;
+        [SerializeField, InspectorName("Variant Group ID")] private string variantGroupId;
         [SerializeField, InspectorName("Card Image")] private Sprite cardSprite;
         [SerializeField, InspectorName("Area Image")] private Sprite areaSprite;
         [TextArea(2, 6)]
@@ -280,6 +346,10 @@ public class IllustratedBookPanelController : MonoBehaviour
         public Sprite AreaSprite => areaSprite;
         public string Intro => intro;
         public string Concept => concept;
+        public string CardKind => string.IsNullOrWhiteSpace(cardKind) ? InferCardKind(Id, DisplayName) : cardKind.Trim();
+        public string ElementId => string.IsNullOrWhiteSpace(elementId) ? InferElementId(Id, DisplayName) : elementId.Trim();
+        public string VariantGroupId => string.IsNullOrWhiteSpace(variantGroupId) ? InferVariantGroupId(Id) : variantGroupId.Trim();
+        public bool IsAttackCard => string.Equals(CardKind, "Attack", StringComparison.OrdinalIgnoreCase);
     }
 
     [Serializable]
@@ -371,6 +441,9 @@ public class IllustratedBookPanelController : MonoBehaviour
     private int _monstersPageIndex;
     private int _relicsPageIndex;
     private bool _isDetailOpen;
+    private readonly List<CardBookData> _currentCardVariants = new List<CardBookData>();
+    private int _currentCardVariantIndex;
+    private const string DefaultVisibleAttackElement = "Water";
 
     private void Awake()
     {
@@ -575,6 +648,8 @@ public class IllustratedBookPanelController : MonoBehaviour
             relicDetailBackButton.onClick.RemoveAllListeners();
             relicDetailBackButton.onClick.AddListener(BackToList);
         }
+
+        cardDetail?.BindVariantButtons(ShowPreviousCardVariant, ShowNextCardVariant);
     }
 
     private void WirePerCategoryPaginationButtons()
@@ -794,13 +869,79 @@ public class IllustratedBookPanelController : MonoBehaviour
                 }
 
                 if (cardDetail != null && cardDetail.Root != null) cardDetail.Root.SetActive(true);
-                cardDetail?.Fill(data);
+                OpenCardDetail(data);
                 _currentPage = BookPage.Cards;
                 break;
             }
         }
 
         _isDetailOpen = true;
+    }
+
+    private void OpenCardDetail(CardBookData data)
+    {
+        _currentCardVariants.Clear();
+        _currentCardVariantIndex = 0;
+
+        if (data == null)
+        {
+            cardDetail?.SetVariantNavigation(false, false, false);
+            return;
+        }
+
+        if (data.IsAttackCard)
+        {
+            string groupId = data.VariantGroupId;
+            _currentCardVariants.AddRange(GetSortedAllCards()
+                .Where(card => card != null &&
+                               card.IsAttackCard &&
+                               string.Equals(card.VariantGroupId, groupId, StringComparison.OrdinalIgnoreCase))
+                .OrderBy(card => GetElementSortOrder(card.ElementId)));
+
+            _currentCardVariantIndex = Mathf.Max(0, _currentCardVariants.FindIndex(card => card.Id == data.Id));
+        }
+
+        if (_currentCardVariants.Count == 0)
+            _currentCardVariants.Add(data);
+
+        ApplyCurrentCardVariant();
+    }
+
+    private void ShowPreviousCardVariant()
+    {
+        ShowCardVariant(_currentCardVariantIndex - 1);
+    }
+
+    private void ShowNextCardVariant()
+    {
+        ShowCardVariant(_currentCardVariantIndex + 1);
+    }
+
+    private void ShowCardVariant(int index)
+    {
+        if (_currentCardVariants.Count <= 1) return;
+
+        _currentCardVariantIndex = Mathf.Clamp(index, 0, _currentCardVariants.Count - 1);
+        ApplyCurrentCardVariant();
+    }
+
+    private void ApplyCurrentCardVariant()
+    {
+        if (_currentCardVariants.Count == 0)
+        {
+            cardDetail?.SetVariantNavigation(false, false, false);
+            return;
+        }
+
+        _currentCardVariantIndex = Mathf.Clamp(_currentCardVariantIndex, 0, _currentCardVariants.Count - 1);
+        CardBookData data = _currentCardVariants[_currentCardVariantIndex];
+        cardDetail?.Fill(data);
+
+        bool canSwitch = data != null && data.IsAttackCard && _currentCardVariants.Count > 1;
+        cardDetail?.SetVariantNavigation(
+            canSwitch,
+            canSwitch && _currentCardVariantIndex > 0,
+            canSwitch && _currentCardVariantIndex < _currentCardVariants.Count - 1);
     }
 
     private void ShowOnlyListPanel(BookPage page)
@@ -830,6 +971,10 @@ public class IllustratedBookPanelController : MonoBehaviour
 
     private void HideAllDetailRoots()
     {
+        _currentCardVariants.Clear();
+        _currentCardVariantIndex = 0;
+        cardDetail?.SetVariantNavigation(false, false, false);
+
         if (cardDetail != null && cardDetail.Root != null) cardDetail.Root.SetActive(false);
 
         if (monsterDetail != null)
@@ -854,6 +999,15 @@ public class IllustratedBookPanelController : MonoBehaviour
     }
 
     private List<CardBookData> GetSortedCards()
+    {
+        return GetSortedAllCards()
+            .Where(card => card == null ||
+                           !card.IsAttackCard ||
+                           string.Equals(card.ElementId, DefaultVisibleAttackElement, StringComparison.OrdinalIgnoreCase))
+            .ToList();
+    }
+
+    private List<CardBookData> GetSortedAllCards()
     {
         return SortEntries(cardsData);
     }
@@ -884,7 +1038,65 @@ public class IllustratedBookPanelController : MonoBehaviour
     private static T FindById<T>(List<T> source, string id) where T : BookDataBase
     {
         if (source == null || string.IsNullOrEmpty(id)) return null;
-        return source.FirstOrDefault(x => x != null && x.Id == id);
+        string normalizedId = id.Trim();
+        return source.FirstOrDefault(x => x != null && string.Equals(x.Id != null ? x.Id.Trim() : string.Empty, normalizedId, StringComparison.Ordinal));
+    }
+
+    private static string InferCardKind(string id, string displayName)
+    {
+        string normalizedId = id ?? string.Empty;
+        string normalizedName = displayName ?? string.Empty;
+
+        if (normalizedId.StartsWith("Attack_", StringComparison.OrdinalIgnoreCase) || normalizedName.StartsWith("攻擊", StringComparison.Ordinal))
+            return "Attack";
+
+        if (normalizedId.StartsWith("Skill_", StringComparison.OrdinalIgnoreCase) || normalizedName.StartsWith("法術", StringComparison.Ordinal))
+            return "Skill";
+
+        if (normalizedId.StartsWith("Move_", StringComparison.OrdinalIgnoreCase) || normalizedName.StartsWith("移動", StringComparison.Ordinal))
+            return "Move";
+
+        return string.Empty;
+    }
+
+    private static string InferElementId(string id, string displayName)
+    {
+        string normalizedId = id != null ? id.Trim() : string.Empty;
+        string normalizedName = displayName != null ? displayName.Trim() : string.Empty;
+
+        if (normalizedId.EndsWith("_Fire", StringComparison.OrdinalIgnoreCase) || normalizedName.EndsWith("_火", StringComparison.Ordinal)) return "Fire";
+        if (normalizedId.EndsWith("_Water", StringComparison.OrdinalIgnoreCase) || normalizedName.EndsWith("_水", StringComparison.Ordinal)) return "Water";
+        if (normalizedId.EndsWith("_Thunder", StringComparison.OrdinalIgnoreCase) || normalizedName.EndsWith("_雷", StringComparison.Ordinal)) return "Thunder";
+        if (normalizedId.EndsWith("_Ice", StringComparison.OrdinalIgnoreCase) || normalizedName.EndsWith("_冰", StringComparison.Ordinal)) return "Ice";
+        if (normalizedId.EndsWith("_Wood", StringComparison.OrdinalIgnoreCase) || normalizedName.EndsWith("_木", StringComparison.Ordinal)) return "Wood";
+
+        return string.Empty;
+    }
+
+    private static string InferVariantGroupId(string id)
+    {
+        if (string.IsNullOrWhiteSpace(id)) return string.Empty;
+
+        string normalizedId = id.Trim();
+        string[] elementSuffixes = { "_Fire", "_Water", "_Thunder", "_Ice", "_Wood" };
+        for (int i = 0; i < elementSuffixes.Length; i++)
+        {
+            string suffix = elementSuffixes[i];
+            if (normalizedId.EndsWith(suffix, StringComparison.OrdinalIgnoreCase))
+                return normalizedId.Substring(0, normalizedId.Length - suffix.Length);
+        }
+
+        return normalizedId;
+    }
+
+    private static int GetElementSortOrder(string elementId)
+    {
+        if (string.Equals(elementId, "Water", StringComparison.OrdinalIgnoreCase)) return 0;
+        if (string.Equals(elementId, "Fire", StringComparison.OrdinalIgnoreCase)) return 1;
+        if (string.Equals(elementId, "Thunder", StringComparison.OrdinalIgnoreCase)) return 2;
+        if (string.Equals(elementId, "Ice", StringComparison.OrdinalIgnoreCase)) return 3;
+        if (string.Equals(elementId, "Wood", StringComparison.OrdinalIgnoreCase)) return 4;
+        return 99;
     }
 
     private static int GetTotalPages(int itemCount, int itemsPerPage)

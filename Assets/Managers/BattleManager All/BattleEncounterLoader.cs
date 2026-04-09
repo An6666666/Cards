@@ -57,15 +57,26 @@ public class BattleEncounterLoader
     /// </summary>
     public void LoadEncounterFromRunManager()
     {
-        var runManager = RunManager.Instance;
-        var encounter = runManager?.ActiveNode?.Encounter;
+        if (enemySpawnConfigs == null)
+        {
+            return;
+        }
 
-        if (encounter == null || enemySpawnConfigs == null)
+        var runManager = RunManager.Instance;
+        var activeNode = runManager?.ActiveNode;
+        if (activeNode == null)
         {
             return;
         }
 
         enemySpawnConfigs.Clear();
+
+        var encounter = activeNode.Encounter;
+
+        if (encounter == null)
+        {
+            return;
+        }
 
         var enemyGroups = encounter.EnemyGroups;
         if (enemyGroups == null)
