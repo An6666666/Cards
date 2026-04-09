@@ -6,28 +6,30 @@ public class MusicPanelController : MonoBehaviour
     [Header("Sliders")]
     public Slider bgmSlider;
     public Slider sfxSlider;
+
     private AudioManager cachedAudioManager;
 
     private void Start()
     {
         cachedAudioManager = ResolveAudioManager();
 
-        // 初始化 Slider 值
         if (bgmSlider != null)
         {
-            if (cachedAudioManager != null && cachedAudioManager.BGMSource != null)
+            if (cachedAudioManager != null)
             {
-                bgmSlider.value = cachedAudioManager.BGMSource.volume;
+                bgmSlider.value = cachedAudioManager.BGMVolume;
             }
+
             bgmSlider.onValueChanged.AddListener(OnBGMVolumeChanged);
         }
 
         if (sfxSlider != null)
         {
-            if (cachedAudioManager != null && cachedAudioManager.SFXSource != null)
+            if (cachedAudioManager != null)
             {
-                sfxSlider.value = cachedAudioManager.SFXSource.volume;
+                sfxSlider.value = cachedAudioManager.SFXVolume;
             }
+
             sfxSlider.onValueChanged.AddListener(OnSFXVolumeChanged);
         }
     }
@@ -63,8 +65,13 @@ public class MusicPanelController : MonoBehaviour
     private void OnDestroy()
     {
         if (bgmSlider != null)
+        {
             bgmSlider.onValueChanged.RemoveListener(OnBGMVolumeChanged);
+        }
+
         if (sfxSlider != null)
+        {
             sfxSlider.onValueChanged.RemoveListener(OnSFXVolumeChanged);
+        }
     }
 }

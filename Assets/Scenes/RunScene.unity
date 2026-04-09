@@ -468,7 +468,7 @@ MonoBehaviour:
     m_BestFit: 0
     m_MinSize: 3
     m_MaxSize: 40
-    m_Alignment: 0
+    m_Alignment: 4
     m_AlignByGeometry: 0
     m_RichText: 1
     m_HorizontalOverflow: 0
@@ -577,6 +577,7 @@ GameObject:
   - component: {fileID: 399398752}
   - component: {fileID: 399398751}
   - component: {fileID: 399398750}
+  - component: {fileID: 399398753}
   m_Layer: 5
   m_Name: Button (Legacy)
   m_TagString: Untagged
@@ -686,6 +687,30 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 399398748}
   m_CullTransparentMesh: 1
+--- !u!114 &399398753
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 399398748}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 11ab2ab598064fc6988c99ee84085ab2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  targetButton: {fileID: 399398750}
+  useAudioManager: 1
+  localFallbackSource: {fileID: 0}
+  volumeScale: 1
+  playOnHover: 1
+  playOnSelect: 0
+  playOnClick: 1
+  playOnDisabledClick: 0
+  hoverCooldown: 0.05
+  clickClip: {fileID: 0}
+  hoverClip: {fileID: 0}
+  disabledClickClip: {fileID: 0}
 --- !u!1 &400521585
 GameObject:
   m_ObjectHideFlags: 0
@@ -758,7 +783,7 @@ MonoBehaviour:
     m_BestFit: 0
     m_MinSize: 3
     m_MaxSize: 40
-    m_Alignment: 0
+    m_Alignment: 4
     m_AlignByGeometry: 0
     m_RichText: 1
     m_HorizontalOverflow: 0
@@ -912,7 +937,7 @@ MonoBehaviour:
     m_BestFit: 0
     m_MinSize: 3
     m_MaxSize: 40
-    m_Alignment: 0
+    m_Alignment: 4
     m_AlignByGeometry: 0
     m_RichText: 1
     m_HorizontalOverflow: 0
@@ -1108,7 +1133,7 @@ MonoBehaviour:
     m_BestFit: 0
     m_MinSize: 2
     m_MaxSize: 40
-    m_Alignment: 0
+    m_Alignment: 4
     m_AlignByGeometry: 0
     m_RichText: 1
     m_HorizontalOverflow: 0
@@ -1401,7 +1426,7 @@ MonoBehaviour:
     m_BestFit: 0
     m_MinSize: 3
     m_MaxSize: 40
-    m_Alignment: 0
+    m_Alignment: 4
     m_AlignByGeometry: 0
     m_RichText: 1
     m_HorizontalOverflow: 0
@@ -1865,7 +1890,7 @@ MonoBehaviour:
     m_BestFit: 0
     m_MinSize: 3
     m_MaxSize: 40
-    m_Alignment: 0
+    m_Alignment: 4
     m_AlignByGeometry: 0
     m_RichText: 1
     m_HorizontalOverflow: 0
@@ -2044,6 +2069,7 @@ GameObject:
   - component: {fileID: 1432992640}
   - component: {fileID: 1432992639}
   - component: {fileID: 1432992638}
+  - component: {fileID: 1432992641}
   m_Layer: 5
   m_Name: Button
   m_TagString: Untagged
@@ -2152,6 +2178,30 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1432992636}
   m_CullTransparentMesh: 1
+--- !u!114 &1432992641
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1432992636}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 11ab2ab598064fc6988c99ee84085ab2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  targetButton: {fileID: 1432992638}
+  useAudioManager: 1
+  localFallbackSource: {fileID: 0}
+  volumeScale: 1
+  playOnHover: 1
+  playOnSelect: 0
+  playOnClick: 1
+  playOnDisabledClick: 0
+  hoverCooldown: 0.05
+  clickClip: {fileID: 0}
+  hoverClip: {fileID: 0}
+  disabledClickClip: {fileID: 0}
 --- !u!1 &1483272438
 GameObject:
   m_ObjectHideFlags: 0
@@ -2685,6 +2735,7 @@ GameObject:
   - component: {fileID: 1740504413}
   - component: {fileID: 1740504412}
   - component: {fileID: 1740504411}
+  - component: {fileID: 1740504414}
   m_Layer: 5
   m_Name: Button (Legacy)
   m_TagString: Untagged
@@ -2794,6 +2845,30 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1740504409}
   m_CullTransparentMesh: 1
+--- !u!114 &1740504414
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1740504409}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 11ab2ab598064fc6988c99ee84085ab2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  targetButton: {fileID: 1740504411}
+  useAudioManager: 1
+  localFallbackSource: {fileID: 0}
+  volumeScale: 1
+  playOnHover: 1
+  playOnSelect: 0
+  playOnClick: 1
+  playOnDisabledClick: 0
+  hoverCooldown: 0.05
+  clickClip: {fileID: 0}
+  hoverClip: {fileID: 0}
+  disabledClickClip: {fileID: 0}
 --- !u!1 &1766590668
 GameObject:
   m_ObjectHideFlags: 0
@@ -3319,6 +3394,7 @@ GameObject:
   - component: {fileID: 2002079722}
   - component: {fileID: 2002079721}
   - component: {fileID: 2002079720}
+  - component: {fileID: 2002079723}
   m_Layer: 5
   m_Name: Button (Legacy)
   m_TagString: Untagged
@@ -3428,6 +3504,30 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2002079718}
   m_CullTransparentMesh: 1
+--- !u!114 &2002079723
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2002079718}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 11ab2ab598064fc6988c99ee84085ab2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  targetButton: {fileID: 2002079720}
+  useAudioManager: 1
+  localFallbackSource: {fileID: 0}
+  volumeScale: 1
+  playOnHover: 1
+  playOnSelect: 0
+  playOnClick: 1
+  playOnDisabledClick: 0
+  hoverCooldown: 0.05
+  clickClip: {fileID: 0}
+  hoverClip: {fileID: 0}
+  disabledClickClip: {fileID: 0}
 --- !u!1 &2121037498
 GameObject:
   m_ObjectHideFlags: 0

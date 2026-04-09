@@ -308,7 +308,7 @@ public partial class ShopUIManager
         if (!TrySpendGold(price))
             return;
 
-        player.relics.Add(Instantiate(relic));
+        player.AcquireRelic(relic);
         availableRelics.Remove(relic);
 
         shopNpcController?.NotifyPurchase(relic.cardName, price);

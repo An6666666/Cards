@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -8,6 +9,8 @@ public class BattleRewardController
     private readonly List<CardBase> allCardPool;
     private readonly RewardUI rewardUIPrefab;
     private readonly Transform handPanel;
+    private readonly float normalBattleRelicRewardChance;
+    private readonly int normalBattleRelicChoiceCount;
 
     private int defeatedEnemyCount;
     private int totalGoldReward;
@@ -18,13 +21,17 @@ public class BattleRewardController
         Player player,
         List<CardBase> allCardPool,
         RewardUI rewardUIPrefab,
-        Transform handPanel)
+        Transform handPanel,
+        float normalBattleRelicRewardChance,
+        int normalBattleRelicChoiceCount)
     {
         this.battleManager = battleManager;
         this.player = player;
         this.allCardPool = allCardPool;
         this.rewardUIPrefab = rewardUIPrefab;
         this.handPanel = handPanel;
+        this.normalBattleRelicRewardChance = Mathf.Clamp01(normalBattleRelicRewardChance);
+        this.normalBattleRelicChoiceCount = Mathf.Max(1, normalBattleRelicChoiceCount);
     }
 
     public void OnEnemyDefeated(Enemy enemy)
@@ -39,11 +46,117 @@ public class BattleRewardController
         player.AddGold(goldReward);
 
         List<CardBase> cardChoices = RunCardPoolSelector.GetRewardChoices(allCardPool, 3);
-        Canvas canvas = handPanel != null ? handPanel.GetComponentInParent<Canvas>() : Object.FindObjectOfType<Canvas>();
+        List<RelicBase> relicChoices = BuildRelicRewardChoices();
+        Canvas canvas = handPanel != null ? handPanel.GetComponentInParent<Canvas>() : UnityEngine.Object.FindObjectOfType<Canvas>();
 
         if (rewardUIInstance == null)
-            rewardUIInstance = Object.Instantiate(rewardUIPrefab, canvas.transform);
+            rewardUIInstance = UnityEngine.Object.Instantiate(rewardUIPrefab, canvas.transform);
 
-        rewardUIInstance.Show(battleManager, goldReward, cardChoices);
+        rewardUIInstance.Show(battleManager, goldReward, cardChoices, relicChoices);
+    }
+
+    private List<RelicBase> BuildRelicRewardChoices()
+    {
+        if (normalBattleRelicRewardChance <= 0f)
+        {
+            return null;
+        }
+
+        RunManager runManager = RunManager.Instance;
+        MapNodeData activeNode = runManager != null ? runManager.ActiveNode : null;
+        if (activeNode == null || activeNode.NodeType != MapNodeType.Battle)
+        {
+            return null;
+        }
+
+        if (runManager.IsTutorialRun || (activeNode.Encounter != null && activeNode.Encounter.UseTutorialBattle))
+        {
+            return null;
+        }
+
+        if (UnityEngine.Random.value > normalBattleRelicRewardChance)
+        {
+            return null;
+        }
+
+        IReadOnlyList<RelicBase> sourcePool = runManager.DefaultShopInventory != null
+            ? runManager.DefaultShopInventory.PurchasableRelics
+            : null;
+
+        if (sourcePool == null || sourcePool.Count == 0)
+        {
+            return null;
+        }
+
+        HashSet<string> ownedRelicKeys = new HashSet<string>(StringComparer.Ordinal);
+        IReadOnlyList<RelicBase> ownedRelics = player != null ? player.relics : runManager.CurrentRunSnapshot?.relics;
+        if (ownedRelics != null)
+        {
+            for (int i = 0; i < ownedRelics.Count; i++)
+            {
+                string key = GetRelicKey(ownedRelics[i]);
+                if (!string.IsNullOrEmpty(key))
+                {
+                    ownedRelicKeys.Add(key);
+                }
+            }
+        }
+
+        List<RelicBase> availablePool = new List<RelicBase>();
+        HashSet<string> addedKeys = new HashSet<string>(StringComparer.Ordinal);
+        for (int i = 0; i < sourcePool.Count; i++)
+        {
+            RelicBase relic = sourcePool[i];
+            if (relic == null)
+            {
+                continue;
+            }
+
+            string key = GetRelicKey(relic);
+            if (string.IsNullOrEmpty(key) || ownedRelicKeys.Contains(key) || !addedKeys.Add(key))
+            {
+                continue;
+            }
+
+            availablePool.Add(relic);
+        }
+
+        if (availablePool.Count == 0)
+        {
+            return null;
+        }
+
+        int choiceCount = Mathf.Min(normalBattleRelicChoiceCount, availablePool.Count);
+        List<RelicBase> selections = new List<RelicBase>(choiceCount);
+        for (int i = 0; i < choiceCount; i++)
+        {
+            int randomIndex = UnityEngine.Random.Range(0, availablePool.Count);
+            selections.Add(availablePool[randomIndex]);
+            availablePool.RemoveAt(randomIndex);
+        }
+
+        return selections;
+    }
+
+    private static string GetRelicKey(RelicBase relic)
+    {
+        if (relic == null)
+        {
+            return null;
+        }
+
+        string relicName = relic.name;
+        if (string.IsNullOrWhiteSpace(relicName))
+        {
+            relicName = relic.GetType().FullName;
+        }
+
+        const string cloneSuffix = "(Clone)";
+        if (relicName.EndsWith(cloneSuffix, StringComparison.Ordinal))
+        {
+            relicName = relicName.Substring(0, relicName.Length - cloneSuffix.Length).TrimEnd();
+        }
+
+        return relicName;
     }
 }

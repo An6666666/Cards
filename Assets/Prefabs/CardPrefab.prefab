@@ -253,6 +253,7 @@ GameObject:
   - component: {fileID: 911598095716012056}
   - component: {fileID: 2519559047820428945}
   - component: {fileID: 5500138851070006671}
+  - component: {fileID: 4186521707010707606}
   m_Layer: 5
   m_Name: CardPrefab
   m_TagString: Untagged
@@ -373,7 +374,7 @@ MonoBehaviour:
     m_SelectedTrigger: Selected
     m_DisabledTrigger: Disabled
   m_Interactable: 1
-  m_TargetGraphic: {fileID: 0}
+  m_TargetGraphic: {fileID: 9099820290413732922}
   m_OnClick:
     m_PersistentCalls:
       m_Calls: []
@@ -530,6 +531,30 @@ MonoBehaviour:
   sortingOrder: 5000
   overrideSorting: 1
   matchParentCanvasSettings: 1
+--- !u!114 &4186521707010707606
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4596475076482105628}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 11ab2ab598064fc6988c99ee84085ab2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  targetButton: {fileID: 2651050089951659055}
+  useAudioManager: 1
+  localFallbackSource: {fileID: 0}
+  volumeScale: 1
+  playOnHover: 1
+  playOnSelect: 0
+  playOnClick: 1
+  playOnDisabledClick: 0
+  hoverCooldown: 0.05
+  clickClip: {fileID: 8300000, guid: c1298fefee5109e4bb3d7089089d2e12, type: 3}
+  hoverClip: {fileID: 8300000, guid: a2c5e5fa2a289b34093c1650b65ec131, type: 3}
+  disabledClickClip: {fileID: 0}
 --- !u!1 &5392751586935578201
 GameObject:
   m_ObjectHideFlags: 0

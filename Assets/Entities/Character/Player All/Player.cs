@@ -47,6 +47,8 @@ public class Player : MonoBehaviour
     public void PlayWoundedAnim() => animCtrl?.PlayWounded();
     public void PlayHitFeedback() => damageFeedbackCtrl?.PlayHitFeedback();
     public void PlayAttackHitShake() => damageFeedbackCtrl?.PlayAttackHitShake();
+    public void PlayHurtSFX() => AudioManager.Instance?.PlayPlayerHurtSFX();
+    public void PlayShieldBlockNoDamageSFX() => AudioManager.Instance?.PlayPlayerBlockNoDamageSFX();
     public void RefreshLowHpFeedback() => lowHpFeedbackCtrl?.RefreshLowHpState(currentHP, maxHP);
     public void SetMovingAnim(bool moving) => animCtrl?.SetMoving(moving);
     public void SetDeadAnim(bool dead) => animCtrl?.SetDead(dead);
@@ -271,6 +273,19 @@ public class Player : MonoBehaviour
     public void AddCardCostModifier(CardBase card, int modifier) => deckController.AddCardCostModifier(card, modifier);
     public void ClearCardCostModifier(CardBase card) => deckController.ClearCardCostModifier(card);
     public void ExhaustCard(CardBase card) => deckController.ExhaustCard(card);
+    public RelicBase AcquireRelic(RelicBase relicTemplate)
+    {
+        if (relicTemplate == null)
+        {
+            return null;
+        }
+
+        RelicBase relicInstance = Instantiate(relicTemplate);
+        relics.Add(relicInstance);
+        relicInstance.OnAcquire(this);
+        return relicInstance;
+    }
+
     public void NotifyBattleStarted()
     {
         foreach (RelicBase relic in relics)

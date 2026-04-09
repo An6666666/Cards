@@ -87,6 +87,7 @@ GameObject:
   - component: {fileID: 7943364501932317441}
   - component: {fileID: 7062355315768111541}
   - component: {fileID: 7799664396955136100}
+  - component: {fileID: 2637157186760851521}
   m_Layer: 5
   m_Name: NodeButton
   m_TagString: Untagged
@@ -196,3 +197,27 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &2637157186760851521
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4185033358955255772}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 11ab2ab598064fc6988c99ee84085ab2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  targetButton: {fileID: 7799664396955136100}
+  useAudioManager: 1
+  localFallbackSource: {fileID: 0}
+  volumeScale: 1
+  playOnHover: 1
+  playOnSelect: 0
+  playOnClick: 1
+  playOnDisabledClick: 0
+  hoverCooldown: 0.05
+  clickClip: {fileID: 0}
+  hoverClip: {fileID: 0}
+  disabledClickClip: {fileID: 0}

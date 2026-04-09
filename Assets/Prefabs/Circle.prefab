@@ -290,6 +290,7 @@ GameObject:
   - component: {fileID: 5130754831015361233}
   - component: {fileID: 7276458525298687916}
   - component: {fileID: 2799592837945800873}
+  - component: {fileID: 6419258225334627274}
   m_Layer: 0
   m_Name: Circle
   m_TagString: Untagged
@@ -391,6 +392,7 @@ MonoBehaviour:
   woodElementIcon: {fileID: 7645297697588494752}
   miasmaEffectObject: {fileID: 6689446033607032246}
   miasmaAnimatorController: {fileID: 2533441305481013981}
+  yingGeSkillEffectObject: {fileID: 0}
   growthTrap: 0
 --- !u!60 &2799592837945800873
 PolygonCollider2D:
@@ -464,6 +466,28 @@ PolygonCollider2D:
       - {x: 0.0859375, y: -0.46875}
       - {x: 0.2421875, y: -0.37890625}
   m_UseDelaunayMesh: 0
+--- !u!114 &6419258225334627274
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4939836915775690191}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3b9ea8d97a364b44abfa04d7cf6f6a71, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  useAudioManager: 1
+  localFallbackSource: {fileID: 0}
+  volumeScale: 1
+  playOnHover: 1
+  playOnClick: 1
+  blockWhilePointerOverUi: 1
+  hoverCooldown: 0.05
+  requireBoardTileSelectableIfBoardTile: 1
+  hoverClip: {fileID: 0}
+  clickClip: {fileID: 0}
 --- !u!1 &5768291564235171586
 GameObject:
   m_ObjectHideFlags: 0

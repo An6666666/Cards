@@ -267,6 +267,16 @@ public class BattleRelicUIItem : MonoBehaviour, IPointerEnterHandler, IPointerEx
 
     public void SetTooltipTransformOverride(RectTransform referenceRect)
     {
+        SetTooltipTransformOverride(referenceRect, 1f, false, Vector2.zero);
+    }
+
+    public void SetTooltipTransformOverride(RectTransform referenceRect, float scaleMultiplier, bool useUniformScale)
+    {
+        SetTooltipTransformOverride(referenceRect, scaleMultiplier, useUniformScale, Vector2.zero);
+    }
+
+    public void SetTooltipTransformOverride(RectTransform referenceRect, float scaleMultiplier, bool useUniformScale, Vector2 positionOffset)
+    {
         ResolveTooltipReferences();
         if (tooltipRect == null || referenceRect == null)
         {
@@ -274,15 +284,25 @@ public class BattleRelicUIItem : MonoBehaviour, IPointerEnterHandler, IPointerEx
             return;
         }
 
-        tooltipAnchoredPositionOverride = referenceRect.anchoredPosition;
+        tooltipAnchoredPositionOverride = referenceRect.anchoredPosition + positionOffset;
 
         Vector2 sourceSize = tooltipRect.sizeDelta;
         Vector2 targetSize = referenceRect.sizeDelta;
 
         float scaleX = Mathf.Approximately(sourceSize.x, 0f) ? 1f : targetSize.x / sourceSize.x;
         float scaleY = Mathf.Approximately(sourceSize.y, 0f) ? 1f : targetSize.y / sourceSize.y;
+        float clampedScaleMultiplier = Mathf.Max(0.01f, scaleMultiplier);
 
-        tooltipLocalScaleOverride = new Vector3(scaleX, scaleY, initialTooltipLocalScale.z);
+        if (useUniformScale)
+        {
+            float uniformScale = Mathf.Max(scaleX, scaleY) * clampedScaleMultiplier;
+            tooltipLocalScaleOverride = new Vector3(uniformScale, uniformScale, initialTooltipLocalScale.z);
+        }
+        else
+        {
+            tooltipLocalScaleOverride = new Vector3(scaleX * clampedScaleMultiplier, scaleY * clampedScaleMultiplier, initialTooltipLocalScale.z);
+        }
+
         hasTooltipTransformOverride = true;
     }
 

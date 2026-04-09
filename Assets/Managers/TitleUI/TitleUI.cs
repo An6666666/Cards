@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.SceneManagement;
@@ -34,6 +35,7 @@ public class TitleUI : MonoBehaviour
     private readonly Button[] menuButtons = new Button[5];
     private RectTransform currentTarget;
     private RenderTexture backgroundVideoTexture;
+    private Coroutine initialSelectionRoutine;
 
     private void Awake()
     {
@@ -50,6 +52,7 @@ public class TitleUI : MonoBehaviour
     {
         EnsureInitialSelection();
         RefreshSelectionArrow();
+        QueueInitialSelectionRefresh();
     }
 
     private void OnEnable()
@@ -57,6 +60,24 @@ public class TitleUI : MonoBehaviour
         EnsureBackgroundVideoPlaying();
         EnsureInitialSelection();
         RefreshSelectionArrow();
+        QueueInitialSelectionRefresh();
+    }
+
+    private void OnDisable()
+    {
+        if (initialSelectionRoutine != null)
+        {
+            StopCoroutine(initialSelectionRoutine);
+            initialSelectionRoutine = null;
+        }
+    }
+
+    private void OnApplicationFocus(bool hasFocus)
+    {
+        if (hasFocus)
+        {
+            QueueInitialSelectionRefresh();
+        }
     }
 
     private void OnDestroy()
@@ -146,9 +167,11 @@ public class TitleUI : MonoBehaviour
             return;
         }
 
-        if (eventSystem.currentSelectedGameObject == null)
+        eventSystem.firstSelectedGameObject = startButton.gameObject;
+
+        if (!IsTrackedButton(eventSystem.currentSelectedGameObject))
         {
-            eventSystem.SetSelectedGameObject(startButton.gameObject);
+            SelectButton(startButton);
         }
 
         if (IsTrackedButton(eventSystem.currentSelectedGameObject))
@@ -159,6 +182,42 @@ public class TitleUI : MonoBehaviour
         {
             currentTarget = startButton.GetComponent<RectTransform>();
         }
+    }
+
+    private void QueueInitialSelectionRefresh()
+    {
+        if (!isActiveAndEnabled || startButton == null)
+        {
+            return;
+        }
+
+        if (initialSelectionRoutine != null)
+        {
+            StopCoroutine(initialSelectionRoutine);
+        }
+
+        initialSelectionRoutine = StartCoroutine(RefreshInitialSelectionNextFrame());
+    }
+
+    private IEnumerator RefreshInitialSelectionNextFrame()
+    {
+        yield return null;
+        yield return new WaitForEndOfFrame();
+
+        if (this == null || !isActiveAndEnabled)
+        {
+            initialSelectionRoutine = null;
+            yield break;
+        }
+
+        EnsureInitialSelection();
+        if (EventSystem.current != null && !IsTrackedButton(EventSystem.current.currentSelectedGameObject))
+        {
+            SelectButton(startButton);
+        }
+
+        RefreshSelectionArrow();
+        initialSelectionRoutine = null;
     }
 
     private void RefreshSelectionArrow()
@@ -231,6 +290,19 @@ public class TitleUI : MonoBehaviour
         {
             selectionArrow.gameObject.SetActive(visible);
         }
+    }
+
+    private void SelectButton(Button button)
+    {
+        EventSystem eventSystem = EventSystem.current;
+        if (eventSystem == null || button == null || !button.gameObject.activeInHierarchy || !button.IsInteractable())
+        {
+            return;
+        }
+
+        eventSystem.SetSelectedGameObject(null);
+        eventSystem.SetSelectedGameObject(button.gameObject);
+        currentTarget = button.GetComponent<RectTransform>();
     }
 
     private bool IsTrackedButton(GameObject target)

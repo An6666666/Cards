@@ -89,6 +89,7 @@ public class PlayerStats : MonoBehaviour
     public void TakeDamage(int dmg)
     {
         int previousBlock = block;
+        int previousHp = currentHP;
         int incoming = dmg;
         if (buffController.weak > 0)
         {
@@ -112,19 +113,21 @@ public class PlayerStats : MonoBehaviour
             currentHP -= remain;
 
             HandleFatalDamage();
-            NotifyActualHpDamage();
         }
         else
         {
             block -= realDmg;
         }
 
-        NotifyShieldDamageFeedback(previousBlock, blockedDamage);
+        int actualHpDamage = GetActualHpDamage(previousHp);
+        NotifyActualHpDamage(actualHpDamage);
+        NotifyShieldDamageFeedback(previousBlock, blockedDamage, actualHpDamage);
         NotifyBlockChanged();
     }
 
     public void TakeDamageDirect(int dmg)
     {
+        int previousHp = currentHP;
         int incoming = dmg;
         if (buffController.weak > 0)
         {
@@ -133,7 +136,7 @@ public class PlayerStats : MonoBehaviour
 
         currentHP -= incoming;
         HandleFatalDamage();
-        NotifyActualHpDamage();
+        NotifyActualHpDamage(GetActualHpDamage(previousHp));
     }
 
     public void TakeStatusDamage(int dmg)
@@ -144,6 +147,7 @@ public class PlayerStats : MonoBehaviour
         }
 
         int previousBlock = block;
+        int previousHp = currentHP;
         int remaining = dmg;
 
         if (block > 0)
@@ -164,11 +168,12 @@ public class PlayerStats : MonoBehaviour
         {
             currentHP -= remaining;
             HandleFatalDamage();
-            NotifyActualHpDamage();
         }
 
+        int actualHpDamage = GetActualHpDamage(previousHp);
+        NotifyActualHpDamage(actualHpDamage);
         int blockedDamage = Mathf.Min(previousBlock, dmg);
-        NotifyShieldDamageFeedback(previousBlock, blockedDamage);
+        NotifyShieldDamageFeedback(previousBlock, blockedDamage, actualHpDamage);
         NotifyBlockChanged();
     }
 
@@ -208,10 +213,21 @@ public class PlayerStats : MonoBehaviour
         }
     }
 
-    private void NotifyActualHpDamage()
+    private int GetActualHpDamage(int previousHp)
     {
+        return Mathf.Max(0, previousHp - currentHP);
+    }
+
+    private void NotifyActualHpDamage(int actualHpDamage)
+    {
+        if (actualHpDamage <= 0)
+        {
+            return;
+        }
+
         owner?.PlayWoundedAnim();
         owner?.PlayHitFeedback();
+        owner?.PlayHurtSFX();
         NotifyHpChanged();
     }
 
@@ -225,11 +241,16 @@ public class PlayerStats : MonoBehaviour
         owner?.SetShieldFXActive(block > 0);
     }
 
-    private void NotifyShieldDamageFeedback(int previousBlock, int blockedDamage)
+    private void NotifyShieldDamageFeedback(int previousBlock, int blockedDamage, int actualHpDamage)
     {
         if (previousBlock <= 0 || blockedDamage <= 0)
         {
             return;
+        }
+
+        if (actualHpDamage <= 0)
+        {
+            owner?.PlayShieldBlockNoDamageSFX();
         }
 
         if (block <= 0)

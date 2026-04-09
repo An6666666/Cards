@@ -1028,6 +1028,7 @@ GameObject:
   - component: {fileID: 451753848}
   - component: {fileID: 451753847}
   - component: {fileID: 451753846}
+  - component: {fileID: 451753849}
   m_Layer: 5
   m_Name: BtnRelics
   m_TagString: Untagged
@@ -1138,6 +1139,30 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 451753844}
   m_CullTransparentMesh: 1
+--- !u!114 &451753849
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 451753844}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 11ab2ab598064fc6988c99ee84085ab2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  targetButton: {fileID: 451753846}
+  useAudioManager: 1
+  localFallbackSource: {fileID: 0}
+  volumeScale: 1
+  playOnHover: 1
+  playOnSelect: 0
+  playOnClick: 1
+  playOnDisabledClick: 0
+  hoverCooldown: 0.05
+  clickClip: {fileID: 0}
+  hoverClip: {fileID: 0}
+  disabledClickClip: {fileID: 0}
 --- !u!1 &563193842
 GameObject:
   m_ObjectHideFlags: 0
@@ -1150,6 +1175,7 @@ GameObject:
   - component: {fileID: 563193846}
   - component: {fileID: 563193845}
   - component: {fileID: 563193844}
+  - component: {fileID: 563193847}
   m_Layer: 5
   m_Name: BtnNext
   m_TagString: Untagged
@@ -1258,6 +1284,30 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 563193842}
   m_CullTransparentMesh: 1
+--- !u!114 &563193847
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 563193842}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 11ab2ab598064fc6988c99ee84085ab2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  targetButton: {fileID: 563193844}
+  useAudioManager: 1
+  localFallbackSource: {fileID: 0}
+  volumeScale: 1
+  playOnHover: 1
+  playOnSelect: 0
+  playOnClick: 1
+  playOnDisabledClick: 0
+  hoverCooldown: 0.05
+  clickClip: {fileID: 0}
+  hoverClip: {fileID: 0}
+  disabledClickClip: {fileID: 0}
 --- !u!1 &590022913
 GameObject:
   m_ObjectHideFlags: 0
@@ -1270,6 +1320,7 @@ GameObject:
   - component: {fileID: 590022917}
   - component: {fileID: 590022916}
   - component: {fileID: 590022915}
+  - component: {fileID: 590022918}
   m_Layer: 5
   m_Name: BtnRemoval
   m_TagString: Untagged
@@ -1380,6 +1431,30 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 590022913}
   m_CullTransparentMesh: 1
+--- !u!114 &590022918
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 590022913}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 11ab2ab598064fc6988c99ee84085ab2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  targetButton: {fileID: 590022915}
+  useAudioManager: 1
+  localFallbackSource: {fileID: 0}
+  volumeScale: 1
+  playOnHover: 1
+  playOnSelect: 0
+  playOnClick: 1
+  playOnDisabledClick: 0
+  hoverCooldown: 0.05
+  clickClip: {fileID: 0}
+  hoverClip: {fileID: 0}
+  disabledClickClip: {fileID: 0}
 --- !u!1 &608974872
 GameObject:
   m_ObjectHideFlags: 0
@@ -2259,6 +2334,7 @@ GameObject:
   - component: {fileID: 1720306107}
   - component: {fileID: 1720306106}
   - component: {fileID: 1720306105}
+  - component: {fileID: 1720306108}
   m_Layer: 5
   m_Name: BtnCards
   m_TagString: Untagged
@@ -2369,6 +2445,30 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1720306103}
   m_CullTransparentMesh: 1
+--- !u!114 &1720306108
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1720306103}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 11ab2ab598064fc6988c99ee84085ab2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  targetButton: {fileID: 1720306105}
+  useAudioManager: 1
+  localFallbackSource: {fileID: 0}
+  volumeScale: 1
+  playOnHover: 1
+  playOnSelect: 0
+  playOnClick: 1
+  playOnDisabledClick: 0
+  hoverCooldown: 0.05
+  clickClip: {fileID: 0}
+  hoverClip: {fileID: 0}
+  disabledClickClip: {fileID: 0}
 --- !u!1 &1769872244
 GameObject:
   m_ObjectHideFlags: 0
@@ -2520,6 +2620,7 @@ GameObject:
   - component: {fileID: 1874289078}
   - component: {fileID: 1874289077}
   - component: {fileID: 1874289076}
+  - component: {fileID: 1874289079}
   m_Layer: 5
   m_Name: return
   m_TagString: Untagged
@@ -2628,6 +2729,30 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1874289074}
   m_CullTransparentMesh: 1
+--- !u!114 &1874289079
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1874289074}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 11ab2ab598064fc6988c99ee84085ab2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  targetButton: {fileID: 1874289076}
+  useAudioManager: 1
+  localFallbackSource: {fileID: 0}
+  volumeScale: 1
+  playOnHover: 1
+  playOnSelect: 0
+  playOnClick: 1
+  playOnDisabledClick: 0
+  hoverCooldown: 0.05
+  clickClip: {fileID: 0}
+  hoverClip: {fileID: 0}
+  disabledClickClip: {fileID: 0}
 --- !u!1 &1956757656
 GameObject:
   m_ObjectHideFlags: 0
@@ -2790,6 +2915,7 @@ GameObject:
   - component: {fileID: 1976164633}
   - component: {fileID: 1976164632}
   - component: {fileID: 1976164631}
+  - component: {fileID: 1976164634}
   m_Layer: 5
   m_Name: BtnPrev
   m_TagString: Untagged
@@ -2898,6 +3024,30 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1976164629}
   m_CullTransparentMesh: 1
+--- !u!114 &1976164634
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1976164629}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 11ab2ab598064fc6988c99ee84085ab2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  targetButton: {fileID: 1976164631}
+  useAudioManager: 1
+  localFallbackSource: {fileID: 0}
+  volumeScale: 1
+  playOnHover: 1
+  playOnSelect: 0
+  playOnClick: 1
+  playOnDisabledClick: 0
+  hoverCooldown: 0.05
+  clickClip: {fileID: 0}
+  hoverClip: {fileID: 0}
+  disabledClickClip: {fileID: 0}
 --- !u!1 &2038162760
 GameObject:
   m_ObjectHideFlags: 0
