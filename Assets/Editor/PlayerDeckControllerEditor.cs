@@ -29,6 +29,12 @@ public class PlayerDeckControllerEditor : Editor
 
     private void DrawStartingRelicSelector()
     {
+        if (startingRelicProperty == null)
+        {
+            EditorGUILayout.HelpBox("PlayerDeckController does not expose a serialized 'startingRelic' field.", MessageType.Info);
+            return;
+        }
+
         EditorGUILayout.Space();
         EditorGUILayout.LabelField("Starting Relic", EditorStyles.boldLabel);
 
@@ -63,6 +69,11 @@ public class PlayerDeckControllerEditor : Editor
 
     private int GetSelectedIndex()
     {
+        if (startingRelicProperty == null)
+        {
+            return 0;
+        }
+
         RelicBase selectedRelic = startingRelicProperty.objectReferenceValue as RelicBase;
         if (selectedRelic == null)
         {
