@@ -200,7 +200,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 02a09c0ad5f89d342a8e3da18df30016, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  enemyName: StonToad
+  enemyName: "\u77F3\u87FE\u870D"
   maxHP: 40
   currentHP: 0
   currentBlock: 0

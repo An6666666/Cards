@@ -338,7 +338,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 51b16281fa9a49942882437f6c28f13c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  enemyName: GouShe(Elite)
+  enemyName: "\u9264\u86C7(\u83C1\u82F1)"
   maxHP: 60
   currentHP: 0
   currentBlock: 0

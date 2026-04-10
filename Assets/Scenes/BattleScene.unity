@@ -8974,7 +8974,7 @@ MonoBehaviour:
   - enemyPrefab: {fileID: 4591814044274373110, guid: e0d91408b43bec24ab02b0d2932a3dfc, type: 3}
     count: 0
   - enemyPrefab: {fileID: 7728357840837083407, guid: 6fb8d547b14a881468023f486a977e6b, type: 3}
-    count: 1
+    count: 0
   - enemyPrefab: {fileID: 8258485525033336925, guid: b1fbe62463006294b80e46474639e1f9, type: 3}
     count: 0
   - enemyPrefab: {fileID: 8896973269389346778, guid: 8e9ee8b5037fe5048ae8dc2cef4d967f, type: 3}
@@ -11010,10 +11010,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   startingDeck: []
-  debugStartingDeck:
-  - {fileID: 11400000, guid: 6e46d5e13429d2742a580e16ec745461, type: 2}
-  - {fileID: 11400000, guid: 293e02d9acc286446b6512a991161eaf, type: 2}
-  useDebugDeck: 1
+  debugStartingDeck: []
+  useDebugDeck: 0
   startingDeckDefinition: {fileID: 11400000, guid: 1ce8022936a74184fb5e02c6c0afbb04, type: 2}
   exhaustCountThisTurn: 0
 --- !u!114 &1848671832

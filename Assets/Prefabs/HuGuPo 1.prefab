@@ -445,7 +445,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b3d8e8475067b584fade68c77b92c248, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  enemyName: HuGuPo
+  enemyName: "\u864E\u59D1\u5A46"
   maxHP: 50
   currentHP: 0
   currentBlock: 0
