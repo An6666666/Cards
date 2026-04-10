@@ -406,6 +406,10 @@ MonoBehaviour:
   columnStrikeAnimationTriggerName: SkillStart
   columnStrikeAnimationDuration: 1.2
   columnStrikeFullScreenFxDuration: 1
+  columnStrikeAreaFxController: {fileID: 9100000, guid: 89d9230b2a9c0bc4cb504e72c8296f0c, type: 2}
+  columnStrikeAreaFxOffset: {x: 0, y: 1.5, z: 0}
+  columnStrikeAreaFxSortingOrderOffset: 20
+  columnStrikeAreaFxScale: {x: 1, y: 2, z: 1}
 --- !u!61 &8062545072184826831
 BoxCollider2D:
   m_ObjectHideFlags: 0
