@@ -1210,7 +1210,10 @@ MonoBehaviour:
   titleText: {fileID: 1113541049}
   descriptionText: {fileID: 1323941192}
   videoPlayer: {fileID: 1957963023}
+  videoImage: {fileID: 0}
   videoRoot: {fileID: 0}
+  videoTextureWidth: 1920
+  videoTextureHeight: 1080
   unmetCombinationText: 
   unmetTitleText: "\u672A\u9054\u6210\u689D\u4EF6"
   unmetDescriptionText: "\u8ACB\u81F3\u5C11\u9078\u64C7 2 \u500B\u5143\u7D20\u4EE5\u67E5\u770B\u5143\u7D20\u53CD\u61C9\u3002"
@@ -1244,7 +1247,7 @@ MonoBehaviour:
     combinationText: "\u706B + \u6C34"
     titleText: "\u84B8\u767C"
     descriptionText: "\u706B+\u6C34\u7684\u84B8\u767C\u53CD\u61C9\uFF0C\u6703\u8B93\u5F8C\u8005\u4F7F\u7528\u7684\u50B7\u5BB3\u589E\u52A01.5\u500D\uFF0C\u4E26\u7559\u4E0B\u5F8C\u8005\u653B\u64CA\u7684\u5143\u7D20\u3002"
-    videoClip: {fileID: 0}
+    videoClip: {fileID: 32900000, guid: 3e84b7fab776a464c9af6a9613da1d34, type: 3}
   - id: Fire_Thunder
     primaryElementId: Fire
     secondaryElementId: Thunder
@@ -1253,7 +1256,7 @@ MonoBehaviour:
     combinationText: "\u706B + \u96F7"
     titleText: "\u8D85\u8F09"
     descriptionText: "\u8D85\u8F09\u6703\u5C0D\u88AB\u653B\u64CA\u7684\u5996\u602A\u5468\u570D\u7684\u6575\u4EBA\uFF0C\u4E5F\u9020\u62100.5\u500D\u7684\u50B7\u5BB3\uFF0C\u88AB\u653B\u64CA\u7684\u5996\u602A\u6703\u7559\u4E0B\u5F8C\u8005\u7684\u5143\u7D20\u3002"
-    videoClip: {fileID: 0}
+    videoClip: {fileID: 32900000, guid: 69166d63f88515f4592562f775125875, type: 3}
   - id: Fire_Wood
     primaryElementId: Fire
     secondaryElementId: Wood
@@ -1262,7 +1265,7 @@ MonoBehaviour:
     combinationText: "\u706B + \u6728"
     titleText: "\u71C3\u71D2"
     descriptionText: "\u706B+\u6728\u6703\u7522\u751F\u71C3\u71D2\u7684\u6548\u679C\uFF0C\u6703\u6B98\u7559\u706B\u5143\u7D20\uFF0C\u71C3\u71D2\u6301\u7E8C5\u56DE\u5408\uFF0C\u6BCF\u6B21\u9020\u62102\u9EDE\u50B7\u5BB3\u3002"
-    videoClip: {fileID: 0}
+    videoClip: {fileID: 32900000, guid: 9ad0f73fe8d6d7f448bec4ec487aa391, type: 3}
   - id: Fire_Ice
     primaryElementId: Fire
     secondaryElementId: Ice
@@ -1271,7 +1274,7 @@ MonoBehaviour:
     combinationText: "\u706B + \u51B0"
     titleText: "\u878D\u5316"
     descriptionText: "\u706B+\u51B0\u7684\u878D\u5316\u53CD\u61C9\uFF0C\u6703\u8B93\u5F8C\u8005\u4F7F\u7528\u7684\u50B7\u5BB3\u589E\u52A01.5\u500D\uFF0C\u88AB\u653B\u64CA\u7684\u5996\u602A\u6703\u7559\u4E0B\u5F8C\u8005\u7684\u5143\u7D20\u3002"
-    videoClip: {fileID: 0}
+    videoClip: {fileID: 32900000, guid: 09535bc127e415e46a9e8594e8c71726, type: 3}
   - id: Water_Thunder
     primaryElementId: Water
     secondaryElementId: Thunder
@@ -1280,7 +1283,7 @@ MonoBehaviour:
     combinationText: "\u6C34 + \u96F7"
     titleText: "\u5C0E\u96FB"
     descriptionText: "\u5148\u4F7F\u7528\u6C34\u5143\u7D20\u7684\u7279\u6027\u8B93\u92EA\u8A2D\u597D\u74B0\u5883\uFF0C\u518D\u7528\u96F7\u5143\u7D20\u9020\u6210\u5C0E\u96FB\u7684\u53CD\u61C9\u3002"
-    videoClip: {fileID: 0}
+    videoClip: {fileID: 32900000, guid: 53eec5d8a863f7945a05dd1d4f593a12, type: 3}
   - id: Water_Wood
     primaryElementId: Water
     secondaryElementId: Wood
@@ -1289,7 +1292,7 @@ MonoBehaviour:
     combinationText: "\u6C34 + \u6728"
     titleText: "\u751F\u9577"
     descriptionText: "\u751F\u9577\u53CD\u61C9\u6703\u5728\u68CB\u76E4\u4E0A\u751F\u9577\u51FA\u834A\u68D8\uFF0C\u834A\u68D8\u6703\u5728\u73A9\u5BB6\u7D50\u675F\u56DE\u5408\u6642\uFF0C\u653B\u64CA\u5728\u834A\u68D8\u683C\u4E0A\u7684\u5996\u602A\u9020\u62103\u9EDE\u50B7\u5BB3\u3002"
-    videoClip: {fileID: 0}
+    videoClip: {fileID: 32900000, guid: e37c7efac274bb040ae42d762b7216b1, type: 3}
   - id: Water_Ice
     primaryElementId: Water
     secondaryElementId: Ice
@@ -1298,7 +1301,7 @@ MonoBehaviour:
     combinationText: "\u6C34 + \u51B0"
     titleText: "\u51B0\u51CD"
     descriptionText: "\u51B0+\u6C34\u7684\u51B0\u51CD\u53CD\u61C9\uFF0C\u53EF\u4EE5\u51B0\u51CD\u5996\u602A\uFF0C\u8B93\u5996\u602A\u7121\u6CD5\u79FB\u52D5\u548C\u653B\u64CA\u3002"
-    videoClip: {fileID: 0}
+    videoClip: {fileID: 32900000, guid: 0b459973bf20dad40b31649c27438fab, type: 3}
   - id: Thunder_Wood
     primaryElementId: Thunder
     secondaryElementId: Wood
@@ -1307,7 +1310,7 @@ MonoBehaviour:
     combinationText: "\u96F7 + \u6728"
     titleText: "\u96F7\u64CA"
     descriptionText: "\u96F7+\u6728\u7684\u96F7\u64CA\u53CD\u61C9\uFF0C\u6703\u8B93\u63A5\u4E0B\u4F86\u9020\u6210\u7684\u50B7\u5BB3\u8B8A\u62102\u500D\u3002"
-    videoClip: {fileID: 0}
+    videoClip: {fileID: 32900000, guid: 998aba33a49909a458dbecd220bbdfa3, type: 3}
   - id: Thunder_Ice
     primaryElementId: Thunder
     secondaryElementId: Ice
@@ -1316,7 +1319,7 @@ MonoBehaviour:
     combinationText: "\u96F7 + \u51B0"
     titleText: "\u8D85\u5C0E"
     descriptionText: "\u96F7+\u51B0\u7684\u8D85\u5C0E\u53CD\u61C9\uFF0C\u6703\u8B93\u5F8C\u653B\u64CA\u7684\u50B7\u5BB3\u589E\u52A06\u9EDE\u3002"
-    videoClip: {fileID: 0}
+    videoClip: {fileID: 32900000, guid: 2e38130c5532dcd429eba38dc35966e8, type: 3}
   - id: Wood_Ice
     primaryElementId: Wood
     secondaryElementId: Ice
@@ -1325,11 +1328,11 @@ MonoBehaviour:
     combinationText: "\u6728 + \u51B0"
     titleText: "\u7D50\u971C"
     descriptionText: "\u51B0+\u6728\u7684\u7D50\u971C\u53CD\u61C9\uFF0C\u6703\u8B93\u63A5\u4E0B\u4F86\u9020\u6210\u7684\u50B7\u5BB3\u984D\u5916\u589E\u52A02\u9EDE\u50B7\u5BB3\uFF0C\u6700\u591A\u53EF\u4EE5\u758A\u52A06\u5C64\uFF0C\u6BCF\u73A9\u5BB6\u56DE\u5408\u958B\u59CB\u6642\u6703\u6E1B\u5C111\u5C64\u3002"
-    videoClip: {fileID: 0}
+    videoClip: {fileID: 32900000, guid: 3fdfc7a502c02ca4aa97b44944fe285f, type: 3}
   fadeOutDuration: 0.15
   fadeInDuration: 0.2
   useUnscaledTime: 1
-  selectedTabColor: {r: 0.75, g: 0.75, b: 0.75, a: 1}
+  selectedTabColor: {r: 0.2830189, g: 0.2830189, b: 0.2830189, a: 1}
   normalTabColor: {r: 1, g: 1, b: 1, a: 1}
   tabColorDuration: 0.15
 --- !u!4 &146582884 stripped
@@ -2237,8 +2240,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 5.1, y: -54.1}
-  m_SizeDelta: {x: 57.778, y: 58.5079}
+  m_AnchoredPosition: {x: 4.8513, y: -54.1}
+  m_SizeDelta: {x: 65.2399, y: 58.5079}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &395914523
 MonoBehaviour:
@@ -2267,7 +2270,7 @@ MonoBehaviour:
     m_BestFit: 0
     m_MinSize: 0
     m_MaxSize: 40
-    m_Alignment: 5
+    m_Alignment: 4
     m_AlignByGeometry: 0
     m_RichText: 1
     m_HorizontalOverflow: 0
@@ -8945,6 +8948,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: f64b7419d3d824a42a133bb4a9651876, type: 2}
   rewardUIPrefab: {fileID: 5461426028147158543, guid: 8923449bae0f2f3459534ea2b271150f, type: 3}
   normalBattleRelicRewardChance: 0.1
+  eliteBattleRelicRewardChance: 1
   normalBattleRelicChoiceCount: 3
   cardUseDelay: 0
 --- !u!4 &1640340007 stripped
@@ -10301,6 +10305,10 @@ PrefabInstance:
       value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 5319055684074607263, guid: 6ee8a7298f7c9954d85e9639a13c03db, type: 3}
+      propertyPath: initialVisibility
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 5319055684074607263, guid: 6ee8a7298f7c9954d85e9639a13c03db, type: 3}
       propertyPath: dialogueSprites.Array.size
       value: 6
       objectReference: {fileID: 0}
@@ -11275,8 +11283,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 36, y: -33.613007}
-  m_SizeDelta: {x: 1100, y: 567}
+  m_AnchoredPosition: {x: 36, y: -35.8}
+  m_SizeDelta: {x: 1100, y: 600}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1957963022
 MonoBehaviour:
@@ -11332,7 +11340,7 @@ VideoPlayer:
   m_DirectAudioVolumes:
   - 1
   m_Url: 
-  m_EnabledAudioTracks: 01
+  m_EnabledAudioTracks: 00
   m_DirectAudioMutes: 00
   m_ControlledAudioTrackCount: 1
   m_PlayOnAwake: 1

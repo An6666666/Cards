@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 public class GlobalSettingsUI : MonoBehaviour
@@ -19,6 +20,7 @@ public class GlobalSettingsUI : MonoBehaviour
     [SerializeField] private ScrollRect settingsScrollRect;
     [SerializeField] private Button closeButton;
     [SerializeField] private Button quitButton;
+    [SerializeField] private string titleSceneName = "TitleScene";
 
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
     private static void AutoCreate()
@@ -169,7 +171,8 @@ public class GlobalSettingsUI : MonoBehaviour
         }
 
         quitButton.onClick.RemoveListener(QuitGame);
-        quitButton.onClick.AddListener(QuitGame);
+        quitButton.onClick.RemoveListener(ReturnToTitle);
+        quitButton.onClick.AddListener(ReturnToTitle);
     }
 
     private void CacheReferencesFromPrefabIfNeeded()
@@ -243,5 +246,11 @@ public class GlobalSettingsUI : MonoBehaviour
 #else
         Application.Quit();
 #endif
+    }
+
+    public void ReturnToTitle()
+    {
+        Close();
+        SceneManager.LoadScene(titleSceneName);
     }
 }

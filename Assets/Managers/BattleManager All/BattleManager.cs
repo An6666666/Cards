@@ -84,6 +84,7 @@ public class BattleManager : MonoBehaviour
 
     [Header("Relic Reward")]
     [SerializeField, Range(0f, 1f)] private float normalBattleRelicRewardChance = 0.1f;
+    [SerializeField, Range(0f, 1f)] private float eliteBattleRelicRewardChance = 1f;
     [SerializeField, Min(1)] private int normalBattleRelicChoiceCount = 3;
 
     [Header("Timings")]
@@ -115,6 +116,7 @@ public class BattleManager : MonoBehaviour
 
     public bool BattleStarted => battleStarted;
     public float NormalBattleRelicRewardChance => Mathf.Clamp01(normalBattleRelicRewardChance);
+    public float EliteBattleRelicRewardChance => Mathf.Clamp01(eliteBattleRelicRewardChance);
     public int NormalBattleRelicChoiceCount => Mathf.Max(1, normalBattleRelicChoiceCount);
     public GameObject RelicRewardIconPrefab => relicUIPrefab;
 
@@ -759,6 +761,7 @@ public class BattleManager : MonoBehaviour
             rewardUIPrefab,
             handPanel,
             normalBattleRelicRewardChance,
+            eliteBattleRelicRewardChance,
             normalBattleRelicChoiceCount);
 
         encounterLoader = new BattleEncounterLoader(

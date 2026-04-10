@@ -88,7 +88,10 @@ public class RulePanelController : MonoBehaviour
     [FormerlySerializedAs("descriptionDisplayText")]
     [SerializeField] private Text descriptionText;
     [SerializeField] private VideoPlayer videoPlayer;
+    [SerializeField] private RawImage videoImage;
     [SerializeField] private GameObject videoRoot;
+    [SerializeField] private int videoTextureWidth = 1280;
+    [SerializeField] private int videoTextureHeight = 720;
 
     [Header("Empty State")]
     [SerializeField] private string unmetCombinationText = string.Empty;
@@ -118,6 +121,7 @@ public class RulePanelController : MonoBehaviour
     private CanvasGroup _centerIconCanvasGroup;
     private Tween _iconTween;
     private int _currentEntryIndex;
+    private RenderTexture _videoTexture;
 
     private Sprite _defaultCenterIcon;
     private Sprite _defaultLeftIcon;
@@ -276,6 +280,11 @@ public class RulePanelController : MonoBehaviour
 
         if (videoPlayer == null)
             videoPlayer = contentRoot.GetComponentInChildren<VideoPlayer>(true);
+
+        if (videoImage == null)
+            videoImage = videoPlayer != null
+                ? videoPlayer.GetComponent<RawImage>()
+                : contentRoot.GetComponentInChildren<RawImage>(true);
 
         if (videoRoot == null && videoPlayer != null)
             videoRoot = videoPlayer.gameObject;
@@ -541,8 +550,15 @@ public class RulePanelController : MonoBehaviour
         if (videoRoot != null)
             videoRoot.SetActive(hasClip);
 
-        if (hasClip)
-            videoPlayer.Play();
+        if (!hasClip)
+        {
+            if (videoImage != null)
+                videoImage.enabled = false;
+            return;
+        }
+
+        EnsureVideoOutputTexture(clip);
+        videoPlayer.Play();
     }
 
     private void StopVideo()
@@ -553,8 +569,81 @@ public class RulePanelController : MonoBehaviour
         videoPlayer.Stop();
         videoPlayer.clip = null;
 
+        if (videoImage != null)
+            videoImage.enabled = false;
+
         if (videoRoot != null)
             videoRoot.SetActive(false);
+    }
+
+    private void EnsureVideoOutputTexture(VideoClip clip)
+    {
+        if (videoPlayer == null)
+            return;
+
+        if (videoImage == null)
+            videoImage = videoPlayer.GetComponent<RawImage>();
+
+        int width = videoTextureWidth;
+        int height = videoTextureHeight;
+
+        if (clip != null && clip.width > 0 && clip.height > 0)
+        {
+            width = (int)clip.width;
+            height = (int)clip.height;
+        }
+        else
+        {
+            RectTransform rectTransform = videoImage != null
+                ? videoImage.rectTransform
+                : videoPlayer.GetComponent<RectTransform>();
+
+            if (rectTransform != null && rectTransform.rect.width > 1f && rectTransform.rect.height > 1f)
+            {
+                width = Mathf.CeilToInt(rectTransform.rect.width);
+                height = Mathf.CeilToInt(rectTransform.rect.height);
+            }
+        }
+
+        width = Mathf.Max(16, width);
+        height = Mathf.Max(16, height);
+
+        if (_videoTexture == null || _videoTexture.width != width || _videoTexture.height != height)
+        {
+            ReleaseVideoTexture();
+            _videoTexture = new RenderTexture(width, height, 0, RenderTextureFormat.ARGB32)
+            {
+                name = "RulePanelVideo"
+            };
+            _videoTexture.Create();
+        }
+
+        videoPlayer.renderMode = VideoRenderMode.RenderTexture;
+        videoPlayer.targetTexture = _videoTexture;
+        videoPlayer.aspectRatio = VideoAspectRatio.FitHorizontally;
+
+        if (videoImage != null)
+        {
+            videoImage.texture = _videoTexture;
+            videoImage.color = Color.white;
+            videoImage.enabled = true;
+        }
+    }
+
+    private void ReleaseVideoTexture()
+    {
+        if (_videoTexture == null)
+            return;
+
+        if (videoPlayer != null && videoPlayer.targetTexture == _videoTexture)
+            videoPlayer.targetTexture = null;
+
+        if (videoImage != null && videoImage.texture == _videoTexture)
+            videoImage.texture = null;
+
+        _videoTexture.Release();
+        Destroy(_videoTexture);
+        _videoTexture = null;
     }
 
     private void UpdateTabHighlight()
@@ -714,7 +803,13 @@ public class RulePanelController : MonoBehaviour
     private void OnDisable()
     {
         DOTween.Kill(this);
+        StopVideo();
         if (_centerIconCanvasGroup != null)
             _centerIconCanvasGroup.alpha = 1f;
+    }
+
+    private void OnDestroy()
+    {
+        ReleaseVideoTexture();
     }
 }

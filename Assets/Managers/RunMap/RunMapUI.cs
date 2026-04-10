@@ -41,6 +41,7 @@ public partial class RunMapUI : MonoBehaviour
     [SerializeField] private float topPadding = 120f;
     [SerializeField] private float bottomPadding = 120f;
     [SerializeField, Range(0f, 1f)] private float focusedNodeViewportY = 0.5f;
+    [SerializeField, Min(0f)] private float focusedNodeForwardPreviewOffset = 160f;
 
     [Header("Colors")]
     [SerializeField] private Color defaultColor = Color.white;
@@ -172,7 +173,7 @@ public partial class RunMapUI : MonoBehaviour
         float desiredViewportY = Mathf.Lerp(-viewport.rect.height, 0f, Mathf.Clamp01(focusedNodeViewportY));
         float deltaY = desiredViewportY - nodeViewportLocal.y;
         Vector2 anchoredPosition = mapContainer.anchoredPosition;
-        anchoredPosition.y += deltaY;
+        anchoredPosition.y += deltaY + focusedNodeForwardPreviewOffset;
 
         float maxScrollY = Mathf.Max(0f, mapContainer.rect.height - viewport.rect.height);
         anchoredPosition.y = Mathf.Clamp(anchoredPosition.y, 0f, maxScrollY);

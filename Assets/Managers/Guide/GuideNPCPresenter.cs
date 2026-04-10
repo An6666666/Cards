@@ -12,6 +12,13 @@ using UnityEngine.SceneManagement;
 /// </summary>
 public class GuideNPCPresenter : MonoBehaviour
 {
+    private enum InitialVisibilityMode
+    {
+        KeepCurrent = 0,
+        Visible = 1,
+        Hidden = 2
+    }
+
     public event Action DialogueLinesFinished;
     [Header("References")]
     [SerializeField] private DialogueBubbleUI dialogueUI;
@@ -26,6 +33,7 @@ public class GuideNPCPresenter : MonoBehaviour
     [SerializeField] private Ease fadeEase = Ease.OutCubic;
     [SerializeField] private bool hideAfterDialogueEnds = true;
     [SerializeField, Min(0f)] private float hideDelaySeconds = 2f;
+    [SerializeField] private InitialVisibilityMode initialVisibility = InitialVisibilityMode.KeepCurrent;
 
     private Tween visibilityTween;
     private Tween delayedHideTween;
@@ -285,6 +293,7 @@ public class GuideNPCPresenter : MonoBehaviour
         CacheSelfGraphicsIfNeeded();
         DisableSelfGraphicRaycasts();
         ResolveSceneReferencesIfNeeded();
+        ApplyInitialVisibility();
     }
     private void OnEnable()
     {
@@ -491,6 +500,33 @@ public class GuideNPCPresenter : MonoBehaviour
             canvasGroup.gameObject.SetActive(true);
             canvasGroup.alpha = 1f;
             canvasGroup.blocksRaycasts = true;
+        }
+        isHiding = false;
+    }
+    private void ApplyInitialVisibility()
+    {
+        switch (initialVisibility)
+        {
+            case InitialVisibilityMode.Visible:
+                EnsureVisibleState();
+                break;
+            case InitialVisibilityMode.Hidden:
+                ApplyHiddenStateImmediately();
+                break;
+        }
+    }
+    private void ApplyHiddenStateImmediately()
+    {
+        KillDelayedHideTween();
+        KillVisibilityTween();
+        DisableSelfGraphicRaycasts();
+        dialogueUI?.ForceHideBubble();
+        SetSelfGraphicsVisible(false);
+        if (canvasGroup != null)
+        {
+            canvasGroup.alpha = 0f;
+            canvasGroup.blocksRaycasts = false;
+            canvasGroup.gameObject.SetActive(false);
         }
         isHiding = false;
     }

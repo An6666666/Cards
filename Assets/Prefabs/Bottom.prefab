@@ -815,7 +815,7 @@ MonoBehaviour:
   burnIcon: {fileID: 21300000, guid: 3b959444e69fb8b429e6f9bd079177bc, type: 3}
   frozenIcon: {fileID: 21300000, guid: 2a4f09efb69075f44868786e2c4a8c1b, type: 3}
   chargedIcon: {fileID: 21300000, guid: d33beeca1e258974a86b2d7986f441d3, type: 3}
-  frostIcon: {fileID: 21300000, guid: 31a9f6dbf24c9a0498e9db5629ce4736, type: 3}
+  frostIcon: {fileID: 21300000, guid: 379cdbab65eebe94dbf4e0e8709f6e51, type: 3}
   _skillStep: 8.5
   _statusStep: 8.5
 --- !u!114 &2955211467787434944
