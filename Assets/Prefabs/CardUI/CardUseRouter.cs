@@ -4,10 +4,16 @@ public class CardUseRouter : MonoBehaviour
 {
     private CardUI cardUI;
     private BattleManager battleManager;
+    private PlayerSkillTargetHighlight highlightedSkillTarget;
 
     public void Initialize(CardUI ui)
     {
         cardUI = ui;
+    }
+
+    private void OnDisable()
+    {
+        ClearSkillTargetHighlight();
     }
 
     public void HandleBeginDrag(CardBase cardData, Vector2 worldPosition)
@@ -27,16 +33,28 @@ public class CardUseRouter : MonoBehaviour
             {
                 battleManager.UseMovementCard(cardData);
             }
+            else if (cardData.cardType == CardType.Skill)
+            {
+                UpdateSkillTargetHighlight(worldPosition);
+            }
         }
     }
 
     public void HandleDrag(CardBase cardData, Vector2 worldPosition)
     {
-        if (cardData == null || cardData.cardType != CardType.Attack) return;
+        if (cardData == null) return;
         EnsureBattleManager();
 
-        if (battleManager != null)
+        if (battleManager == null) return;
+
+        if (cardData.cardType == CardType.Attack)
+        {
             battleManager.UpdateAttackHover(worldPosition);
+        }
+        else if (cardData.cardType == CardType.Skill)
+        {
+            UpdateSkillTargetHighlight(worldPosition);
+        }
     }
 
     public bool TryHandleDrop(CardBase cardData, Collider2D hit, Vector2 worldPos)
@@ -44,7 +62,10 @@ public class CardUseRouter : MonoBehaviour
         EnsureBattleManager();
 
         if (cardData == null || battleManager == null)
+        {
+            ClearSkillTargetHighlight();
             return false;
+        }
 
         bool used = false;
 
@@ -53,8 +74,9 @@ public class CardUseRouter : MonoBehaviour
         else if (cardData.cardType == CardType.Movement)
             used = TryUseMovement(hit, worldPos);
         else if (cardData.cardType == CardType.Skill)
-            used = TryUseSkill(hit);
+            used = TryUseSkill(hit, worldPos);
 
+        ClearSkillTargetHighlight();
         return used;
     }
 
@@ -141,20 +163,94 @@ public class CardUseRouter : MonoBehaviour
         return false;
     }
 
-    private bool TryUseSkill(Collider2D hit)
+    private bool TryUseSkill(Collider2D hit, Vector2 worldPos)
     {
         if (!IsCardPlayableFromHand())
             return false;
 
-        if (hit != null)
+        if (IsPlayerSkillTarget(hit))
         {
-            Player playerTarget = hit.GetComponentInParent<Player>();
-            if (playerTarget != null && playerTarget == battleManager.player)
+            return battleManager.PlayCard(cardUI.cardData);
+        }
+
+        Collider2D[] overlaps = Physics2D.OverlapPointAll(worldPos);
+        for (int i = 0; i < overlaps.Length; i++)
+        {
+            if (IsPlayerSkillTarget(overlaps[i]))
             {
                 return battleManager.PlayCard(cardUI.cardData);
             }
         }
+
         return false;
+    }
+
+    private bool IsPlayerSkillTarget(Collider2D hit)
+    {
+        if (hit == null || battleManager == null)
+        {
+            return false;
+        }
+
+        Player playerTarget = hit.GetComponentInParent<Player>();
+        return playerTarget != null && playerTarget == battleManager.player;
+    }
+
+    private void UpdateSkillTargetHighlight(Vector2 worldPosition)
+    {
+        if (!IsCardPlayableFromHand())
+        {
+            ClearSkillTargetHighlight();
+            return;
+        }
+
+        Collider2D[] overlaps = Physics2D.OverlapPointAll(worldPosition);
+        Player target = null;
+
+        for (int i = 0; i < overlaps.Length; i++)
+        {
+            Collider2D overlap = overlaps[i];
+            if (overlap == null) continue;
+
+            Player candidate = overlap.GetComponentInParent<Player>();
+            if (candidate != null && candidate == battleManager.player)
+            {
+                target = candidate;
+                break;
+            }
+        }
+
+        if (target == null)
+        {
+            ClearSkillTargetHighlight();
+            return;
+        }
+
+        PlayerSkillTargetHighlight nextHighlight = target.GetComponent<PlayerSkillTargetHighlight>();
+        if (nextHighlight == null)
+        {
+            ClearSkillTargetHighlight();
+            return;
+        }
+
+        if (highlightedSkillTarget != null && highlightedSkillTarget != nextHighlight)
+        {
+            highlightedSkillTarget.SetHighlighted(false);
+        }
+
+        highlightedSkillTarget = nextHighlight;
+        highlightedSkillTarget.SetHighlighted(true);
+    }
+
+    private void ClearSkillTargetHighlight()
+    {
+        if (highlightedSkillTarget == null)
+        {
+            return;
+        }
+
+        highlightedSkillTarget.SetHighlighted(false);
+        highlightedSkillTarget = null;
     }
 
     private bool IsCardPlayableFromHand()
