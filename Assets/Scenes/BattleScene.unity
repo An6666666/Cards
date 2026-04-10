@@ -11007,29 +11007,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ec43d2a64345a704981db131db4084ef, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  startingDeck:
-  - {fileID: 11400000, guid: d0de2f6e31d84634b86870364c54d72e, type: 2}
-  - {fileID: 11400000, guid: 24e31aaea5ce6664dbfe74c7070f81bb, type: 2}
-  - {fileID: 11400000, guid: 6bf4c1a83537ce14f8a130878dc25b93, type: 2}
+  startingDeck: []
   debugStartingDeck:
-  - {fileID: 11400000, guid: 69a0f11cbfbb26e498b55c8fd9783d21, type: 2}
-  - {fileID: 11400000, guid: 5e0f37164bedc0c40849be8d4a828656, type: 2}
-  - {fileID: 11400000, guid: 69a0f11cbfbb26e498b55c8fd9783d21, type: 2}
-  - {fileID: 11400000, guid: 5e0f37164bedc0c40849be8d4a828656, type: 2}
-  - {fileID: 11400000, guid: 69a0f11cbfbb26e498b55c8fd9783d21, type: 2}
-  - {fileID: 11400000, guid: 5e0f37164bedc0c40849be8d4a828656, type: 2}
-  - {fileID: 11400000, guid: 69a0f11cbfbb26e498b55c8fd9783d21, type: 2}
-  - {fileID: 11400000, guid: 5e0f37164bedc0c40849be8d4a828656, type: 2}
-  - {fileID: 11400000, guid: 5e0f37164bedc0c40849be8d4a828656, type: 2}
-  - {fileID: 11400000, guid: 5e0f37164bedc0c40849be8d4a828656, type: 2}
+  - {fileID: 11400000, guid: 6e46d5e13429d2742a580e16ec745461, type: 2}
   - {fileID: 11400000, guid: 293e02d9acc286446b6512a991161eaf, type: 2}
-  - {fileID: 11400000, guid: 293e02d9acc286446b6512a991161eaf, type: 2}
-  - {fileID: 11400000, guid: 293e02d9acc286446b6512a991161eaf, type: 2}
-  - {fileID: 11400000, guid: 4b17aca886ce6ff488b11e95c1291b15, type: 2}
-  - {fileID: 11400000, guid: 4b17aca886ce6ff488b11e95c1291b15, type: 2}
-  - {fileID: 11400000, guid: 4b17aca886ce6ff488b11e95c1291b15, type: 2}
-  - {fileID: 11400000, guid: 4b17aca886ce6ff488b11e95c1291b15, type: 2}
-  - {fileID: 11400000, guid: 4b17aca886ce6ff488b11e95c1291b15, type: 2}
   useDebugDeck: 1
   startingDeckDefinition: {fileID: 11400000, guid: 1ce8022936a74184fb5e02c6c0afbb04, type: 2}
   exhaustCountThisTurn: 0

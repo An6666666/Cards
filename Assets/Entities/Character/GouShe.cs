@@ -1,44 +1,44 @@
-using System.Collections.Generic;         // ä½¿ç”¨æ³›å??†å?ï¼Œä?å¦?List<T>
-using UnityEngine;                        // ä½¿ç”¨ Unity å¼•æ??„æ ¸å¿ƒå???
+using System.Collections.Generic;         // ä½¿ç”¨æ³›ï¿½??ï¿½ï¿½?ï¼Œï¿½?ï¿½?List<T>
+using UnityEngine;                        // ä½¿ç”¨ Unity å¼•ï¿½??ï¿½æ ¸å¿ƒï¿½???
 using UnityEngine.SceneManagement;
 
-public class GouShe : Enemy, IEnemyCooldownProvider               // ?¤è??ªç‰©é¡åˆ¥ï¼Œç¹¼?¿è‡ª Enemy ?ºå?é¡?
+public class GouShe : Enemy, IEnemyCooldownProvider               // ?ï¿½ï¿½??ï¿½ç‰©é¡åˆ¥ï¼Œç¹¼?ï¿½è‡ª Enemy ?ï¿½ï¿½?ï¿½?
 {
     private static readonly Vector2Int OffBoardSentinel = new Vector2Int(int.MinValue / 2, int.MinValue / 2);
-    // ä¸€?‹ç‰¹æ®Šåº§æ¨™ï??¨ä?ä»?¡¨?Œæš«?‚é›¢?‹æ??¤ã€ï?ä¸åœ¨ä»»ä??‰æ??¼å?ä¸Šï?
+    // ä¸€?ï¿½ç‰¹æ®Šåº§æ¨™ï¿½??ï¿½ï¿½?ï¿½?ï¿½ï¿½?ï¿½æš«?ï¿½é›¢?ï¿½ï¿½??ï¿½ã€ï¿½?ä¸åœ¨ä»»ï¿½??ï¿½ï¿½??ï¿½ï¿½?ä¸Šï¿½?
 
     [Header("Gou She Settings")]
-    [SerializeField] private int waterArmor = 2;                 // ç«™åœ¨æ°´æ ¼ä¸Šæ??²å??„é?å¤–è­·?²å€?
-    [SerializeField] private int columnStrikeDamage = 10;        // ?´ç??“æ??€?½ç??·å®³
-    [SerializeField] private int columnStrikeWeakDuration = 2;   // ?´ç??“æ??„å??›å¼±?€?‹ç??å???
-    [SerializeField] private int columnStrikeCooldownTurns = 2;  // ?´ç??“æ??€?½å†·?»å??ˆæ•¸
+    [SerializeField] private int waterArmor = 2;                 // ç«™åœ¨æ°´æ ¼ä¸Šï¿½??ï¿½ï¿½??ï¿½ï¿½?å¤–è­·?ï¿½ï¿½?
+    [SerializeField] private int columnStrikeDamage = 10;        // ?ï¿½ï¿½??ï¿½ï¿½??ï¿½?ï¿½ï¿½??ï¿½å®³
+    [SerializeField] private int columnStrikeWeakDuration = 2;   // ?ï¿½ï¿½??ï¿½ï¿½??ï¿½ï¿½??ï¿½å¼±?ï¿½?ï¿½ï¿½??ï¿½ï¿½???
+    [SerializeField] private int columnStrikeCooldownTurns = 2;  // ?ï¿½ï¿½??ï¿½ï¿½??ï¿½?ï¿½å†·?ï¿½ï¿½??ï¿½æ•¸
 
     [Header("Passive Settings")]
     [SerializeField, Range(0f, 1f)] private float extraStrikeChance = 0.5f;
-    // ?®é€šæ”»?Šæ?é¡å?å¤šæ?ä¸€æ®µå‚·å®³ç?æ©Ÿç?ï¼?~1 ä¹‹é?ï¼?
+    // ?ï¿½é€šæ”»?ï¿½ï¿½?é¡ï¿½?å¤šï¿½?ä¸€æ®µå‚·å®³ï¿½?æ©Ÿï¿½?ï¿½?~1 ä¹‹ï¿½?ï¿½?
 
     [SerializeField, Range(0f, 1f)] private float extraStrikeDamageRatio = 0.3f;
 
     [Header("Column Strike FX")]
     [SerializeField] private string columnStrikeAnimationTriggerName = "SkillStart";
     [SerializeField] private float columnStrikeAnimationDuration = 0.8f;
-    [SerializeField] private float columnStrikeFullScreenFxDuration = 0.8f;    // é¡å?ä¸€æ®µå‚·å®³ç?æ¯”ä?ï¼ˆç›¸å°æ–¼?¬æ¬¡?»æ??·å®³ï¼?
+    [SerializeField] private float columnStrikeFullScreenFxDuration = 0.8f;    // é¡ï¿½?ä¸€æ®µå‚·å®³ï¿½?æ¯”ï¿½?ï¼ˆç›¸å°æ–¼?ï¿½æ¬¡?ï¿½ï¿½??ï¿½å®³ï¿½?
     [SerializeField] private RuntimeAnimatorController columnStrikeAreaFxController;
     [SerializeField] private Vector3 columnStrikeAreaFxOffset = new Vector3(0f, 1f, 0f);
     [SerializeField] private int columnStrikeAreaFxSortingOrderOffset = 20;
     [SerializeField] private Vector3 columnStrikeAreaFxScale = new Vector3(1f, 1.6f, 1f);
 
-    private int columnStrikeCooldownRemaining;              // ?®å?è·é›¢?´ç??“æ??¯ç”¨?„å‰©å¹¾å??ˆå†·??
-    private bool columnStrikePending = false;                    // ?¯å¦å·²ç??²å…¥?Œç›´ç·šæ??Šæ??™å??ï?ç­‰å??¼å??ç???
+    private int columnStrikeCooldownRemaining;              // ?ï¿½ï¿½?è·é›¢?ï¿½ï¿½??ï¿½ï¿½??ï¿½ç”¨?ï¿½å‰©å¹¾ï¿½??ï¿½å†·??
+    private bool columnStrikePending = false;                    // ?ï¿½å¦å·²ï¿½??ï¿½å…¥?ï¿½ç›´ç·šï¿½??ï¿½ï¿½??ï¿½ï¿½??ï¿½ï¿½?ç­‰ï¿½??ï¿½ï¿½??ï¿½ï¿½???
     private readonly HashSet<int> columnStrikeTargetColumns = new HashSet<int>();
-    // è¦æ”»?Šç??®æ?æ¬„ä?ï¼ˆx åº§æ?ï¼‰ï??¯å??«å?æ¢ç›´ç·?
+    // è¦æ”»?ï¿½ï¿½??ï¿½ï¿½?æ¬„ï¿½?ï¼ˆx åº§ï¿½?ï¼‰ï¿½??ï¿½ï¿½??ï¿½ï¿½?æ¢ç›´ï¿½?
     private readonly List<BoardTile> columnStrikeHighlightedTiles = new List<BoardTile>();
-    // è¢«æ?è¨˜ç‚º?³å?è¢«ç›´ç·šæ??Šç??¼å?æ¸…å–®ï¼Œç”¨ä¾†ä?å¾Œæ??¤é?äº?
+    // è¢«ï¿½?è¨˜ç‚º?ï¿½ï¿½?è¢«ç›´ç·šï¿½??ï¿½ï¿½??ï¿½ï¿½?æ¸…å–®ï¼Œç”¨ä¾†ï¿½?å¾Œï¿½??ï¿½ï¿½?ï¿½?
 
-    private Vector2Int storedGridBeforeHide;                     // ?¨æ?å¤±å?è¨˜é??„å?ä¾†æ??¤åº§æ¨?
-    private SpriteRenderer[] cachedRenderers;                    // å¿«å?èº«ä??€??SpriteRendererï¼Œæ–¹ä¾¿ä??µéš±??é¡¯ç¤º
-    private EnemyElementStatusDisplay elementStatusDisplay;      //  ?°å?ï¼šå?ç´ å?ç¤ºæ§?¶å?ä»¶ç??ƒè€?
-    private bool initialWaterPrepared = false;                   // ?¯å¦å·²ç?å»ºç??å?å§‹æ°´?Ÿå???
+    private Vector2Int storedGridBeforeHide;                     // ?ï¿½ï¿½?å¤±ï¿½?è¨˜ï¿½??ï¿½ï¿½?ä¾†ï¿½??ï¿½åº§ï¿½?
+    private SpriteRenderer[] cachedRenderers;                    // å¿«ï¿½?èº«ï¿½??ï¿½??SpriteRendererï¼Œæ–¹ä¾¿ï¿½??ï¿½éš±??é¡¯ç¤º
+    private EnemyElementStatusDisplay elementStatusDisplay;      //  ?ï¿½ï¿½?ï¼šï¿½?ç´ ï¿½?ç¤ºæ§?ï¿½ï¿½?ä»¶ï¿½??ï¿½ï¿½?
+    private bool initialWaterPrepared = false;                   // ?ï¿½å¦å·²ï¿½?å»ºï¿½??ï¿½ï¿½?å§‹æ°´?ï¿½ï¿½???
     private GameObject gouSheFullScreenFxObject;
     private Animator gouSheFullScreenFxAnimator;
     private Coroutine gouSheFullScreenFxHideRoutine;
@@ -48,122 +48,121 @@ public class GouShe : Enemy, IEnemyCooldownProvider               // ?¤è??ªç‰©é¡
 
     protected override void Awake()
     {
-        enemyName = "?¤è?";          // è¨­å??µäºº?ç¨±
-        base.Awake();               // ?¼å«?ºå? Enemy.Awake() ?šé€šç”¨?å???
-        columnStrikeCooldownRemaining = columnStrikeCooldownTurns; // ?‹å ´?¨è¨­å®šå€?
+        base.Awake();               // ?ï¿½å«?ï¿½ï¿½? Enemy.Awake() ?ï¿½é€šç”¨?ï¿½ï¿½???
+        columnStrikeCooldownRemaining = columnStrikeCooldownTurns; // ?ï¿½å ´?ï¿½è¨­å®šï¿½?
     }
 
     protected override void Start()
     {
         base.Start();
-        PrepareInitialWaterZones(); // ?‹å ´?‚å»ºç«‹å?å§‹ç?æ°´å?ç´ å???
+        PrepareInitialWaterZones(); // ?ï¿½å ´?ï¿½å»ºç«‹ï¿½?å§‹ï¿½?æ°´ï¿½?ç´ ï¿½???
     }
 
     public override void ProcessTurnStart()
     {
-        base.ProcessTurnStart();    // ?ˆåŸ·è¡ŒåŸºåº•ç??å??‹å?æµç?ï¼ˆè???buff ç­‰ï?
+        base.ProcessTurnStart();    // ?ï¿½åŸ·è¡ŒåŸºåº•ï¿½??ï¿½ï¿½??ï¿½ï¿½?æµï¿½?ï¼ˆï¿½???buff ç­‰ï¿½?
     }
 
     public override void ProcessEnemyTurnEnd()
     {
         base.ProcessEnemyTurnEnd();
-        TickColumnStrikeCooldown(); // ?•ç??´ç??“æ??€?½ç??·å»?å??æ?
-        ApplyWaterArmorIfOnTile();  // ?å?çµæ??ç½®è­·ç”²å¾Œï??¥ç??¨æ°´?¼ä??è?è­·ç”²
+        TickColumnStrikeCooldown(); // ?ï¿½ï¿½??ï¿½ï¿½??ï¿½ï¿½??ï¿½?ï¿½ï¿½??ï¿½å»?ï¿½ï¿½??ï¿½ï¿½?
+        ApplyWaterArmorIfOnTile();  // ?ï¿½ï¿½?çµï¿½??ï¿½ç½®è­·ç”²å¾Œï¿½??ï¿½ï¿½??ï¿½æ°´?ï¿½ï¿½??ï¿½ï¿½?è­·ç”²
     }
 
     public override void EnemyAction(Player player)
     {
-        if (HandleFrozen())   // ?¥æ??ç??€?‹ï??•ç??å?æ¶ˆè€—å??´æ¥çµæ?è¡Œå?
+        if (HandleFrozen())   // ?ï¿½ï¿½??ï¿½ï¿½??ï¿½?ï¿½ï¿½??ï¿½ï¿½??ï¿½ï¿½?æ¶ˆè€—ï¿½??ï¿½æ¥çµï¿½?è¡Œï¿½?
         {
             return;
         }
 
-        if (columnStrikePending)       // ?¥å·²?²å…¥?´ç??“æ?æº–å?å®Œæ??€??
+        if (columnStrikePending)       // ?ï¿½å·²?ï¿½å…¥?ï¿½ï¿½??ï¿½ï¿½?æº–ï¿½?å®Œï¿½??ï¿½??
         {
             return;
         }
 
         if (columnStrikeCooldownRemaining <= 0 && IsOnWaterTile() && TryPrepareColumnStrike(player))
         {
-            // ?·å»çµæ? + ç«™åœ¨æ°´æ ¼ä¸?+ ?å?æº–å??´ç??“æ? ???¬å??ˆåª?šæ??™å°± return
+            // ?ï¿½å»çµï¿½? + ç«™åœ¨æ°´æ ¼ï¿½?+ ?ï¿½ï¿½?æº–ï¿½??ï¿½ï¿½??ï¿½ï¿½? ???ï¿½ï¿½??ï¿½åª?ï¿½ï¿½??ï¿½å°± return
             return;
         }
-        if (IsPlayerInRange(player))   // ?¥ç©å®¶åœ¨?®é€šæ”»?Šç??å…§
+        if (IsPlayerInRange(player))   // ?ï¿½ç©å®¶åœ¨?ï¿½é€šæ”»?ï¿½ï¿½??ï¿½å…§
         {
-            PerformAttackWithBonus(player); // ?²è?å¸¶æ?è¢«å?é¡å??·å®³æ©Ÿç??„æ™®?šæ”»??
+            PerformAttackWithBonus(player); // ?ï¿½ï¿½?å¸¶ï¿½?è¢«ï¿½?é¡ï¿½??ï¿½å®³æ©Ÿï¿½??ï¿½æ™®?ï¿½æ”»??
         }
         else
         {
-            if (CanMoveToAdjacentWater()) // ?¥æ??Šæ?æ°´æ ¼ï¼Œå„ª?ˆç›´?¥è¸©æ°?
+            if (CanMoveToAdjacentWater()) // ?ï¿½ï¿½??ï¿½ï¿½?æ°´æ ¼ï¼Œå„ª?ï¿½ç›´?ï¿½è¸©ï¿½?
             {
                 return;
             }
 
-            if (TryMoveOneStepTowardNearestWater(2)) // ??3 æ­¥å…§?‰æ°´?¼ï??ªå?? è?
+            if (TryMoveOneStepTowardNearestWater(2)) // ??3 æ­¥å…§?ï¿½æ°´?ï¿½ï¿½??ï¿½ï¿½??ï¿½ï¿½?
             {
                 return;
             }
             if (CanMoveThisTurn())
             {
-                MoveOneStepTowards(player); // ?¦å??ç©å®¶ç§»?•ä???
+                MoveOneStepTowards(player); // ?ï¿½ï¿½??ï¿½ç©å®¶ç§»?ï¿½ï¿½???
             }
         }
     }
 
     public override void DecideNextIntent(Player player)
     {
-        if (player == null)                       // æ²’æ??©å®¶?®æ???
+        if (player == null)                       // æ²’ï¿½??ï¿½å®¶?ï¿½ï¿½???
         {
-            nextIntent.type = EnemyIntentType.Idle;   // é¡¯ç¤º?ºå?æ©?
+            nextIntent.type = EnemyIntentType.Idle;   // é¡¯ç¤º?ï¿½ï¿½?ï¿½?
             nextIntent.value = 0;
-            UpdateIntentIcon();                      // ?´æ–°?­ä??å??–ç¤º
+            UpdateIntentIcon();                      // ?ï¿½æ–°?ï¿½ï¿½??ï¿½ï¿½??ï¿½ç¤º
             return;
         }
 
-        if (frozenTurns > 0)   // ?¥ä??å??ƒè¢«?ç?
+        if (frozenTurns > 0)   // ?ï¿½ï¿½??ï¿½ï¿½??ï¿½è¢«?ï¿½ï¿½?
         {
-            nextIntent.type = EnemyIntentType.Idle;   // ?å?é¡¯ç¤º?ºç„¡è¡Œå?
+            nextIntent.type = EnemyIntentType.Idle;   // ?ï¿½ï¿½?é¡¯ç¤º?ï¿½ç„¡è¡Œï¿½?
             nextIntent.value = 0;
             UpdateIntentIcon();
             return;
         }
 
-        if (columnStrikePending)                // ?¥å·²ç¶“æ??™å¥½?´ç??“æ?ï¼Œä?ä¸€æ­¥å°±?¯ç™¼?•æ???
+        if (columnStrikePending)                // ?ï¿½å·²ç¶“ï¿½??ï¿½å¥½?ï¿½ï¿½??ï¿½ï¿½?ï¼Œï¿½?ä¸€æ­¥å°±?ï¿½ç™¼?ï¿½ï¿½???
         {
-            nextIntent.type = EnemyIntentType.Skill;  // é¡¯ç¤º?€?½æ???
-            nextIntent.value = columnStrikeDamage;    // é¡¯ç¤º?è??·å®³
+            nextIntent.type = EnemyIntentType.Skill;  // é¡¯ç¤º?ï¿½?ï¿½ï¿½???
+            nextIntent.value = columnStrikeDamage;    // é¡¯ç¤º?ï¿½ï¿½??ï¿½å®³
             UpdateIntentIcon();
             return;
         }
 
         bool specialReady = columnStrikeCooldownRemaining <= 0 && IsOnWaterTile();
-        // ?¤æ–·?´ç??“æ??¯å¦?¯æ??™ï??·å»æ­¸é›¶ä¸”åœ¨æ°´æ ¼ï¼?
+        // ?ï¿½æ–·?ï¿½ï¿½??ï¿½ï¿½??ï¿½å¦?ï¿½ï¿½??ï¿½ï¿½??ï¿½å»æ­¸é›¶ä¸”åœ¨æ°´æ ¼ï¿½?
 
         if (specialReady)
         {
-            nextIntent.type = EnemyIntentType.Skill;  // ä¸‹ä?æ­¥æ?ç®—æ–½?¾æ???
+            nextIntent.type = EnemyIntentType.Skill;  // ä¸‹ï¿½?æ­¥ï¿½?ç®—æ–½?ï¿½ï¿½???
             nextIntent.value = columnStrikeDamage;
             UpdateIntentIcon();
             return;
         }
 
-        if (IsPlayerInRange(player))           // ?¦å??‹ç©å®¶æ˜¯?¦åœ¨?®é€šæ”»?Šç??å…§
+        if (IsPlayerInRange(player))           // ?ï¿½ï¿½??ï¿½ç©å®¶æ˜¯?ï¿½åœ¨?ï¿½é€šæ”»?ï¿½ï¿½??ï¿½å…§
         {
-            nextIntent.type = EnemyIntentType.Attack;     // é¡¯ç¤º?®é€šæ”»?Šæ???
-            nextIntent.value = CalculateAttackDamage();   // é¡¯ç¤º?®é€šæ”»?Šå‚·å®?
+            nextIntent.type = EnemyIntentType.Attack;     // é¡¯ç¤º?ï¿½é€šæ”»?ï¿½ï¿½???
+            nextIntent.value = CalculateAttackDamage();   // é¡¯ç¤º?ï¿½é€šæ”»?ï¿½å‚·ï¿½?
         }
-        else if (CanMoveThisTurn())            // ä¸åœ¨?»æ?ç¯„å?ï¼Œä??¯ä»¥ç§»å?
+        else if (CanMoveThisTurn())            // ä¸åœ¨?ï¿½ï¿½?ç¯„ï¿½?ï¼Œï¿½??ï¿½ä»¥ç§»ï¿½?
         {
-            nextIntent.type = EnemyIntentType.Move;       // é¡¯ç¤ºç§»å??å?
+            nextIntent.type = EnemyIntentType.Move;       // é¡¯ç¤ºç§»ï¿½??ï¿½ï¿½?
             nextIntent.value = 0;
         }
-        else                                   // ?¡æ?ç§»å?ä¹Ÿç„¡æ³•æ”»??
+        else                                   // ?ï¿½ï¿½?ç§»ï¿½?ä¹Ÿç„¡æ³•æ”»??
         {
-            nextIntent.type = EnemyIntentType.Idle;       // é¡¯ç¤ºå¾…æ?
+            nextIntent.type = EnemyIntentType.Idle;       // é¡¯ç¤ºå¾…ï¿½?
             nextIntent.value = 0;
         }
 
-        UpdateIntentIcon();                    // ?€å¾Œæ›´?°æ??–å?ç¤?
+        UpdateIntentIcon();                    // ?ï¿½å¾Œæ›´?ï¿½ï¿½??ï¿½ï¿½?ï¿½?
     }
 
     public override System.Collections.IEnumerator EnemyActionRoutine(Player player)
@@ -203,28 +202,28 @@ public class GouShe : Enemy, IEnemyCooldownProvider               // ?¤è??ªç‰©é¡
 
     private bool HandleFrozen()
     {
-        if (frozenTurns > 0)         // ?¥ç›®?æ??ç??å?
+        if (frozenTurns > 0)         // ?ï¿½ç›®?ï¿½ï¿½??ï¿½ï¿½??ï¿½ï¿½?
         {
             SetFrozenTurns(Mathf.Max(0, frozenTurns - 1));
-            return true;            // ?å??´æ¥çµæ?ï¼ˆé€™å??ˆä??½å?ï¼?
+            return true;            // ?ï¿½ï¿½??ï¿½æ¥çµï¿½?ï¼ˆé€™ï¿½??ï¿½ï¿½??ï¿½ï¿½?ï¿½?
         }
 
-        return false;               // æ²’æ??ç?ï¼Œå¯ä»¥æ­£å¸¸è???
+        return false;               // æ²’ï¿½??ï¿½ï¿½?ï¼Œå¯ä»¥æ­£å¸¸ï¿½???
     }
 
     private void ApplyWaterArmorIfOnTile()
     {
-        if (waterArmor <= 0)        // ?¥è¨­å®šç‚º 0 ?–ä»¥ä¸‹ï?å°±ä??•ç?
+        if (waterArmor <= 0)        // ?ï¿½è¨­å®šç‚º 0 ?ï¿½ä»¥ä¸‹ï¿½?å°±ï¿½??ï¿½ï¿½?
         {
             return;
         }
 
-        if (!IsOnWaterTile())       // ?¥æ?ç«™åœ¨æ°´å?ç´ æ ¼
+        if (!IsOnWaterTile())       // ?ï¿½ï¿½?ç«™åœ¨æ°´ï¿½?ç´ æ ¼
         {
             return;
         }
 
-        block += waterArmor;        // å¢å?è­·ç”²ï¼ˆblockï¼?
+        block += waterArmor;        // å¢ï¿½?è­·ç”²ï¼ˆblockï¿½?
         RaiseStatusChanged();
     }
     public int CooldownSlotCount => 1;
@@ -239,15 +238,15 @@ public class GouShe : Enemy, IEnemyCooldownProvider               // ?¤è??ªç‰©é¡
     }
     private bool IsOnWaterTile()
     {
-        Board board = FindObjectOfType<Board>(); // å°‹æ‰¾æ£‹ç›¤?©ä»¶
+        Board board = FindObjectOfType<Board>(); // å°‹æ‰¾æ£‹ç›¤?ï¿½ä»¶
         if (board == null)
         {
-            return false;                        // æ²’æ?æ£‹ç›¤å°±ç„¡æ³•åˆ¤??
+            return false;                        // æ²’ï¿½?æ£‹ç›¤å°±ç„¡æ³•åˆ¤??
         }
 
-        BoardTile tile = board.GetTileAt(gridPosition); // ?–å??¶å??€?¨æ ¼å­?
+        BoardTile tile = board.GetTileAt(gridPosition); // ?ï¿½ï¿½??ï¿½ï¿½??ï¿½?ï¿½æ ¼ï¿½?
         return tile != null && tile.HasElement(ElementType.Water);
-        // ?¥æ ¼å­å??¨ä??·æ?æ°´å?ç´ ï??‡å???true
+        // ?ï¿½æ ¼å­ï¿½??ï¿½ï¿½??ï¿½ï¿½?æ°´ï¿½?ç´ ï¿½??ï¿½ï¿½???true
     }
     private bool CanMoveToAdjacentWater()
     {
@@ -450,81 +449,81 @@ public class GouShe : Enemy, IEnemyCooldownProvider               // ?¤è??ªç‰©é¡
     }
     private void PerformAttackWithBonus(Player player)
     {
-        if (player == null)             // ?¥æ??‰ç©å®¶ç›®æ¨?
+        if (player == null)             // ?ï¿½ï¿½??ï¿½ç©å®¶ç›®ï¿½?
         {
             return;
         }
 
-        int damage = CalculateAttackDamage(); // ??Enemy ?ºå?è¨ˆç?å¯¦é??»æ??·å®³ï¼ˆå« buff ç­‰ï?
-        if (damage <= 0)              // ?¥å‚·å®³ä?å¤§æ–¼ 0ï¼Œå°±ä¸æ”»??
+        int damage = CalculateAttackDamage(); // ??Enemy ?ï¿½ï¿½?è¨ˆï¿½?å¯¦ï¿½??ï¿½ï¿½??ï¿½å®³ï¼ˆå« buff ç­‰ï¿½?
+        if (damage <= 0)              // ?ï¿½å‚·å®³ï¿½?å¤§æ–¼ 0ï¼Œå°±ä¸æ”»??
         {
             return;
         }
 
-        player.TakeDamage(damage);    // å°ç©å®¶é€ æ?ä¸€æ¬¡åŸº?¬æ”»?Šå‚·å®?
+        player.TakeDamage(damage);    // å°ç©å®¶é€ ï¿½?ä¸€æ¬¡åŸº?ï¿½æ”»?ï¿½å‚·ï¿½?
 
-        if (Random.value <= extraStrikeChance)   // ä¾ç…§æ©Ÿç?é¡å??æ?ä¸€æ®µå‚·å®?
+        if (Random.value <= extraStrikeChance)   // ä¾ç…§æ©Ÿï¿½?é¡ï¿½??ï¿½ï¿½?ä¸€æ®µå‚·ï¿½?
         {
             int extraDamage = Mathf.CeilToInt(damage * extraStrikeDamageRatio);
-            // é¡å??·å®³ = ?¬æ¬¡?·å®³ * æ¯”ä?ï¼Œå?ä¸Šå???
+            // é¡ï¿½??ï¿½å®³ = ?ï¿½æ¬¡?ï¿½å®³ * æ¯”ï¿½?ï¼Œï¿½?ä¸Šï¿½???
 
             if (extraDamage > 0)
             {
-                player.TakeDamage(extraDamage);  // ?æ¬¡å°ç©å®¶é€ æ?é¡å??·å®³
+                player.TakeDamage(extraDamage);  // ?ï¿½æ¬¡å°ç©å®¶é€ ï¿½?é¡ï¿½??ï¿½å®³
             }
         }
     }
 
     private bool TryPrepareColumnStrike(Player player)
     {
-        if (player == null)           // ?¡ç©å®¶ç›®æ¨™å°±?¡æ?æº–å??´ç??“æ?
+        if (player == null)           // ?ï¿½ç©å®¶ç›®æ¨™å°±?ï¿½ï¿½?æº–ï¿½??ï¿½ï¿½??ï¿½ï¿½?
         {
             return false;
         }
 
-        Board board = FindObjectOfType<Board>(); // ?–å?æ£‹ç›¤
+        Board board = FindObjectOfType<Board>(); // ?ï¿½ï¿½?æ£‹ç›¤
         if (board == null)
         {
             return false;
         }
 
-        List<Vector2Int> columnPositions = new List<Vector2Int>(); // ?¨ä?è¨˜é??®æ??´ç??„æ??‰æ ¼å­åº§æ¨?
+        List<Vector2Int> columnPositions = new List<Vector2Int>(); // ?ï¿½ï¿½?è¨˜ï¿½??ï¿½ï¿½??ï¿½ï¿½??ï¿½ï¿½??ï¿½æ ¼å­åº§ï¿½?
         columnStrikeTargetColumns.Clear();
         columnStrikeTargetColumns.Add(player.position.x);
         columnStrikeTargetColumns.Add(player.position.x - 1);
         columnStrikeTargetColumns.Add(player.position.x + 1);
-        foreach (Vector2Int pos in board.GetAllPositions())        // èµ°è¨ªæ£‹ç›¤ä¸Šæ??‰ä?ç½?
+        foreach (Vector2Int pos in board.GetAllPositions())        // èµ°è¨ªæ£‹ç›¤ä¸Šï¿½??ï¿½ï¿½?ï¿½?
         {
-            if (columnStrikeTargetColumns.Contains(pos.x))          // ?¥è©²ä½ç½®??x ?¨ç›®æ¨™æ?ä½ä¸­
+            if (columnStrikeTargetColumns.Contains(pos.x))          // ?ï¿½è©²ä½ç½®??x ?ï¿½ç›®æ¨™ï¿½?ä½ä¸­
             {
-                columnPositions.Add(pos);                          // ? å…¥?®æ??´ç?æ¸…å–®
+                columnPositions.Add(pos);                          // ?ï¿½å…¥?ï¿½ï¿½??ï¿½ï¿½?æ¸…å–®
             }
         }
 
-        if (columnPositions.Count == 0)                            // ?¥æ??‰ä»»ä½•å?æ¬„ä??¼å?ï¼ˆç?è«–ä?ä¸æ??¼ç?ï¼?
+        if (columnPositions.Count == 0)                            // ?ï¿½ï¿½??ï¿½ä»»ä½•ï¿½?æ¬„ï¿½??ï¿½ï¿½?ï¼ˆï¿½?è«–ï¿½?ä¸ï¿½??ï¿½ï¿½?ï¿½?
         {
             return false;
         }
 
-        ClearColumnHighlights();                                   // æ¸…é™¤?Šç?é«˜äº®?¼å?
+        ClearColumnHighlights();                                   // æ¸…é™¤?ï¿½ï¿½?é«˜äº®?ï¿½ï¿½?
 
-        foreach (Vector2Int pos in columnPositions)                // å°‡å?æ¬„ä??„æ?ä¸€?‹æ ¼å­æ?è¨˜ç‚º?»æ?ç¯„å?
+        foreach (Vector2Int pos in columnPositions)                // å°‡ï¿½?æ¬„ï¿½??ï¿½ï¿½?ä¸€?ï¿½æ ¼å­ï¿½?è¨˜ç‚º?ï¿½ï¿½?ç¯„ï¿½?
         {
             BoardTile tile = board.GetTileAt(pos);
             if (tile != null)
             {
-                tile.SetAttackHighlight(true);                     // é¡¯ç¤º?»æ?é«˜äº®
-                columnStrikeHighlightedTiles.Add(tile);            // ? å…¥?°ç›®?é?äº®æ??®ä¸­
+                tile.SetAttackHighlight(true);                     // é¡¯ç¤º?ï¿½ï¿½?é«˜äº®
+                columnStrikeHighlightedTiles.Add(tile);            // ?ï¿½å…¥?ï¿½ç›®?ï¿½ï¿½?äº®ï¿½??ï¿½ä¸­
             }
         }
 
-        storedGridBeforeHide = gridPosition;                       // è¨˜é?æ¶ˆå¤±?ç??Ÿæœ¬åº§æ?
-        columnStrikePending = true;                                // æ¨™è??ºã€Œå·²æº–å?å¥½ï?ä¸‹å??ˆç™¼?•ã€?
-        SetHidden(true);                                           // ?Šè‡ªå·±éš±?ï?SpriteRenderer.enabled = falseï¼?
-        SetHighlight(false);                                       // ?œé??ªèº«?„é¸?–é?äº?
-        SetForceHideIntent(true);                                  // ?­ä??„æ??–ä?ä¸€èµ·é???
-        gridPosition = OffBoardSentinel;                           // ?Šæ??¤åº§æ¨™è¨­?ºã€Œé›¢?‹æ??¤ã€ç??¹æ???
-        return true;                                               // æº–å??å?
+        storedGridBeforeHide = gridPosition;                       // è¨˜ï¿½?æ¶ˆå¤±?ï¿½ï¿½??ï¿½æœ¬åº§ï¿½?
+        columnStrikePending = true;                                // æ¨™ï¿½??ï¿½ã€Œå·²æº–ï¿½?å¥½ï¿½?ä¸‹ï¿½??ï¿½ç™¼?ï¿½ï¿½?
+        SetHidden(true);                                           // ?ï¿½è‡ªå·±éš±?ï¿½ï¿½?SpriteRenderer.enabled = falseï¿½?
+        SetHighlight(false);                                       // ?ï¿½ï¿½??ï¿½èº«?ï¿½é¸?ï¿½ï¿½?ï¿½?
+        SetForceHideIntent(true);                                  // ?ï¿½ï¿½??ï¿½ï¿½??ï¿½ï¿½?ä¸€èµ·ï¿½???
+        gridPosition = OffBoardSentinel;                           // ?ï¿½ï¿½??ï¿½åº§æ¨™è¨­?ï¿½ã€Œé›¢?ï¿½ï¿½??ï¿½ã€ï¿½??ï¿½ï¿½???
+        return true;                                               // æº–ï¿½??ï¿½ï¿½?
     }
 
     private void ResolveColumnStrike(Player player)
@@ -579,28 +578,28 @@ public class GouShe : Enemy, IEnemyCooldownProvider               // ?¤è??ªç‰©é¡
 
     private Vector2Int ChooseReappearPosition(Board board, Player player)
     {
-        Vector2Int bestPos = storedGridBeforeHide;                    // ?è¨­?åˆ°æ¶ˆå¤±?ç?ä½ç½®
-        float bestDistance = float.MaxValue;                          // ?¨æ–¼?¾è??¢ç©å®¶æ?è¿‘ç??®æ?
+        Vector2Int bestPos = storedGridBeforeHide;                    // ?ï¿½è¨­?ï¿½åˆ°æ¶ˆå¤±?ï¿½ï¿½?ä½ç½®
+        float bestDistance = float.MaxValue;                          // ?ï¿½æ–¼?ï¿½ï¿½??ï¿½ç©å®¶ï¿½?è¿‘ï¿½??ï¿½ï¿½?
 
         if (board != null)
         {
-            foreach (Vector2Int pos in board.GetAllPositions())       // èµ°è¨ªæ£‹ç›¤ä¸Šæ??‰æ ¼
+            foreach (Vector2Int pos in board.GetAllPositions())       // èµ°è¨ªæ£‹ç›¤ä¸Šï¿½??ï¿½æ ¼
             {
                 BoardTile tile = board.GetTileAt(pos);
                 if (tile == null || !tile.HasElement(ElementType.Water))
                 {
-                    continue;                                         // å¿…é??¯å??¨ã€è€Œä??‰æ°´?ƒç??„æ ¼å­?
+                    continue;                                         // å¿…ï¿½??ï¿½ï¿½??ï¿½ã€è€Œï¿½??ï¿½æ°´?ï¿½ï¿½??ï¿½æ ¼ï¿½?
                 }
 
                 if (IsPositionBlocked(board, pos, player))
                 {
-                    continue;                                         // ?¥è©²ä½ç½®è¢«ä??¨å°±?¥é?
+                    continue;                                         // ?ï¿½è©²ä½ç½®è¢«ï¿½??ï¿½å°±?ï¿½ï¿½?
                 }
 
                 float dist = player != null ? Vector2Int.Distance(pos, player.position) : 0f;
-                // ?¥æ??©å®¶ï¼Œå°±è¨ˆç??‡ç©å®¶ç?è·é›¢ï¼›å¦?‡è??¢è¨­??0
+                // ?ï¿½ï¿½??ï¿½å®¶ï¼Œå°±è¨ˆï¿½??ï¿½ç©å®¶ï¿½?è·é›¢ï¼›å¦?ï¿½ï¿½??ï¿½è¨­??0
 
-                if (dist < bestDistance)                              // ?¾è??¢ç©å®¶æ?è¿‘ç?ä½ç½®
+                if (dist < bestDistance)                              // ?ï¿½ï¿½??ï¿½ç©å®¶ï¿½?è¿‘ï¿½?ä½ç½®
                 {
                     bestDistance = dist;
                     bestPos = pos;
@@ -610,33 +609,33 @@ public class GouShe : Enemy, IEnemyCooldownProvider               // ?¤è??ªç‰©é¡
 
         if (board != null && (board.GetTileAt(bestPos) == null || IsPositionBlocked(board, bestPos, player)))
         {
-            // ?¥å??›é¸?ºä??„ä?ç½®å·²ç¶“ä??¯ç”¨ï¼ˆæ?æ²’æ??¼å?ï¼‰ï?å°±é€€?Œæ??¶æ¬¡?¾ä»»ä¸€æ²’è¢«?»æ??„æ ¼å­?
+            // ?ï¿½ï¿½??ï¿½é¸?ï¿½ï¿½??ï¿½ï¿½?ç½®å·²ç¶“ï¿½??ï¿½ç”¨ï¼ˆï¿½?æ²’ï¿½??ï¿½ï¿½?ï¼‰ï¿½?å°±é€€?ï¿½ï¿½??ï¿½æ¬¡?ï¿½ä»»ä¸€æ²’è¢«?ï¿½ï¿½??ï¿½æ ¼ï¿½?
             foreach (Vector2Int pos in board.GetAllPositions())
             {
                 if (!IsPositionBlocked(board, pos, player))
                 {
-                    bestPos = pos;                                    // ?¾åˆ°ç¬¬ä??‹å¯ç«™ç??¼å?å°±ç”¨å®?
+                    bestPos = pos;                                    // ?ï¿½åˆ°ç¬¬ï¿½??ï¿½å¯ç«™ï¿½??ï¿½ï¿½?å°±ç”¨ï¿½?
                     break;
                 }
             }
         }
 
-        return bestPos;                                               // ?å‚³?€å¾Œæ±ºå®šç??¾èº«ä½ç½®
+        return bestPos;                                               // ?ï¿½å‚³?ï¿½å¾Œæ±ºå®šï¿½??ï¿½èº«ä½ç½®
     }
 
     private bool IsPositionBlocked(Board board, Vector2Int pos, Player player)
     {
         if (board == null)
         {
-            return true;                                              // æ²’æ?æ£‹ç›¤å°±è??ºä??¯ç?
+            return true;                                              // æ²’ï¿½?æ£‹ç›¤å°±ï¿½??ï¿½ï¿½??ï¿½ï¿½?
         }
 
         if (player != null && player.position == pos)
         {
-            return true;                                              // ?¥è©²?¼æ˜¯?©å®¶?®å?ä½ç½®ï¼Œä?è¦–ç‚ºè¢«å???
+            return true;                                              // ?ï¿½è©²?ï¿½æ˜¯?ï¿½å®¶?ï¿½ï¿½?ä½ç½®ï¼Œï¿½?è¦–ç‚ºè¢«ï¿½???
         }
 
-        return board.IsTileOccupied(pos);                             // ?¥æ??¤åˆ¤å®šè©²?¼æ??¶ä??®ä?ï¼Œä?è¦–ç‚ºè¢«å???
+        return board.IsTileOccupied(pos);                             // ?ï¿½ï¿½??ï¿½åˆ¤å®šè©²?ï¿½ï¿½??ï¿½ï¿½??ï¿½ï¿½?ï¼Œï¿½?è¦–ç‚ºè¢«ï¿½???
     }
 
     private void ClearColumnHighlights()
