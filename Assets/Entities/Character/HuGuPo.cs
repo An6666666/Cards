@@ -153,6 +153,7 @@ public class HuGuPo : Enemy, IEnemyCooldownProvider // 定義 HuGuPo 類別，�
             int damage = CalculateAttackDamage();
             if (damage > 0)
             {
+                Visual?.PlayContactAttackToPlayer(player);
                 player.TakeDamage(damage);
                 player.buffs.ApplyBleedFromEnemy(bleedDuration);
             }

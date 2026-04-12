@@ -250,6 +250,8 @@ public class GlobalSettingsUI : MonoBehaviour
 
     public void ReturnToTitle()
     {
+        RunManager.Instance?.SaveProgressForTitleReturn();
+        RunManager.DestroyInstance();
         Close();
         SceneManager.LoadScene(titleSceneName);
     }

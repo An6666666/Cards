@@ -711,7 +711,7 @@ public class Enemy : MonoBehaviour
             case EnemyIntentType.Attack:
                 if (player != null && plan.IntentValue > 0)
                 {
-                    visual?.PlayAttackAnimation();
+                    visual?.PlayContactAttackToPlayer(player);
                     player.TakeDamage(plan.IntentValue);
                 }
                 break;

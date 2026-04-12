@@ -213,6 +213,18 @@ public class AudioManager : MonoBehaviour
 
     private AudioClip ResolveBgmForScene(Scene scene)
     {
+        if (!string.IsNullOrWhiteSpace(scene.name) &&
+            scene.name.IndexOf("Title", StringComparison.OrdinalIgnoreCase) >= 0 &&
+            cityBGM != null)
+        {
+            return cityBGM;
+        }
+
+        if (TryGetSceneOverride(scene.name, out AudioClip sceneClip))
+        {
+            return sceneClip;
+        }
+
         RunManager runManager = RunManager.Instance;
         MapNodeData activeNode = runManager != null ? runManager.ActiveNode : null;
 
@@ -228,18 +240,6 @@ public class AudioManager : MonoBehaviour
             {
                 return nodeTypeClip;
             }
-        }
-
-        if (TryGetSceneOverride(scene.name, out AudioClip sceneClip))
-        {
-            return sceneClip;
-        }
-
-        if (!string.IsNullOrWhiteSpace(scene.name) &&
-            scene.name.IndexOf("Title", StringComparison.OrdinalIgnoreCase) >= 0 &&
-            cityBGM != null)
-        {
-            return cityBGM;
         }
 
         return null;

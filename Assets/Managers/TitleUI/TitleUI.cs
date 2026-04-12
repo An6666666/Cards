@@ -1,4 +1,5 @@
 using System.Collections;
+using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.SceneManagement;
@@ -14,6 +15,7 @@ public class TitleUI : MonoBehaviour
     [Header("Buttons")]
     [SerializeField] private Button startButton;
     [SerializeField] private Button newButton;
+    [SerializeField] private Button continueNewButton;
     [SerializeField] private Button quitButton;
     [SerializeField] private Button illustratedBookButton;
     [SerializeField] private Button settingButton;
@@ -32,24 +34,34 @@ public class TitleUI : MonoBehaviour
     [SerializeField] private RectTransform fireEffectRoot;
     [SerializeField] private VideoClip backgroundVideoClip;
 
-    private readonly Button[] menuButtons = new Button[5];
+    private readonly Button[] menuButtons = new Button[6];
     private RectTransform currentTarget;
     private RenderTexture backgroundVideoTexture;
     private Coroutine initialSelectionRoutine;
+    private Text startTitleText;
+    private TMP_Text startTitleTmpText;
+    private string defaultStartButtonTitle;
+
+    private const string ContinueTitleSuffix = "(繼續關卡)";
 
     private void Awake()
     {
         RunManager.DestroyInstance();
+        AudioManager.Instance?.RefreshSceneBGM();
 
         SetupTitleVisuals();
+        ResolveButtonReferences();
         CacheMenuButtons();
+        CacheStartButtonTitleReferences();
         WireButtons();
         RegisterSelectionTargets();
+        RefreshContinueState();
         SetSelectionArrowVisible(false);
     }
 
     private void Start()
     {
+        RefreshContinueState();
         EnsureInitialSelection();
         RefreshSelectionArrow();
         QueueInitialSelectionRefresh();
@@ -58,6 +70,7 @@ public class TitleUI : MonoBehaviour
     private void OnEnable()
     {
         EnsureBackgroundVideoPlaying();
+        RefreshContinueState();
         EnsureInitialSelection();
         RefreshSelectionArrow();
         QueueInitialSelectionRefresh();
@@ -76,6 +89,7 @@ public class TitleUI : MonoBehaviour
     {
         if (hasFocus)
         {
+            RefreshContinueState();
             QueueInitialSelectionRefresh();
         }
     }
@@ -113,17 +127,123 @@ public class TitleUI : MonoBehaviour
 
     private void CacheMenuButtons()
     {
-        menuButtons[0] = startButton;
-        menuButtons[1] = illustratedBookButton;
-        menuButtons[2] = quitButton;
-        menuButtons[3] = newButton;
-        menuButtons[4] = settingButton;
+        menuButtons[0] = continueNewButton;
+        menuButtons[1] = startButton;
+        menuButtons[2] = illustratedBookButton;
+        menuButtons[3] = quitButton;
+        menuButtons[4] = newButton;
+        menuButtons[5] = settingButton;
+    }
+
+    private void ResolveButtonReferences()
+    {
+        startButton = ResolveButtonByObjectName(startButton, "StartButton");
+        continueNewButton = ResolveButtonByObjectName(continueNewButton, "NewButton");
+        menuButtons[0] = continueNewButton;
+        menuButtons[1] = startButton;
+        menuButtons[4] = newButton;
+    }
+
+    private Button ResolveButtonByObjectName(Button current, string objectName)
+    {
+        if (current != null && current.gameObject != null && current.gameObject.name == objectName)
+        {
+            return current;
+        }
+
+        Canvas rootCanvas = ResolveRootCanvas();
+        if (rootCanvas == null)
+        {
+            return null;
+        }
+
+        Button[] buttons = rootCanvas.GetComponentsInChildren<Button>(true);
+        for (int i = 0; i < buttons.Length; i++)
+        {
+            Button candidate = buttons[i];
+            if (candidate != null && candidate.gameObject.name == objectName)
+            {
+                return candidate;
+            }
+        }
+
+        return null;
+    }
+
+    private void CacheStartButtonTitleReferences()
+    {
+        if (startButton == null)
+        {
+            return;
+        }
+
+        Transform titleTransform = startButton.transform.Find("TitleText");
+        if (titleTransform == null)
+        {
+            titleTransform = startButton.GetComponentInChildren<Text>(true)?.transform;
+        }
+
+        if (titleTransform == null)
+        {
+            titleTransform = startButton.GetComponentInChildren<TMP_Text>(true)?.transform;
+        }
+
+        if (titleTransform == null)
+        {
+            return;
+        }
+
+        startTitleText = titleTransform.GetComponent<Text>();
+        startTitleTmpText = titleTransform.GetComponent<TMP_Text>();
+
+        if (string.IsNullOrEmpty(defaultStartButtonTitle))
+        {
+            if (startTitleTmpText != null)
+            {
+                defaultStartButtonTitle = startTitleTmpText.text;
+            }
+            else if (startTitleText != null)
+            {
+                defaultStartButtonTitle = startTitleText.text;
+            }
+        }
+    }
+
+    private void RefreshContinueState()
+    {
+        ResolveButtonReferences();
+        bool hasSave = RunProgressPersistence.HasSavedProgress();
+
+        if (continueNewButton != null)
+        {
+            continueNewButton.gameObject.SetActive(hasSave);
+        }
+
+        CacheStartButtonTitleReferences();
+
+        string baseTitle = string.IsNullOrEmpty(defaultStartButtonTitle) ? "開始遊戲" : defaultStartButtonTitle;
+        SetStartButtonTitle(hasSave ? $"{baseTitle}{ContinueTitleSuffix}" : baseTitle);
+    }
+
+    private void SetStartButtonTitle(string value)
+    {
+        if (startTitleTmpText != null)
+        {
+            startTitleTmpText.text = value;
+        }
+
+        if (startTitleText != null)
+        {
+            startTitleText.text = value;
+        }
     }
 
     private void WireButtons()
     {
+        ResolveButtonReferences();
         BindButton(startButton, OnStartClicked);
-        BindButton(newButton, OnNewClicked);
+        BindButton(continueNewButton, OnNewClicked);
+        BindButton(newButton, OnNoviceClicked);
         BindButton(quitButton, OnQuitClicked);
         BindButton(illustratedBookButton, OnIllustratedBookClicked);
         BindButton(settingButton, OnSettingsClicked);
@@ -325,10 +445,23 @@ public class TitleUI : MonoBehaviour
 
     private void OnStartClicked()
     {
+        if (RunProgressPersistence.TryPrepareResumeFromTitle(out string bootstrapSceneName))
+        {
+            SceneManager.LoadScene(bootstrapSceneName);
+            return;
+        }
+
         SceneManager.LoadScene(nextSceneName);
     }
 
     private void OnNewClicked()
+    {
+        RunProgressPersistence.ClearSavedProgress();
+        StartingDeckSelection.ClearSelection();
+        SceneManager.LoadScene(nextSceneName);
+    }
+
+    private void OnNoviceClicked()
     {
         SceneManager.LoadScene(newSceneName);
     }

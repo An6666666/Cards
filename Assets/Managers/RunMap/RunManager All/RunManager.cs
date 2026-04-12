@@ -96,7 +96,7 @@ public class MapNodeData
 }
 
 // ??游???蝔??詨??批??
-public class RunManager : MonoBehaviour
+public partial class RunManager : MonoBehaviour
 {
     private const int RestHealAmount = 30;
 
@@ -161,6 +161,7 @@ public class RunManager : MonoBehaviour
     private int runSequenceId;                                        // 每次產生新冒險地圖就 +1，用於區分不同冒險
     private readonly HashSet<string> guideFlags = new HashSet<string>(StringComparer.Ordinal);
     private bool suppressDefaultShopEntryDialogueOnce;
+    private bool suppressAutosave;
     public PlayerRunSnapshot CurrentRunSnapshot => currentRunSnapshot;
     public int RunSequenceId => runSequenceId;
 
@@ -217,11 +218,29 @@ public class RunManager : MonoBehaviour
     }
     private void Start()
     {
+        if (TryResumeSavedRunIfRequested())
+        {
+            return;
+        }
+
         // 憒???芸???嚗停撱箔?撘菜??
         if (autoGenerateOnStart)
         {
             GenerateNewRun();
         }
+    }
+
+    private void OnApplicationPause(bool paused)
+    {
+        if (paused)
+        {
+            SaveCurrentProgress();
+        }
+    }
+
+    private void OnApplicationQuit()
+    {
+        SaveCurrentProgress();
     }
 
     // ?餉??拙振?拐辣嚗? RunManager ?臭誑摮???隞?鞈?
@@ -237,9 +256,14 @@ public class RunManager : MonoBehaviour
         if (initialPlayerSnapshot == null)
         {
             initialPlayerSnapshot = PlayerRunSnapshot.Capture(newPlayer);
-            currentRunSnapshot = initialPlayerSnapshot.Clone();
-            eventResolver.InitialPlayerSnapshot = initialPlayerSnapshot;
+            if (currentRunSnapshot == null)
+            {
+                currentRunSnapshot = initialPlayerSnapshot.Clone();
+            }
         }
+
+        eventResolver.InitialPlayerSnapshot = initialPlayerSnapshot;
+        eventResolver.CurrentRunSnapshot = currentRunSnapshot;
 
         // 憒???翰?改?撠勗??嚗?憒??圈洛?湔??啣??湔??
         if (currentRunSnapshot != null)
@@ -247,6 +271,8 @@ public class RunManager : MonoBehaviour
             ApplySnapshotToPlayer(newPlayer, currentRunSnapshot);
             RaiseRunSnapshotChanged();
         }
+
+        SaveCurrentProgress();
     }
 
     // ?Ｙ?銝撘菜??run ?啣?
@@ -288,6 +314,7 @@ public class RunManager : MonoBehaviour
 
         MapGenerated?.Invoke(mapFloors);
         MapStateChanged?.Invoke();
+        SaveCurrentProgress();
     }
 
     // 蝯?UI ?剁??曉?鈭?暺隞仿
@@ -332,6 +359,7 @@ public class RunManager : MonoBehaviour
 
         pendingNodeTransitionCoroutine = StartCoroutine(HandleNodeTransition(node));
         MapStateChanged?.Invoke();
+        SaveCurrentProgress();
         return true;
     }
 
@@ -358,6 +386,7 @@ public class RunManager : MonoBehaviour
                 CompleteActiveNodeWithoutBattle();
                 currentRunSnapshot = eventResolver.CurrentRunSnapshot;
                 RaiseRunSnapshotChanged();
+                SaveCurrentProgress();
             });
         }
         else if (node.NodeType == MapNodeType.Rest)
@@ -400,6 +429,7 @@ public class RunManager : MonoBehaviour
         }
         NodeCompleted?.Invoke(activeNode);
         MapStateChanged?.Invoke();
+        SaveCurrentProgress();
     }
 
     // ?? / 鈭辣蝑??圈洛蝭暺????澆嚗?閮?暺歇摰?銝行?啁??蝵?
@@ -413,11 +443,14 @@ public class RunManager : MonoBehaviour
         activeNode = null;
         NodeCompleted?.Invoke(currentNode);
         MapStateChanged?.Invoke();
+        SaveCurrentProgress();
     }
 
     // 鋡急擛亙?臬?恬??撓鈭?
     public void HandleBattleDefeat()
     {
+        suppressAutosave = true;
+        RunProgressPersistence.ClearSavedProgress();
         ResetRun();     // ???run ?蔭
         sceneRouter.LoadDeathReturnScene(); // ?閮剖???荔??身?啣?嚗??圈?憪?
     }
@@ -429,6 +462,8 @@ public class RunManager : MonoBehaviour
 
         if (runCompleted)
         {
+            suppressAutosave = true;
+            RunProgressPersistence.ClearSavedProgress();
             ResetRun();         // 憒? run 撌脩?摰?鈭?撠梁?仿???撘菜??
             activeNode = null;
             sceneRouter.LoadDeathReturnScene();
@@ -437,6 +472,7 @@ public class RunManager : MonoBehaviour
         }
 
         activeNode = null;      // 銝??迤?券脰???暺?
+        SaveCurrentProgress();
         sceneRouter.LoadRunScene();         // 頛?啣??湔
         MapStateChanged?.Invoke();
     }
@@ -450,6 +486,7 @@ public class RunManager : MonoBehaviour
         currentRunSnapshot = PlayerRunSnapshot.Capture(player);
         eventResolver.CurrentRunSnapshot = currentRunSnapshot;
         RaiseRunSnapshotChanged();
+        SaveCurrentProgress();
     }
 
     // ?蔭?游?run嚗摰嗅????????
@@ -485,11 +522,13 @@ public class RunManager : MonoBehaviour
             return;
 
         guideFlags.Add(flag.Trim());
+        SaveCurrentProgress();
     }
 
     public void RequestDefaultShopEntryDialogueSuppression()
     {
         suppressDefaultShopEntryDialogueOnce = true;
+        SaveCurrentProgress();
     }
 
     public bool ConsumeDefaultShopEntryDialogueSuppression()
@@ -497,6 +536,11 @@ public class RunManager : MonoBehaviour
         bool shouldSuppress = suppressDefaultShopEntryDialogueOnce;
         suppressDefaultShopEntryDialogueOnce = false;
         return shouldSuppress;
+    }
+
+    public void SaveProgressForTitleReturn()
+    {
+        SaveCurrentProgress();
     }
 
     private void ApplySnapshotToPlayer(Player target, PlayerRunSnapshot snapshot)
@@ -515,6 +559,7 @@ public class RunManager : MonoBehaviour
             currentRunSnapshot = PlayerRunSnapshot.Capture(player);
             eventResolver.CurrentRunSnapshot = currentRunSnapshot;
             RaiseRunSnapshotChanged();
+            SaveCurrentProgress();
             return;
         }
 
@@ -526,6 +571,7 @@ public class RunManager : MonoBehaviour
         currentRunSnapshot.currentHP = clampedHp;
         eventResolver.CurrentRunSnapshot = currentRunSnapshot;
         RaiseRunSnapshotChanged();
+        SaveCurrentProgress();
     }
 
     private void EnsureCurrentRunSnapshot()

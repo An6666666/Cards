@@ -7,6 +7,8 @@ public class EnemyVisual : MonoBehaviour
     private Enemy enemy;
     private Coroutine shakeRoutine;
     private Coroutine attackLungeRoutine;
+    private Vector3 attackLungeStartWorldPosition;
+    private bool hasAttackLungeStartWorldPosition;
     private Vector3 spriteDefaultLocalPosition;
     private Vector3 spriteDefaultLocalScale;
     private bool spriteDefaultsInitialized = false;
@@ -18,9 +20,13 @@ public class EnemyVisual : MonoBehaviour
     private const float DefaultAppearFallbackDuration = 0.8f;
     private const float AttackLungeForwardDuration = 0.08f;
     private const float AttackLungeReturnDuration = 0.12f;
-    private const float AttackLungeDistanceRatio = 0.42f;
+    private const float AttackLungeForwardDurationPerUnit = 0.018f;
+    private const float AttackLungeReturnDurationPerUnit = 0.022f;
+    private const float AttackLungeMaxForwardDuration = 0.16f;
+    private const float AttackLungeMaxReturnDuration = 0.22f;
     private const float AttackLungeMinDistance = 0.45f;
-    private const float AttackLungeMaxDistance = 1.65f;
+    private const float AttackLungeContactGap = 0.7f;
+    private const float AttackLungeMaxTravelRatio = 0.82f;
     private const float AttackLungeScaleMultiplier = 1.05f;
 
     private static readonly int HashAppear = Animator.StringToHash("Appear");
@@ -55,7 +61,7 @@ public class EnemyVisual : MonoBehaviour
 
     public void HandleOnDisable()
     {
-        StopAttackLunge(resetVisual: false);
+        StopAttackLunge(resetVisual: true);
 
         if (shakeRoutine != null)
         {
@@ -284,11 +290,7 @@ public class EnemyVisual : MonoBehaviour
             return;
         }
 
-        Transform root = GetAttackMotionRoot();
-        if (root == null)
-        {
-            return;
-        }
+        Transform scaleRoot = GetAttackMotionRoot();
 
         StopAttackLunge(resetVisual: true);
 
@@ -298,20 +300,34 @@ public class EnemyVisual : MonoBehaviour
             shakeRoutine = null;
         }
 
-        EnsureSpriteDefaults();
+        if (scaleRoot != null)
+        {
+            EnsureSpriteDefaults();
+        }
 
-        Vector3 localOffset = ResolveAttackLungeLocalOffset(root, player.transform.position);
-        if (localOffset.sqrMagnitude <= 0.0001f)
+        Vector3 worldOffset = ResolveAttackLungeWorldOffset(enemy.transform.position, player.transform.position);
+        if (worldOffset.sqrMagnitude <= 0.0001f)
         {
             return;
         }
 
-        attackLungeRoutine = StartCoroutine(AttackLungeRoutine(root, localOffset));
+        attackLungeStartWorldPosition = enemy.transform.position;
+        hasAttackLungeStartWorldPosition = true;
+        float lungeDistance = worldOffset.magnitude;
+        float forwardDuration = Mathf.Clamp(
+            AttackLungeForwardDuration + lungeDistance * AttackLungeForwardDurationPerUnit,
+            AttackLungeForwardDuration,
+            AttackLungeMaxForwardDuration);
+        float returnDuration = Mathf.Clamp(
+            AttackLungeReturnDuration + lungeDistance * AttackLungeReturnDurationPerUnit,
+            AttackLungeReturnDuration,
+            AttackLungeMaxReturnDuration);
+
+        attackLungeRoutine = StartCoroutine(AttackLungeRoutine(scaleRoot, worldOffset, forwardDuration, returnDuration));
     }
 
-    private Vector3 ResolveAttackLungeLocalOffset(Transform root, Vector3 playerWorldPosition)
+    private Vector3 ResolveAttackLungeWorldOffset(Vector3 attackOrigin, Vector3 playerWorldPosition)
     {
-        Vector3 attackOrigin = root.position;
         Vector3 worldDirection = playerWorldPosition - attackOrigin;
         worldDirection.z = 0f;
 
@@ -321,34 +337,50 @@ public class EnemyVisual : MonoBehaviour
             return Vector3.zero;
         }
 
-        float lungeDistance = Mathf.Clamp(
-            worldDistance * AttackLungeDistanceRatio,
-            AttackLungeMinDistance,
-            AttackLungeMaxDistance);
+        float maxTravelDistance = worldDistance * AttackLungeMaxTravelRatio;
+        if (maxTravelDistance <= 0.001f)
+        {
+            return Vector3.zero;
+        }
 
-        Vector3 worldOffset = worldDirection.normalized * lungeDistance;
-        Transform parent = root.parent;
-        return parent != null ? parent.InverseTransformVector(worldOffset) : worldOffset;
+        float desiredDistance = Mathf.Max(AttackLungeMinDistance, worldDistance - AttackLungeContactGap);
+        float lungeDistance = Mathf.Min(desiredDistance, maxTravelDistance);
+        if (lungeDistance <= 0.001f)
+        {
+            return Vector3.zero;
+        }
+
+        return worldDirection.normalized * lungeDistance;
     }
 
-    private IEnumerator AttackLungeRoutine(Transform root, Vector3 localOffset)
+    private IEnumerator AttackLungeRoutine(
+        Transform scaleRoot,
+        Vector3 worldOffset,
+        float forwardDuration,
+        float returnDuration)
     {
-        Vector3 startPosition = spriteDefaultLocalPosition;
-        Vector3 impactPosition = startPosition + localOffset;
-        Vector3 startScale = spriteDefaultLocalScale;
-        Vector3 impactScale = startScale * AttackLungeScaleMultiplier;
+        Vector3 startWorldPosition = attackLungeStartWorldPosition;
+        Vector3 impactWorldPosition = startWorldPosition + worldOffset;
+        Vector3 startScale = scaleRoot != null ? spriteDefaultLocalScale : Vector3.one;
+        Vector3 impactScale = scaleRoot != null
+            ? startScale * AttackLungeScaleMultiplier
+            : Vector3.one;
 
-        yield return AnimateLungeStep(root, startPosition, impactPosition, startScale, impactScale, AttackLungeForwardDuration, EaseOutCubic);
-        yield return AnimateLungeStep(root, impactPosition, startPosition, impactScale, startScale, AttackLungeReturnDuration, EaseInCubic);
+        yield return AnimateLungeStep(scaleRoot, startWorldPosition, impactWorldPosition, startScale, impactScale, forwardDuration, EaseOutCubic);
+        yield return AnimateLungeStep(scaleRoot, impactWorldPosition, startWorldPosition, impactScale, startScale, returnDuration, EaseInCubic);
 
         attackLungeRoutine = null;
-        ResetSpriteVisual();
+        ResetAttackLungeWorldPosition();
+        if (scaleRoot != null)
+        {
+            ResetSpriteVisual();
+        }
     }
 
     private IEnumerator AnimateLungeStep(
-        Transform root,
-        Vector3 fromPosition,
-        Vector3 toPosition,
+        Transform scaleRoot,
+        Vector3 fromWorldPosition,
+        Vector3 toWorldPosition,
         Vector3 fromScale,
         Vector3 toScale,
         float duration,
@@ -356,8 +388,12 @@ public class EnemyVisual : MonoBehaviour
     {
         if (duration <= 0f)
         {
-            root.localPosition = toPosition;
-            root.localScale = toScale;
+            enemy.transform.position = toWorldPosition;
+            if (scaleRoot != null)
+            {
+                scaleRoot.localScale = toScale;
+            }
+            enemy.Sorting.UpdateNow();
             yield break;
         }
 
@@ -366,14 +402,22 @@ public class EnemyVisual : MonoBehaviour
         {
             float t = Mathf.Clamp01(elapsed / duration);
             float eased = easing != null ? easing(t) : t;
-            root.localPosition = Vector3.LerpUnclamped(fromPosition, toPosition, eased);
-            root.localScale = Vector3.LerpUnclamped(fromScale, toScale, eased);
+            enemy.transform.position = Vector3.LerpUnclamped(fromWorldPosition, toWorldPosition, eased);
+            if (scaleRoot != null)
+            {
+                scaleRoot.localScale = Vector3.LerpUnclamped(fromScale, toScale, eased);
+            }
+            enemy.Sorting.UpdateNow();
             elapsed += Time.deltaTime;
             yield return null;
         }
 
-        root.localPosition = toPosition;
-        root.localScale = toScale;
+        enemy.transform.position = toWorldPosition;
+        if (scaleRoot != null)
+        {
+            scaleRoot.localScale = toScale;
+        }
+        enemy.Sorting.UpdateNow();
     }
 
     private void StopAttackLunge(bool resetVisual)
@@ -384,10 +428,24 @@ public class EnemyVisual : MonoBehaviour
             attackLungeRoutine = null;
         }
 
+        ResetAttackLungeWorldPosition();
+
         if (resetVisual && spriteDefaultsInitialized)
         {
             ResetSpriteVisual();
         }
+    }
+
+    private void ResetAttackLungeWorldPosition()
+    {
+        if (!hasAttackLungeStartWorldPosition || enemy == null)
+        {
+            return;
+        }
+
+        enemy.transform.position = attackLungeStartWorldPosition;
+        enemy.Sorting.UpdateNow();
+        hasAttackLungeStartWorldPosition = false;
     }
 
     private static float EaseOutCubic(float t)
