@@ -9055,7 +9055,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 9d0d809868f7c4c4c8e38ffad7b36899, type: 2}
   - {fileID: 11400000, guid: f64b7419d3d824a42a133bb4a9651876, type: 2}
   rewardUIPrefab: {fileID: 5461426028147158543, guid: 8923449bae0f2f3459534ea2b271150f, type: 3}
-  normalBattleRelicRewardChance: 0.1
+  normalBattleRelicRewardChance: 0
   eliteBattleRelicRewardChance: 1
   normalBattleRelicChoiceCount: 3
   cardUseDelay: 0
@@ -11026,12 +11026,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bebb6a40d5b5460438cb6d38526c9b32, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  maxHP: 100
+  maxHP: 80
   currentHP: 0
-  maxEnergy: 4
+  maxEnergy: 3
   energy: 0
   block: 0
-  gold: 99
+  gold: 30
 --- !u!114 &1848671833
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -70,7 +70,7 @@ public partial class BattleManager
 
         SetCentralPhaseHintAlpha(activeCanvasGroup, 0f);
         HideCentralPhaseHintVisuals();
-        activeObject.SetActive(true);
+        ShowUiObjectAndParents(activeObject, true);
 
         if (fadeIn > 0f)
         {
@@ -240,25 +240,25 @@ public partial class BattleManager
 
     private void SetCentralPhaseHintAlpha(CanvasGroup canvasGroup, float alpha)
     {
+        alpha = Mathf.Clamp01(alpha);
+
         if (canvasGroup != null)
         {
-            canvasGroup.alpha = Mathf.Clamp01(alpha);
-            return;
+            canvasGroup.alpha = alpha;
         }
 
         if (phaseHintImage != null)
         {
             Color imageColor = phaseHintImage.color;
-            imageColor.a = Mathf.Clamp01(alpha);
+            imageColor.a = alpha;
             phaseHintImage.color = imageColor;
         }
 
         if (phaseHintTmpText != null)
         {
             Color tmpColor = phaseHintTmpText.color;
-            tmpColor.a = Mathf.Clamp01(alpha);
+            tmpColor.a = alpha;
             phaseHintTmpText.color = tmpColor;
-            return;
         }
 
         if (phaseHintText == null)
@@ -267,7 +267,7 @@ public partial class BattleManager
         }
 
         Color color = phaseHintText.color;
-        color.a = Mathf.Clamp01(alpha);
+        color.a = alpha;
         phaseHintText.color = color;
     }
 
@@ -336,6 +336,32 @@ public partial class BattleManager
         }
     }
 
+    private void ShowUiObjectAndParents(GameObject target, bool bringToFront)
+    {
+        if (target == null)
+        {
+            return;
+        }
+
+        Transform current = target.transform;
+
+        while (current != null)
+        {
+            current.gameObject.SetActive(true);
+            current = current.parent;
+        }
+
+        if (bringToFront)
+        {
+            current = target.transform;
+            while (current.parent != null)
+            {
+                current.SetAsLastSibling();
+                current = current.parent;
+            }
+        }
+    }
+
     private BattlePhaseHintType ResolveBattlePhaseHintType(string message)
     {
         if (string.IsNullOrWhiteSpace(message))
@@ -388,42 +414,31 @@ public partial class BattleManager
             return;
         }
 
+        Sprite targetSprite = null;
+
         switch (hintType)
         {
             case BattlePhaseHintType.PlayerTurn:
-                if (playerTurnTopSprite != null)
-                {
-                    phaseTopIndicatorImage.sprite = playerTurnTopSprite;
-                    phaseTopIndicatorImage.gameObject.SetActive(true);
-                }
-                else
-                {
-                    phaseTopIndicatorImage.gameObject.SetActive(false);
-                }
+                targetSprite = playerTurnTopSprite;
                 break;
             case BattlePhaseHintType.EnemyTurn:
-                if (enemyTurnTopSprite != null)
-                {
-                    phaseTopIndicatorImage.sprite = enemyTurnTopSprite;
-                    phaseTopIndicatorImage.gameObject.SetActive(true);
-                }
-                else
-                {
-                    phaseTopIndicatorImage.gameObject.SetActive(false);
-                }
+                targetSprite = enemyTurnTopSprite;
                 break;
             case BattlePhaseHintType.SelectStartTile:
-                if (selectStartTileTopSprite != null)
-                {
-                    phaseTopIndicatorImage.sprite = selectStartTileTopSprite;
-                    phaseTopIndicatorImage.gameObject.SetActive(true);
-                }
-                else
-                {
-                    phaseTopIndicatorImage.gameObject.SetActive(false);
-                }
+                targetSprite = selectStartTileTopSprite;
+                break;
+            default:
                 break;
         }
+
+        if (targetSprite == null)
+        {
+            HideTopPhaseIndicator();
+            return;
+        }
+
+        phaseTopIndicatorImage.sprite = targetSprite;
+        ShowUiObjectAndParents(phaseTopIndicatorImage.gameObject, true);
     }
 
     private void HideTopPhaseIndicator()
@@ -431,6 +446,12 @@ public partial class BattleManager
         if (phaseTopIndicatorImage != null)
         {
             phaseTopIndicatorImage.gameObject.SetActive(false);
+
+            Transform parent = phaseTopIndicatorImage.transform.parent;
+            if (parent != null)
+            {
+                parent.gameObject.SetActive(false);
+            }
         }
     }
 }

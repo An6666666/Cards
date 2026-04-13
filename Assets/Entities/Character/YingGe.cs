@@ -103,6 +103,13 @@ public class YingGe : Enemy, IEnemyCooldownProvider
         AdvanceStoneFeatherCooldown();
     }
 
+    protected internal override int CalculateAttackDamage()
+    {
+        int damage = base.CalculateAttackDamage();
+        damage += Mathf.Max(0, block);
+        return Mathf.Max(0, damage);
+    }
+
     public override void EnemyAction(Player player)
     {
         if (awaitingRespawn)
