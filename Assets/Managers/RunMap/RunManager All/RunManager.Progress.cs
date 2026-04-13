@@ -167,8 +167,15 @@ public partial class RunManager
                     isCompleted = node.IsCompleted,
                     encounterId = node.Encounter != null ? node.Encounter.EncounterId : null,
                     eventId = node.Event != null ? node.Event.EventId : null,
-                    shopName = node.ShopInventory != null ? node.ShopInventory.name : null
+                    shopName = node.ShopInventory != null ? node.ShopInventory.name : null,
+                    shopOffersGenerated = node.ShopOffersGenerated
                 };
+
+                if (node.ShopOffersGenerated)
+                {
+                    AddAssetReferences(node.ShopCardOffers, nodeData.shopCardOffers);
+                    AddAssetReferences(node.ShopRelicOffers, nodeData.shopRelicOffers);
+                }
 
                 IReadOnlyList<MapNodeData> nextNodes = node.NextNodes;
                 if (nextNodes != null)

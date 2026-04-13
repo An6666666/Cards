@@ -13,6 +13,11 @@ public class PlayerRunSnapshot
     public List<RelicBase> relics;
     public List<CardBase> exhaustPile;
 
+    public static bool ShouldPersistCard(CardBase card)
+    {
+        return card != null && card is not Move_YiDong;
+    }
+
     public static PlayerRunSnapshot Capture(Player source)
     {
         if (source == null)
@@ -26,7 +31,13 @@ public class PlayerRunSnapshot
         void AddPile(IEnumerable<CardBase> pile)
         {
             if (pile == null) return;
-            mergedDeck.AddRange(pile.Where(card => card != null));
+            foreach (CardBase card in pile)
+            {
+                if (ShouldPersistCard(card))
+                {
+                    mergedDeck.Add(card);
+                }
+            }
         }
 
         // 收集所有當前卡片狀態：牌庫、棄牌、手牌與戰鬥中累積的 Exhaust
@@ -43,7 +54,7 @@ public class PlayerRunSnapshot
             deck = mergedDeck,
             
             relics = source.relics != null ? new List<RelicBase>(source.relics.Where(relic => relic != null)) : new List<RelicBase>(),
-            exhaustPile = source.exhaustPile != null ? new List<CardBase>(source.exhaustPile.Where(card => card != null)) : new List<CardBase>()
+            exhaustPile = source.exhaustPile != null ? new List<CardBase>(source.exhaustPile.Where(ShouldPersistCard)) : new List<CardBase>()
         };
     }
 
@@ -54,9 +65,9 @@ public class PlayerRunSnapshot
             maxHP = this.maxHP,
             currentHP = this.currentHP,
             gold = this.gold,
-            deck = this.deck != null ? new List<CardBase>(this.deck) : new List<CardBase>(),
+            deck = this.deck != null ? new List<CardBase>(this.deck.Where(ShouldPersistCard)) : new List<CardBase>(),
             relics = this.relics != null ? new List<RelicBase>(this.relics) : new List<RelicBase>(),
-            exhaustPile = this.exhaustPile != null ? new List<CardBase>(this.exhaustPile) : new List<CardBase>()
+            exhaustPile = this.exhaustPile != null ? new List<CardBase>(this.exhaustPile.Where(ShouldPersistCard)) : new List<CardBase>()
         };
     }
 
@@ -68,7 +79,7 @@ public class PlayerRunSnapshot
         target.maxHP = maxHP;
         target.currentHP = Mathf.Clamp(currentHP, 0, maxHP);
         target.gold = gold;
-        target.deck = deck != null ? new List<CardBase>(deck) : new List<CardBase>();
+        target.deck = deck != null ? new List<CardBase>(deck.Where(ShouldPersistCard)) : new List<CardBase>();
         target.relics = relics != null ? new List<RelicBase>(relics) : new List<RelicBase>();
 
         target.discardPile.Clear();

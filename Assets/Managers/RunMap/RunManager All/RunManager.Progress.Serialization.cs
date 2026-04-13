@@ -140,7 +140,7 @@ public partial class RunManager
             }
 
             CardBase template = RunProgressAssetResolver.ResolveCard(reference.assetName, reference.typeName);
-            if (template != null)
+            if (PlayerRunSnapshot.ShouldPersistCard(template))
             {
                 results.Add(UnityEngine.Object.Instantiate(template));
             }
@@ -168,6 +168,56 @@ public partial class RunManager
             if (template != null)
             {
                 results.Add(UnityEngine.Object.Instantiate(template));
+            }
+        }
+
+        return results;
+    }
+
+    private static List<CardBase> ResolveCardTemplates(IEnumerable<RunProgressAssetReference> references)
+    {
+        List<CardBase> results = new List<CardBase>();
+        if (references == null)
+        {
+            return results;
+        }
+
+        foreach (RunProgressAssetReference reference in references)
+        {
+            if (reference == null)
+            {
+                continue;
+            }
+
+            CardBase template = RunProgressAssetResolver.ResolveCard(reference.assetName, reference.typeName);
+            if (template != null)
+            {
+                results.Add(template);
+            }
+        }
+
+        return results;
+    }
+
+    private static List<RelicBase> ResolveRelicTemplates(IEnumerable<RunProgressAssetReference> references)
+    {
+        List<RelicBase> results = new List<RelicBase>();
+        if (references == null)
+        {
+            return results;
+        }
+
+        foreach (RunProgressAssetReference reference in references)
+        {
+            if (reference == null)
+            {
+                continue;
+            }
+
+            RelicBase template = RunProgressAssetResolver.ResolveRelic(reference.assetName, reference.typeName);
+            if (template != null)
+            {
+                results.Add(template);
             }
         }
 
@@ -211,6 +261,10 @@ public partial class RunManager
             node.SetEncounter(RunProgressAssetResolver.ResolveEncounter(nodeData.encounterId));
             node.SetEvent(RunProgressAssetResolver.ResolveEvent(nodeData.eventId));
             node.SetShop(RunProgressAssetResolver.ResolveShop(nodeData.shopName));
+            node.SetShopOfferState(
+                nodeData.shopOffersGenerated,
+                ResolveCardTemplates(nodeData.shopCardOffers),
+                ResolveRelicTemplates(nodeData.shopRelicOffers));
 
             nodesById[node.NodeId] = node;
             mapFloors[node.FloorIndex].Add(node);

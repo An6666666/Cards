@@ -24,6 +24,7 @@ public class Player : MonoBehaviour
     private PlayerEffectController effectCtrl;
     private PlayerDamageFeedbackController damageFeedbackCtrl;
     private PlayerLowHpFeedbackController lowHpFeedbackCtrl;
+    private SpriteRenderer visualSpriteRenderer;
     private bool hasPendingTeleport;
     private Vector2Int pendingTeleportTarget;
     private bool pendingTeleportAllowsOccupiedTileRelic;
@@ -57,6 +58,35 @@ public class Player : MonoBehaviour
         buffs != null && buffs.bleed > 0,
         buffs != null && buffs.weak > 0,
         buffs != null && buffs.imprison > 0);
+
+    public void FaceTowards(Transform target, bool faceRightByDefault = true)
+    {
+        if (target == null)
+        {
+            return;
+        }
+
+        FaceTowards(target.position, faceRightByDefault);
+    }
+
+    public void FaceTowards(Vector3 targetPosition, bool faceRightByDefault = true)
+    {
+        SpriteRenderer renderer = ResolveVisualSpriteRenderer();
+        Transform faceOrigin = visualRoot != null ? visualRoot : transform;
+        if (renderer == null || faceOrigin == null)
+        {
+            return;
+        }
+
+        float dx = targetPosition.x - faceOrigin.position.x;
+        if (Mathf.Approximately(dx, 0f))
+        {
+            return;
+        }
+
+        bool shouldFaceRight = dx > 0f;
+        renderer.flipX = faceRightByDefault ? !shouldFaceRight : shouldFaceRight;
+    }
 
     public int maxHP
     {
@@ -447,6 +477,42 @@ public class Player : MonoBehaviour
         {
             visualRoot = animCtrl.transform;
         }
+    }
+
+    private SpriteRenderer ResolveVisualSpriteRenderer()
+    {
+        if (visualSpriteRenderer != null)
+        {
+            return visualSpriteRenderer;
+        }
+
+        ResolveVisualRoot();
+
+        if (animCtrl != null && animCtrl.animator != null)
+        {
+            visualSpriteRenderer = animCtrl.animator.GetComponent<SpriteRenderer>();
+            if (visualSpriteRenderer != null)
+            {
+                return visualSpriteRenderer;
+            }
+        }
+
+        if (visualRoot != null)
+        {
+            visualSpriteRenderer = visualRoot.GetComponent<SpriteRenderer>();
+            if (visualSpriteRenderer == null)
+            {
+                visualSpriteRenderer = visualRoot.GetComponentInChildren<SpriteRenderer>(true);
+            }
+
+            if (visualSpriteRenderer != null)
+            {
+                return visualSpriteRenderer;
+            }
+        }
+
+        visualSpriteRenderer = GetComponentInChildren<SpriteRenderer>(true);
+        return visualSpriteRenderer;
     }
 
     private void SetVisualRootVisible(bool visible)

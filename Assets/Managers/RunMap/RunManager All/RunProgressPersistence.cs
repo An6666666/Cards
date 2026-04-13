@@ -31,6 +31,9 @@ public class RunProgressNodeData
     public string encounterId;
     public string eventId;
     public string shopName;
+    public bool shopOffersGenerated;
+    public List<RunProgressAssetReference> shopCardOffers = new List<RunProgressAssetReference>();
+    public List<RunProgressAssetReference> shopRelicOffers = new List<RunProgressAssetReference>();
     public List<string> nextNodeIds = new List<string>();
 }
 

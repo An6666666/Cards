@@ -162,7 +162,7 @@ public class AttackSelectionController
         if (targetAlive)
         {
             contextTarget = target;
-            FaceUtils.Face(player.gameObject, target.transform);
+            player.FaceTowards(target.transform);
             targetElementsBefore = new List<ElementType>(target.GetElementTags());
             player.NotifyCardPlayStarted(execution.Card);
             execution.Card.ExecuteEffect(player, target);

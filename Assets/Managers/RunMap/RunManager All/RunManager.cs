@@ -25,6 +25,9 @@ public class MapNodeData
     [SerializeField] private RunEventDefinition eventDefinition;     // 憒??臭?隞嗥?暺??ㄐ?曉銝??隞?
     [SerializeField] private ShopInventoryDefinition shopInventory;  // 憒??臬?摨?暺??ㄐ?曉??摨???
     [NonSerialized] private List<MapNodeData> nextNodes = new List<MapNodeData>(); // ??暺?銝?撅斤??芯?蝭暺?
+    [NonSerialized] private readonly List<CardBase> shopCardOffers = new List<CardBase>();
+    [NonSerialized] private readonly List<RelicBase> shopRelicOffers = new List<RelicBase>();
+    [NonSerialized] private bool shopOffersGenerated;
 
     // 撱箸?摮?撱箇?銝??暺???摰?蝯?id?????冽?撅?
     public MapNodeData(string id, MapNodeType type, int floor)
@@ -43,6 +46,9 @@ public class MapNodeData
     public RunEventDefinition Event => eventDefinition;
     public ShopInventoryDefinition ShopInventory => shopInventory;
     public IReadOnlyList<MapNodeData> NextNodes => nextNodes;
+    public IReadOnlyList<CardBase> ShopCardOffers => shopCardOffers;
+    public IReadOnlyList<RelicBase> ShopRelicOffers => shopRelicOffers;
+    public bool ShopOffersGenerated => shopOffersGenerated;
     public bool IsBoss => nodeType == MapNodeType.Boss;  // 敹恍?瑟銝 Boss 蝭暺?
 
     // 閮剖???暺??圈洛?蔭
@@ -61,6 +67,35 @@ public class MapNodeData
     public void SetShop(ShopInventoryDefinition definition)
     {
         shopInventory = definition;
+    }
+
+    public void SetShopOfferState(bool generated, IEnumerable<CardBase> cards, IEnumerable<RelicBase> relics)
+    {
+        shopOffersGenerated = generated;
+
+        shopCardOffers.Clear();
+        if (cards != null)
+        {
+            foreach (CardBase card in cards)
+            {
+                if (card != null)
+                {
+                    shopCardOffers.Add(card);
+                }
+            }
+        }
+
+        shopRelicOffers.Clear();
+        if (relics != null)
+        {
+            foreach (RelicBase relic in relics)
+            {
+                if (relic != null)
+                {
+                    shopRelicOffers.Add(relic);
+                }
+            }
+        }
     }
 
     // ?湔蝭暺???Slot ??敺嚗?

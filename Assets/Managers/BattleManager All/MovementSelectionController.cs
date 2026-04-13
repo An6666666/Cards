@@ -146,7 +146,7 @@ public class MovementSelectionController
             return false;
         }
 
-        FaceUtils.Face(player.gameObject, tile.transform);
+        player.FaceTowards(tile.transform);
         PlayMovementCardAnimation(currentMovementCard);
         currentMovementCard.ExecuteOnPosition(player, tile.gridPosition);
 

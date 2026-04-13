@@ -21,6 +21,7 @@ public class BoardTile : MonoBehaviour
     private HashSet<ElementType> elements = new HashSet<ElementType>();
     private Animator yingGeSkillAnimator;
     private Coroutine yingGeSkillFxRoutine;
+    private int attackHighlightRequestCount;
     public bool growthTrap = false; // 水+木產生的陷阱
     private bool hasMiasma = false;                     // 是否佈滿瘴氣
     private int miasmaDamage = 0;                       // 瘴氣造成的傷害
@@ -73,10 +74,21 @@ public class BoardTile : MonoBehaviour
     /// </summary>
     public void SetAttackHighlight(bool show)
     {
-        if (attackPreviewHighlightObject)
+        if (!attackPreviewHighlightObject)
         {
-            attackPreviewHighlightObject.SetActive(show);
+            return;
         }
+
+        if (show)
+        {
+            attackHighlightRequestCount++;
+        }
+        else
+        {
+            attackHighlightRequestCount = Mathf.Max(0, attackHighlightRequestCount - 1);
+        }
+
+        attackPreviewHighlightObject.SetActive(attackHighlightRequestCount > 0);
     }
 
     /// <summary>
@@ -133,7 +145,11 @@ public class BoardTile : MonoBehaviour
         }
 
         SetHighlight(false);
-        SetAttackHighlight(false);
+        attackHighlightRequestCount = 0;
+        if (attackPreviewHighlightObject)
+        {
+            attackPreviewHighlightObject.SetActive(false);
+        }
         UpdateGrowthTrapVisual();
         UpdateElementIcons();
     }

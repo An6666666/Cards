@@ -122,7 +122,7 @@ public partial class ShopUIManager : MonoBehaviour
         if (ShouldPlayDefaultShopEntryDialogue())
             shopNpcController?.NotifyShopEntered();
 
-        GenerateOffersFromInventory();
+        LoadOrGenerateOffers();
         SetTab(ShopTab.Cards);
     }
 
@@ -208,6 +208,43 @@ public partial class ShopUIManager : MonoBehaviour
     {
         if (runManager != null)
             runManager.SyncPlayerRunState();
+    }
+
+    private void LoadOrGenerateOffers()
+    {
+        if (TryLoadOffersFromActiveNode())
+        {
+            offersGenerated = true;
+            return;
+        }
+
+        GenerateOffersFromInventory();
+    }
+
+    private bool TryLoadOffersFromActiveNode()
+    {
+        MapNodeData activeNode = runManager?.ActiveNode;
+        if (activeNode == null || !activeNode.ShopOffersGenerated)
+        {
+            return false;
+        }
+
+        availableCards.Clear();
+        availableRelics.Clear();
+        availableCards.AddRange(activeNode.ShopCardOffers);
+        availableRelics.AddRange(activeNode.ShopRelicOffers);
+        return true;
+    }
+
+    private void SyncOfferStateToActiveNode()
+    {
+        MapNodeData activeNode = runManager?.ActiveNode;
+        if (activeNode == null)
+        {
+            return;
+        }
+
+        activeNode.SetShopOfferState(offersGenerated, availableCards, availableRelics);
     }
 
     private int GetCardPrice(CardBase card)

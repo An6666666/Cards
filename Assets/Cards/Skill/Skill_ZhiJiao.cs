@@ -19,14 +19,14 @@ public class Skill_ZhiJiao : CardBase
 
     public override void ExecuteEffect(Player player, Enemy enemy)
     {
-        player.DrawCards(drawCount);
-
         for (int i = 0; i < randomExhaustCount; i++)
         {
             if (!player.ExhaustRandomCardFromHand(this))
             {
-                break;
+                return;
             }
         }
+
+        player.DrawCards(drawCount);
     }
 }

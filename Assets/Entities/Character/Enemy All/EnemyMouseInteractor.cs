@@ -6,7 +6,6 @@ public class EnemyMouseInteractor : MonoBehaviour
     private Enemy enemy;
     private bool isMouseOver;
     private readonly List<BoardTile> hoverRangeTiles = new List<BoardTile>();
-    private readonly Dictionary<BoardTile, bool> hoverRangePreviousStates = new Dictionary<BoardTile, bool>();
 
     public void Init(Enemy owner)
     {
@@ -102,8 +101,6 @@ public class EnemyMouseInteractor : MonoBehaviour
                 continue;
             }
 
-            bool wasActive = tile.IsAttackHighlightActive();
-            hoverRangePreviousStates[tile] = wasActive;
             tile.SetAttackHighlight(true);
             hoverRangeTiles.Add(tile);
         }
@@ -119,18 +116,10 @@ public class EnemyMouseInteractor : MonoBehaviour
                 continue;
             }
 
-            if (hoverRangePreviousStates.TryGetValue(tile, out bool wasActive))
-            {
-                tile.SetAttackHighlight(wasActive);
-            }
-            else
-            {
-                tile.SetAttackHighlight(false);
-            }
+            tile.SetAttackHighlight(false);
         }
 
         hoverRangeTiles.Clear();
-        hoverRangePreviousStates.Clear();
     }
 
     private static BattleManager ResolveBattleManager()

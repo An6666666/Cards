@@ -508,7 +508,7 @@ public class IceStrategy : DefaultElementalStrategy              // ?啣?蝝?
             {
                 ElementType? latestReactive = ElementReactionOrderHelper.GetLatestReactiveTag(
                 enemy,
-                new[] { ElementType.Fire, ElementType.Water, ElementType.Thunder });
+                new[] { ElementType.Fire, ElementType.Water, ElementType.Thunder, ElementType.Wood });
 
                 if (latestReactive == ElementType.Thunder)
                 {
@@ -531,6 +531,13 @@ public class IceStrategy : DefaultElementalStrategy              // ?啣?蝝?
                 {
                     enemy.RemoveElementTag(ElementType.Fire);
                     enemy.AddElementTag(ElementType.Ice);
+                    continue;
+                }
+                if (latestReactive == ElementType.Wood)
+                {
+                    enemy.AddFrostStacks(1);
+                    enemy.RemoveElementTag(ElementType.Wood);
+                    enemy.RemoveElementTag(ElementType.Ice);
                     continue;
                 }
                 enemy.AddElementTag(ElementType.Ice);
