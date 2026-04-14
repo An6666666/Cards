@@ -110,6 +110,7 @@ public partial class BattleManager : MonoBehaviour
     private void Awake()
     {
         runManager = RunManager.Instance;
+        BattleEndSummaryStore.BeginBattle();
         ResolveTutorialController();
 
         EnsurePhaseHintText();
@@ -237,6 +238,15 @@ public partial class BattleManager : MonoBehaviour
     public void ShowVictoryRewards()
     {
         rewardController.ShowVictoryRewards();
+    }
+
+    public void CaptureBattleEndSummary(bool isVictory)
+    {
+        int resolvedGoldReward = isVictory && rewardController != null
+            ? rewardController.GetResolvedGoldReward()
+            : -1;
+
+        BattleEndSummaryStore.Capture(isVictory, player, resolvedGoldReward);
     }
 
     internal void SetBattleStarted(bool value)

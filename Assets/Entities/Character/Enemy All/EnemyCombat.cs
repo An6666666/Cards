@@ -21,6 +21,7 @@ public class EnemyCombat : MonoBehaviour
 
         dmg = ApplyFrostBonus(dmg);
         enemy.Visual.PlayHitShake();
+        int previousHp = enemy.currentHP;
 
         int remain = dmg - enemy.block;
         if (remain > 0)
@@ -43,6 +44,8 @@ public class EnemyCombat : MonoBehaviour
             enemy.block -= dmg;
             if (enemy.block < 0) enemy.block = 0;
         }
+
+        BattleEndSummaryStore.RegisterPlayerDamageDealt(Mathf.Max(0, previousHp - enemy.currentHP));
     }
 
     public void TakeTrueDamage(int dmg)
@@ -51,6 +54,7 @@ public class EnemyCombat : MonoBehaviour
 
         dmg = ApplyFrostBonus(dmg);
         enemy.Visual.PlayHitShake();
+        int previousHp = enemy.currentHP;
 
         enemy.currentHP -= dmg;
         if (enemy.currentHP <= 0)
@@ -62,6 +66,8 @@ public class EnemyCombat : MonoBehaviour
         {
             enemy.Visual.PlayHitAnimation();
         }
+
+        BattleEndSummaryStore.RegisterPlayerDamageDealt(Mathf.Max(0, previousHp - enemy.currentHP));
     }
 
     public void AddBlock(int amount)
@@ -98,6 +104,8 @@ public class EnemyCombat : MonoBehaviour
         {
             bm.OnEnemyDefeated(enemy);
         }
+
+        BattleEndSummaryStore.RegisterEnemyDefeated(enemy);
 
         Destroy(enemy.gameObject, enemy.DeathDestroyDelay);
     }

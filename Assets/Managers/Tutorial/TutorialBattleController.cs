@@ -520,6 +520,11 @@ public class TutorialBattleController : MonoBehaviour
         if (runManager == null)
             return;
 
+        if (battleManager != null)
+        {
+            battleManager.CaptureBattleEndSummary(true);
+        }
+
         runManager.HandleBattleVictory();
         runManager.ReturnToRunSceneFromBattle();
     }

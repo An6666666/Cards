@@ -58,6 +58,11 @@ public class BattleRewardController
         rewardUIInstance.Show(battleManager, goldReward, cardChoices, relicChoices);
     }
 
+    public int GetResolvedGoldReward()
+    {
+        return Mathf.Max(0, totalGoldReward);
+    }
+
     private List<RelicBase> BuildRelicRewardChoices()
     {
         RunManager runManager = RunManager.Instance;

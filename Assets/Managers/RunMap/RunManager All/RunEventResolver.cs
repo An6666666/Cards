@@ -101,6 +101,10 @@ public class RunEventResolver
         if (option.goldDelta != 0)
         {
             target.gold += option.goldDelta;
+            if (option.goldDelta > 0)
+            {
+                BattleEndSummaryStore.RegisterGoldEarned(option.goldDelta);
+            }
         }
 
         if (option.hpDelta != 0)
@@ -130,6 +134,10 @@ public class RunEventResolver
         if (option.goldDelta != 0)
         {
             currentRunSnapshot.gold += option.goldDelta;
+            if (option.goldDelta > 0)
+            {
+                BattleEndSummaryStore.RegisterGoldEarned(option.goldDelta);
+            }
         }
 
         if (option.hpDelta != 0)

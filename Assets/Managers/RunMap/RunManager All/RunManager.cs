@@ -314,6 +314,7 @@ public partial class RunManager : MonoBehaviour
     public void GenerateNewRun()
     {
         runSequenceId++; // 這次是全新一輪冒險，遞增序號
+        BattleEndSummaryStore.ResetRunTotals();
         ResetGuideState();
 
         RunMapGenerator.SlotAllocationSettings slotSettings = GetActiveSlotSettings();
