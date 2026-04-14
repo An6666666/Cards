@@ -8988,7 +8988,9 @@ MonoBehaviour:
   - enemyPrefab: {fileID: 7728357840837083407, guid: db39b236de44e9d4cad3d39610044eed, type: 3}
     count: 0
   - enemyPrefab: {fileID: 8896973269389346778, guid: 1538e65b792f2154fa09b655063babc8, type: 3}
-    count: 1
+    count: 0
+  - enemyPrefab: {fileID: 3762648908618512516, guid: 1198864c31360b24fb849eb57aa3cf5b, type: 3}
+    count: 0
   playerStartPos: {x: 0, y: 0}
   tutorialController: {fileID: 1787387406}
   guaranteedMovementCard: {fileID: 11400000, guid: 105c7f2659020eb478d2fc42c9d7276e, type: 2}

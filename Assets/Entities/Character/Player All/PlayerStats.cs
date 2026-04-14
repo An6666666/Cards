@@ -225,6 +225,7 @@ public class PlayerStats : MonoBehaviour
             return;
         }
 
+        BattleEndSummaryStore.RegisterPlayerDamageTaken(actualHpDamage);
         owner?.PlayWoundedAnim();
         owner?.PlayHitFeedback();
         owner?.PlayHurtSFX();
