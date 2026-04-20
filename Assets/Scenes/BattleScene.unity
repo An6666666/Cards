@@ -1255,7 +1255,7 @@ MonoBehaviour:
     combinationText: "\u706B + \u6C34"
     titleText: "\u84B8\u767C"
     descriptionText: "\u706B+\u6C34\u7684\u84B8\u767C\u53CD\u61C9\uFF0C\u6703\u8B93\u5F8C\u8005\u4F7F\u7528\u7684\u50B7\u5BB3\u589E\u52A01.5\u500D\uFF0C\u4E26\u7559\u4E0B\u5F8C\u8005\u653B\u64CA\u7684\u5143\u7D20\u3002"
-    videoClip: {fileID: 32900000, guid: 3e84b7fab776a464c9af6a9613da1d34, type: 3}
+    videoClip: {fileID: 32900000, guid: d3e2040a9fe56c84a8e2990d70e4a6fc, type: 3}
   - id: Fire_Thunder
     primaryElementId: Fire
     secondaryElementId: Thunder
@@ -1318,7 +1318,7 @@ MonoBehaviour:
     combinationText: "\u96F7 + \u6728"
     titleText: "\u96F7\u64CA"
     descriptionText: "\u96F7+\u6728\u7684\u96F7\u64CA\u53CD\u61C9\uFF0C\u6703\u7D2F\u7A4D2\u5C64\u96F7\u64CA\u6548\u679C\uFF0C\u6700\u5F8C1\u5C64\u6D88\u8017\u6642\u4F7F\u8A72\u6B21\u50B7\u5BB3\u8B8A\u62102\u500D\uFF0C\u4E14\u6BCF\u56DE\u5408\u6703\u6E1B\u5C111\u5C64\u3002"
-    videoClip: {fileID: 32900000, guid: 998aba33a49909a458dbecd220bbdfa3, type: 3}
+    videoClip: {fileID: 32900000, guid: eb42fdf2cd905614bbe1984598e3b18c, type: 3}
   - id: Thunder_Ice
     primaryElementId: Thunder
     secondaryElementId: Ice
