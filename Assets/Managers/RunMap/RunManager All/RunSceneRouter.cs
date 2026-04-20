@@ -20,7 +20,7 @@ public class RunSceneRouter
     {
         if (!string.IsNullOrEmpty(runSceneName))
         {
-            SceneManager.LoadScene(runSceneName);
+            SceneTransitionLoader.LoadScene(runSceneName);
         }
     }
 
@@ -48,7 +48,7 @@ public class RunSceneRouter
             return;
         }
 
-        SceneManager.LoadScene(sceneName);
+        SceneTransitionLoader.LoadScene(sceneName);
     }
     public void LoadDeathReturnScene()
     {
@@ -60,6 +60,6 @@ public class RunSceneRouter
             return;
         }
 
-        SceneManager.LoadScene(targetScene);
+        SceneTransitionLoader.LoadScene(targetScene);
     }
 }

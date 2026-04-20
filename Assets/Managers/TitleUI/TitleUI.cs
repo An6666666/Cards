@@ -447,23 +447,23 @@ public class TitleUI : MonoBehaviour
     {
         if (RunProgressPersistence.TryPrepareResumeFromTitle(out string bootstrapSceneName))
         {
-            SceneManager.LoadScene(bootstrapSceneName);
+            SceneTransitionLoader.LoadScene(bootstrapSceneName);
             return;
         }
 
-        SceneManager.LoadScene(nextSceneName);
+        SceneTransitionLoader.LoadScene(nextSceneName);
     }
 
     private void OnNewClicked()
     {
         RunProgressPersistence.ClearSavedProgress();
         StartingDeckSelection.ClearSelection();
-        SceneManager.LoadScene(nextSceneName);
+        SceneTransitionLoader.LoadScene(nextSceneName);
     }
 
     private void OnNoviceClicked()
     {
-        SceneManager.LoadScene(newSceneName);
+        SceneTransitionLoader.LoadScene(newSceneName);
     }
 
     private void OnQuitClicked()

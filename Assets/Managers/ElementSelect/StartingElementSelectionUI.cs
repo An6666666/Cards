@@ -286,7 +286,7 @@ public class StartingElementSelectionUI : MonoBehaviour // 起始元素選擇介
             return;
 
         StartingDeckSelection.SetSelection(selectedElements, requiredSelections);
-        SceneManager.LoadScene(runSceneName);
+        SceneTransitionLoader.LoadScene(runSceneName);
     }
 
     // =========================

@@ -200,7 +200,7 @@ public partial class ShopUIManager : MonoBehaviour
         }
         else
         {
-            SceneManager.LoadScene("RunScene");
+            SceneTransitionLoader.LoadScene("RunScene");
         }
     }
 
