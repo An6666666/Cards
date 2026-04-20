@@ -28,6 +28,7 @@ public class EnemyVisual : MonoBehaviour
     private const float AttackLungeContactGap = 0.7f;
     private const float AttackLungeMaxTravelRatio = 0.82f;
     private const float AttackLungeScaleMultiplier = 1.05f;
+    private const float DefaultDeathFallbackBuffer = 0.2f;
 
     private static readonly int HashAppear = Animator.StringToHash("Appear");
     private static readonly int HashAttack = Animator.StringToHash("Attack");
@@ -189,6 +190,46 @@ public class EnemyVisual : MonoBehaviour
         if (spriteAnimator == null) return;
         enemy.HideIdleOverlaysInternal();
         spriteAnimator.SetBool(HashIsDead, true);
+    }
+
+    public IEnumerator WaitForDeathAnimationToFinish(float minimumDelay)
+    {
+        float fallbackEndTime = Time.time + ResolveDeathFallbackDuration(minimumDelay);
+        bool deathClipStarted = false;
+
+        EnsureAnimators();
+        if (spriteAnimator == null || spriteAnimator.runtimeAnimatorController == null)
+        {
+            float resolvedMinimumDelay = Mathf.Max(0f, minimumDelay);
+            if (resolvedMinimumDelay > 0f)
+            {
+                yield return new WaitForSeconds(resolvedMinimumDelay);
+            }
+            yield break;
+        }
+
+        while (true)
+        {
+            if (TryGetDeathAnimationStatus(out bool isFinished))
+            {
+                deathClipStarted = true;
+                if (isFinished)
+                {
+                    yield break;
+                }
+            }
+            else if (deathClipStarted)
+            {
+                yield break;
+            }
+
+            if (Time.time >= fallbackEndTime)
+            {
+                yield break;
+            }
+
+            yield return null;
+        }
     }
 
     public void PlayHitShake()
@@ -575,9 +616,81 @@ public class EnemyVisual : MonoBehaviour
         return false;
     }
 
+    private float ResolveDeathFallbackDuration(float minimumDelay)
+    {
+        float resolvedMinimumDelay = Mathf.Max(0f, minimumDelay);
+        if (spriteAnimator == null || spriteAnimator.runtimeAnimatorController == null)
+            return resolvedMinimumDelay;
+
+        float longestDeathClip = 0f;
+        AnimationClip[] clips = spriteAnimator.runtimeAnimatorController.animationClips;
+        for (int i = 0; i < clips.Length; i++)
+        {
+            AnimationClip clip = clips[i];
+            if (clip == null || !IsDeathName(clip.name))
+                continue;
+
+            longestDeathClip = Mathf.Max(longestDeathClip, clip.length);
+        }
+
+        if (longestDeathClip <= 0f)
+            return resolvedMinimumDelay;
+
+        return Mathf.Max(resolvedMinimumDelay, longestDeathClip + DefaultDeathFallbackBuffer);
+    }
+
+    private bool TryGetDeathAnimationStatus(out bool isFinished)
+    {
+        isFinished = false;
+        if (spriteAnimator == null)
+        {
+            return false;
+        }
+
+        AnimatorStateInfo currentState = spriteAnimator.GetCurrentAnimatorStateInfo(0);
+        if (ContainsDeathClip(spriteAnimator.GetCurrentAnimatorClipInfo(0)))
+        {
+            // Death clips should only need one full playback, even if the source asset was imported as looping.
+            isFinished = currentState.normalizedTime >= 1f &&
+                         !spriteAnimator.IsInTransition(0);
+            return true;
+        }
+
+        if (spriteAnimator.IsInTransition(0) &&
+            ContainsDeathClip(spriteAnimator.GetNextAnimatorClipInfo(0)))
+        {
+            return true;
+        }
+
+        return false;
+    }
+
     private static bool IsAppearName(string clipName)
     {
         return !string.IsNullOrWhiteSpace(clipName) &&
                clipName.IndexOf("Appear", StringComparison.OrdinalIgnoreCase) >= 0;
+    }
+
+    private static bool ContainsDeathClip(AnimatorClipInfo[] clipInfos)
+    {
+        if (clipInfos == null || clipInfos.Length == 0)
+            return false;
+
+        for (int i = 0; i < clipInfos.Length; i++)
+        {
+            AnimationClip clip = clipInfos[i].clip;
+            if (clip != null && IsDeathName(clip.name))
+                return true;
+        }
+
+        return false;
+    }
+
+    private static bool IsDeathName(string clipName)
+    {
+        return !string.IsNullOrWhiteSpace(clipName) &&
+               (clipName.IndexOf("Dead", StringComparison.OrdinalIgnoreCase) >= 0 ||
+                clipName.IndexOf("Death", StringComparison.OrdinalIgnoreCase) >= 0 ||
+                clipName.IndexOf("Die", StringComparison.OrdinalIgnoreCase) >= 0);
     }
 }

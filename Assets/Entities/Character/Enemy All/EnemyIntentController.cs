@@ -4,23 +4,30 @@ using TMPro;
 public class EnemyIntentController : MonoBehaviour
 {
     private Enemy enemy;
+    private Enemy subscribedEnemy;
     private Player cachedPlayer;
     private Vector2Int lastKnownPlayerPos;
     private bool hasLastKnownPlayerPos = false;
     private int lastKnownFrozenTurns = int.MinValue;
+    private int lastKnownBlock = int.MinValue;
 
     public void Init(Enemy owner)
     {
+        if (ReferenceEquals(enemy, owner))
+        {
+            BindStatusListener();
+            return;
+        }
+
+        UnbindStatusListener();
         enemy = owner;
+        BindStatusListener();
     }
 
     public void HandleAwake()
     {
-        cachedPlayer = FindObjectOfType<Player>();
-        if (cachedPlayer != null)
+        if (TryEnsureCachedPlayer())
         {
-            lastKnownPlayerPos = cachedPlayer.position;
-            hasLastKnownPlayerPos = true;
             RecalculateIntent(cachedPlayer);
         }
     }
@@ -29,11 +36,8 @@ public class EnemyIntentController : MonoBehaviour
     {
         if (cachedPlayer == null)
         {
-            cachedPlayer = FindObjectOfType<Player>();
-            if (cachedPlayer != null)
+            if (TryEnsureCachedPlayer())
             {
-                lastKnownPlayerPos = cachedPlayer.position;
-                hasLastKnownPlayerPos = true;
                 RecalculateIntent(cachedPlayer);
             }
         }
@@ -51,7 +55,8 @@ public class EnemyIntentController : MonoBehaviour
         if (enemy != null)
         {
             bool statusChanged =
-                enemy.frozenTurns != lastKnownFrozenTurns;
+                enemy.frozenTurns != lastKnownFrozenTurns ||
+                enemy.block != lastKnownBlock;
 
             if (statusChanged)
             {
@@ -129,11 +134,74 @@ public class EnemyIntentController : MonoBehaviour
         enemy.DecideNextIntent(player);
         CacheStatusCounters();
     }
-    
+
     private void CacheStatusCounters()
     {
         if (enemy == null) return;
 
         lastKnownFrozenTurns = enemy.frozenTurns;
+        lastKnownBlock = enemy.block;
+    }
+
+    private bool TryEnsureCachedPlayer()
+    {
+        if (cachedPlayer != null)
+        {
+            return true;
+        }
+
+        cachedPlayer = FindObjectOfType<Player>();
+        if (cachedPlayer == null)
+        {
+            return false;
+        }
+
+        lastKnownPlayerPos = cachedPlayer.position;
+        hasLastKnownPlayerPos = true;
+        return true;
+    }
+
+    private void HandleEnemyStatusChanged()
+    {
+        if (enemy == null)
+        {
+            return;
+        }
+
+        TryEnsureCachedPlayer();
+        RecalculateIntent(cachedPlayer);
+    }
+
+    private void BindStatusListener()
+    {
+        if (enemy == null || subscribedEnemy == enemy)
+        {
+            return;
+        }
+
+        UnbindStatusListener();
+        enemy.OnStatusChanged += HandleEnemyStatusChanged;
+        subscribedEnemy = enemy;
+    }
+
+    private void UnbindStatusListener()
+    {
+        if (subscribedEnemy == null)
+        {
+            return;
+        }
+
+        subscribedEnemy.OnStatusChanged -= HandleEnemyStatusChanged;
+        subscribedEnemy = null;
+    }
+
+    private void OnEnable()
+    {
+        BindStatusListener();
+    }
+
+    private void OnDisable()
+    {
+        UnbindStatusListener();
     }
 }

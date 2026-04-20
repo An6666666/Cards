@@ -1087,9 +1087,17 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 4656575721212004946, guid: eacfe748df31fe649bac4cba447f47e8, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 4939836915775690191, guid: eacfe748df31fe649bac4cba447f47e8, type: 3}
       propertyPath: m_Name
       value: Circle (22)
+      objectReference: {fileID: 0}
+    - target: {fileID: 4939836915775690191, guid: eacfe748df31fe649bac4cba447f47e8, type: 3}
+      propertyPath: m_IsActive
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 7276458525298687916, guid: eacfe748df31fe649bac4cba447f47e8, type: 3}
       propertyPath: gridPosition.x
@@ -1264,7 +1272,7 @@ MonoBehaviour:
     rightIcon: {fileID: 21300000, guid: bfeec5098db764d4e843c89c8fae2567, type: 3}
     combinationText: "\u706B + \u6728"
     titleText: "\u71C3\u71D2"
-    descriptionText: "\u706B+\u6728\u6703\u7522\u751F\u71C3\u71D2\u7684\u6548\u679C\uFF0C\u6703\u6B98\u7559\u706B\u5143\u7D20\uFF0C\u71C3\u71D2\u6301\u7E8C5\u56DE\u5408\uFF0C\u6BCF\u6B21\u9020\u62102\u9EDE\u50B7\u5BB3\u3002"
+    descriptionText: "\u706B+\u6728\u6703\u7522\u751F\u71C3\u71D2\u7684\u6548\u679C\uFF0C\u6703\u6B98\u7559\u706B\u5143\u7D20\uFF0C\u71C3\u71D2\u6301\u7E8C5\u56DE\u5408\uFF0C\u6BCF\u6B21\u9020\u62103\u9EDE\u50B7\u5BB3\u3002"
     videoClip: {fileID: 32900000, guid: 9ad0f73fe8d6d7f448bec4ec487aa391, type: 3}
   - id: Fire_Ice
     primaryElementId: Fire
@@ -1282,7 +1290,7 @@ MonoBehaviour:
     rightIcon: {fileID: 21300000, guid: 5dae7914913eec541aa1f3a47e938c3d, type: 3}
     combinationText: "\u6C34 + \u96F7"
     titleText: "\u5C0E\u96FB"
-    descriptionText: "\u5148\u4F7F\u7528\u6C34\u5143\u7D20\u7684\u7279\u6027\u8B93\u92EA\u8A2D\u597D\u74B0\u5883\uFF0C\u518D\u7528\u96F7\u5143\u7D20\u9020\u6210\u5C0E\u96FB\u7684\u53CD\u61C9\u3002"
+    descriptionText: "\u7576\u6575\u4EBA\u6709\u6C34\u6A19\u7C64\u4E26\u53D7\u96F7\u653B\u64CA\u6642\u89F8\u767C\u5C0E\u96FB\uFF0C\u9020\u6210\u539F\u50B7\u5BB3\uFF0C\u4E26\u9023\u9396\u50B7\u5BB3\u81F3\u6709\u6C34\u6A19\u7C64\u6216\u7AD9\u5728\u6C34\u5730\u683C\u7684\u76F8\u9130\u6575\u4EBA\uFF0C\u50B7\u5BB3\u70BA\u539F\u50B7\u5BB3\u76840.5\u500D\u3002\u53CD\u61C9\u5F8C\u6B98\u7559\u3010\u96F7\u3011\u5143\u7D20\u3002"
     videoClip: {fileID: 32900000, guid: 53eec5d8a863f7945a05dd1d4f593a12, type: 3}
   - id: Water_Wood
     primaryElementId: Water
@@ -1309,7 +1317,7 @@ MonoBehaviour:
     rightIcon: {fileID: 21300000, guid: bfeec5098db764d4e843c89c8fae2567, type: 3}
     combinationText: "\u96F7 + \u6728"
     titleText: "\u96F7\u64CA"
-    descriptionText: "\u96F7+\u6728\u7684\u96F7\u64CA\u53CD\u61C9\uFF0C\u6703\u8B93\u63A5\u4E0B\u4F86\u9020\u6210\u7684\u50B7\u5BB3\u8B8A\u62102\u500D\u3002"
+    descriptionText: "\u7576\u6575\u4EBA\u540C\u6642\u6709\u6728\u8207\u96F7\u6A19\u7C64\u6642\u89F8\u767C\u96F7\u64CA\uFF0C\u4F7F\u5176\u4E0B\u6B21\u53D7\u653B\u64CA\u50B7\u5BB3\u8B8A\u70BA2\u500D\uFF0C\u6548\u679C\u89F8\u767C\u5F8C\u79FB\u9664\u6A19\u7C64\uFF0C\u53EA\u6301\u7E8C\u4E00\u56DE\u5408\u3002"
     videoClip: {fileID: 32900000, guid: 998aba33a49909a458dbecd220bbdfa3, type: 3}
   - id: Thunder_Ice
     primaryElementId: Thunder
@@ -1684,6 +1692,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Circle (31)
       objectReference: {fileID: 0}
+    - target: {fileID: 4939836915775690191, guid: eacfe748df31fe649bac4cba447f47e8, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 7276458525298687916, guid: eacfe748df31fe649bac4cba447f47e8, type: 3}
       propertyPath: gridPosition.x
       value: 1
@@ -1952,9 +1964,17 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 4656575721212004946, guid: eacfe748df31fe649bac4cba447f47e8, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 4939836915775690191, guid: eacfe748df31fe649bac4cba447f47e8, type: 3}
       propertyPath: m_Name
       value: Circle (7)
+      objectReference: {fileID: 0}
+    - target: {fileID: 4939836915775690191, guid: eacfe748df31fe649bac4cba447f47e8, type: 3}
+      propertyPath: m_IsActive
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 7276458525298687916, guid: eacfe748df31fe649bac4cba447f47e8, type: 3}
       propertyPath: gridPosition.x
@@ -2025,9 +2045,17 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 4656575721212004946, guid: eacfe748df31fe649bac4cba447f47e8, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 4939836915775690191, guid: eacfe748df31fe649bac4cba447f47e8, type: 3}
       propertyPath: m_Name
       value: Circle (36)
+      objectReference: {fileID: 0}
+    - target: {fileID: 4939836915775690191, guid: eacfe748df31fe649bac4cba447f47e8, type: 3}
+      propertyPath: m_IsActive
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 7276458525298687916, guid: eacfe748df31fe649bac4cba447f47e8, type: 3}
       propertyPath: gridPosition.x
@@ -2529,9 +2557,17 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 4656575721212004946, guid: eacfe748df31fe649bac4cba447f47e8, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 4939836915775690191, guid: eacfe748df31fe649bac4cba447f47e8, type: 3}
       propertyPath: m_Name
       value: Circle (20)
+      objectReference: {fileID: 0}
+    - target: {fileID: 4939836915775690191, guid: eacfe748df31fe649bac4cba447f47e8, type: 3}
+      propertyPath: m_IsActive
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 7276458525298687916, guid: eacfe748df31fe649bac4cba447f47e8, type: 3}
       propertyPath: gridPosition.x
@@ -2815,9 +2851,17 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 4656575721212004946, guid: eacfe748df31fe649bac4cba447f47e8, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 4939836915775690191, guid: eacfe748df31fe649bac4cba447f47e8, type: 3}
       propertyPath: m_Name
       value: Circle (8)
+      objectReference: {fileID: 0}
+    - target: {fileID: 4939836915775690191, guid: eacfe748df31fe649bac4cba447f47e8, type: 3}
+      propertyPath: m_IsActive
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 7276458525298687916, guid: eacfe748df31fe649bac4cba447f47e8, type: 3}
       propertyPath: gridPosition.x
@@ -2984,9 +3028,17 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 4656575721212004946, guid: eacfe748df31fe649bac4cba447f47e8, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 4939836915775690191, guid: eacfe748df31fe649bac4cba447f47e8, type: 3}
       propertyPath: m_Name
       value: Circle (17)
+      objectReference: {fileID: 0}
+    - target: {fileID: 4939836915775690191, guid: eacfe748df31fe649bac4cba447f47e8, type: 3}
+      propertyPath: m_IsActive
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 7276458525298687916, guid: eacfe748df31fe649bac4cba447f47e8, type: 3}
       propertyPath: gridPosition.x
@@ -3327,9 +3379,17 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 4656575721212004946, guid: eacfe748df31fe649bac4cba447f47e8, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 4939836915775690191, guid: eacfe748df31fe649bac4cba447f47e8, type: 3}
       propertyPath: m_Name
       value: Circle (34)
+      objectReference: {fileID: 0}
+    - target: {fileID: 4939836915775690191, guid: eacfe748df31fe649bac4cba447f47e8, type: 3}
+      propertyPath: m_IsActive
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 7276458525298687916, guid: eacfe748df31fe649bac4cba447f47e8, type: 3}
       propertyPath: gridPosition.x
@@ -3401,10 +3461,10 @@ MonoBehaviour:
   m_ChildAlignment: 1
   m_StartCorner: 0
   m_StartAxis: 0
-  m_CellSize: {x: 31.44, y: 134}
-  m_Spacing: {x: 3.3, y: 6.26}
+  m_CellSize: {x: 25.73, y: 134}
+  m_Spacing: {x: 10.93, y: 6.26}
   m_Constraint: 1
-  m_ConstraintCount: 5
+  m_ConstraintCount: 4
 --- !u!114 &624814841
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3494,6 +3554,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Circle (18)
       objectReference: {fileID: 0}
+    - target: {fileID: 4939836915775690191, guid: eacfe748df31fe649bac4cba447f47e8, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 7276458525298687916, guid: eacfe748df31fe649bac4cba447f47e8, type: 3}
       propertyPath: gridPosition.x
       value: 5
@@ -3566,6 +3630,10 @@ PrefabInstance:
     - target: {fileID: 4939836915775690191, guid: eacfe748df31fe649bac4cba447f47e8, type: 3}
       propertyPath: m_Name
       value: Circle (15)
+      objectReference: {fileID: 0}
+    - target: {fileID: 4939836915775690191, guid: eacfe748df31fe649bac4cba447f47e8, type: 3}
+      propertyPath: m_IsActive
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 7276458525298687916, guid: eacfe748df31fe649bac4cba447f47e8, type: 3}
       propertyPath: gridPosition.x
@@ -3996,6 +4064,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 985692099}
     m_Modifications:
+    - target: {fileID: 1875879443906890754, guid: eacfe748df31fe649bac4cba447f47e8, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 2733580285815805351, guid: eacfe748df31fe649bac4cba447f47e8, type: 3}
       propertyPath: m_LocalScale.x
       value: 2.0145628
@@ -4044,9 +4116,17 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 4656575721212004946, guid: eacfe748df31fe649bac4cba447f47e8, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 4939836915775690191, guid: eacfe748df31fe649bac4cba447f47e8, type: 3}
       propertyPath: m_Name
       value: Circle (1)
+      objectReference: {fileID: 0}
+    - target: {fileID: 4939836915775690191, guid: eacfe748df31fe649bac4cba447f47e8, type: 3}
+      propertyPath: m_IsActive
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 7276458525298687916, guid: eacfe748df31fe649bac4cba447f47e8, type: 3}
       propertyPath: gridPosition.x
@@ -4262,6 +4342,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Circle (28)
       objectReference: {fileID: 0}
+    - target: {fileID: 4939836915775690191, guid: eacfe748df31fe649bac4cba447f47e8, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 7276458525298687916, guid: eacfe748df31fe649bac4cba447f47e8, type: 3}
       propertyPath: gridPosition.x
       value: 4
@@ -4331,9 +4415,17 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 4656575721212004946, guid: eacfe748df31fe649bac4cba447f47e8, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 4939836915775690191, guid: eacfe748df31fe649bac4cba447f47e8, type: 3}
       propertyPath: m_Name
       value: Circle (2)
+      objectReference: {fileID: 0}
+    - target: {fileID: 4939836915775690191, guid: eacfe748df31fe649bac4cba447f47e8, type: 3}
+      propertyPath: m_IsActive
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 7276458525298687916, guid: eacfe748df31fe649bac4cba447f47e8, type: 3}
       propertyPath: gridPosition.x
@@ -5040,6 +5132,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Circle (33)
       objectReference: {fileID: 0}
+    - target: {fileID: 4939836915775690191, guid: eacfe748df31fe649bac4cba447f47e8, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 7276458525298687916, guid: eacfe748df31fe649bac4cba447f47e8, type: 3}
       propertyPath: gridPosition.x
       value: -1
@@ -5244,10 +5340,10 @@ MonoBehaviour:
   m_ChildAlignment: 1
   m_StartCorner: 0
   m_StartAxis: 0
-  m_CellSize: {x: 31.44, y: 134}
-  m_Spacing: {x: 3.3, y: 6.26}
+  m_CellSize: {x: 25.73, y: 134}
+  m_Spacing: {x: 10.93, y: 6.26}
   m_Constraint: 1
-  m_ConstraintCount: 5
+  m_ConstraintCount: 4
 --- !u!114 &1009879736
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5533,9 +5629,17 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 4656575721212004946, guid: eacfe748df31fe649bac4cba447f47e8, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 4939836915775690191, guid: eacfe748df31fe649bac4cba447f47e8, type: 3}
       propertyPath: m_Name
       value: Circle (4)
+      objectReference: {fileID: 0}
+    - target: {fileID: 4939836915775690191, guid: eacfe748df31fe649bac4cba447f47e8, type: 3}
+      propertyPath: m_IsActive
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 7276458525298687916, guid: eacfe748df31fe649bac4cba447f47e8, type: 3}
       propertyPath: gridPosition.x
@@ -5901,6 +6005,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Circle (35)
       objectReference: {fileID: 0}
+    - target: {fileID: 4939836915775690191, guid: eacfe748df31fe649bac4cba447f47e8, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 7276458525298687916, guid: eacfe748df31fe649bac4cba447f47e8, type: 3}
       propertyPath: gridPosition.x
       value: 1
@@ -6240,9 +6348,17 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 4656575721212004946, guid: eacfe748df31fe649bac4cba447f47e8, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 4939836915775690191, guid: eacfe748df31fe649bac4cba447f47e8, type: 3}
       propertyPath: m_Name
       value: Circle (11)
+      objectReference: {fileID: 0}
+    - target: {fileID: 4939836915775690191, guid: eacfe748df31fe649bac4cba447f47e8, type: 3}
+      propertyPath: m_IsActive
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 7276458525298687916, guid: eacfe748df31fe649bac4cba447f47e8, type: 3}
       propertyPath: gridPosition.x
@@ -6619,9 +6735,17 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 4656575721212004946, guid: eacfe748df31fe649bac4cba447f47e8, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 4939836915775690191, guid: eacfe748df31fe649bac4cba447f47e8, type: 3}
       propertyPath: m_Name
       value: Circle (6)
+      objectReference: {fileID: 0}
+    - target: {fileID: 4939836915775690191, guid: eacfe748df31fe649bac4cba447f47e8, type: 3}
+      propertyPath: m_IsActive
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 7276458525298687916, guid: eacfe748df31fe649bac4cba447f47e8, type: 3}
       propertyPath: gridPosition.x
@@ -7246,6 +7370,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Circle (23)
       objectReference: {fileID: 0}
+    - target: {fileID: 4939836915775690191, guid: eacfe748df31fe649bac4cba447f47e8, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 7276458525298687916, guid: eacfe748df31fe649bac4cba447f47e8, type: 3}
       propertyPath: gridPosition.x
       value: 4
@@ -7417,9 +7545,17 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 4656575721212004946, guid: eacfe748df31fe649bac4cba447f47e8, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 4939836915775690191, guid: eacfe748df31fe649bac4cba447f47e8, type: 3}
       propertyPath: m_Name
       value: Circle (25)
+      objectReference: {fileID: 0}
+    - target: {fileID: 4939836915775690191, guid: eacfe748df31fe649bac4cba447f47e8, type: 3}
+      propertyPath: m_IsActive
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 7276458525298687916, guid: eacfe748df31fe649bac4cba447f47e8, type: 3}
       propertyPath: gridPosition.x
@@ -7784,9 +7920,17 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 4656575721212004946, guid: eacfe748df31fe649bac4cba447f47e8, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 4939836915775690191, guid: eacfe748df31fe649bac4cba447f47e8, type: 3}
       propertyPath: m_Name
       value: Circle (10)
+      objectReference: {fileID: 0}
+    - target: {fileID: 4939836915775690191, guid: eacfe748df31fe649bac4cba447f47e8, type: 3}
+      propertyPath: m_IsActive
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 7276458525298687916, guid: eacfe748df31fe649bac4cba447f47e8, type: 3}
       propertyPath: gridPosition.x
@@ -8276,9 +8420,17 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 4656575721212004946, guid: eacfe748df31fe649bac4cba447f47e8, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 4939836915775690191, guid: eacfe748df31fe649bac4cba447f47e8, type: 3}
       propertyPath: m_Name
       value: Circle (27)
+      objectReference: {fileID: 0}
+    - target: {fileID: 4939836915775690191, guid: eacfe748df31fe649bac4cba447f47e8, type: 3}
+      propertyPath: m_IsActive
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 7276458525298687916, guid: eacfe748df31fe649bac4cba447f47e8, type: 3}
       propertyPath: gridPosition.x
@@ -8349,9 +8501,17 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 4656575721212004946, guid: eacfe748df31fe649bac4cba447f47e8, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 4939836915775690191, guid: eacfe748df31fe649bac4cba447f47e8, type: 3}
       propertyPath: m_Name
       value: Circle (3)
+      objectReference: {fileID: 0}
+    - target: {fileID: 4939836915775690191, guid: eacfe748df31fe649bac4cba447f47e8, type: 3}
+      propertyPath: m_IsActive
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 7276458525298687916, guid: eacfe748df31fe649bac4cba447f47e8, type: 3}
       propertyPath: gridPosition.x
@@ -8806,6 +8966,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Circle (29)
       objectReference: {fileID: 0}
+    - target: {fileID: 4939836915775690191, guid: eacfe748df31fe649bac4cba447f47e8, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 7276458525298687916, guid: eacfe748df31fe649bac4cba447f47e8, type: 3}
       propertyPath: gridPosition.x
       value: -1
@@ -9124,9 +9288,17 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 4656575721212004946, guid: eacfe748df31fe649bac4cba447f47e8, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 4939836915775690191, guid: eacfe748df31fe649bac4cba447f47e8, type: 3}
       propertyPath: m_Name
       value: Circle (30)
+      objectReference: {fileID: 0}
+    - target: {fileID: 4939836915775690191, guid: eacfe748df31fe649bac4cba447f47e8, type: 3}
+      propertyPath: m_IsActive
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 7276458525298687916, guid: eacfe748df31fe649bac4cba447f47e8, type: 3}
       propertyPath: gridPosition.x
@@ -9159,7 +9331,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &1662162774
 RectTransform:
   m_ObjectHideFlags: 0
@@ -9453,9 +9625,17 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 4656575721212004946, guid: eacfe748df31fe649bac4cba447f47e8, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 4939836915775690191, guid: eacfe748df31fe649bac4cba447f47e8, type: 3}
       propertyPath: m_Name
       value: Circle (16)
+      objectReference: {fileID: 0}
+    - target: {fileID: 4939836915775690191, guid: eacfe748df31fe649bac4cba447f47e8, type: 3}
+      propertyPath: m_IsActive
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 7276458525298687916, guid: eacfe748df31fe649bac4cba447f47e8, type: 3}
       propertyPath: gridPosition.x
@@ -9529,6 +9709,10 @@ PrefabInstance:
     - target: {fileID: 4939836915775690191, guid: eacfe748df31fe649bac4cba447f47e8, type: 3}
       propertyPath: m_Name
       value: Circle (9)
+      objectReference: {fileID: 0}
+    - target: {fileID: 4939836915775690191, guid: eacfe748df31fe649bac4cba447f47e8, type: 3}
+      propertyPath: m_IsActive
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 7276458525298687916, guid: eacfe748df31fe649bac4cba447f47e8, type: 3}
       propertyPath: gridPosition.x
@@ -10096,9 +10280,17 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 4656575721212004946, guid: eacfe748df31fe649bac4cba447f47e8, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 4939836915775690191, guid: eacfe748df31fe649bac4cba447f47e8, type: 3}
       propertyPath: m_Name
       value: Circle (19)
+      objectReference: {fileID: 0}
+    - target: {fileID: 4939836915775690191, guid: eacfe748df31fe649bac4cba447f47e8, type: 3}
+      propertyPath: m_IsActive
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 7276458525298687916, guid: eacfe748df31fe649bac4cba447f47e8, type: 3}
       propertyPath: gridPosition.y
@@ -10794,9 +10986,17 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 4656575721212004946, guid: eacfe748df31fe649bac4cba447f47e8, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 4939836915775690191, guid: eacfe748df31fe649bac4cba447f47e8, type: 3}
       propertyPath: m_Name
       value: Circle (24)
+      objectReference: {fileID: 0}
+    - target: {fileID: 4939836915775690191, guid: eacfe748df31fe649bac4cba447f47e8, type: 3}
+      propertyPath: m_IsActive
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 7276458525298687916, guid: eacfe748df31fe649bac4cba447f47e8, type: 3}
       propertyPath: gridPosition.y
@@ -10970,7 +11170,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   baseHandCardCount: 4
   visualRoot: {fileID: 1776428046}
-  relics: []
+  relics:
+  - {fileID: 11400000, guid: 3b82f9785ad1484eb7f2ad3f0c1d924f, type: 2}
 --- !u!4 &1848671828
 Transform:
   m_ObjectHideFlags: 0
@@ -11545,9 +11746,17 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 4656575721212004946, guid: eacfe748df31fe649bac4cba447f47e8, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 4939836915775690191, guid: eacfe748df31fe649bac4cba447f47e8, type: 3}
       propertyPath: m_Name
       value: Circle (32)
+      objectReference: {fileID: 0}
+    - target: {fileID: 4939836915775690191, guid: eacfe748df31fe649bac4cba447f47e8, type: 3}
+      propertyPath: m_IsActive
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 7276458525298687916, guid: eacfe748df31fe649bac4cba447f47e8, type: 3}
       propertyPath: gridPosition.x
@@ -11618,9 +11827,17 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 4656575721212004946, guid: eacfe748df31fe649bac4cba447f47e8, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 4939836915775690191, guid: eacfe748df31fe649bac4cba447f47e8, type: 3}
       propertyPath: m_Name
       value: Circle (5)
+      objectReference: {fileID: 0}
+    - target: {fileID: 4939836915775690191, guid: eacfe748df31fe649bac4cba447f47e8, type: 3}
+      propertyPath: m_IsActive
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 7276458525298687916, guid: eacfe748df31fe649bac4cba447f47e8, type: 3}
       propertyPath: gridPosition.x
@@ -11690,6 +11907,10 @@ PrefabInstance:
     - target: {fileID: 4939836915775690191, guid: eacfe748df31fe649bac4cba447f47e8, type: 3}
       propertyPath: m_Name
       value: Circle (21)
+      objectReference: {fileID: 0}
+    - target: {fileID: 4939836915775690191, guid: eacfe748df31fe649bac4cba447f47e8, type: 3}
+      propertyPath: m_IsActive
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 7276458525298687916, guid: eacfe748df31fe649bac4cba447f47e8, type: 3}
       propertyPath: gridPosition.x
@@ -11963,6 +12184,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Circle (12)
       objectReference: {fileID: 0}
+    - target: {fileID: 4939836915775690191, guid: eacfe748df31fe649bac4cba447f47e8, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 7276458525298687916, guid: eacfe748df31fe649bac4cba447f47e8, type: 3}
       propertyPath: gridPosition.x
       value: 5
@@ -12035,6 +12260,10 @@ PrefabInstance:
     - target: {fileID: 4939836915775690191, guid: eacfe748df31fe649bac4cba447f47e8, type: 3}
       propertyPath: m_Name
       value: Circle (26)
+      objectReference: {fileID: 0}
+    - target: {fileID: 4939836915775690191, guid: eacfe748df31fe649bac4cba447f47e8, type: 3}
+      propertyPath: m_IsActive
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 7276458525298687916, guid: eacfe748df31fe649bac4cba447f47e8, type: 3}
       propertyPath: gridPosition.x
@@ -12268,9 +12497,17 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 4656575721212004946, guid: eacfe748df31fe649bac4cba447f47e8, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 4939836915775690191, guid: eacfe748df31fe649bac4cba447f47e8, type: 3}
       propertyPath: m_Name
       value: Circle (14)
+      objectReference: {fileID: 0}
+    - target: {fileID: 4939836915775690191, guid: eacfe748df31fe649bac4cba447f47e8, type: 3}
+      propertyPath: m_IsActive
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 7276458525298687916, guid: eacfe748df31fe649bac4cba447f47e8, type: 3}
       propertyPath: gridPosition.x
@@ -12666,9 +12903,17 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 4656575721212004946, guid: eacfe748df31fe649bac4cba447f47e8, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 4939836915775690191, guid: eacfe748df31fe649bac4cba447f47e8, type: 3}
       propertyPath: m_Name
       value: Circle (13)
+      objectReference: {fileID: 0}
+    - target: {fileID: 4939836915775690191, guid: eacfe748df31fe649bac4cba447f47e8, type: 3}
+      propertyPath: m_IsActive
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 7276458525298687916, guid: eacfe748df31fe649bac4cba447f47e8, type: 3}
       propertyPath: gridPosition.x

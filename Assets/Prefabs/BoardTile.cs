@@ -35,14 +35,72 @@ public class BoardTile : MonoBehaviour
     }
 
 
-    public void TriggerGrowthTrap(Enemy enemy)
+    public void TriggerGrowthTrap(Enemy enemy, Player sourcePlayer = null)
     {
-        if (growthTrap)
+        if (growthTrap && enemy != null)
         {
             enemy.TakeDamage(3);  // 例如扣3血
+            if (sourcePlayer != null &&
+                sourcePlayer.TryGetGrowthTrapBonusElement(out ElementType bonusElement) &&
+                enemy.currentHP > 0 &&
+                !enemy.IsDead)
+            {
+                ApplyGrowthTrapBonusElement(enemy, bonusElement);
+            }
+
             Debug.Log("Growth trap triggered! Enemy took damage.");
+            return;
         }
     }
+    private static void ApplyGrowthTrapBonusElement(Enemy enemy, ElementType bonusElement)
+    {
+        if (enemy == null)
+        {
+            return;
+        }
+
+        if (bonusElement == ElementType.Wood)
+        {
+            ApplyWoodGrowthTrapBonus(enemy);
+            return;
+        }
+
+        enemy.AddElementTag(bonusElement);
+    }
+
+    private static void ApplyWoodGrowthTrapBonus(Enemy enemy)
+    {
+        ElementType? latestReactive = ElementReactionOrderHelper.GetLatestReactiveTag(
+            enemy,
+            new[] { ElementType.Fire, ElementType.Thunder, ElementType.Ice });
+
+        if (latestReactive == ElementType.Fire)
+        {
+            enemy.SetBurningTurns(5);
+            enemy.RemoveElementTag(ElementType.Wood);
+            enemy.AddElementTag(ElementType.Fire);
+            return;
+        }
+
+        if (latestReactive == ElementType.Thunder)
+        {
+            enemy.RemoveElementTag(ElementType.Wood);
+            enemy.RemoveElementTag(ElementType.Thunder);
+            enemy.SetChargedCount(2);
+            return;
+        }
+
+        if (latestReactive == ElementType.Ice)
+        {
+            enemy.AddFrostStacks(1);
+            enemy.RemoveElementTag(ElementType.Wood);
+            enemy.RemoveElementTag(ElementType.Ice);
+            return;
+        }
+
+        enemy.AddElementTag(ElementType.Wood);
+    }
+
     public void SetSelectable(bool canSelect)
     {
         // 顯示/隱藏高亮

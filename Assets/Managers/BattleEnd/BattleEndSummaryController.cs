@@ -265,12 +265,6 @@ public static class BattleEndSummaryStore
 
     public static BattleEndSummaryData Capture(bool isVictory, Player player, int resolvedGoldReward = -1)
     {
-        int battleGoldEarned = ResolveBattleGoldEarned(resolvedGoldReward);
-        if (isVictory && battleGoldEarned > 0)
-        {
-            cumulativeGoldEarned += battleGoldEarned;
-        }
-
         lastSummary = BuildSummary(isVictory, player, resolvedGoldReward);
 
         Debug.Log(

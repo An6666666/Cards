@@ -696,14 +696,14 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 0}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 5227435389389655221}
-  - {fileID: 266629851796375414}
   - {fileID: 4879252766316020192}
   - {fileID: 1476213039542254109}
   - {fileID: 3785666154155523647}
   - {fileID: 733274850042871441}
   - {fileID: 4900648568990441496}
   - {fileID: 4602201457639984101}
+  - {fileID: 5227435389389655221}
+  - {fileID: 266629851796375414}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!212 &5326906986136368407
@@ -814,10 +814,11 @@ MonoBehaviour:
   statusSlotPrefab: {fileID: 1315211311688135108, guid: 5b69c36dd57abdc4b81a65751e82bef1, type: 3}
   burnIcon: {fileID: 21300000, guid: 3b959444e69fb8b429e6f9bd079177bc, type: 3}
   frozenIcon: {fileID: 21300000, guid: 2a4f09efb69075f44868786e2c4a8c1b, type: 3}
+  immobilizedIcon: {fileID: 21300000, guid: dd234a650c5ebd64092570f249c820db, type: 3}
   chargedIcon: {fileID: 21300000, guid: d33beeca1e258974a86b2d7986f441d3, type: 3}
   frostIcon: {fileID: 21300000, guid: 379cdbab65eebe94dbf4e0e8709f6e51, type: 3}
   _skillStep: 8.5
-  _statusStep: 8.5
+  _statusStep: 12
 --- !u!114 &2955211467787434944
 MonoBehaviour:
   m_ObjectHideFlags: 0

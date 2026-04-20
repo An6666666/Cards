@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Text;
 using UnityEngine;
 using UnityEngine.UI;
@@ -58,6 +58,7 @@ public class StatusPanel_Text : MonoBehaviour
             {   
                 sb.AppendLine($"防禦：{TryGetInt(player, "block", "Block")}");
                 sb.AppendLine($"金幣：{player.gold}");
+                sb.AppendLine($"已消耗牌：{(player.exhaustPile != null ? player.exhaustPile.Count : 0)}");
             }
             // 目標是敵人（沒有 gold 就不顯示）
             else if (enemy != null)
@@ -128,11 +129,11 @@ public class StatusPanel_Text : MonoBehaviour
         }
         if (enemy != null)
         {
-            AddIntEffect(negative, "燃燒", enemy.burningTurns);
-            AddIntEffect(negative, "冰凍", enemy.frozenTurns);
+            AddBurningEffect(negative, enemy.burningTurns);
+            AddFrozenEffect(negative, enemy.frozenTurns);
             AddIntEffect(negative, "束縛", enemy.immobilizedTurns);
-            AddIntEffect(negative, "雷擊", enemy.chargedCount);
-            AddIntEffect(negative, "結霜", enemy.frostStacks);
+            AddChargedEffect(negative, enemy.chargedCount);
+            AddFrostEffect(negative, enemy.frostStacks);
         }
         // ====== Output ======
         if (buffsText != null)
@@ -293,6 +294,30 @@ public class StatusPanel_Text : MonoBehaviour
     {
         if (!showZeroEffects && value == 0) return;
         list.Add($"{name} {value}");
+    }
+
+    private void AddBurningEffect(List<string> list, int turns)
+    {
+        if (!showZeroEffects && turns == 0) return;
+        list.Add($"燃燒 {turns}回合 傷害{Enemy.BurningDamagePerTurn}");
+    }
+
+    private void AddFrozenEffect(List<string> list, int turns)
+    {
+        if (!showZeroEffects && turns == 0) return;
+        list.Add($"冰凍 {turns}回合");
+    }
+
+    private void AddChargedEffect(List<string> list, int stacks)
+    {
+        if (!showZeroEffects && stacks == 0) return;
+        list.Add($"雷擊 {stacks}層 {Enemy.ChargedFinalHitMultiplier}倍傷害 每回合-1層");
+    }
+
+    private void AddFrostEffect(List<string> list, int stacks)
+    {
+        if (!showZeroEffects && stacks == 0) return;
+        list.Add($"結霜 {stacks}層 傷害{Enemy.GetFrostDamageBonus(stacks)} 每回合-1層");
     }
 
     private void AddSignedIntEffect(List<string> positive, List<string> negative, string name, int value, bool positiveWhenNegative)

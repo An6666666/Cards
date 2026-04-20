@@ -57,6 +57,8 @@ public partial class RewardUI : MonoBehaviour
     private bool defaultSkipHoverIndicatorPreserveAspect;
     private bool useConfirmSkipButtonVisuals;
     private int currentGoldReward;
+    private bool stageSelectionCommitted;
+    private bool closeRequested;
 
     [SerializeField] private Text goldText;
     [SerializeField] private Button packButton;
@@ -149,6 +151,8 @@ public partial class RewardUI : MonoBehaviour
             ? new List<RelicBase>(relicChoices)
             : null;
         selectedRelicChoiceView = null;
+        stageSelectionCommitted = false;
+        closeRequested = false;
 
         ResolvePackVisualReferences();
         CacheDefaultVisualState();
@@ -183,6 +187,7 @@ public partial class RewardUI : MonoBehaviour
     private void ShowCardRewardStage(List<CardBase> cardChoices)
     {
         rewardStage = RewardStage.CardReward;
+        stageSelectionCommitted = false;
         StopOpenPackFlow();
         ClearRewardEntries();
         RestoreGoldTextStyle();
@@ -202,6 +207,7 @@ public partial class RewardUI : MonoBehaviour
     private void ShowRelicRewardStage()
     {
         rewardStage = RewardStage.RelicReward;
+        stageSelectionCommitted = false;
         SetSkipHoverVisible(false);
         StopOpenPackFlow();
         ClearRewardEntries();
@@ -240,16 +246,54 @@ public partial class RewardUI : MonoBehaviour
 
     private void AdvanceAfterCardStage()
     {
+        if (rewardStage != RewardStage.CardReward)
+        {
+            return;
+        }
+
+        stageSelectionCommitted = true;
         pendingCardChoices = null;
         Close();
     }
 
     public void Close()
     {
+        if (closeRequested)
+        {
+            return;
+        }
+
+        closeRequested = true;
+        rewardStage = RewardStage.None;
         StopOpenPackFlow();
+
+        if (skipButton != null)
+        {
+            skipButton.interactable = false;
+        }
+
+        if (packButton != null)
+        {
+            packButton.interactable = false;
+        }
+
+        SetRewardCardsInteractable(false);
+
+        RunManager runManager = RunManager.Instance;
+        if (runManager != null)
+        {
+            bool shouldShowRunEndSummary = runManager.RunCompleted;
+            if (shouldShowRunEndSummary && manager != null)
+            {
+                manager.CaptureBattleEndSummary(true);
+            }
+
+            runManager.ReturnToRunSceneFromBattle(suppressTitleSummary: !shouldShowRunEndSummary);
+            return;
+        }
+
         ClearRewardEntries();
         gameObject.SetActive(false);
-        RunManager.Instance?.ReturnToRunSceneFromBattle();
     }
 
 }

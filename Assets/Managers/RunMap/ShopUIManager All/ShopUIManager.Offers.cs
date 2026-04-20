@@ -5,23 +5,11 @@ using UnityEngine.UI;
 
 public partial class ShopUIManager
 {
-    private readonly struct OrderedCardEntry
-    {
-        public OrderedCardEntry(CardBase card, int sourceIndex)
-        {
-            Card = card;
-            SourceIndex = sourceIndex;
-        }
-
-        public CardBase Card { get; }
-        public int SourceIndex { get; }
-    }
-
     private void RebuildCardPage()
     {
         ClearChildren(cardListParent);
 
-        List<OrderedCardEntry> orderedCards = BuildOrderedCardEntries(availableCards);
+        List<CardDisplaySortUtility.OrderedCardEntry> orderedCards = CardDisplaySortUtility.BuildOrderedEntries(availableCards);
         var pageWindow = GetPageWindow(orderedCards.Count, cardsPerPage, pageCards);
         pageCards = pageWindow.PageIndex;
 
@@ -69,13 +57,13 @@ public partial class ShopUIManager
         if (removalCostText != null)
             removalCostText.text = $"移除價格：{removalCost}";
 
-        List<OrderedCardEntry> orderedCards = BuildOrderedCardEntries(player.deck);
+        List<CardDisplaySortUtility.OrderedCardEntry> orderedCards = CardDisplaySortUtility.BuildOrderedEntries(player.deck);
         var pageWindow = GetPageWindow(orderedCards.Count, removalPerPage, pageRemoval);
         pageRemoval = pageWindow.PageIndex;
 
         for (int i = pageWindow.StartIndex; i < pageWindow.EndIndex; i++)
         {
-            OrderedCardEntry entry = orderedCards[i];
+            CardDisplaySortUtility.OrderedCardEntry entry = orderedCards[i];
             CardBase card = entry.Card;
             if (card == null)
                 continue;
@@ -134,110 +122,6 @@ public partial class ShopUIManager
             target.Add(pool[selectedIndex]);
             pool.RemoveAt(selectedIndex);
         }
-    }
-
-    private List<OrderedCardEntry> BuildOrderedCardEntries(IReadOnlyList<CardBase> source)
-    {
-        List<OrderedCardEntry> ordered = new List<OrderedCardEntry>();
-        if (source == null)
-        {
-            return ordered;
-        }
-
-        for (int i = 0; i < source.Count; i++)
-        {
-            CardBase card = source[i];
-            if (card != null)
-            {
-                ordered.Add(new OrderedCardEntry(card, i));
-            }
-        }
-
-        ordered.Sort(CompareOrderedCardEntries);
-        return ordered;
-    }
-
-    private int CompareOrderedCardEntries(OrderedCardEntry left, OrderedCardEntry right)
-    {
-        int categoryCompare = GetCardCategorySortRank(left.Card).CompareTo(GetCardCategorySortRank(right.Card));
-        if (categoryCompare != 0)
-        {
-            return categoryCompare;
-        }
-
-        if (left.Card != null &&
-            right.Card != null &&
-            left.Card.cardType == CardType.Attack &&
-            right.Card.cardType == CardType.Attack)
-        {
-            int elementCompare = GetAttackElementSortRank(left.Card).CompareTo(GetAttackElementSortRank(right.Card));
-            if (elementCompare != 0)
-            {
-                return elementCompare;
-            }
-        }
-
-        int nameCompare = string.Compare(GetCardSortName(left.Card), GetCardSortName(right.Card), System.StringComparison.Ordinal);
-        if (nameCompare != 0)
-        {
-            return nameCompare;
-        }
-
-        int assetNameCompare = string.Compare(GetAssetSortName(left.Card), GetAssetSortName(right.Card), System.StringComparison.Ordinal);
-        if (assetNameCompare != 0)
-        {
-            return assetNameCompare;
-        }
-
-        return left.SourceIndex.CompareTo(right.SourceIndex);
-    }
-
-    private static int GetCardCategorySortRank(CardBase card)
-    {
-        if (card == null)
-        {
-            return int.MaxValue;
-        }
-
-        return card.cardType switch
-        {
-            CardType.Attack => 0,
-            CardType.Skill => 1,
-            CardType.Movement => 2,
-            _ => 3
-        };
-    }
-
-    private static int GetAttackElementSortRank(CardBase card)
-    {
-        if (card == null || !card.TryGetElementType(out ElementType elementType))
-        {
-            return int.MaxValue;
-        }
-
-        return elementType switch
-        {
-            ElementType.Fire => 0,
-            ElementType.Water => 1,
-            ElementType.Thunder => 2,
-            ElementType.Ice => 3,
-            ElementType.Wood => 4,
-            _ => 5
-        };
-    }
-
-    private static string GetCardSortName(CardBase card)
-    {
-        return card != null && !string.IsNullOrWhiteSpace(card.cardName)
-            ? card.cardName.Trim()
-            : string.Empty;
-    }
-
-    private static string GetAssetSortName(CardBase card)
-    {
-        return card != null && !string.IsNullOrWhiteSpace(card.name)
-            ? card.name.Trim()
-            : string.Empty;
     }
 
     private void CreateCardOffer(CardBase card, int price)

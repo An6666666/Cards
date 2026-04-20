@@ -49,6 +49,9 @@ public class BattleTurnController
         ApplyGrowthTrapDamage();
         RefreshEnemyIntents();
 
+        if (IsBattleResolutionPending())
+            return;
+
         stateMachine.ChangeState(new EnemyTurnState(battleManager));
     }
 
@@ -68,7 +71,7 @@ public class BattleTurnController
             }
 
             var tile = battleManager.board.GetTileAt(enemy.gridPosition);
-            tile?.TriggerGrowthTrap(enemy);
+            tile?.TriggerGrowthTrap(enemy, player);
         }
     }
 
@@ -111,11 +114,17 @@ public class BattleTurnController
 
     private IEnumerator StartPlayerTurnRoutine()
     {
+        if (IsBattleResolutionPending())
+            yield break;
+
         handUIController.LockCardInteraction();
         handUIController.SetEndTurnButtonInteractable(false);
 
         bool showCentralPlayerTurnHint = tutorialController == null || tutorialController.ConsumePlayerTurnPhaseHintAllowance();
         yield return battleManager.ShowBattlePhaseHintAndWait("玩家回合", -1f, showCentralPlayerTurnHint);
+
+        if (IsBattleResolutionPending())
+            yield break;
 
         if (battleManager.BattleStarted)
         {
@@ -147,6 +156,9 @@ public class BattleTurnController
         }
 
         processingPlayerTurnStart = false;
+
+        if (IsBattleResolutionPending())
+            yield break;
 
         bool appliedTutorialHand = false;
         if (tutorialController != null && tutorialController.IsActive)
@@ -188,6 +200,8 @@ public class BattleTurnController
 
     public IEnumerator EnemyTurnCoroutine()
     {
+        if (IsBattleResolutionPending())
+            yield break;
         yield return battleManager.ShowBattlePhaseHintAndWait("妖怪回合");
 
         battleManager.RuntimeContext?.SquadCoordinator?.ClearExecutionPlans();
@@ -204,7 +218,13 @@ public class BattleTurnController
 
         processingEnemyTurnStart = false;
 
+        if (IsBattleResolutionPending())
+            yield break;
+
         yield return new WaitForSeconds(1f);
+
+        if (IsBattleResolutionPending())
+            yield break;
 
         var enemiesTakingActions = new List<Enemy>(enemies);
         for (int i = 0; i < enemiesTakingActions.Count; i++)
@@ -215,9 +235,15 @@ public class BattleTurnController
             {
                 yield return e.EnemyActionRoutine(player);
             }
+
+            if (IsBattleResolutionPending())
+                yield break;
         }
 
         yield return new WaitForSeconds(1f);
+
+        if (IsBattleResolutionPending())
+            yield break;
 
         if (!player.buffs.retainBlockNextTurn)
         {
@@ -245,9 +271,41 @@ public class BattleTurnController
             }
         }
 
+        if (IsBattleResolutionPending())
+            yield break;
+
         battleManager.RuntimeContext?.SquadCoordinator?.ClearExecutionPlans();
+
+        if (IsBattleResolutionPending())
+            yield break;
 
         stateMachine.ChangeState(new PlayerTurnState(battleManager));
         Debug.Log("Player Turn");
+    }
+
+    private bool IsBattleResolutionPending()
+    {
+        if (stateMachine.Current is VictoryState || stateMachine.Current is DefeatState)
+        {
+            return true;
+        }
+
+        if (player != null && player.currentHP <= 0)
+        {
+            return true;
+        }
+
+        bool hasLivingEnemy = false;
+        for (int i = 0; i < enemies.Count; i++)
+        {
+            Enemy enemy = enemies[i];
+            if (enemy != null && !enemy.IsDead && enemy.currentHP > 0)
+            {
+                hasLivingEnemy = true;
+                break;
+            }
+        }
+
+        return !hasLivingEnemy;
     }
 }

@@ -153,7 +153,8 @@ public class PlayerMovement : MonoBehaviour
 
     private bool CanDisplaceEnemyFromTile(Vector2Int occupiedPos, Board board)
     {
-        if (!CanUseTongQianJian())
+        int knockbackSteps = GetTongQianJianKnockbackSteps();
+        if (knockbackSteps <= 0)
         {
             return false;
         }
@@ -169,7 +170,8 @@ public class PlayerMovement : MonoBehaviour
 
     private bool TryDisplaceEnemyFromTile(Vector2Int occupiedPos, Board board)
     {
-        if (!CanUseTongQianJian())
+        int knockbackSteps = GetTongQianJianKnockbackSteps();
+        if (knockbackSteps <= 0)
         {
             return false;
         }
@@ -180,13 +182,24 @@ public class PlayerMovement : MonoBehaviour
             return false;
         }
 
-        if (!TryFindEnemyDisplacementTarget(occupiedPos, board, out Vector2Int knockbackTarget))
+        bool moved = false;
+        for (int step = 0; step < knockbackSteps; step++)
         {
-            return false;
+            if (!TryFindEnemyDisplacementTarget(occupyingEnemy.gridPosition, board, out Vector2Int knockbackTarget))
+            {
+                break;
+            }
+
+            occupyingEnemy.MoveToPosition(knockbackTarget);
+            if (occupyingEnemy.gridPosition != knockbackTarget)
+            {
+                break;
+            }
+
+            moved = true;
         }
 
-        occupyingEnemy.MoveToPosition(knockbackTarget);
-        return occupyingEnemy.gridPosition == knockbackTarget;
+        return moved;
     }
 
     private bool TryFindEnemyDisplacementTarget(Vector2Int occupiedPos, Board board, out Vector2Int targetPos)
@@ -245,10 +258,15 @@ public class PlayerMovement : MonoBehaviour
         return found;
     }
 
-    private bool CanUseTongQianJian()
+    private int GetTongQianJianKnockbackSteps()
     {
         Player player = GetComponent<Player>();
-        return player != null && player.HasRelic<Relic_TongQianJian>();
+        if (player == null)
+        {
+            return 0;
+        }
+
+        return Mathf.Max(0, player.GetRelicCount<Relic_TongQianJian>());
     }
 
     private static Enemy FindAliveEnemyAt(Vector2Int pos)

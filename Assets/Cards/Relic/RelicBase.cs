@@ -1,5 +1,16 @@
 ﻿using UnityEngine;
 
+public readonly struct AttackCardHitContext
+{
+    public AttackCardHitContext(int targetBurningTurnsBeforeHit)
+    {
+        TargetBurningTurnsBeforeHit = Mathf.Max(0, targetBurningTurnsBeforeHit);
+    }
+
+    public int TargetBurningTurnsBeforeHit { get; }
+    public bool TargetWasBurningBeforeHit => TargetBurningTurnsBeforeHit > 0;
+}
+
 /// <summary>
 /// 遺物的抽象基底類別。
 /// 保留與舊資料相同的欄位名稱，讓既有遺物資產在拆分期間仍能沿用名稱、描述、圖片與商店價格。
@@ -67,9 +78,30 @@ public abstract class RelicBase : ScriptableObject
     {
     }
 
+    public virtual void OnAttackCardHitEnemy(Player player, AttackCardBase card, Enemy target, int attemptedDamage, int hpDamage, AttackCardHitContext context)
+    {
+        OnAttackCardHitEnemy(player, card, target, attemptedDamage, hpDamage);
+    }
+
     public virtual int GetAdditionalDamage(Player player, CardBase card, Enemy target)
     {
         return 0;
+    }
+
+    public virtual bool TryGetConductiveDamageMultiplier(Player player, out float multiplier)
+    {
+        multiplier = 0f;
+        return false;
+    }
+
+    public virtual bool TryGetGrowthTrapBonusElement(Player player, out ElementType element)
+    {
+        element = default;
+        return false;
+    }
+
+    public virtual void OnFreezeReactionResolved(Player player, Enemy target, bool freezeApplied)
+    {
     }
 
     public virtual bool TryGetBattleUiCounter(out string counterText)

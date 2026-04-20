@@ -459,7 +459,7 @@ MonoBehaviour:
   attackRangeOffsets: []
   isBoss: 0
   spriteRoot: {fileID: 8275633406451967337}
-  useAppearAnimation: 0
+  useAppearAnimation: 1
   deathDestroyDelay: 0.6
   idleWhiteObj: {fileID: 3983805566650552538}
   idleRedObj: {fileID: 153131917641067011}

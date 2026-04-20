@@ -111,6 +111,7 @@ public class CardHoverEffect : MonoBehaviour, IPointerEnterHandler, IPointerExit
             cardUI.InfoTooltip.RefreshPosition();
             cardUI.InfoTooltip.Show();
         }
+        cardUI?.ScopeDisplay?.Show();
     }
 
     public void OnPointerExit(PointerEventData eventData)
@@ -152,6 +153,7 @@ public class CardHoverEffect : MonoBehaviour, IPointerEnterHandler, IPointerExit
             SetHoverGlowVisible(false, instant);
         }
         cardUI?.InfoTooltip?.Hide();
+        cardUI?.ScopeDisplay?.Hide();
     }
 
     public void ResetHoverInstant()

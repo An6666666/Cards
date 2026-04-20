@@ -19,6 +19,7 @@ MonoBehaviour:
   exhaustOnUse: 0
   shopPrice: 8
   cardType: 0
+  scopeImage: {fileID: 21300000, guid: 7f35d578b3c6e184e94ee364d3838306, type: 3}
   rangeOffsets:
   - {x: 0, y: 4}
   - {x: 0, y: -4}

@@ -70,6 +70,10 @@ public class Enemy : MonoBehaviour
     // 對外唯讀的掉金幣屬性。
     public int GoldReward => goldReward;
 
+    public const int BurningDamagePerTurn = 3;
+    public const int ChargedFinalHitMultiplier = 2;
+    public const int FrostDamagePerStack = 2;
+
     // 燃燒剩餘回合數。
     public int burningTurns = 0;
     // 冰凍剩餘回合數。
@@ -81,6 +85,7 @@ public class Enemy : MonoBehaviour
     public int chargedCount = 0;
     // 結霜層數。
     public int frostStacks = 0;
+    private int pendingBurningTurnsForNextAttackHit = -1;
     private int pendingFrostStacksForNextDamage = -1;
     // 目前在棋盤上的座標。
     public Vector2Int gridPosition;
@@ -432,7 +437,7 @@ public class Enemy : MonoBehaviour
         // 只有最後一次蓄電被消耗掉時，才把這次傷害翻倍。
         if (chargedCount == 0 && dmg > 0)
         {
-            dmg = Mathf.CeilToInt(dmg * 2f);
+            dmg = Mathf.CeilToInt(dmg * ChargedFinalHitMultiplier);
         }
     }
 
@@ -472,7 +477,33 @@ public class Enemy : MonoBehaviour
     /// </summary>
     public int ApplyElementalAttack(ElementType e, int baseDamage, Player player)
     {
+        SnapshotBurningTurnsForNextAttackHit();
         return elements != null ? elements.ApplyElementalAttack(e, baseDamage, player) : baseDamage;
+    }
+
+    public void SnapshotBurningTurnsForNextAttackHit()
+    {
+        if (pendingBurningTurnsForNextAttackHit >= 0)
+        {
+            return;
+        }
+
+        pendingBurningTurnsForNextAttackHit = Mathf.Max(0, burningTurns);
+    }
+
+    public int ConsumeBurningTurnsForAttackHit()
+    {
+        int snapshot = pendingBurningTurnsForNextAttackHit >= 0
+            ? pendingBurningTurnsForNextAttackHit
+            : Mathf.Max(0, burningTurns);
+
+        pendingBurningTurnsForNextAttackHit = -1;
+        return snapshot;
+    }
+
+    public void ClearAttackHitSnapshots()
+    {
+        pendingBurningTurnsForNextAttackHit = -1;
     }
 
     public void SnapshotFrostStacksForNextDamage()
@@ -490,6 +521,11 @@ public class Enemy : MonoBehaviour
         int snapshot = pendingFrostStacksForNextDamage;
         pendingFrostStacksForNextDamage = -1;
         return snapshot;
+    }
+
+    public static int GetFrostDamageBonus(int stacks)
+    {
+        return Mathf.Max(0, stacks) * FrostDamagePerStack;
     }
 
     /// <summary>
@@ -516,8 +552,8 @@ public class Enemy : MonoBehaviour
     {
         if (burningTurns <= 0) return;
 
-        // 燃燒目前每次固定造成 3 點一般傷害。
-        TakeDamage(3);
+        // 燃燒目前每次固定造成一般傷害。
+        TakeDamage(BurningDamagePerTurn);
         burningTurns--;
         RaiseStatusChanged();
 

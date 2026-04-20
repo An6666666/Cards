@@ -15,6 +15,6 @@ MonoBehaviour:
   cardName: "\u5E1D\u9418"
   description: "\u6D88\u8017\u724C\u6642\uFF0C\u5C0D\u5168\u5834\u5996\u602A\u9020\u62104\u9EDE\u50B7\u5BB3\uFF0C\u4E26\u64CA\u90001\u683C\u3002Boss\u4E0D\u53D7\u64CA\u9000\u5F71\u97FF\u3002"
   cardImage: {fileID: 21300000, guid: a53b6043b6ab274489fc42fecd6b9026, type: 3}
-  shopPrice: 20
+  shopPrice: 50
   damageToAllEnemies: 4
   knockbackSteps: 1

@@ -10,6 +10,7 @@ using DG.Tweening;
 [RequireComponent(typeof(CardUseRouter))]
 [RequireComponent(typeof(CardRaycastController))]
 [RequireComponent(typeof(CardInfoTooltip))]
+[RequireComponent(typeof(CardScopeDisplay))]
 public class CardUI : MonoBehaviour
 {
     public enum DisplayContext
@@ -46,6 +47,7 @@ public class CardUI : MonoBehaviour
     private CardUseRouter useRouter;
     private CardRaycastController raycastController;
     private CardInfoTooltip infoTooltip;
+    private CardScopeDisplay scopeDisplay;
     public RectTransform RectTransform => RootRect;
     public Canvas Canvas { get => canvas; set => canvas = value; }
     public CanvasGroup CanvasGroup => canvasGroup;
@@ -53,6 +55,7 @@ public class CardUI : MonoBehaviour
     public LayoutElement LayoutElement => layoutElement;
     public Camera MainCamera => mainCamera;
     public CardInfoTooltip InfoTooltip => infoTooltip;
+    public CardScopeDisplay ScopeDisplay => scopeDisplay;
 
     public Vector2 OriginalAnchoredPosition { get; set; }
     public Vector3 OriginalLocalScale { get; private set; }
@@ -118,6 +121,7 @@ public class CardUI : MonoBehaviour
         animationController?.HandleCardDisabled();
         hoverEffect?.HandleCardDisabled();
         infoTooltip?.Hide();
+        scopeDisplay?.Hide();
     }
 
     private void OnDestroy()
@@ -125,6 +129,7 @@ public class CardUI : MonoBehaviour
         animationController?.HandleCardDestroyed();
         hoverEffect?.HandleCardDestroyed();
         infoTooltip?.Hide();
+        scopeDisplay?.Hide();
     }
 
     private void LateUpdate()
@@ -140,6 +145,7 @@ public class CardUI : MonoBehaviour
         useRouter = GetComponent<CardUseRouter>();
         raycastController = GetComponent<CardRaycastController>();
         infoTooltip = GetComponent<CardInfoTooltip>();
+        scopeDisplay = GetComponent<CardScopeDisplay>();
 
         hoverEffect.Initialize(this);
         dragHandler.Initialize(this, animationController, useRouter, raycastController, hoverEffect);
@@ -147,6 +153,7 @@ public class CardUI : MonoBehaviour
         useRouter.Initialize(this);
         raycastController.Initialize(this, animationController);
         infoTooltip?.Initialize(this);
+        scopeDisplay?.Initialize(this);
     }
 
     public void SetupCard(CardBase data)
@@ -155,6 +162,7 @@ public class CardUI : MonoBehaviour
         lastDisplayedCost = int.MinValue;
         if (cardImage != null && data != null && data.cardImage != null)
         cardImage.sprite = data.cardImage;
+        scopeDisplay?.SetCardData(data);
         RefreshDisplayedCostIfNeeded(force: true);
     }
 

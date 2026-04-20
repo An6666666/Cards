@@ -1,0 +1,18 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 51c6f2d8951d4b6ba4b5613df55bf2cc, type: 3}
+  m_Name: Relic_DaDiSuiPian
+  m_EditorClassIdentifier: 
+  cardName: "\u5927\u5730\u788E\u7247"
+  description: "\u68D8\u523A\u9677\u9631\u9020\u6210\u50B7\u5BB3\u6642\uFF0C\u984D\u5916\u70BA\u76EE\u6A19\u9644\u52A0\u6728\u5143\u7D20\u3002"
+  cardImage: {fileID: 21300000, guid: 9694a0cbeaf2b9142a32b1010bb936f7, type: 3}
+  shopPrice: 45

@@ -15,7 +15,7 @@ MonoBehaviour:
   cardName: "\u4E03\u661F\u528D"
   description: "\u4F7F\u7528\u6025\u6025\u5982\u5F8B\u4EE4\u7D2F\u7A4D1\u5C64\u661F\u529B\u3002\u6EFF5\u5C64\u6240\u6709\u6025\u6025\u5982\u5F8B\u4EE4\u50B7\u5BB3+1\u3002\u6548\u679C\u50C5\u5728\u7576\u524D\u6230\u9B25\u751F\u6548\u3002"
   cardImage: {fileID: 21300000, guid: bae6d8a1b4ebcc544b9831ae607e3f15, type: 3}
-  shopPrice: 30
+  shopPrice: 45
   stacksPerBonus: 5
   bonusDamagePerThreshold: 1
   currentStarPower: 3

@@ -1,8 +1,10 @@
+using System.Collections;
 using UnityEngine;
 
 public class EnemyCombat : MonoBehaviour
 {
     private Enemy enemy;
+    private Coroutine destroyAfterDeathRoutine;
 
     public void Init(Enemy owner)
     {
@@ -86,14 +88,24 @@ public class EnemyCombat : MonoBehaviour
     public void HandleEnemyTurnEnd()
     {
         if (enemy == null) return;
-        if (enemy.frostStacks <= 0) return;
-        enemy.SetFrostStacks(enemy.frostStacks - 1);
+
+        // Stack-based elemental debuffs naturally decay at the end of the enemy turn.
+        if (enemy.frostStacks > 0)
+        {
+            enemy.SetFrostStacks(enemy.frostStacks - 1);
+        }
+
+        if (enemy.chargedCount > 0)
+        {
+            enemy.SetChargedCount(enemy.chargedCount - 1);
+        }
     }
 
     public void Die()
     {
         if (enemy == null || enemy.IsDead) return;
         enemy.MarkDead();
+        enemy.SetForceHideIntent(true);
 
         Debug.Log(enemy.enemyName + " died!");
 
@@ -107,7 +119,33 @@ public class EnemyCombat : MonoBehaviour
 
         BattleEndSummaryStore.RegisterEnemyDefeated(enemy);
 
-        Destroy(enemy.gameObject, enemy.DeathDestroyDelay);
+        if (destroyAfterDeathRoutine != null)
+        {
+            StopCoroutine(destroyAfterDeathRoutine);
+        }
+        destroyAfterDeathRoutine = StartCoroutine(DestroyAfterDeathAnimationRoutine());
+    }
+
+    private IEnumerator DestroyAfterDeathAnimationRoutine()
+    {
+        if (enemy == null)
+        {
+            yield break;
+        }
+
+        if (enemy.Visual != null)
+        {
+            yield return enemy.Visual.WaitForDeathAnimationToFinish(enemy.DeathDestroyDelay);
+        }
+        else if (enemy.DeathDestroyDelay > 0f)
+        {
+            yield return new WaitForSeconds(enemy.DeathDestroyDelay);
+        }
+
+        if (enemy != null)
+        {
+            Destroy(enemy.gameObject);
+        }
     }
 
     private int ApplyFrostBonus(int dmg)
@@ -121,6 +159,6 @@ public class EnemyCombat : MonoBehaviour
             return dmg;
         }
 
-        return dmg + frostStacksForThisHit * 2;
+        return dmg + Enemy.GetFrostDamageBonus(frostStacksForThisHit);
     }
 }

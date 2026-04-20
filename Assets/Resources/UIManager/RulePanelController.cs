@@ -24,12 +24,12 @@ public class RulePanelController : MonoBehaviour
     {
         new() { Id = "Fire_Water", A = "Fire", B = "Water", Combination = "火 + 水", Title = "蒸發", Description = "火+水的蒸發反應，會讓後者使用的傷害增加1.5倍，並留下後者攻擊的元素。" },
         new() { Id = "Fire_Thunder", A = "Fire", B = "Thunder", Combination = "火 + 雷", Title = "超載", Description = "超載會對被攻擊的妖怪周圍的敵人，也造成0.5倍的傷害，被攻擊的妖怪會留下後者的元素。" },
-        new() { Id = "Fire_Wood", A = "Fire", B = "Wood", Combination = "火 + 木", Title = "燃燒", Description = "火+木會產生燃燒的效果，會殘留火元素，燃燒持續5回合，每次造成2點傷害。" },
+        new() { Id = "Fire_Wood", A = "Fire", B = "Wood", Combination = "火 + 木", Title = "燃燒", Description = "火+木會產生燃燒的效果，會殘留火元素，燃燒持續5回合，每次造成3點傷害。" },
         new() { Id = "Fire_Ice", A = "Fire", B = "Ice", Combination = "火 + 冰", Title = "融化", Description = "火+冰的融化反應，會讓後者使用的傷害增加1.5倍，被攻擊的妖怪會留下後者的元素。" },
         new() { Id = "Water_Thunder", A = "Water", B = "Thunder", Combination = "水 + 雷", Title = "導電", Description = "先使用水元素的特性讓鋪設好環境，再用雷元素造成導電的反應。" },
         new() { Id = "Water_Wood", A = "Water", B = "Wood", Combination = "水 + 木", Title = "生長", Description = "生長反應會在棋盤上生長出荊棘，荊棘會在玩家結束回合時，攻擊在荊棘格上的妖怪造成3點傷害。" },
         new() { Id = "Water_Ice", A = "Water", B = "Ice", Combination = "水 + 冰", Title = "冰凍", Description = "冰+水的冰凍反應，可以冰凍妖怪，讓妖怪無法移動和攻擊。" },
-        new() { Id = "Thunder_Wood", A = "Thunder", B = "Wood", Combination = "雷 + 木", Title = "雷擊", Description = "雷+木的雷擊反應，會讓接下來造成的傷害變成2倍。" },
+        new() { Id = "Thunder_Wood", A = "Thunder", B = "Wood", Combination = "雷 + 木", Title = "雷擊", Description = "雷+木的雷擊反應，會讓接下來造成的傷害變成2倍，且每回合會減少1層。" },
         new() { Id = "Thunder_Ice", A = "Thunder", B = "Ice", Combination = "雷 + 冰", Title = "超導", Description = "雷+冰的超導反應，會讓後攻擊的傷害增加6點。" },
         new() { Id = "Wood_Ice", A = "Wood", B = "Ice", Combination = "木 + 冰", Title = "結霜", Description = "冰+木的結霜反應，會讓接下來造成的傷害額外增加2點傷害，最多可以疊加6層，每玩家回合開始時會減少1層。" },
     };

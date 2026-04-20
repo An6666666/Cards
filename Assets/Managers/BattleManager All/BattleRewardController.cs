@@ -16,6 +16,7 @@ public class BattleRewardController
     private int defeatedEnemyCount;
     private int totalGoldReward;
     private RewardUI rewardUIInstance;
+    private bool victoryRewardsShown;
 
     public BattleRewardController(
         BattleManager battleManager,
@@ -45,8 +46,16 @@ public class BattleRewardController
 
     public void ShowVictoryRewards()
     {
+        if (victoryRewardsShown)
+        {
+            Debug.LogWarning("BattleRewardController: duplicate ShowVictoryRewards call ignored.");
+            return;
+        }
+
+        victoryRewardsShown = true;
         int goldReward = totalGoldReward;
         player.AddGold(goldReward);
+        BattleEndSummaryStore.RegisterGoldEarned(goldReward);
 
         List<CardBase> cardChoices = RunCardPoolSelector.GetRewardChoices(allCardPool, 3);
         List<RelicBase> relicChoices = BuildRelicRewardChoices();

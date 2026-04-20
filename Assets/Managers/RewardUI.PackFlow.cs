@@ -364,11 +364,12 @@ public partial class RewardUI
 
     private void OnCardSelected(CardBase card)
     {
-        if (packOpenState != PackOpenState.Choosing || card == null)
+        if (stageSelectionCommitted || packOpenState != PackOpenState.Choosing || card == null)
         {
             return;
         }
 
+        stageSelectionCommitted = true;
         SetRewardCardsInteractable(false);
         packOpenState = PackOpenState.Idle;
 

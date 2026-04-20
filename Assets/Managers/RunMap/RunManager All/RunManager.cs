@@ -454,7 +454,7 @@ public partial class RunManager : MonoBehaviour
     // 鋡急擛亙?臬?恬???鈭?
     public void HandleBattleVictory()
     {
-        if (activeNode == null)
+        if (activeNode == null || activeNode.IsCompleted)
             return;
 
         activeNode.MarkCompleted(); // 璅???暺???
@@ -492,7 +492,7 @@ public partial class RunManager : MonoBehaviour
     }
 
     // ?圈洛 / ?? / 鈭辣??嚗???啣???恍?
-    public void ReturnToRunSceneFromBattle()
+    public void ReturnToRunSceneFromBattle(bool suppressTitleSummary = false)
     {
         SyncPlayerRunState();   // ???拙振?桀????韏瑚?
 
@@ -502,6 +502,10 @@ public partial class RunManager : MonoBehaviour
             RunProgressPersistence.ClearSavedProgress();
             ResetRun();         // 憒? run 撌脩?摰?鈭?撠梁?仿???撘菜??
             activeNode = null;
+            if (suppressTitleSummary)
+            {
+                BattleEndSummaryStore.ClearLastSummary();
+            }
             sceneRouter.LoadDeathReturnScene();
             MapStateChanged?.Invoke();
             return;

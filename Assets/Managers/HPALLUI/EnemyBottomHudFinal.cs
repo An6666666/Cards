@@ -28,6 +28,7 @@ public class EnemyBottomHudFinal : MonoBehaviour
     [Header("Status Icons (optional) - if you don't assign, prefab default icon will be used")]
     [SerializeField] private Sprite burnIcon;
     [SerializeField] private Sprite frozenIcon;
+    [SerializeField] private Sprite immobilizedIcon;
     [SerializeField] private Sprite chargedIcon;
     [SerializeField] private Sprite frostIcon;
 
@@ -145,6 +146,7 @@ public class EnemyBottomHudFinal : MonoBehaviour
 
         if (enemy.burningTurns > 0) list.Add((burnIcon, enemy.burningTurns));
         if (enemy.frozenTurns > 0) list.Add((frozenIcon, enemy.frozenTurns));
+        if (enemy.immobilizedTurns > 0) list.Add((immobilizedIcon, enemy.immobilizedTurns));
         if (enemy.chargedCount > 0) list.Add((chargedIcon, enemy.chargedCount));
         if (enemy.frostStacks > 0) list.Add((frostIcon, enemy.frostStacks));
 

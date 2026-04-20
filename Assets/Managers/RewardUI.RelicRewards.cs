@@ -190,11 +190,12 @@ public partial class RewardUI
 
     private void ConfirmSelectedRelic()
     {
-        if (rewardStage != RewardStage.RelicReward || selectedRelicChoiceView == null)
+        if (stageSelectionCommitted || rewardStage != RewardStage.RelicReward || selectedRelicChoiceView == null)
         {
             return;
         }
 
+        stageSelectionCommitted = true;
         if (manager != null && manager.player != null && selectedRelicChoiceView.Relic != null)
         {
             manager.player.AcquireRelic(selectedRelicChoiceView.Relic);

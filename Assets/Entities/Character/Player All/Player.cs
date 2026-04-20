@@ -401,12 +401,15 @@ public class Player : MonoBehaviour
     {
         if (card == null || target == null || attemptedDamage <= 0)
         {
+            target?.ClearAttackHitSnapshots();
             return;
         }
 
+        AttackCardHitContext context = new AttackCardHitContext(target.ConsumeBurningTurnsForAttackHit());
+
         foreach (RelicBase relic in relics)
         {
-            relic?.OnAttackCardHitEnemy(this, card, target, attemptedDamage, hpDamage);
+            relic?.OnAttackCardHitEnemy(this, card, target, attemptedDamage, hpDamage, context);
         }
     }
 
@@ -431,6 +434,57 @@ public class Player : MonoBehaviour
         return bonusDamage;
     }
 
+    public float GetConductiveDamageMultiplier()
+    {
+        float multiplier = 0.5f;
+        foreach (RelicBase relic in relics)
+        {
+            if (relic == null)
+            {
+                continue;
+            }
+
+            if (relic.TryGetConductiveDamageMultiplier(this, out float relicMultiplier))
+            {
+                multiplier = Mathf.Max(multiplier, relicMultiplier);
+            }
+        }
+
+        return multiplier;
+    }
+
+    public bool TryGetGrowthTrapBonusElement(out ElementType element)
+    {
+        foreach (RelicBase relic in relics)
+        {
+            if (relic == null)
+            {
+                continue;
+            }
+
+            if (relic.TryGetGrowthTrapBonusElement(this, out element))
+            {
+                return true;
+            }
+        }
+
+        element = default;
+        return false;
+    }
+
+    public void NotifyFreezeReactionResolved(Enemy target, bool freezeApplied)
+    {
+        if (target == null)
+        {
+            return;
+        }
+
+        foreach (RelicBase relic in relics)
+        {
+            relic?.OnFreezeReactionResolved(this, target, freezeApplied);
+        }
+    }
+
     public bool HasRelic<T>() where T : RelicBase
     {
         for (int i = 0; i < relics.Count; i++)
@@ -442,6 +496,20 @@ public class Player : MonoBehaviour
         }
 
         return false;
+    }
+
+    public int GetRelicCount<T>() where T : RelicBase
+    {
+        int count = 0;
+        for (int i = 0; i < relics.Count; i++)
+        {
+            if (relics[i] is T)
+            {
+                count++;
+            }
+        }
+
+        return count;
     }
 
     public bool CanMoveToPosition(Vector2Int targetGridPos, bool allowOccupiedTileRelic = false)

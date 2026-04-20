@@ -90,6 +90,15 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   icon: {fileID: 6413065735973902284}
+  tooltipOffset: {x: 250, y: -150}
+  tooltipSortingOrder: 6000
+  matchParentCanvasSettings: 1
+  tooltipTemplate: {fileID: 0}
+  tooltipTemplatePath: CardVisual/CardTooltip
+  scopeOffset: {x: 250, y: -400}
+  scopeSortingOrder: 6000
+  scopeTemplate: {fileID: 0}
+  scopeTemplatePath: CardVisual/Scope
 --- !u!1 &8846216975690415625
 GameObject:
   m_ObjectHideFlags: 0
@@ -179,3 +188,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   icon: {fileID: 6884787383097443084}
+  tooltipOffset: {x: 0, y: 18}
+  tooltipSortingOrder: 6000
+  matchParentCanvasSettings: 1
+  tooltipTemplate: {fileID: 0}
+  tooltipTemplatePath: CardVisual/CardTooltip
+  scopeOffset: {x: 0, y: -112}
+  scopeSortingOrder: 6000
+  scopeTemplate: {fileID: 0}
+  scopeTemplatePath: CardVisual/Scope

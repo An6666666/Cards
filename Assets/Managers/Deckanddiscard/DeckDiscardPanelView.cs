@@ -88,10 +88,11 @@ public class DeckDiscardPanelView : MonoBehaviour
     {
         if (deckContent == null || cardItemPrefab == null) return;
         ReturnAll(deckContent);
-        for (int i = 0; i < deck.Count; i++)
+        List<CardBase> orderedDeck = CardDisplaySortUtility.BuildOrderedCards(deck);
+        for (int i = 0; i < orderedDeck.Count; i++)
         {
             var item = GetItem(deckContent);
-            item.SetSprite(ResolveCardSprite(deck[i]));
+            item.Bind(orderedDeck[i], ResolveCardSprite(orderedDeck[i]));
         }
         var sr = deckContent.GetComponentInParent<ScrollRect>();
         if (sr != null) sr.normalizedPosition = new Vector2(0, 1);
@@ -102,10 +103,11 @@ public class DeckDiscardPanelView : MonoBehaviour
     {
         if (discardContent == null || cardItemPrefab == null) return;
         ReturnAll(discardContent);
-        for (int i = 0; i < discard.Count; i++)
+        List<CardBase> orderedDiscard = CardDisplaySortUtility.BuildOrderedCards(discard);
+        for (int i = 0; i < orderedDiscard.Count; i++)
         {
             var item = GetItem(discardContent);
-            item.SetSprite(ResolveCardSprite(discard[i]));
+            item.Bind(orderedDiscard[i], ResolveCardSprite(orderedDiscard[i]));
         }
         var sr = discardContent.GetComponentInParent<ScrollRect>();
         if (sr != null) sr.normalizedPosition = new Vector2(0, 1);

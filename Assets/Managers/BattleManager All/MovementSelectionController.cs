@@ -150,10 +150,13 @@ public class MovementSelectionController
         PlayMovementCardAnimation(currentMovementCard);
         currentMovementCard.ExecuteOnPosition(player, tile.gridPosition);
 
+        Move_YiDong yiDongCard = currentMovementCard as Move_YiDong;
         int finalCost = currentMovementCard.cost + player.GetCardCostModifier(currentMovementCard)
                         + player.buffs.movementCostModify;
         finalCost = Mathf.Max(0, finalCost);
         player.UseEnergy(finalCost);
+
+        yiDongCard?.MarkUsedOnce();
 
         if (player.Hand.Contains(currentMovementCard))
         {
