@@ -162,7 +162,7 @@ public class BattleEndSummaryController : MonoBehaviour
             return;
         }
 
-        SceneManager.LoadScene(titleSceneName);
+        SceneTransitionLoader.LoadScene(titleSceneName);
     }
 }
 

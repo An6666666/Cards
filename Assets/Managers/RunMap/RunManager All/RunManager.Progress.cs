@@ -72,7 +72,7 @@ public partial class RunManager
 
         if (!string.IsNullOrWhiteSpace(sceneName))
         {
-            UnityEngine.SceneManagement.SceneManager.LoadScene(sceneName);
+            SceneTransitionLoader.LoadScene(sceneName);
         }
     }
 

@@ -16,7 +16,7 @@ MonoBehaviour:
   title: "\u9B3C\u5546\u4EBA"
   description: "\u9047\u5230\u9B3C\u5546\u4EBA"
   options:
-  - optionLabel: "\u91D1\u8EAB(\u7372\u5F97\u91D1\u795E(\u6280\u80FD\u724C)\uFF0C\u62637\u91D1\u5E63)"
+  - optionLabel: "\u91D1\u8EAB(\u7372\u5F97\u91D1\u8EAB(\u6280\u80FD\u724C)\uFF0C\u62637\u91D1\u5E63)"
     goldDelta: -7
     hpDelta: 0
     rewardCards:

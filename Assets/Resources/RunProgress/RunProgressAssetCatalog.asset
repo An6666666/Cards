@@ -78,8 +78,11 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 9d0d809868f7c4c4c8e38ffad7b36899, type: 2}
   - {fileID: 11400000, guid: f64b7419d3d824a42a133bb4a9651876, type: 2}
   relics:
+  - {fileID: 11400000, guid: d1c4e7f9a2b3456cab89de0123456789, type: 2}
+  - {fileID: 11400000, guid: 3b82f9785ad1484eb7f2ad3f0c1d924f, type: 2}
   - {fileID: 11400000, guid: 6be56287730f46f885afca1194dfe573, type: 2}
   - {fileID: 11400000, guid: 2face474bc4242858dc154c83a01bc57, type: 2}
+  - {fileID: 11400000, guid: 037138c5036143bcba557d7848337d9f, type: 2}
   - {fileID: 11400000, guid: 2f4d9c8aa3cd48638df5f9f64f0ae456, type: 2}
   - {fileID: 11400000, guid: 9730afc5f55f4ece8dad5818197be5f0, type: 2}
   - {fileID: 11400000, guid: c3b184613bd24986a0ee4ad50d881abf, type: 2}
@@ -87,8 +90,8 @@ MonoBehaviour:
   - {fileID: 11400000, guid: fbbfe922437d4655ad22c91d11ad89e5, type: 2}
   - {fileID: 11400000, guid: 8f1d2e3c4b5a69788776655443322110, type: 2}
   - {fileID: 11400000, guid: c531e4824d7f43ec89f787bb3eb779bb, type: 2}
+  - {fileID: 11400000, guid: 7e3a1d4f9c6b4a8fa28eb17d5420c6de, type: 2}
   - {fileID: 11400000, guid: a70ffd9f5e2b46638398127f5954915a, type: 2}
-  - {fileID: 11400000, guid: 3b82f9785ad1484eb7f2ad3f0c1d924f, type: 2}
   encounters:
   - {fileID: 11400000, guid: 7aefc34fcb0fd6548bdfba85f683b517, type: 2}
   - {fileID: 11400000, guid: f04356927be3c8b4985b6aae08aa2269, type: 2}
