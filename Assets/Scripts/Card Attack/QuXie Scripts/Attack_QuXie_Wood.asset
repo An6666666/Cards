@@ -27,6 +27,18 @@ MonoBehaviour:
   - {x: 1, y: -2}
   - {x: -1, y: 2}
   - {x: 1, y: 2}
+  - {x: 4, y: 0}
+  - {x: -4, y: 0}
+  - {x: 0, y: 4}
+  - {x: 0, y: -4}
+  - {x: 2, y: 4}
+  - {x: 2, y: -4}
+  - {x: -2, y: 4}
+  - {x: -2, y: -4}
+  - {x: 3, y: 2}
+  - {x: 3, y: -2}
+  - {x: -3, y: 2}
+  - {x: -3, y: -2}
   damage: 4
   hitEffectPrefab: {fileID: 4707066954145857473, guid: 1ff751b8832b3da42af3757d9d065a97, type: 3}
   elementType: 4

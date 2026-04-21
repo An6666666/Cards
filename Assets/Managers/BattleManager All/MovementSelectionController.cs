@@ -161,6 +161,7 @@ public class MovementSelectionController
         if (player.Hand.Contains(currentMovementCard))
         {
             player.Hand.Remove(currentMovementCard);
+            player.ClearCardCostModifier(currentMovementCard);
 
             if (!battleManager.IsGuaranteedMovementCard(currentMovementCard))
             {

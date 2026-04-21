@@ -722,7 +722,7 @@ MonoBehaviour:
   playOnDisabledClick: 0
   hoverCooldown: 0.05
   clickClip: {fileID: 8300000, guid: c1298fefee5109e4bb3d7089089d2e12, type: 3}
-  hoverClip: {fileID: 8300000, guid: a2c5e5fa2a289b34093c1650b65ec131, type: 3}
+  hoverClip: {fileID: 8300000, guid: 070e458ca200d5d45a2dfba6bfe81c34, type: 3}
   disabledClickClip: {fileID: 0}
 --- !u!1 &5392751586935578201
 GameObject:

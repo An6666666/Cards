@@ -93,7 +93,7 @@ public class PlayerStats : MonoBehaviour
         int incoming = dmg;
         if (buffController.weak > 0)
         {
-            incoming += 2;
+            incoming += PlayerBuffController.WeakDamageTakenIncrease;
         }
 
         int reduced = incoming - buffController.meleeDamageReduce;
@@ -131,7 +131,7 @@ public class PlayerStats : MonoBehaviour
         int incoming = dmg;
         if (buffController.weak > 0)
         {
-            incoming += 2;
+            incoming += PlayerBuffController.WeakDamageTakenIncrease;
         }
 
         currentHP -= incoming;

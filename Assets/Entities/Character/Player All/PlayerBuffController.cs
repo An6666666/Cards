@@ -3,6 +3,9 @@ using UnityEngine;
 
 public class PlayerBuffController : MonoBehaviour
 {
+    public const int BleedDamagePerTurn = 3;
+    public const int WeakDamageTakenIncrease = 2;
+
     private enum NegativeEffectType
     {
         Weak,
@@ -115,7 +118,7 @@ public class PlayerBuffController : MonoBehaviour
 
         if (owner != null && bleed > 0)
         {
-            owner.TakeStatusDamage(3);
+            owner.TakeStatusDamage(BleedDamagePerTurn);
         }
         drawBlockedThisTurn = false;
     }

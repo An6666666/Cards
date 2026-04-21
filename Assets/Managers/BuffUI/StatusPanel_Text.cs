@@ -98,9 +98,9 @@ public class StatusPanel_Text : MonoBehaviour
         if (player != null && buffs != null)
         {
             // ====== Debuffs (negative) ======
-            AddIntEffect(negative, "虛弱", buffs.weak);
-            AddIntEffect(negative, "流血", buffs.bleed);
-            AddIntEffect(negative, "禁錮", buffs.imprison);
+            AddPlayerWeakEffect(negative, buffs.weak);
+            AddPlayerBleedEffect(negative, buffs.bleed);
+            AddPlayerImprisonEffect(negative, buffs.imprison);
 
             // 這個在你 Inspector 是 int（0/1 或次數），用 int 顯示
             AddIntEffect(negative, "回合結束隨機棄牌", buffs.needRandomDiscardAtEnd);
@@ -294,6 +294,24 @@ public class StatusPanel_Text : MonoBehaviour
     {
         if (!showZeroEffects && value == 0) return;
         list.Add($"{name} {value}");
+    }
+
+    private void AddPlayerWeakEffect(List<string> list, int turns)
+    {
+        if (!showZeroEffects && turns == 0) return;
+        list.Add($"虛弱 {turns}回合 受到傷害增加{PlayerBuffController.WeakDamageTakenIncrease}");
+    }
+
+    private void AddPlayerBleedEffect(List<string> list, int turns)
+    {
+        if (!showZeroEffects && turns == 0) return;
+        list.Add($"流血 {turns}回合 傷害{PlayerBuffController.BleedDamagePerTurn}");
+    }
+
+    private void AddPlayerImprisonEffect(List<string> list, int turns)
+    {
+        if (!showZeroEffects && turns == 0) return;
+        list.Add($"禁錮 {turns}回合");
     }
 
     private void AddBurningEffect(List<string> list, int turns)

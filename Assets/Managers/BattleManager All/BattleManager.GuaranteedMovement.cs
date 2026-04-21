@@ -23,6 +23,7 @@ public partial class BattleManager
             CardBase card = player.Hand[i];
             if (card is Move_YiDong && !ReferenceEquals(card, movementCard))
             {
+                player.ClearCardCostModifier(card);
                 player.Hand.RemoveAt(i);
                 removedDuplicateCount++;
             }
@@ -44,8 +45,14 @@ public partial class BattleManager
         Move_YiDong movementCard = guaranteedMovementCardInstance;
         if (movementCard != null)
         {
+            player.ClearCardCostModifier(movementCard);
             player.Hand.Remove(movementCard);
             player.discardPile.Remove(movementCard);
+        }
+
+        for (int i = 0; i < player.Hand.Count; i++)
+        {
+            player.ClearCardCostModifier(player.Hand[i]);
         }
 
         player.discardPile.AddRange(player.Hand);

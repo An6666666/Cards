@@ -166,6 +166,11 @@ public class TutorialBattleController : MonoBehaviour
         if (step == null || step.fixedHand == null || step.fixedHand.Count == 0)
             return false;
 
+        for (int i = 0; i < player.Hand.Count; i++)
+        {
+            player.ClearCardCostModifier(player.Hand[i]);
+        }
+
         player.Hand.Clear();
         foreach (CardBase card in step.fixedHand)
         {
