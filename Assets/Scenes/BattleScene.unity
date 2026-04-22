@@ -2706,7 +2706,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &493039067
 RectTransform:
   m_ObjectHideFlags: 0
@@ -9277,7 +9277,7 @@ MonoBehaviour:
   playerTurnTopSprite: {fileID: 0}
   enemyTurnTopSprite: {fileID: 0}
   selectStartTileTopSprite: {fileID: 0}
-  phaseHintDuration: 2
+  phaseHintDuration: 1
   phaseHintFadeInDuration: 0.2
   phaseHintFadeOutDuration: 0.25
   enemySpawnConfigs:
