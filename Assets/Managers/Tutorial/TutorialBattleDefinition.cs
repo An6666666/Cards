@@ -86,6 +86,7 @@ public class TutorialBattleStep
     [Header("Reaction Visual (Optional)")]
     public Sprite reactionImage;
     public VideoClip reactionVideo;
+    [Min(0f)] public float reactionVisualMinimumDisplaySeconds = 0f;
 }
 
 [System.Serializable]

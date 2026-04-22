@@ -12,6 +12,11 @@ using UnityEngine.SceneManagement;
 /// </summary>
 public class GuideNPCPresenter : MonoBehaviour
 {
+    private const string RuntimeReactionVisualRootName = "GuideReactionVisualRoot";
+    private const string RuntimeReactionImageName = "GuideReactionImage";
+    private static readonly Vector2 RuntimeReactionImageSize = new Vector2(1100f, 620f);
+    private static readonly Vector2 RuntimeReactionImageOffset = new Vector2(0f, 130f);
+
     private enum InitialVisibilityMode
     {
         KeepCurrent = 0,
@@ -42,6 +47,7 @@ public class GuideNPCPresenter : MonoBehaviour
     private DialogueBubbleUI subscribedDialogueUI;
     private Graphic[] selfGraphics;
     private float[] selfGraphicBaseAlphas;
+    private RectTransform runtimeReactionVisualRoot;
     private bool isHiding;
     private bool selfGraphicsVisible = true;
 
@@ -134,10 +140,21 @@ public class GuideNPCPresenter : MonoBehaviour
     }
     public void ShowReactionVisual(Sprite image, VideoClip video)
     {
+        ResolveSceneReferencesIfNeeded();
+        ResolveReactionVisualReferencesIfNeeded();
+
+        bool hasImage = image != null;
         if (reactionImageView != null)
         {
             reactionImageView.sprite = image;
-            reactionImageView.enabled = image != null;
+            reactionImageView.preserveAspect = true;
+            reactionImageView.raycastTarget = false;
+            reactionImageView.enabled = hasImage;
+        }
+
+        if (runtimeReactionVisualRoot != null)
+        {
+            runtimeReactionVisualRoot.gameObject.SetActive(hasImage);
         }
 
         if (reactionVideoPlayer != null)
@@ -293,6 +310,7 @@ public class GuideNPCPresenter : MonoBehaviour
         CacheSelfGraphicsIfNeeded();
         DisableSelfGraphicRaycasts();
         ResolveSceneReferencesIfNeeded();
+        HideReactionVisualImmediate();
         ApplyInitialVisibility();
     }
     private void OnEnable()
@@ -304,6 +322,7 @@ public class GuideNPCPresenter : MonoBehaviour
         UnsubscribeDialogueEvents();
         KillDelayedHideTween();
         KillVisibilityTween();
+        HideReactionVisualImmediate();
     }
     private void OnDialogueLinesFinished()
     {
@@ -568,6 +587,124 @@ public class GuideNPCPresenter : MonoBehaviour
         }
         SubscribeDialogueEvents();
     }
+
+    private void ResolveReactionVisualReferencesIfNeeded()
+    {
+        if (reactionImageView != null)
+            return;
+
+        Canvas rootCanvas = FindBestReactionVisualCanvas();
+        if (rootCanvas == null)
+            return;
+
+        Transform existingRoot = rootCanvas.transform.Find(RuntimeReactionVisualRootName);
+        if (existingRoot != null)
+        {
+            runtimeReactionVisualRoot = existingRoot as RectTransform;
+            if (runtimeReactionVisualRoot != null)
+            {
+                Transform existingImage = runtimeReactionVisualRoot.Find(RuntimeReactionImageName);
+                if (existingImage != null)
+                {
+                    reactionImageView = existingImage.GetComponent<Image>();
+                    if (reactionImageView != null)
+                    {
+                        reactionImageView.preserveAspect = true;
+                        reactionImageView.raycastTarget = false;
+                        return;
+                    }
+                }
+            }
+        }
+
+        GameObject rootObject = new GameObject(RuntimeReactionVisualRootName, typeof(RectTransform));
+        runtimeReactionVisualRoot = rootObject.GetComponent<RectTransform>();
+        runtimeReactionVisualRoot.SetParent(rootCanvas.transform, false);
+        runtimeReactionVisualRoot.anchorMin = Vector2.zero;
+        runtimeReactionVisualRoot.anchorMax = Vector2.one;
+        runtimeReactionVisualRoot.offsetMin = Vector2.zero;
+        runtimeReactionVisualRoot.offsetMax = Vector2.zero;
+        runtimeReactionVisualRoot.SetAsLastSibling();
+
+        GameObject imageObject = new GameObject(RuntimeReactionImageName, typeof(RectTransform), typeof(Image));
+        RectTransform imageRect = imageObject.GetComponent<RectTransform>();
+        imageRect.SetParent(runtimeReactionVisualRoot, false);
+        imageRect.anchorMin = new Vector2(0.5f, 0.5f);
+        imageRect.anchorMax = new Vector2(0.5f, 0.5f);
+        imageRect.anchoredPosition = RuntimeReactionImageOffset;
+        imageRect.sizeDelta = RuntimeReactionImageSize;
+
+        reactionImageView = imageObject.GetComponent<Image>();
+        reactionImageView.preserveAspect = true;
+        reactionImageView.raycastTarget = false;
+        reactionImageView.enabled = false;
+
+        runtimeReactionVisualRoot.gameObject.SetActive(false);
+    }
+
+    private Canvas FindBestReactionVisualCanvas()
+    {
+        if (canvasGroup != null)
+        {
+            Canvas groupCanvas = canvasGroup.GetComponentInParent<Canvas>(true);
+            if (groupCanvas != null)
+                return groupCanvas.rootCanvas != null ? groupCanvas.rootCanvas : groupCanvas;
+        }
+
+        if (dialogueUI != null)
+        {
+            Canvas dialogueCanvas = dialogueUI.GetComponentInParent<Canvas>(true);
+            if (dialogueCanvas != null)
+                return dialogueCanvas.rootCanvas != null ? dialogueCanvas.rootCanvas : dialogueCanvas;
+        }
+
+        Canvas[] canvases = FindObjectsOfType<Canvas>(true);
+        Scene currentScene = gameObject.scene;
+        Canvas fallback = null;
+        for (int i = 0; i < canvases.Length; i++)
+        {
+            Canvas candidate = canvases[i];
+            if (candidate == null)
+                continue;
+
+            Canvas rootCandidate = candidate.rootCanvas != null ? candidate.rootCanvas : candidate;
+            if (fallback == null)
+                fallback = rootCandidate;
+
+            if (!rootCandidate.isRootCanvas)
+                continue;
+
+            if (rootCandidate.gameObject.scene != currentScene)
+                continue;
+
+            return rootCandidate;
+        }
+
+        return fallback;
+    }
+
+    private void HideReactionVisualImmediate()
+    {
+        if (reactionImageView != null)
+        {
+            reactionImageView.enabled = false;
+        }
+
+        if (runtimeReactionVisualRoot != null)
+        {
+            runtimeReactionVisualRoot.gameObject.SetActive(false);
+        }
+
+        if (reactionVideoPlayer != null)
+        {
+            reactionVideoPlayer.Stop();
+            if (reactionVideoPlayer.gameObject.activeSelf)
+            {
+                reactionVideoPlayer.gameObject.SetActive(false);
+            }
+        }
+    }
+
     private DialogueBubbleUI FindBestDialogueUI()
     {
         dialogueUiCandidates.Clear();

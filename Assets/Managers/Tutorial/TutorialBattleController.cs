@@ -6,7 +6,8 @@ public class TutorialBattleController : MonoBehaviour
 {
     private static readonly Dictionary<string, string[]> LocalDialogueByKey = new Dictionary<string, string[]>
     {
-        { "FR", new[] { "我會教導你所有的元素反應，開始吧", "這是急急如律令火和急急如律令木，試試吧，拖拽到妖怪身上使用" } },
+        { "UI", new[] { "這是戰鬥的畫面介紹" } },
+        { "FR", new[] { "接下來我會教導你所有的元素反應，開始吧", "這是急急如律令火和急急如律令木，試試吧，拖拽到妖怪身上使用" } },
         { "Burn", new[] { "滑鼠移至受到攻擊的妖怪上，可以看到妖怪的狀態", "火+木會產生燃燒的效果，會殘留火元素，燃燒持續5回合，每次造成3點傷害", "妖怪在燃燒狀態下，受到水元素或冰元素傷害，會因此被消除，試試吧" } },
         { "Burntwo", new[] { "滑鼠移至受到攻擊的妖怪上看看，燃燒已經被移除了，妖怪身上則會只保留水元素", "做的好，接下來是蒸發反應", "這是急急如律令火和急急如律令水，試試吧，拖拽到妖怪身上使用" } },
         { "Evaporation", new[] { "火+水的蒸發反應，會讓後者使用的傷害增加1.5倍", "並留下後者攻擊的元素", "接下來是超載反應", "這是急急如律令雷、急急如律令火" } },
@@ -39,8 +40,14 @@ public class TutorialBattleController : MonoBehaviour
     private bool stepCompleted;
     private bool waitingForOpeningDialogue;
     private bool waitingForReactionDialogue;
+    private bool battleStartSequenceInProgress;
+    private bool hasPlayedOpeningDialogue;
+    private bool waitingForReactionVisualDuration;
     private bool hasTriggeredTutorialExit;
     private bool hasShownInitialPlayerTurnPhaseHint;
+    private Coroutine reactionVisualDelayCoroutine;
+    private TutorialBattleStep pendingAdvanceStep;
+    private bool pendingAdvanceStartsPlayerTurn;
     private bool runtimeEnabled;// 執行時開關：同一場景中動態決定是否啟用教學流程
 
     public bool IsActive =>
@@ -71,8 +78,12 @@ public class TutorialBattleController : MonoBehaviour
         stepCompleted = false;
         waitingForOpeningDialogue = false;
         waitingForReactionDialogue = false;
+        battleStartSequenceInProgress = false;
+        hasPlayedOpeningDialogue = false;
+        waitingForReactionVisualDuration = false;
         hasTriggeredTutorialExit = false;
         hasShownInitialPlayerTurnPhaseHint = false;
+        CancelPendingStepAdvance();
         // 每次進入新戰鬥都重置步驟狀態，避免沿用上一場教學進度
         UpdateGuideNpcVisibility();
     }
@@ -101,6 +112,7 @@ public class TutorialBattleController : MonoBehaviour
             return;
         }
 
+        guidePresenter.ShowReactionVisual(null, null);
         guidePresenter.Hide();
     }
 
@@ -116,22 +128,32 @@ public class TutorialBattleController : MonoBehaviour
     private void OnDisable()
     {
         GameEvents.CardPlayedWithContext -= HandleCardPlayed;
+        CancelPendingStepAdvance();
+        guidePresenter?.ShowReactionVisual(null, null);
         if (guidePresenter != null)
         {
             guidePresenter.DialogueLinesFinished -= HandleGuideDialogueFinished;
         }
     }
 
-    public bool IsWaitingForOpeningDialogue => waitingForOpeningDialogue;
+    public bool IsWaitingForBattleStartSequence => battleStartSequenceInProgress || waitingForOpeningDialogue;
 
     private void HandleGuideDialogueFinished()
     {
+        bool shouldAdvanceStep = waitingForReactionDialogue;
         waitingForOpeningDialogue = false;
-        if (!waitingForReactionDialogue)
+        waitingForReactionDialogue = false;
+
+        if (shouldAdvanceStep)
+        {
+            TryFinalizeCompletedStepAdvance();
+            return;
+        }
+
+        if (!battleStartSequenceInProgress)
             return;
 
-        waitingForReactionDialogue = false;
-        AdvanceStep();
+        ContinueBattleStartSequence();
     }
 
     public bool TryGetPlayerStartPosition(out Vector2Int position)
@@ -265,7 +287,8 @@ public class TutorialBattleController : MonoBehaviour
             return;
 
         stepCompleted = false;
-        TryPlayOpeningDialogue();
+        battleStartSequenceInProgress = true;
+        ContinueBattleStartSequence();
     }
 
     private void TryPlayOpeningDialogue()
@@ -462,8 +485,17 @@ public class TutorialBattleController : MonoBehaviour
 
     private void CompleteStep(TutorialBattleStep step)
     {
+        CompleteStep(step, false);
+    }
+
+    private void CompleteStep(TutorialBattleStep step, bool blockBattleStartUntilAdvance)
+    {
+        CancelPendingStepAdvance();
         stepCompleted = true;
         waitingForReactionDialogue = false;
+        waitingForReactionVisualDuration = false;
+        pendingAdvanceStep = step;
+        pendingAdvanceStartsPlayerTurn = !blockBattleStartUntilAdvance;
         bool playedReactionDialogue = false;
         if (guidePresenter != null)
         {
@@ -474,21 +506,71 @@ public class TutorialBattleController : MonoBehaviour
 
             guidePresenter.ShowReactionVisual(step.reactionImage, step.reactionVideo);
         }
+
+        if (step != null &&
+            step.reactionVisualMinimumDisplaySeconds > 0f &&
+            (step.reactionImage != null || step.reactionVideo != null))
+        {
+            waitingForReactionVisualDuration = true;
+            reactionVisualDelayCoroutine = StartCoroutine(
+                WaitForReactionVisualMinimumDisplayDuration(step, step.reactionVisualMinimumDisplaySeconds));
+        }
+
         if (playedReactionDialogue)
         {
             waitingForReactionDialogue = true;
+            if (blockBattleStartUntilAdvance)
+            {
+                waitingForOpeningDialogue = true;
+            }
             return;
         }
-        AdvanceStep();
+        TryFinalizeCompletedStepAdvance();
     }
 
-    private void AdvanceStep()
+    private void ContinueBattleStartSequence()
     {
+        while (battleStartSequenceInProgress && IsActive)
+        {
+            TutorialBattleStep step = GetCurrentStep();
+            if (step == null)
+            {
+                battleStartSequenceInProgress = false;
+                return;
+            }
+
+            if (step.requireElementReaction)
+            {
+                if (!hasPlayedOpeningDialogue)
+                {
+                    hasPlayedOpeningDialogue = true;
+                    TryPlayOpeningDialogue();
+                    if (waitingForOpeningDialogue)
+                        return;
+                }
+
+                battleStartSequenceInProgress = false;
+                return;
+            }
+
+            CompleteStep(step, true);
+            if (waitingForOpeningDialogue || waitingForReactionDialogue || waitingForReactionVisualDuration)
+                return;
+        }
+
+        battleStartSequenceInProgress = false;
+    }
+
+    private void AdvanceStep(bool startPlayerTurn)
+    {
+        CancelPendingStepAdvance();
+        guidePresenter?.ShowReactionVisual(null, null);
         currentStepIndex++;
         stepCompleted = false;
 
         if (tutorialDefinition == null || currentStepIndex >= tutorialDefinition.StepCount)
         {
+            battleStartSequenceInProgress = false;
             hasCompletedTutorial = true;
             if (battleManager != null)
             {
@@ -503,11 +585,63 @@ public class TutorialBattleController : MonoBehaviour
             SpawnEnemiesForCurrentStep();
         }
 
+        if (battleStartSequenceInProgress)
+        {
+            ContinueBattleStartSequence();
+            return;
+        }
+
+        if (!startPlayerTurn)
+            return;
+
         if (battleManager != null)
         {
             battleManager.DiscardAllHand();
             battleManager.StateMachine.ChangeState(new PlayerTurnState(battleManager));
         }
+    }
+
+    private IEnumerator WaitForReactionVisualMinimumDisplayDuration(TutorialBattleStep step, float durationSeconds)
+    {
+        yield return new WaitForSeconds(durationSeconds);
+
+        reactionVisualDelayCoroutine = null;
+        if (pendingAdvanceStep != step)
+            yield break;
+
+        waitingForReactionVisualDuration = false;
+        TryFinalizeCompletedStepAdvance();
+    }
+
+    private void TryFinalizeCompletedStepAdvance()
+    {
+        if (pendingAdvanceStep == null)
+            return;
+
+        if (waitingForReactionDialogue || waitingForReactionVisualDuration)
+            return;
+
+        if (!IsActive || !stepCompleted || GetCurrentStep() != pendingAdvanceStep)
+        {
+            CancelPendingStepAdvance();
+            return;
+        }
+
+        bool startPlayerTurn = pendingAdvanceStartsPlayerTurn;
+        AdvanceStep(startPlayerTurn);
+    }
+
+    private void CancelPendingStepAdvance()
+    {
+        if (reactionVisualDelayCoroutine != null)
+        {
+            StopCoroutine(reactionVisualDelayCoroutine);
+            reactionVisualDelayCoroutine = null;
+        }
+
+        waitingForReactionVisualDuration = false;
+        pendingAdvanceStep = null;
+        pendingAdvanceStartsPlayerTurn = false;
     }
 
     private TutorialBattleStep GetCurrentStep()

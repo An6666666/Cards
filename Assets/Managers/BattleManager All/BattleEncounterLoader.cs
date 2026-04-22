@@ -11,7 +11,7 @@ public class BattleEncounterLoader
     // 開場時等待妖怪進場動畫的最長秒數，避免動畫狀態異常時卡住流程。
     private const float InitialEnemyEntranceWaitCapSeconds = 1.0f;
     // 顯示「選擇落點回合」提示時的停留秒數。
-    private const float SelectStartTileHintDurationSeconds = 0.2f;
+    private const float SelectStartTileHintDurationSeconds = 1.0f;
 
     // 戰鬥主控制器。
     private readonly BattleManager battleManager;
@@ -147,7 +147,7 @@ public class BattleEncounterLoader
         battleManager.SetEndTurnButtonInteractable(false);
         tutorialController?.HandleBattleStarted();
 
-        while (tutorialController != null && tutorialController.IsWaitingForOpeningDialogue)
+        while (tutorialController != null && tutorialController.IsWaitingForBattleStartSequence)
         {
             yield return null;
         }
