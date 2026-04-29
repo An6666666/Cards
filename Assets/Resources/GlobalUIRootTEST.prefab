@@ -1622,6 +1622,7 @@ MonoBehaviour:
   settingsScrollRect: {fileID: 1353340113867309685}
   closeButton: {fileID: 4485328027702533135}
   quitButton: {fileID: 0}
+  titleSceneName: TitleScene
 --- !u!223 &8490332127738633369
 Canvas:
   m_ObjectHideFlags: 0

@@ -15,6 +15,7 @@ public class PlayerUIStateBroadcaster : MonoBehaviour
     private int _lastDeck = int.MinValue;
     private int _lastDiscard = int.MinValue;
     private int _lastHand = int.MinValue;
+    private int _lastExhaust = int.MinValue;
     private int _lastEnergy = int.MinValue;
     private int _lastMaxEnergy = int.MinValue;
     private float _timer;
@@ -65,12 +66,14 @@ public class PlayerUIStateBroadcaster : MonoBehaviour
         var deck = player.deck?.Count ?? 0;
         var discard = player.discardPile?.Count ?? 0;
         var hand = player.Hand?.Count ?? 0;
+        var exhaust = player.exhaustPile?.Count ?? 0;
 
-        if (deck == _lastDeck && discard == _lastDiscard && hand == _lastHand) return;
+        if (deck == _lastDeck && discard == _lastDiscard && hand == _lastHand && exhaust == _lastExhaust) return;
 
         _lastDeck = deck;
         _lastDiscard = discard;
         _lastHand = hand;
+        _lastExhaust = exhaust;
         UIEventBus.RaiseDeckState(new DeckSnapshot(player));
     }
 
@@ -88,7 +91,7 @@ public class PlayerUIStateBroadcaster : MonoBehaviour
 
     private void ResetCache()
     {
-        _lastDeck = _lastDiscard = _lastHand = int.MinValue;
+        _lastDeck = _lastDiscard = _lastHand = _lastExhaust = int.MinValue;
         _lastEnergy = _lastMaxEnergy = int.MinValue;
     }
 }

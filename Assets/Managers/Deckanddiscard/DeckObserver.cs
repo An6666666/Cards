@@ -12,7 +12,10 @@ public class DeckObserver : MonoBehaviour
         if (player != null)
         {
             UIEventBus.RaiseDeckState(new DeckSnapshot(player));
+            return;
         }
+
+        DeckUIBus.RefreshAll(RunManager.Instance != null ? RunManager.Instance.CurrentRunSnapshot : null);
     }
 
     private void OnDisable()
@@ -33,6 +36,9 @@ public class DeckObserver : MonoBehaviour
         if (player != null)
         {
             UIEventBus.RaiseDeckState(new DeckSnapshot(player));
+            return;
         }
+
+        DeckUIBus.RefreshAll(RunManager.Instance != null ? RunManager.Instance.CurrentRunSnapshot : null);
     }
 }

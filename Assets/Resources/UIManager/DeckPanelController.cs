@@ -3,9 +3,16 @@ using UnityEngine.UI;
 
 public class DeckPanelController : MonoBehaviour
 {
+    private static readonly string[] AllDeckCounterButtonNames =
+    {
+        "AllDeck Counter",
+        "AllDeck CounterButton"
+    };
+
     [Header("Panels")]
     [SerializeField] private GameObject deckPanel;
     [SerializeField] private GameObject discardPanel;
+    [SerializeField] private GameObject allDeckPanel;
 
     [Header("Data Source")]
     [SerializeField] private DeckObserver deckObserver;
@@ -13,10 +20,13 @@ public class DeckPanelController : MonoBehaviour
     [Header("Counter Buttons")]
     [SerializeField] private Button deckCounterButton;
     [SerializeField] private Button discardCounterButton;
+    [SerializeField] private Button allDeckCounterButton;
     [SerializeField] private Button switchButton;
 
     private UIFxController _fx;
     private bool _showingDeck = true;
+    private bool _allDeckCounterButtonWired;
+    private float _autoWireTimer;
 
     public void Initialize(UIFxController fx)
     {
@@ -28,6 +38,8 @@ public class DeckPanelController : MonoBehaviour
 
     private void WireButtons()
     {
+        ResolveAutoReferences();
+
         if (deckCounterButton != null)
         {
             deckCounterButton.onClick.RemoveAllListeners();
@@ -38,6 +50,11 @@ public class DeckPanelController : MonoBehaviour
         {
             discardCounterButton.onClick.RemoveAllListeners();
             discardCounterButton.onClick.AddListener(OpenDiscardPanel);
+        }
+
+        if (allDeckCounterButton != null)
+        {
+            WireAllDeckCounterButton();
         }
 
         if (switchButton != null)
@@ -51,6 +68,23 @@ public class DeckPanelController : MonoBehaviour
     {
         if (deckPanel) _fx?.HidePanel(deckPanel);
         if (discardPanel) _fx?.HidePanel(discardPanel);
+        if (allDeckPanel) _fx?.HidePanel(allDeckPanel);
+    }
+
+    private void Update()
+    {
+        _autoWireTimer += Time.unscaledDeltaTime;
+        if (_autoWireTimer < 0.5f)
+        {
+            return;
+        }
+
+        _autoWireTimer = 0f;
+        if (allDeckCounterButton == null || !_allDeckCounterButtonWired)
+        {
+            ResolveAutoReferences();
+            WireAllDeckCounterButton();
+        }
     }
 
     public void SwitchPanel()
@@ -70,13 +104,25 @@ public class DeckPanelController : MonoBehaviour
     public void OpenDeckPanel()
     {
         deckObserver?.ForceRefresh();
+        if (allDeckPanel) _fx?.HidePanel(allDeckPanel);
+        if (discardPanel) _fx?.HidePanel(discardPanel);
         if (deckPanel) _fx?.ShowPanel(deckPanel);
     }
 
     public void OpenDiscardPanel()
     {
         deckObserver?.ForceRefresh();
+        if (allDeckPanel) _fx?.HidePanel(allDeckPanel);
+        if (deckPanel) _fx?.HidePanel(deckPanel);
         if (discardPanel) _fx?.ShowPanel(discardPanel);
+    }
+
+    public void OpenAllDeckPanel()
+    {
+        RefreshAllDeckData();
+        if (deckPanel) _fx?.HidePanel(deckPanel);
+        if (discardPanel) _fx?.HidePanel(discardPanel);
+        if (allDeckPanel) _fx?.ShowPanel(allDeckPanel);
     }
 
     public void CloseDeckPanel()
@@ -87,6 +133,11 @@ public class DeckPanelController : MonoBehaviour
     public void CloseDiscardPanel()
     {
         if (discardPanel) _fx?.HidePanel(discardPanel);
+    }
+
+    public void CloseAllDeckPanel()
+    {
+        if (allDeckPanel) _fx?.HidePanel(allDeckPanel);
     }
 
     private void UpdateCounters()
@@ -110,5 +161,65 @@ public class DeckPanelController : MonoBehaviour
             discardGroup.blocksRaycasts = !_showingDeck;
             discardGroup.interactable = !_showingDeck;
         }
+    }
+
+    private void ResolveAutoReferences()
+    {
+        if (allDeckCounterButton == null)
+        {
+            allDeckCounterButton = FindButtonByNames(AllDeckCounterButtonNames);
+            _allDeckCounterButtonWired = false;
+        }
+    }
+
+    private void RefreshAllDeckData()
+    {
+        if (RunManager.Instance != null && RunManager.Instance.CurrentRunSnapshot != null)
+        {
+            DeckUIBus.RefreshAll(RunManager.Instance.CurrentRunSnapshot);
+            return;
+        }
+
+        deckObserver?.ForceRefresh();
+    }
+
+    private void WireAllDeckCounterButton()
+    {
+        if (allDeckCounterButton == null)
+        {
+            return;
+        }
+
+        allDeckCounterButton.onClick.RemoveListener(OpenAllDeckPanel);
+        allDeckCounterButton.onClick.AddListener(OpenAllDeckPanel);
+        _allDeckCounterButtonWired = true;
+    }
+
+    private static Button FindButtonByNames(string[] names)
+    {
+        if (names == null || names.Length == 0)
+        {
+            return null;
+        }
+
+        Button[] buttons = FindObjectsOfType<Button>(true);
+        for (int i = 0; i < buttons.Length; i++)
+        {
+            Button button = buttons[i];
+            if (button == null)
+            {
+                continue;
+            }
+
+            for (int j = 0; j < names.Length; j++)
+            {
+                if (button.name == names[j])
+                {
+                    return button;
+                }
+            }
+        }
+
+        return null;
     }
 }

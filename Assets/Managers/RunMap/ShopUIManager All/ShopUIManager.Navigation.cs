@@ -19,7 +19,7 @@ public partial class ShopUIManager
         if (returnButton != null)
         {
             returnButton.onClick.RemoveAllListeners();
-            returnButton.onClick.AddListener(() => ExecuteTutorialAwareAction(ShopTutorialAction.ReturnToRunMap, ExitShop));
+            returnButton.onClick.AddListener(() => ExecuteTutorialAwareAction(ShopTutorialAction.ReturnToRunMap, RequestExitShopConfirmation));
         }
 
         if (btnPrev != null)

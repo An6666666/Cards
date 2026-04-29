@@ -382,6 +382,10 @@ MonoBehaviour:
       legacyText: {fileID: 2015963941}
       tmpText: {fileID: 0}
     portraitImage: {fileID: 229289551}
+    animationRoot: {fileID: 720912642}
+    animationParent: {fileID: 720912641}
+    previousPreviewButton: {fileID: 229289553}
+    nextPreviewButton: {fileID: 229289552}
     introText:
       legacyText: {fileID: 229289550}
       tmpText: {fileID: 0}
@@ -1252,6 +1256,29 @@ MonoBehaviour:
     portrait: {fileID: 21300000, guid: d23fe25f77f40ae42b842fe4f6d022da, type: 3}
     pinned: 0
     order: 0
+    illustration: {fileID: 21300000, guid: d23fe25f77f40ae42b842fe4f6d022da, type: 3}
+    visualPrefab: {fileID: 1009125238968456456, guid: 3caccfb59a873004088eb65c9f876de9, type: 3}
+    previewEntries:
+    - label: 
+      entryType: 1
+      stateName: Enemyliidle
+      previewScale: {x: 1, y: 1, z: 1}
+    - label: 
+      entryType: 1
+      stateName: EnemyliAppear
+      previewScale: {x: 1, y: 1, z: 1}
+    - label: 
+      entryType: 1
+      stateName: EnemyliAttack
+      previewScale: {x: 1, y: 1, z: 1}
+    - label: 
+      entryType: 1
+      stateName: enemyliWounded
+      previewScale: {x: 1, y: 1, z: 1}
+    - label: 
+      entryType: 1
+      stateName: EnemyliDead
+      previewScale: {x: 1, y: 1, z: 1}
     intro: "\u9B54\u795E\u4ED4\u662F\u53F0\u7063\u5C71\u6797\u50B3\u8AAA\u4E2D\u7684\u7CBE\u602A\uFF0C\u5E38\u5F15\u8A98\u4EBA\u8FF7\u5931\u65B9\u5411\uFF0C\u88AB\u5E36\u5165\u6DF1\u5C71\u800C\u5931\u8E64\u3002\u7260\u5011\u5F62\u614B\u4E0D\u5B9A\uFF0C\u6642\u800C\u5982\u5B69\u7AE5\u3001\u6642\u800C\u5982\u8001\u4EBA\uFF0C\u5C08\u4EE5\u6232\u5F04\u8207\u8A98\u5C0E\u70BA\u6A02\uFF0C\u8B93\u4EBA\u96E3\u4EE5\u5206\u8FA8\u771F\u507D\u3002"
     tip: "\u300C\u9B54\u795E\u4ED4\u6C92\u6709\u7279\u6B8A\u6280\u80FD\uFF0C\u4E3B\u8981\u4EE5\u666E\u901A\u653B\u64CA\u9020\u6210\u50B7\u5BB3\u3002\u300D"
     skills: []
@@ -1261,6 +1288,33 @@ MonoBehaviour:
     portrait: {fileID: 21300000, guid: 53896e72cd9f5b74c91598d06fbffcdf, type: 3}
     pinned: 0
     order: 1
+    illustration: {fileID: 21300000, guid: 53896e72cd9f5b74c91598d06fbffcdf, type: 3}
+    visualPrefab: {fileID: 1009125238968456456, guid: 872445184dac56b4ebd8b88a4cc20956, type: 3}
+    previewEntries:
+    - label: 
+      entryType: 1
+      stateName: heiliidle
+      previewScale: {x: 1, y: 1, z: 1}
+    - label: 
+      entryType: 1
+      stateName: heiliappear
+      previewScale: {x: 1, y: 1, z: 1}
+    - label: 
+      entryType: 1
+      stateName: heiliattk
+      previewScale: {x: 1, y: 1, z: 1}
+    - label: 
+      entryType: 1
+      stateName: heilionehurt
+      previewScale: {x: 1, y: 1, z: 1}
+    - label: 
+      entryType: 1
+      stateName: heilitwohurt
+      previewScale: {x: 1, y: 1, z: 1}
+    - label: 
+      entryType: 1
+      stateName: heilidead
+      previewScale: {x: 1, y: 1, z: 1}
     intro: "\u9ED1\u72D7\u7CBE\u6E90\u81EA\u6C11\u9593\u5C0D\u9ED1\u72AC\u9748\u6027\u7684\u60F3\u50CF\uFF0C\u50B3\u8AAA\u4E2D\u5176\u5177\u6709\u9A45\u90AA\u8207\u901A\u9748\u4E4B\u529B\uFF0C\u4F46\u82E5\u58AE\u5165\u5996\u9053\uFF0C\u4FBF\u6703\u5316\u70BA\u5147\u731B\u7CBE\u602A\u3002\u7260\u5011\u884C\u52D5\u8FC5\u901F\uFF0C\u4E26\u80FD\u4EE5\u8A6D\u7570\u65B9\u5F0F\u5206\u5316\u81EA\u8EAB\uFF0C\u8FF7\u60D1\u6575\u4EBA\u3002"
     tip: "\u300C\u9ED1\u72D7\u7CBE\u5728\u9996\u6B21\u53D7\u5230\u50B7\u5BB3\u6642\u6703\u5206\u88C2\u6210\u5206\u8EAB\u4E26\u56DE\u6EFF\u8840\u3002\u300D"
     skills:
@@ -1273,6 +1327,29 @@ MonoBehaviour:
     portrait: {fileID: 21300000, guid: d5434bee0df660a49af66331c8b8e390, type: 3}
     pinned: 0
     order: 2
+    illustration: {fileID: 21300000, guid: d5434bee0df660a49af66331c8b8e390, type: 3}
+    visualPrefab: {fileID: 1009125238968456456, guid: 160bdf2589151b94393afe882b3c2e49, type: 3}
+    previewEntries:
+    - label: 
+      entryType: 1
+      stateName: feliidle
+      previewScale: {x: 1, y: 1, z: 1}
+    - label: 
+      entryType: 1
+      stateName: feliappear
+      previewScale: {x: 1, y: 1, z: 1}
+    - label: 
+      entryType: 1
+      stateName: feliattack
+      previewScale: {x: 1, y: 1, z: 1}
+    - label: 
+      entryType: 1
+      stateName: felihurt
+      previewScale: {x: 1, y: 1, z: 1}
+    - label: 
+      entryType: 1
+      stateName: felidie
+      previewScale: {x: 1, y: 1, z: 1}
     intro: "\u98DB\u9871\u5996\u5E38\u898B\u65BC\u53E4\u8001\u50B3\u8AAA\uFF0C\u662F\u812B\u96E2\u8089\u8EAB\u7684\u982D\u9871\u6240\u5316\u4E4B\u5996\uFF0C\u98C4\u6D6E\u65BC\u7A7A\u4E2D\u5F98\u5F8A\u4E0D\u6563\u3002\u7260\u5011\u591A\u4EE5\u6028\u5FF5\u70BA\u98DF\uFF0C\u4E0D\u76F4\u63A5\u653B\u64CA\uFF0C\u800C\u662F\u6162\u6162\u4FB5\u8755\u5C0D\u624B\u7684\u7CBE\u795E\u8207\u610F\u5FD7\u3002"
     tip: "\u300C\u98DB\u9871\u5996\u6703\u96A8\u6A5F\u65BD\u52A0\u865B\u5F31\u3001\u6D41\u8840\u6216\u7981\u932E\u3002\u300D"
     skills:
@@ -1286,6 +1363,13 @@ MonoBehaviour:
     portrait: {fileID: 21300000, guid: 5ab4ebeb0c89dcf45a3c0595974dbfce, type: 3}
     pinned: 0
     order: 3
+    illustration: {fileID: 21300000, guid: 5ab4ebeb0c89dcf45a3c0595974dbfce, type: 3}
+    visualPrefab: {fileID: 1009125238968456456, guid: 477caab099bf9934bb8a6fe64150f4b9, type: 3}
+    previewEntries:
+    - label: 
+      entryType: 1
+      stateName: cow
+      previewScale: {x: 1, y: 1, z: 1}
     intro: "\u5730\u725B\u6E90\u65BC\u6C11\u9593\u5C0D\u5730\u9707\u7684\u64EC\u4EBA\u60F3\u50CF\uFF0C\u50B3\u8AAA\u5176\u6F5B\u4F0F\u5730\u5E95\uFF0C\u4E00\u65E6\u7FFB\u8EAB\u4FBF\u6703\u5F15\u767C\u9707\u52D5\u3002\u5E73\u6642\u6C89\u7761\u4E0D\u52D5\uFF0C\u4F46\u7526\u9192\u4E4B\u6642\uFF0C\u9707\u76EA\u4E4B\u529B\u8DB3\u4EE5\u6CE2\u53CA\u56DB\u65B9\u3002"
     tip: "\u300C\u5730\u725B\u958B\u5834\u6703\u6C89\u7761\u6578\u56DE\u5408\uFF0C\u7526\u9192\u5F8C\u6BCF\u56DE\u5408\u5C0D\u5168\u5834\u9020\u6210\u50B7\u5BB3\u3002\u300D"
     skills:
@@ -1301,6 +1385,29 @@ MonoBehaviour:
     portrait: {fileID: 21300000, guid: 5536f9f65000bb047adb52eb0c94e708, type: 3}
     pinned: 0
     order: 4
+    illustration: {fileID: 21300000, guid: 5536f9f65000bb047adb52eb0c94e708, type: 3}
+    visualPrefab: {fileID: 1009125238968456456, guid: 0dc1dcc238b0cbf48b029c09b2e13466, type: 3}
+    previewEntries:
+    - label: 
+      entryType: 1
+      stateName: stonliidle
+      previewScale: {x: 1, y: 1, z: 1}
+    - label: 
+      entryType: 1
+      stateName: stonliappear
+      previewScale: {x: 1, y: 1, z: 1}
+    - label: 
+      entryType: 1
+      stateName: stonliattk
+      previewScale: {x: 1, y: 1, z: 1}
+    - label: 
+      entryType: 1
+      stateName: stonlihurt
+      previewScale: {x: 1, y: 1, z: 1}
+    - label: 
+      entryType: 1
+      stateName: stonlidead
+      previewScale: {x: 1, y: 1, z: 1}
     intro: "\u77F3\u87FE\u870D\u591A\u898B\u65BC\u53E4\u5EDF\u8207\u5C71\u6797\uFF0C\u88AB\u8996\u70BA\u5438\u7D0D\u5730\u6C23\u800C\u751F\u7684\u7570\u7378\u3002\u5176\u8EAB\u5982\u5CA9\u77F3\uFF0C\u6B77\u7D93\u6B72\u6708\u4E0D\u5316\uFF0C\u50B3\u8AAA\u4E2D\u80FD\u4EE5\u81EA\u8EAB\u5805\u786C\u4E4B\u8EC0\u62B5\u79A6\u842C\u7269\uFF0C\u4E26\u5C07\u7A4D\u7D2F\u4E4B\u529B\u53CD\u64CA\u6575\u4EBA\u3002"
     tip: "\u300C\u77F3\u87FE\u870D\u7684\u8B77\u7532\u4E0D\u6703\u6D88\u5931\u3002\u300D\n\u300C\u6BCF\u6B21\u53D7\u5230\u653B\u64CA\u6703\u589E\u52A0\u8B77\u7532\u3002\u300D\n\u300C\u653B\u64CA\u6642\u6703\u4F9D\u8B77\u7532\u9020\u6210\u984D\u5916\u50B7\u5BB3\u3002\u300D\n\u300C\u79FB\u52D5\u6642\u53EF\u4E00\u6B21\u79FB\u52D51\uFF5E2\u683C\u3002\u300D"
     skills:
@@ -1322,6 +1429,13 @@ MonoBehaviour:
     portrait: {fileID: 21300000, guid: 4180c7217c655d942b1f30fb9db74b74, type: 3}
     pinned: 0
     order: 5
+    illustration: {fileID: 21300000, guid: 4180c7217c655d942b1f30fb9db74b74, type: 3}
+    visualPrefab: {fileID: 1009125238968456456, guid: 95f48162b2bf935469cc268dab4d24d2, type: 3}
+    previewEntries:
+    - label: 
+      entryType: 1
+      stateName: HuGuPo_Idle
+      previewScale: {x: 1, y: 1, z: 1}
     intro: "\u864E\u59D1\u5A46\u662F\u53F0\u7063\u5EE3\u70BA\u6D41\u50B3\u7684\u98DF\u4EBA\u5996\u602A\uFF0C\u50B3\u8AAA\u7260\u6703\u5316\u8EAB\u70BA\u6148\u7965\u9577\u8005\u6F5B\u5165\u4EBA\u5BB6\uFF0C\u4EE5\u95DC\u61F7\u8207\u8A00\u8A9E\u53D6\u5F97\u4FE1\u4EFB\uFF0C\u5F85\u591C\u6DF1\u6642\u73FE\u51FA\u539F\u5F62\u541E\u566C\u5B69\u7AE5\u3002\u5176\u672C\u8CEA\u70BA\u864E\u5996\uFF0C\u64C5\u9577\u507D\u88DD\u8207\u8A98\u9A19\u3002"
     tip: "\u300C\u864E\u59D1\u5A46\u653B\u64CA\u6642\u6703\u4F7F\u73A9\u5BB6\u6D41\u88402\u56DE\u5408\u3002\u300D\n\u300C\u7981\u932E\u6703\u4F7F\u73A9\u5BB6\u7121\u6CD5\u79FB\u52D53\u56DE\u5408\u3002\u300D\n\u300C\u885D\u649E\u6703\u9396\u5B9A\u7576\u4E0B\u4F4D\u7F6E\u4E26\u65BC\u4E0B\u56DE\u5408\u653B\u64CA\u3002\u300D\n\u300C\u82E5\u73A9\u5BB6\u4ECD\u5728\u539F\u5730\uFF0C\u6703\u53D7\u523015\u50B7\u5BB3\u4E26\u88AB\u64CA\u9000\u3002\u300D"
     skills:
@@ -1340,6 +1454,13 @@ MonoBehaviour:
     portrait: {fileID: 21300000, guid: 9b6870ad65902c94dbff69c209a516ec, type: 3}
     pinned: 0
     order: 6
+    illustration: {fileID: 21300000, guid: 9b6870ad65902c94dbff69c209a516ec, type: 3}
+    visualPrefab: {fileID: 1009125238968456456, guid: bd0449a98a99f334090b836ba02bea9c, type: 3}
+    previewEntries:
+    - label: 
+      entryType: 1
+      stateName: gouliidle
+      previewScale: {x: 1, y: 1, z: 1}
     intro: "\u53F0\u7063\u5C71\u5340\u8207\u6FD5\u5730\u5E38\u50B3\u6709\u5DE8\u86C7\u6F5B\u4F0F\u6C34\u6FA4\uFF0C\u85CF\u65BC\u6C34\u6C23\u8207\u8349\u53E2\u4E4B\u9593\u4F3A\u6A5F\u800C\u52D5\u3002\u7260\u51FA\u624B\u8FC5\u901F\uFF0C\u6703\u5C07\u7375\u7269\u62D6\u5165\u6C34\u4E2D\uFF0C\u88AB\u8996\u70BA\u6C34\u57DF\u4E2D\u7684\u4E0D\u7965\u4E4B\u7269\u3002"
     tip: "\u300C\u6230\u9B25\u958B\u59CB\u6703\u751F\u6210\u6C34\u57DF\u3002\u300D\n\u300C\u5728\u6C34\u683C\u4E0A\u6703\u7372\u5F97\u8B77\u7532\u3002\u300D\n\u300C\u6F5B\u6C34\u7A81\u8972\u6703\u6D88\u5931\u4E26\u9396\u5B9A\u7BC4\u570D\u3002\u300D\n\u300C\u4E0B\u4E00\u56DE\u5408\u6703\u5C0D\u9396\u5B9A\u7BC4\u570D\u9020\u6210\u50B7\u5BB3\u4E26\u9644\u52A0\u865B\u5F31\u3002\u300D"
     skills:
@@ -1361,6 +1482,13 @@ MonoBehaviour:
     portrait: {fileID: 21300000, guid: 42a15a356e390684e98156066b172536, type: 3}
     pinned: 0
     order: 7
+    illustration: {fileID: 21300000, guid: 42a15a356e390684e98156066b172536, type: 3}
+    visualPrefab: {fileID: 1009125238968456456, guid: 9cc160c57467ca6468c1d028e0f64170, type: 3}
+    previewEntries:
+    - label: 
+      entryType: 1
+      stateName: yinliidle
+      previewScale: {x: 1, y: 1, z: 1}
     intro: "\u9E1A\u54E5\u70BA\u5438\u7D0D\u7634\u6C23\u800C\u751F\u7684\u7570\u9CE5\uFF0C\u76E4\u8E1E\u65BC\u8352\u5730\u4E4B\u4E2D\u3002\u50B3\u8AAA\u5176\u7FBD\u80FD\u5316\u77F3\uFF0C\u5176\u6C23\u6210\u6BD2\uFF0C\u4E0D\u50C5\u80FD\u6C61\u67D3\u571F\u5730\uFF0C\u66F4\u80FD\u5728\u6B7B\u4EA1\u5F8C\u85C9\u7531\u77F3\u5316\u91CD\u751F\uFF0C\u5EF6\u7E8C\u5176\u5B58\u5728\u3002"
     tip: "\u300C\u6230\u9B25\u958B\u59CB\u6703\u751F\u6210\u7634\u6C23\u5340\u57DF\u3002\u300D\n\u300C\u7634\u6C23\u6703\u5728\u56DE\u5408\u7D50\u675F\u6642\u9020\u6210\u50B7\u5BB3\u3002\u300D\n\u300C\u4E09\u5217\u8F5F\u70B8\u6703\u5148\u6A19\u8A18\u7BC4\u570D\uFF0C\u4E0B\u56DE\u5408\u653B\u64CA\u3002\u300D\n\u300C\u8B77\u7532\u6BCF\u56DE\u5408\u589E\u52A0\u4E14\u4E0D\u6703\u6D88\u5931\u3002\u300D\n\u300C\u6B7B\u4EA1\u5F8C\u6703\u8F49\u5316\u70BA\u77F3\u982D\u4E26\u5617\u8A66\u5FA9\u6D3B\u3002\u300D"
     skills:
@@ -1389,6 +1517,13 @@ MonoBehaviour:
     portrait: {fileID: 21300000, guid: 42a15a356e390684e98156066b172536, type: 3}
     pinned: 0
     order: 8
+    illustration: {fileID: 21300000, guid: 42a15a356e390684e98156066b172536, type: 3}
+    visualPrefab: {fileID: 1009125238968456456, guid: 9cc160c57467ca6468c1d028e0f64170, type: 3}
+    previewEntries:
+    - label: 
+      entryType: 1
+      stateName: yinliidle
+      previewScale: {x: 1, y: 1, z: 1}
     intro: "\u9E1A\u54E5\u70BA\u5438\u7D0D\u7634\u6C23\u800C\u751F\u7684\u7570\u9CE5\uFF0C\u76E4\u8E1E\u65BC\u8352\u5730\u4E4B\u4E2D\u3002\u50B3\u8AAA\u5176\u7FBD\u80FD\u5316\u77F3\uFF0C\u5176\u6C23\u6210\u6BD2\uFF0C\u4E0D\u50C5\u80FD\u6C61\u67D3\u571F\u5730\uFF0C\u66F4\u80FD\u5728\u6B7B\u4EA1\u5F8C\u85C9\u7531\u77F3\u5316\u91CD\u751F\uFF0C\u5EF6\u7E8C\u5176\u5B58\u5728\u3002"
     tip: "\u300C\u9032\u5165\u7B2C\u4E8C\u968E\u6BB5\u5F8C\u6703\u53EC\u559A2\u96BB\u9B54\u795E\u4ED4\u3002\u300D\n\u300C\u8B77\u7532\u6BCF\u56DE\u5408\u589E\u52A0\u4F46\u6578\u503C\u8F03\u4F4E\u3002\u300D\n\u300C\u8B77\u7532\u4ECD\u4E0D\u6703\u6D88\u5931\u3002\u300D"
     skills:
@@ -1407,6 +1542,13 @@ MonoBehaviour:
     portrait: {fileID: 21300000, guid: 68e8d734d53619246878fb1d4f399fd9, type: 3}
     pinned: 0
     order: 9
+    illustration: {fileID: 21300000, guid: 68e8d734d53619246878fb1d4f399fd9, type: 3}
+    visualPrefab: {fileID: 1009125238968456456, guid: ab640ec15b1621a4d96ddbaf6eeee0ca, type: 3}
+    previewEntries:
+    - label: 
+      entryType: 1
+      stateName: listone
+      previewScale: {x: 1, y: 1, z: 1}
     intro: "\u9E1A\u54E5\u77F3\u70BA\u9E1A\u54E5\u6B98\u7559\u4E4B\u8EC0\uFF0C\u51DD\u7D50\u5176\u529B\u91CF\u8207\u751F\u547D\u3002\u50B3\u8AAA\u82E5\u77F3\u672A\u88AB\u6BC0\uFF0C\u5996\u6C23\u4FBF\u6703\u518D\u6B21\u51DD\u805A\uFF0C\u4F7F\u5176\u91CD\u751F\u3002"
     tip: "\u300C\u9E1A\u54E5\u77F3\u6703\u5728\u6578\u56DE\u5408\u5F8C\u8B93\u9E1A\u54E5\u5FA9\u6D3B\u3002\u300D\n\u300C\u82E5\u5728\u5012\u6578\u671F\u9593\u64CA\u7834\uFF0C\u5247\u53EF\u963B\u6B62\u5FA9\u6D3B\u3002\u300D"
     skills:
@@ -1993,7 +2135,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_RaycastTarget: 1
+  m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
@@ -2375,6 +2517,22 @@ PrefabInstance:
       propertyPath: m_SizeDelta.y
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 3394880928523347432, guid: 377f231f298558745ad1c3be22b758ca, type: 3}
+      propertyPath: m_Size.x
+      value: 23.88
+      objectReference: {fileID: 0}
+    - target: {fileID: 3394880928523347432, guid: 377f231f298558745ad1c3be22b758ca, type: 3}
+      propertyPath: m_Size.y
+      value: 16.685682
+      objectReference: {fileID: 0}
+    - target: {fileID: 3394880928523347432, guid: 377f231f298558745ad1c3be22b758ca, type: 3}
+      propertyPath: m_Sprite
+      value: 
+      objectReference: {fileID: 21300000, guid: 5ab4ebeb0c89dcf45a3c0595974dbfce, type: 3}
+    - target: {fileID: 3394880928523347432, guid: 377f231f298558745ad1c3be22b758ca, type: 3}
+      propertyPath: m_WasSpriteAssigned
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 5206519522979513838, guid: 377f231f298558745ad1c3be22b758ca, type: 3}
       propertyPath: m_Pivot.x
       value: 0.5
@@ -2643,9 +2801,14 @@ PrefabInstance:
       propertyPath: m_AnchoredPosition.y
       value: 0
       objectReference: {fileID: 0}
-    m_RemovedComponents: []
-    m_RemovedGameObjects: []
-    m_AddedGameObjects: []
+    m_RemovedComponents:
+    - {fileID: 3394880928523347432, guid: 377f231f298558745ad1c3be22b758ca, type: 3}
+    m_RemovedGameObjects:
+    - {fileID: 8568609301804620424, guid: 377f231f298558745ad1c3be22b758ca, type: 3}
+    m_AddedGameObjects:
+    - targetCorrespondingSourceObject: {fileID: 5206519522979513838, guid: 377f231f298558745ad1c3be22b758ca, type: 3}
+      insertIndex: 3
+      addedObject: {fileID: 720912641}
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 377f231f298558745ad1c3be22b758ca, type: 3}
 --- !u!224 &229289548 stripped
@@ -2684,6 +2847,28 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &229289552 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 4077751725798823105, guid: 377f231f298558745ad1c3be22b758ca, type: 3}
+  m_PrefabInstance: {fileID: 229289547}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4e29b1a8efbd4b44bb3f3716e73f07ff, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &229289553 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 5010272132008634006, guid: 377f231f298558745ad1c3be22b758ca, type: 3}
+  m_PrefabInstance: {fileID: 229289547}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4e29b1a8efbd4b44bb3f3716e73f07ff, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
 --- !u!1001 &232268730
@@ -3703,7 +3888,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 572, y: -451.3}
+  m_AnchoredPosition: {x: 572, y: -369}
   m_SizeDelta: {x: 231.8248, y: 60.4853}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &443978317
@@ -4358,6 +4543,121 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 681486284}
   m_CullTransparentMesh: 1
+--- !u!1001 &720912640
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 229289548}
+    m_Modifications:
+    - target: {fileID: 1009125238968456456, guid: 7c52f598065739a429ebdbe4b55dfebf, type: 3}
+      propertyPath: m_Name
+      value: Animation Root
+      objectReference: {fileID: 0}
+    - target: {fileID: 1039007508271931350, guid: 7c52f598065739a429ebdbe4b55dfebf, type: 3}
+      propertyPath: m_Sprite
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 1927291244319129611, guid: 7c52f598065739a429ebdbe4b55dfebf, type: 3}
+      propertyPath: m_Pivot.x
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 1927291244319129611, guid: 7c52f598065739a429ebdbe4b55dfebf, type: 3}
+      propertyPath: m_Pivot.y
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 1927291244319129611, guid: 7c52f598065739a429ebdbe4b55dfebf, type: 3}
+      propertyPath: m_AnchorMax.x
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 1927291244319129611, guid: 7c52f598065739a429ebdbe4b55dfebf, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 1927291244319129611, guid: 7c52f598065739a429ebdbe4b55dfebf, type: 3}
+      propertyPath: m_AnchorMin.x
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 1927291244319129611, guid: 7c52f598065739a429ebdbe4b55dfebf, type: 3}
+      propertyPath: m_AnchorMin.y
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 1927291244319129611, guid: 7c52f598065739a429ebdbe4b55dfebf, type: 3}
+      propertyPath: m_SizeDelta.x
+      value: 100
+      objectReference: {fileID: 0}
+    - target: {fileID: 1927291244319129611, guid: 7c52f598065739a429ebdbe4b55dfebf, type: 3}
+      propertyPath: m_SizeDelta.y
+      value: 100
+      objectReference: {fileID: 0}
+    - target: {fileID: 1927291244319129611, guid: 7c52f598065739a429ebdbe4b55dfebf, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1927291244319129611, guid: 7c52f598065739a429ebdbe4b55dfebf, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1927291244319129611, guid: 7c52f598065739a429ebdbe4b55dfebf, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1927291244319129611, guid: 7c52f598065739a429ebdbe4b55dfebf, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1927291244319129611, guid: 7c52f598065739a429ebdbe4b55dfebf, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1927291244319129611, guid: 7c52f598065739a429ebdbe4b55dfebf, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1927291244319129611, guid: 7c52f598065739a429ebdbe4b55dfebf, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1927291244319129611, guid: 7c52f598065739a429ebdbe4b55dfebf, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: -485
+      objectReference: {fileID: 0}
+    - target: {fileID: 1927291244319129611, guid: 7c52f598065739a429ebdbe4b55dfebf, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: -52
+      objectReference: {fileID: 0}
+    - target: {fileID: 1927291244319129611, guid: 7c52f598065739a429ebdbe4b55dfebf, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1927291244319129611, guid: 7c52f598065739a429ebdbe4b55dfebf, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1927291244319129611, guid: 7c52f598065739a429ebdbe4b55dfebf, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3309167974710126477, guid: 7c52f598065739a429ebdbe4b55dfebf, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 7c52f598065739a429ebdbe4b55dfebf, type: 3}
+--- !u!224 &720912641 stripped
+RectTransform:
+  m_CorrespondingSourceObject: {fileID: 1927291244319129611, guid: 7c52f598065739a429ebdbe4b55dfebf, type: 3}
+  m_PrefabInstance: {fileID: 720912640}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1 &720912642 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 1009125238968456456, guid: 7c52f598065739a429ebdbe4b55dfebf, type: 3}
+  m_PrefabInstance: {fileID: 720912640}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &735167058
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -8848,7 +9148,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 570, y: -366.4}
+  m_AnchoredPosition: {x: 570, y: -450}
   m_SizeDelta: {x: 122.15, y: 56.9458}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1788322919

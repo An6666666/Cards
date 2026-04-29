@@ -25,6 +25,8 @@ public class CardUI : MonoBehaviour
     public RectTransform VisualRect; // animation only
     public RectTransform DragLayerRect;
     public Transform DragLayer;
+    [SerializeField] private Color affordableCardColor = Color.white;
+    [SerializeField] private Color unaffordableCardColor = new Color(0.45f, 0.45f, 0.45f, 1f);
 
     [Header("資料參考")]
     public CardBase cardData;
@@ -40,6 +42,8 @@ public class CardUI : MonoBehaviour
     private DisplayContext displayContext = DisplayContext.Hand;
     private BattleManager battleManager;
     private int lastDisplayedCost = int.MinValue;
+    private bool lastCanAffordCard = true;
+    private bool hasAppliedAffordabilityColor;
 
     private CardHoverEffect hoverEffect;
     private CardDragHandler dragHandler;
@@ -135,6 +139,7 @@ public class CardUI : MonoBehaviour
     private void LateUpdate()
     {
         RefreshDisplayedCostIfNeeded();
+        RefreshAffordabilityColorIfNeeded();
     }
 
     private void CacheControllers()
@@ -162,8 +167,10 @@ public class CardUI : MonoBehaviour
         lastDisplayedCost = int.MinValue;
         if (cardImage != null && data != null && data.cardImage != null)
         cardImage.sprite = data.cardImage;
+        hasAppliedAffordabilityColor = false;
         scopeDisplay?.SetCardData(data);
         RefreshDisplayedCostIfNeeded(force: true);
+        RefreshAffordabilityColorIfNeeded(force: true);
     }
 
     public void SetDisplayContext(DisplayContext context)
@@ -172,6 +179,7 @@ public class CardUI : MonoBehaviour
         dragHandler?.SetDisplayContext(context);
         hoverEffect?.ResetHoverInstant();
         RefreshDisplayedCostIfNeeded(force: true);
+        RefreshAffordabilityColorIfNeeded(force: true);
     }
 
     public int GetDisplayedCost()
@@ -234,6 +242,44 @@ public class CardUI : MonoBehaviour
 
         lastDisplayedCost = displayedCost;
         infoTooltip?.SetCardData(cardData);
+    }
+
+    private void RefreshAffordabilityColorIfNeeded(bool force = false)
+    {
+        bool canAffordCard = CanAffordDisplayedCost();
+        if (!force && hasAppliedAffordabilityColor && canAffordCard == lastCanAffordCard)
+        {
+            return;
+        }
+
+        lastCanAffordCard = canAffordCard;
+        hasAppliedAffordabilityColor = true;
+
+        if (cardImage != null)
+        {
+            cardImage.color = canAffordCard ? affordableCardColor : unaffordableCardColor;
+        }
+    }
+
+    private bool CanAffordDisplayedCost()
+    {
+        if (cardData == null || displayContext != DisplayContext.Hand)
+        {
+            return true;
+        }
+
+        BattleManager manager = ResolveBattleManager();
+        if (manager == null || manager.player == null || manager.player.Hand == null)
+        {
+            return true;
+        }
+
+        if (!manager.player.Hand.Contains(cardData))
+        {
+            return true;
+        }
+
+        return manager.player.energy >= GetDisplayedCost();
     }
 
     private BattleManager ResolveBattleManager()

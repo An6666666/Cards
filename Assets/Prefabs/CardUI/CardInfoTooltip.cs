@@ -45,7 +45,7 @@ public class CardInfoTooltip : MonoBehaviour
             cardNameText.text = data.cardName;
 
         if (costText != null)
-            costText.text = $"Cost: {(cardUI != null ? cardUI.GetDisplayedCost() : Mathf.Max(0, data.cost))}";
+            costText.text = $"能量：{(cardUI != null ? cardUI.GetDisplayedCost() : Mathf.Max(0, data.cost))}";
 
         if (descriptionText != null)
             descriptionText.text = data.description;

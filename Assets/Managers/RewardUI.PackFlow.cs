@@ -77,6 +77,7 @@ public partial class RewardUI
         }
 
         StopIdleVisual();
+        ScheduleSkipButtonReveal(true);
 
         if (openPackCoroutine != null)
         {
@@ -84,6 +85,54 @@ public partial class RewardUI
         }
 
         openPackCoroutine = StartCoroutine(PlayOpenPackFlow(cardChoices));
+    }
+
+    private void ScheduleSkipButtonReveal(bool interactableWhenShown)
+    {
+        StopSkipButtonReveal();
+        HideSkipButton();
+        skipButtonRevealCoroutine = StartCoroutine(RevealSkipButtonAfterPanelAnimation(interactableWhenShown));
+    }
+
+    private IEnumerator RevealSkipButtonAfterPanelAnimation(bool interactableWhenShown)
+    {
+        float delay = Mathf.Max(0f, skipButtonRevealDelay);
+        if (delay > 0f)
+        {
+            yield return new WaitForSecondsRealtime(delay);
+        }
+
+        if (skipButton != null && !closeRequested)
+        {
+            bool wasInteractable = skipButton.interactable;
+            skipButton.gameObject.SetActive(true);
+            skipButton.interactable = interactableWhenShown || wasInteractable;
+        }
+
+        skipButtonRevealCoroutine = null;
+    }
+
+    private void HideSkipButton()
+    {
+        if (skipButton == null)
+        {
+            return;
+        }
+
+        skipButton.gameObject.SetActive(false);
+        skipButton.interactable = false;
+        SetSkipHoverVisible(false);
+    }
+
+    private void StopSkipButtonReveal()
+    {
+        if (skipButtonRevealCoroutine == null)
+        {
+            return;
+        }
+
+        StopCoroutine(skipButtonRevealCoroutine);
+        skipButtonRevealCoroutine = null;
     }
 
     private IEnumerator PlayOpenPackFlow(List<CardBase> cardChoices)

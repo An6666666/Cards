@@ -87,6 +87,9 @@ public partial class RewardUI : MonoBehaviour
     [SerializeField] private float relicChoiceSelectedScale = 1.04f;
     [SerializeField] private float relicChoiceTweenDuration = 0.12f;
 
+    [Header("Panel Timing")]
+    [SerializeField] private float skipButtonRevealDelay = 0.5f;
+
     [Header("Pack Timing")]
     [SerializeField] private float idleBagScale = 1.01f;
     [SerializeField] private float idleBagDuration = 0.8f;
@@ -114,6 +117,7 @@ public partial class RewardUI : MonoBehaviour
     private Vector3 effectDefaultScale = Vector3.one;
     private Vector3 bottomDefaultScale = Vector3.one;
     private Vector3 glowDefaultScale = Vector3.one;
+    private Coroutine skipButtonRevealCoroutine;
 
     private void Awake()
     {
@@ -129,7 +133,9 @@ public partial class RewardUI : MonoBehaviour
 
     private void OnDisable()
     {
+        StopSkipButtonReveal();
         StopOpenPackFlow();
+        HideSkipButton();
         SetSkipHoverVisible(false);
         SetSkipButtonUseConfirmSprite(false);
     }
@@ -162,6 +168,8 @@ public partial class RewardUI : MonoBehaviour
         ClearRewardEntries();
 
         gameObject.SetActive(true);
+        StopSkipButtonReveal();
+        HideSkipButton();
         SetSkipHoverVisible(false);
         SetSkipButtonUseConfirmSprite(false);
         SetGoldText($"\u7372\u5F97 {goldReward} \u91D1\u5E63");
@@ -223,8 +231,6 @@ public partial class RewardUI : MonoBehaviour
             return;
         }
 
-        skipButton.gameObject.SetActive(true);
-        skipButton.interactable = true;
         skipButton.onClick.RemoveAllListeners();
         skipButton.onClick.AddListener(AdvanceAfterCardStage);
         SetSkipButtonUseConfirmSprite(false);
@@ -237,11 +243,10 @@ public partial class RewardUI : MonoBehaviour
             return;
         }
 
-        skipButton.gameObject.SetActive(true);
-        skipButton.interactable = false;
         skipButton.onClick.RemoveAllListeners();
         skipButton.onClick.AddListener(ConfirmSelectedRelic);
         SetSkipButtonUseConfirmSprite(true);
+        ScheduleSkipButtonReveal(false);
     }
 
     private void AdvanceAfterCardStage()
@@ -265,6 +270,7 @@ public partial class RewardUI : MonoBehaviour
 
         closeRequested = true;
         rewardStage = RewardStage.None;
+        StopSkipButtonReveal();
         StopOpenPackFlow();
 
         if (skipButton != null)

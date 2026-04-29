@@ -6,6 +6,15 @@ using UnityEngine.UI;
 
 public partial class ShopUIManager : MonoBehaviour
 {
+    private enum PendingShopConfirmation
+    {
+        None,
+        PurchaseCard,
+        PurchaseRelic,
+        RemoveCard,
+        ExitShop
+    }
+
     [Header("Fallback Data")]
     [SerializeField] private ShopInventoryDefinition fallbackInventory;
 
@@ -30,6 +39,15 @@ public partial class ShopUIManager : MonoBehaviour
     [SerializeField] private Button refreshRemovalButton;
     [SerializeField] private Button returnButton;
 
+    [Header("Confirm Panel")]
+    [SerializeField] private GameObject confirmPanel;
+    [SerializeField] private Text confirmTitleText;
+    [SerializeField] private Button confirmButton;
+    [SerializeField] private Button cancelButton;
+    [SerializeField] private string purchaseConfirmTitle = "\u78BA\u5B9A\u8CFC\u8CB7\uFF1F";
+    [SerializeField] private string removeConfirmTitle = "\u78BA\u5B9A\u79FB\u9664\uFF1F";
+    [SerializeField] private string exitConfirmTitle = "\u78BA\u5B9A\u96E2\u958B\u5546\u5E97\uFF1F";
+
     private RunManager runManager;
     private Player player;
     private ShopInventoryDefinition inventory;
@@ -37,6 +55,11 @@ public partial class ShopUIManager : MonoBehaviour
     private readonly List<CardBase> availableCards = new();
     private readonly List<RelicBase> availableRelics = new();
     private bool offersGenerated;
+    private PendingShopConfirmation pendingConfirmation = PendingShopConfirmation.None;
+    private CardBase pendingCard;
+    private RelicBase pendingRelic;
+    private int pendingCardIndex = -1;
+    private int pendingPrice;
 
     private const int BaseCardPrice = 50;
     private const int BaseRelicPrice = 120;
@@ -107,6 +130,9 @@ public partial class ShopUIManager : MonoBehaviour
         runManager = RunManager.Instance;
 
         CacheSceneReferences();
+        ResolveConfirmPanelReferences();
+        BindConfirmPanelButtons();
+        HideConfirmPanel();
         BindButtons();
         BindTabButtons();
         HideTemplates();

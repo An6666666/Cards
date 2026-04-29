@@ -73,6 +73,8 @@ public class UIManager : MonoBehaviour
     public void CloseDeckPanel() => deckController?.CloseDeckPanel();
     public void OnDiscardCounterClicked() => deckController?.OpenDiscardPanel();
     public void CloseDiscardPanel() => deckController?.CloseDiscardPanel();
+    public void OnAllDeckCounterClicked() => deckController?.OpenAllDeckPanel();
+    public void CloseAllDeckPanel() => deckController?.CloseAllDeckPanel();
 
     public void CloseAllPanels()
     {

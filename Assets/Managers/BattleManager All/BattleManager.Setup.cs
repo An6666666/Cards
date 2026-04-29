@@ -45,6 +45,7 @@ public partial class BattleManager
             handPanel,
             deckPile,
             discardPile,
+            allDeckPile,
             energyText,
             endTurnButton,
             cardUseDelay);
