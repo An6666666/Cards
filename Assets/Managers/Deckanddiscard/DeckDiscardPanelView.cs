@@ -9,6 +9,7 @@ public class DeckDiscardPanelView : MonoBehaviour
     [Header("Containers")]
     [SerializeField] private Transform deckContent;
     [SerializeField] private Transform discardContent;
+    [SerializeField] private Transform allDeckContent;
 
     [Header("Prefabs")]
     [SerializeField] private CardIconItem cardItemPrefab;
@@ -114,11 +115,28 @@ public class DeckDiscardPanelView : MonoBehaviour
 
     }
 
+    public void RefreshAllDeck(List<CardBase> allDeck)
+    {
+        if (allDeckContent == null || cardItemPrefab == null) return;
+
+        ReturnAll(allDeckContent);
+        List<CardBase> orderedAllDeck = CardDisplaySortUtility.BuildOrderedCards(allDeck);
+        for (int i = 0; i < orderedAllDeck.Count; i++)
+        {
+            var item = GetItem(allDeckContent);
+            item.Bind(orderedAllDeck[i], ResolveCardSprite(orderedAllDeck[i]));
+        }
+
+        var sr = allDeckContent.GetComponentInParent<ScrollRect>();
+        if (sr != null) sr.normalizedPosition = new Vector2(0, 1);
+    }
+
     private void Reset()
     {
         // Force explicit binding from the inspector; this method helps Unity auto-assign on add.
         deckContent = null;
         discardContent = null;
+        allDeckContent = null;
         cardItemPrefab = null;
     }
 

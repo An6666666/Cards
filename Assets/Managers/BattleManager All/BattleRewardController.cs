@@ -87,7 +87,7 @@ public class BattleRewardController
             return null;
         }
 
-        if (runManager.IsTutorialRun || (activeNode.Encounter != null && activeNode.Encounter.UseTutorialBattle))
+        if (ShouldSuppressRelicRewards(activeNode, runManager))
         {
             return null;
         }
@@ -153,6 +153,23 @@ public class BattleRewardController
             default:
                 return 0f;
         }
+    }
+
+    private static bool ShouldSuppressRelicRewards(MapNodeData activeNode, RunManager runManager)
+    {
+        if (activeNode == null)
+        {
+            return true;
+        }
+
+        // 教學流程中的菁英戰仍然要保留法器獎勵；只有非菁英教學戰鬥才隱藏法器。
+        if (activeNode.NodeType == MapNodeType.EliteBattle)
+        {
+            return false;
+        }
+
+        return (runManager != null && runManager.IsTutorialRun)
+            || (activeNode.Encounter != null && activeNode.Encounter.UseTutorialBattle);
     }
 
     private static string GetRelicKey(RelicBase relic)

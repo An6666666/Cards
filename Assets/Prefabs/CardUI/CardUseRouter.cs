@@ -13,6 +13,7 @@ public class CardUseRouter : MonoBehaviour
 
     private void OnDisable()
     {
+        ClearSkillTargetTileHighlight();
         ClearSkillTargetHighlight();
     }
 
@@ -32,9 +33,11 @@ public class CardUseRouter : MonoBehaviour
             else if (cardData.cardType == CardType.Movement)
             {
                 battleManager.UseMovementCard(cardData);
+                battleManager.UpdateMovementHover(worldPosition);
             }
             else if (cardData.cardType == CardType.Skill)
             {
+                battleManager.SetSkillTargetTileHighlight(true);
                 UpdateSkillTargetHighlight(worldPosition);
             }
         }
@@ -55,6 +58,10 @@ public class CardUseRouter : MonoBehaviour
         {
             UpdateSkillTargetHighlight(worldPosition);
         }
+        else if (cardData.cardType == CardType.Movement)
+        {
+            battleManager.UpdateMovementHover(worldPosition);
+        }
     }
 
     public bool TryHandleDrop(CardBase cardData, Collider2D hit, Vector2 worldPos)
@@ -64,6 +71,7 @@ public class CardUseRouter : MonoBehaviour
         if (cardData == null || battleManager == null)
         {
             ClearSkillTargetHighlight();
+            ClearSkillTargetTileHighlight();
             return false;
         }
 
@@ -77,6 +85,7 @@ public class CardUseRouter : MonoBehaviour
             used = TryUseSkill(hit, worldPos);
 
         ClearSkillTargetHighlight();
+        ClearSkillTargetTileHighlight();
         return used;
     }
 
@@ -200,6 +209,7 @@ public class CardUseRouter : MonoBehaviour
     {
         if (!IsCardPlayableFromHand())
         {
+            ClearSkillTargetTileHighlight();
             ClearSkillTargetHighlight();
             return;
         }
@@ -251,6 +261,12 @@ public class CardUseRouter : MonoBehaviour
 
         highlightedSkillTarget.SetHighlighted(false);
         highlightedSkillTarget = null;
+    }
+
+    private void ClearSkillTargetTileHighlight()
+    {
+        EnsureBattleManager();
+        battleManager?.SetSkillTargetTileHighlight(false);
     }
 
     private bool IsCardPlayableFromHand()

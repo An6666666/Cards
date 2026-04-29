@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using TMPro;
 using UnityEngine;
+using UnityEngine.Serialization;
 using UnityEngine.UI;
 
 public class IllustratedBookPanelController : MonoBehaviour
@@ -200,6 +201,10 @@ public class IllustratedBookPanelController : MonoBehaviour
         [SerializeField, InspectorName("Root")] private GameObject root;
         [SerializeField, InspectorName("Name Text")] private UITextBinding nameText;
         [SerializeField, InspectorName("Portrait Image")] private Image portraitImage;
+        [SerializeField, InspectorName("Animation Root")] private GameObject animationRoot;
+        [SerializeField, InspectorName("Animation Parent")] private Transform animationParent;
+        [SerializeField, InspectorName("Previous Preview Button")] private Button previousPreviewButton;
+        [SerializeField, InspectorName("Next Preview Button")] private Button nextPreviewButton;
         [SerializeField, InspectorName("Intro Text")] private UITextBinding introText;
         [SerializeField, InspectorName("Legacy Skill Text")] private UITextBinding skillText;
         [SerializeField, InspectorName("Tip Text")] private UITextBinding tipText;
@@ -207,6 +212,11 @@ public class IllustratedBookPanelController : MonoBehaviour
         [SerializeField, InspectorName("Skill List Parent")] private Transform skillListParent;
 
         private readonly List<MonsterSkillItemBindings> _spawnedSkillItems = new List<MonsterSkillItemBindings>();
+        private readonly List<MonsterPreviewEntryData> _availablePreviewEntries = new List<MonsterPreviewEntryData>(8);
+        private GameObject _spawnedAnimationInstance;
+        private Animator _spawnedAnimationAnimator;
+        private int _currentPreviewIndex;
+        private MonsterBookData _lastBoundMonsterData;
 
         public GameObject Root => root;
 
@@ -219,13 +229,19 @@ public class IllustratedBookPanelController : MonoBehaviour
             if (tipText != null) tipText.SetText(data.Tip);
             if (skillText != null) skillText.SetText(string.Empty);
 
-            if (portraitImage != null)
-            {
-                portraitImage.sprite = data.Portrait;
-                portraitImage.enabled = data.Portrait != null;
-            }
+            RefreshPreviewContent(data);
 
             FillSkills(data.Skills);
+        }
+
+        public void Clear()
+        {
+            _lastBoundMonsterData = null;
+            _availablePreviewEntries.Clear();
+            _currentPreviewIndex = 0;
+
+            ClearSkillItems();
+            DestroyAnimationInstance();
         }
 
         public void ClearSkillItems()
@@ -262,6 +278,294 @@ public class IllustratedBookPanelController : MonoBehaviour
                 item.Fill(skill);
                 _spawnedSkillItems.Add(item);
             }
+        }
+
+        public void BindPreviewButtons()
+        {
+            BindButton(previousPreviewButton, ShowPreviousPreview);
+            BindButton(nextPreviewButton, ShowNextPreview);
+            UpdatePreviewButtonState();
+        }
+
+        private void RefreshPreviewContent(MonsterBookData data)
+        {
+            _lastBoundMonsterData = data;
+            _availablePreviewEntries.Clear();
+
+            if (data != null && data.PreviewEntries != null)
+            {
+                for (int i = 0; i < data.PreviewEntries.Count; i++)
+                {
+                    MonsterPreviewEntryData entry = data.PreviewEntries[i];
+                    if (entry == null || !entry.IsConfigured(data.VisualPrefab, data.Illustration))
+                    {
+                        continue;
+                    }
+
+                    _availablePreviewEntries.Add(entry);
+                }
+            }
+
+            if (_availablePreviewEntries.Count == 0)
+            {
+                if (data != null && data.Illustration != null)
+                {
+                    _availablePreviewEntries.Add(MonsterPreviewEntryData.CreateIllustrationFallback());
+                }
+
+                if (data != null && data.VisualPrefab != null)
+                {
+                    _availablePreviewEntries.Add(MonsterPreviewEntryData.CreateAnimationFallback());
+                }
+            }
+
+            _currentPreviewIndex = 0;
+            ApplyPreview(data);
+        }
+
+        private void ShowPreviousPreview()
+        {
+            ChangePreview(-1);
+        }
+
+        private void ShowNextPreview()
+        {
+            ChangePreview(1);
+        }
+
+        private void ChangePreview(int delta)
+        {
+            if (_availablePreviewEntries.Count <= 1)
+            {
+                UpdatePreviewButtonState();
+                return;
+            }
+
+            _currentPreviewIndex = (_currentPreviewIndex + delta + _availablePreviewEntries.Count) % _availablePreviewEntries.Count;
+            ApplyPreview(null);
+        }
+
+        private void ApplyPreview(MonsterBookData data)
+        {
+            MonsterBookData resolvedData = data ?? _lastBoundMonsterData;
+            _lastBoundMonsterData = resolvedData;
+            MonsterPreviewEntryData activeEntry = resolvedData != null && _availablePreviewEntries.Count > 0
+                ? _availablePreviewEntries[Mathf.Clamp(_currentPreviewIndex, 0, _availablePreviewEntries.Count - 1)]
+                : null;
+
+            bool showIllustration = activeEntry != null
+                && activeEntry.EntryType == MonsterPreviewEntryType.Illustration
+                && resolvedData != null
+                && resolvedData.Illustration != null;
+            bool showAnimation = activeEntry != null
+                && activeEntry.EntryType == MonsterPreviewEntryType.AnimationState
+                && resolvedData != null
+                && resolvedData.VisualPrefab != null;
+
+            if (portraitImage != null)
+            {
+                portraitImage.sprite = showIllustration ? resolvedData.Illustration : null;
+                portraitImage.enabled = showIllustration;
+                portraitImage.gameObject.SetActive(showIllustration);
+            }
+
+            if (animationRoot != null)
+            {
+                animationRoot.SetActive(showAnimation);
+            }
+
+            if (showAnimation)
+            {
+                EnsureAnimationInstance(resolvedData.VisualPrefab);
+                PlayPreviewEntry(activeEntry);
+            }
+            else
+            {
+                SetAnimationInstanceActive(false);
+            }
+
+            UpdatePreviewButtonState();
+        }
+
+        private void EnsureAnimationInstance(GameObject visualPrefab)
+        {
+            if (visualPrefab == null)
+            {
+                DestroyAnimationInstance();
+                return;
+            }
+
+            if (_spawnedAnimationInstance != null && PrefabMatches(_spawnedAnimationInstance, visualPrefab))
+            {
+                SetAnimationInstanceActive(true);
+                return;
+            }
+
+            DestroyAnimationInstance();
+
+            Transform parent = animationParent != null
+                ? animationParent
+                : (animationRoot != null ? animationRoot.transform : null);
+            if (parent == null)
+            {
+                return;
+            }
+
+            _spawnedAnimationInstance = UnityEngine.Object.Instantiate(visualPrefab, parent);
+            _spawnedAnimationInstance.transform.localPosition = Vector3.zero;
+            _spawnedAnimationInstance.transform.localRotation = Quaternion.identity;
+            _spawnedAnimationInstance.transform.localScale = Vector3.one;
+            _spawnedAnimationAnimator = _spawnedAnimationInstance.GetComponent<Animator>();
+            if (_spawnedAnimationAnimator == null)
+            {
+                _spawnedAnimationAnimator = _spawnedAnimationInstance.GetComponentInChildren<Animator>(true);
+            }
+
+            SetAnimationInstanceActive(true);
+        }
+
+        private void SetAnimationInstanceActive(bool active)
+        {
+            if (_spawnedAnimationInstance == null)
+            {
+                return;
+            }
+
+            _spawnedAnimationInstance.SetActive(active);
+        }
+
+        private void DestroyAnimationInstance()
+        {
+            if (_spawnedAnimationInstance == null)
+            {
+                return;
+            }
+
+            if (Application.isPlaying) UnityEngine.Object.Destroy(_spawnedAnimationInstance);
+            else UnityEngine.Object.DestroyImmediate(_spawnedAnimationInstance);
+
+            _spawnedAnimationInstance = null;
+            _spawnedAnimationAnimator = null;
+        }
+
+        private void UpdatePreviewButtonState()
+        {
+            bool canSwitch = _availablePreviewEntries.Count > 1;
+
+            if (previousPreviewButton != null)
+            {
+                previousPreviewButton.gameObject.SetActive(canSwitch);
+                previousPreviewButton.interactable = canSwitch;
+            }
+
+            if (nextPreviewButton != null)
+            {
+                nextPreviewButton.gameObject.SetActive(canSwitch);
+                nextPreviewButton.interactable = canSwitch;
+            }
+        }
+
+        private static void BindButton(Button button, UnityEngine.Events.UnityAction action)
+        {
+            if (button == null || action == null)
+            {
+                return;
+            }
+
+            button.onClick.RemoveAllListeners();
+            button.onClick.AddListener(action);
+        }
+
+        private void PlayPreviewEntry(MonsterPreviewEntryData entry)
+        {
+            if (entry == null || entry.EntryType != MonsterPreviewEntryType.AnimationState)
+            {
+                return;
+            }
+
+            if (_spawnedAnimationAnimator == null)
+            {
+                return;
+            }
+
+            _spawnedAnimationInstance.transform.localScale = entry.PreviewScale;
+
+            if (string.IsNullOrWhiteSpace(entry.StateName))
+            {
+                _spawnedAnimationAnimator.Rebind();
+                _spawnedAnimationAnimator.Update(0f);
+                if (_spawnedAnimationAnimator.layerCount > 0)
+                {
+                    _spawnedAnimationAnimator.Play(0, 0, 0f);
+                    _spawnedAnimationAnimator.Update(0f);
+                }
+
+                return;
+            }
+
+            _spawnedAnimationAnimator.Rebind();
+            _spawnedAnimationAnimator.Update(0f);
+            _spawnedAnimationAnimator.Play(entry.StateName.Trim(), 0, 0f);
+            _spawnedAnimationAnimator.Update(0f);
+        }
+
+        private static bool PrefabMatches(GameObject instance, GameObject prefab)
+        {
+            if (instance == null || prefab == null)
+            {
+                return false;
+            }
+
+            string instanceName = instance.name.Replace("(Clone)", string.Empty).Trim();
+            return string.Equals(instanceName, prefab.name, StringComparison.Ordinal);
+        }
+    }
+
+    public enum MonsterPreviewEntryType
+    {
+        Illustration,
+        AnimationState
+    }
+
+    [Serializable]
+    public class MonsterPreviewEntryData
+    {
+        [SerializeField, InspectorName("Label")] private string label;
+        [SerializeField, InspectorName("Type")] private MonsterPreviewEntryType entryType = MonsterPreviewEntryType.AnimationState;
+        [SerializeField, InspectorName("State Name")] private string stateName;
+        [SerializeField, InspectorName("Preview Scale")] private Vector3 previewScale = Vector3.one;
+
+        public string Label => label;
+        public MonsterPreviewEntryType EntryType => entryType;
+        public string StateName => stateName;
+        public Vector3 PreviewScale => previewScale == Vector3.zero ? Vector3.one : previewScale;
+
+        public bool IsConfigured(GameObject visualPrefab, Sprite illustration)
+        {
+            return entryType switch
+            {
+                MonsterPreviewEntryType.Illustration => illustration != null,
+                MonsterPreviewEntryType.AnimationState => visualPrefab != null,
+                _ => false
+            };
+        }
+
+        public static MonsterPreviewEntryData CreateIllustrationFallback()
+        {
+            return new MonsterPreviewEntryData
+            {
+                label = "立繪",
+                entryType = MonsterPreviewEntryType.Illustration
+            };
+        }
+
+        public static MonsterPreviewEntryData CreateAnimationFallback()
+        {
+            return new MonsterPreviewEntryData
+            {
+                label = "動畫",
+                entryType = MonsterPreviewEntryType.AnimationState
+            };
         }
     }
 
@@ -355,12 +659,20 @@ public class IllustratedBookPanelController : MonoBehaviour
     [Serializable]
     public class MonsterBookData : BookDataBase
     {
+        [FormerlySerializedAs("portrait")]
+        [SerializeField, InspectorName("Illustration")] private Sprite illustration;
+        [FormerlySerializedAs("animationPrefab")]
+        [SerializeField, InspectorName("Visual Prefab")] private GameObject visualPrefab;
+        [SerializeField, InspectorName("Preview Entries")] private List<MonsterPreviewEntryData> previewEntries = new List<MonsterPreviewEntryData>();
         [TextArea(2, 6)]
         [SerializeField, InspectorName("Intro")] private string intro;
         [TextArea(2, 6)]
         [SerializeField, InspectorName("Tip")] private string tip;
         [SerializeField, InspectorName("Skills")] private List<MonsterSkillData> skills = new List<MonsterSkillData>();
 
+        public Sprite Illustration => illustration != null ? illustration : Portrait;
+        public GameObject VisualPrefab => visualPrefab;
+        public List<MonsterPreviewEntryData> PreviewEntries => previewEntries;
         public string Intro => intro;
         public string Tip => tip;
         public List<MonsterSkillData> Skills => skills;
@@ -651,6 +963,7 @@ public class IllustratedBookPanelController : MonoBehaviour
         }
 
         cardDetail?.BindVariantButtons(ShowPreviousCardVariant, ShowNextCardVariant);
+        monsterDetail?.BindPreviewButtons();
     }
 
     private static void EnsureButtonSfxForChildren(Transform root)
@@ -994,7 +1307,7 @@ public class IllustratedBookPanelController : MonoBehaviour
 
         if (monsterDetail != null)
         {
-            monsterDetail.ClearSkillItems();
+            monsterDetail.Clear();
             if (monsterDetail.Root != null) monsterDetail.Root.SetActive(false);
         }
 

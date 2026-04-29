@@ -180,7 +180,7 @@ public partial class ShopUIManager
             return;
 
         button.onClick.RemoveAllListeners();
-        button.onClick.AddListener(() => PurchaseCard(card, price));
+        button.onClick.AddListener(() => RequestPurchaseCardConfirmation(card, price));
     }
 
     private void CreateRelicOffer(RelicBase relic, int price)
@@ -243,7 +243,7 @@ public partial class ShopUIManager
 
         button.targetGraphic = buttonTargetGraphic;
         button.onClick.RemoveAllListeners();
-        button.onClick.AddListener(() => PurchaseRelic(relic, price));
+        button.onClick.AddListener(() => RequestPurchaseRelicConfirmation(relic, price));
     }
 
     private void CreateRemovalEntry(CardBase card, int price, int cardIndex)
@@ -276,7 +276,7 @@ public partial class ShopUIManager
         if (button != null)
         {
             button.onClick.RemoveAllListeners();
-            button.onClick.AddListener(() => RemoveCardAt(cardIndex, price));
+            button.onClick.AddListener(() => RequestRemoveCardConfirmation(cardIndex, price));
         }
 
         var cardUi = cardObject?.GetComponent<CardUI>();

@@ -32,6 +32,7 @@ public partial class BattleManager : MonoBehaviour
     public Transform handPanel;
     public Transform deckPile;
     public Transform discardPile;
+    public Transform allDeckPile;
 
     [Header("Relics UI")]
     [SerializeField] private GameObject relicUIPrefab;
@@ -84,6 +85,7 @@ public partial class BattleManager : MonoBehaviour
     private BattleHandUIController handUIController;
     private MovementSelectionController movementSelectionController;
     private AttackSelectionController attackSelectionController;
+    private BoardTile skillTargetTileHighlight;
     private BattleRewardController rewardController;
     private BattleRuntimeContext runtimeContext;
     private IEnemyQueryService enemyQueryService;
@@ -140,6 +142,8 @@ public partial class BattleManager : MonoBehaviour
             return;
         }
 
+        UpdateMovementHoverFromPointer();
+
         if (Input.GetKeyDown(KeyCode.Space) && endTurnButton != null && endTurnButton.interactable)
         {
             EndPlayerTurn();
@@ -180,9 +184,55 @@ public partial class BattleManager : MonoBehaviour
         movementSelectionController.UseMovementCard(movementCard);
     }
 
+    public void UpdateMovementHover(Vector2 worldPosition)
+    {
+        movementSelectionController.UpdateMovementHover(worldPosition);
+    }
+
+    private void UpdateMovementHoverFromPointer()
+    {
+        if (movementSelectionController == null || !movementSelectionController.IsSelectingMovementTile)
+        {
+            return;
+        }
+
+        Camera targetCamera = Camera.main != null ? Camera.main : FindObjectOfType<Camera>();
+        movementSelectionController.UpdateMovementHoverFromScreenPosition(Input.mousePosition, targetCamera);
+    }
+
     public void CancelMovementSelection()
     {
         movementSelectionController.CancelMovementSelection();
+    }
+
+    public void SetSkillTargetTileHighlight(bool show)
+    {
+        if (!show)
+        {
+            ClearSkillTargetTileHighlight();
+            return;
+        }
+
+        if (board == null || player == null)
+        {
+            return;
+        }
+
+        BoardTile tile = ResolvePlayerCurrentTile();
+        if (tile == null)
+        {
+            ClearSkillTargetTileHighlight();
+            return;
+        }
+
+        if (skillTargetTileHighlight == tile)
+        {
+            return;
+        }
+
+        ClearSkillTargetTileHighlight();
+        skillTargetTileHighlight = tile;
+        skillTargetTileHighlight.SetHighlight(true);
     }
 
     public bool OnTileClicked(BoardTile tile)
@@ -223,6 +273,60 @@ public partial class BattleManager : MonoBehaviour
     public void EndAttackSelect()
     {
         attackSelectionController.EndAttackSelect();
+    }
+
+    private void ClearSkillTargetTileHighlight()
+    {
+        if (skillTargetTileHighlight == null)
+        {
+            return;
+        }
+
+        skillTargetTileHighlight.SetHighlight(false);
+        skillTargetTileHighlight = null;
+    }
+
+    private BoardTile ResolvePlayerCurrentTile()
+    {
+        if (board == null || player == null)
+        {
+            return null;
+        }
+
+        BoardTile gridTile = board.GetTileAt(player.position);
+        BoardTile nearestTile = null;
+        float nearestDistanceSqr = float.PositiveInfinity;
+        Vector3 playerWorldPosition = player.transform.position;
+
+        List<Vector2Int> positions = board.GetAllPositions();
+        for (int i = 0; i < positions.Count; i++)
+        {
+            BoardTile tile = board.GetTileAt(positions[i]);
+            if (tile == null)
+            {
+                continue;
+            }
+
+            float distanceSqr = (tile.transform.position - playerWorldPosition).sqrMagnitude;
+            if (distanceSqr < nearestDistanceSqr)
+            {
+                nearestDistanceSqr = distanceSqr;
+                nearestTile = tile;
+            }
+        }
+
+        if (nearestTile == null)
+        {
+            return gridTile;
+        }
+
+        if (gridTile == null)
+        {
+            return nearestTile;
+        }
+
+        float gridDistanceSqr = (gridTile.transform.position - playerWorldPosition).sqrMagnitude;
+        return nearestDistanceSqr < gridDistanceSqr ? nearestTile : gridTile;
     }
 
     public void OnEnemyDefeated(Enemy enemy)
