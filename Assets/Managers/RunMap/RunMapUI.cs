@@ -49,6 +49,9 @@ public partial class RunMapUI : MonoBehaviour
     [SerializeField] private Color currentColor = new Color(1f, 0.85f, 0.3f);
     [SerializeField] private Color lockedColor = new Color(0.5f, 0.5f, 0.5f);
 
+    [Header("Node Hover")]
+    [SerializeField, Range(1f, 1.3f)] private float selectableNodeHoverScale = 1.08f;
+
     [Header("Optional Roots")]
     [SerializeField] private RectTransform nodesRoot;
     [SerializeField] private RectTransform linesRoot;
@@ -63,6 +66,7 @@ public partial class RunMapUI : MonoBehaviour
 
     private readonly Dictionary<MapNodeData, RectTransform> nodeRects = new Dictionary<MapNodeData, RectTransform>();
     private readonly Dictionary<MapNodeData, Button> nodeButtons = new Dictionary<MapNodeData, Button>();
+    private readonly Dictionary<MapNodeData, Vector3> nodeBaseScales = new Dictionary<MapNodeData, Vector3>();
 
     private float lastTopPadding;
     private float lastBottomPadding;

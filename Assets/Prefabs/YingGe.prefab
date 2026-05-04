@@ -537,7 +537,7 @@ MonoBehaviour:
   chargedCount: 0
   frostStacks: 0
   gridPosition: {x: 0, y: 0}
-  baseAttackDamage: 15
+  baseAttackDamage: 10
   attackRangeOffsets:
   - {x: -2, y: 0}
   - {x: 2, y: 0}

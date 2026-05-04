@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -14,16 +15,56 @@ public class RunHUD_Text : MonoBehaviour
     [Header("Options")]
     [SerializeField] private bool showHpAsCurrentSlashMax = true;
 
+    private Coroutine bindRoutine;
+    private RunManager subscribedRunManager;
+
     private void OnEnable()
     {
         ResolveReferences();
         Subscribe();
         Refresh();
+        RestartBindRoutine();
     }
 
     private void OnDisable()
     {
+        StopBindRoutine();
         Unsubscribe();
+    }
+
+    private void RestartBindRoutine()
+    {
+        StopBindRoutine();
+        bindRoutine = StartCoroutine(BindWhenReady());
+    }
+
+    private void StopBindRoutine()
+    {
+        if (bindRoutine == null)
+        {
+            return;
+        }
+
+        StopCoroutine(bindRoutine);
+        bindRoutine = null;
+    }
+
+    private IEnumerator BindWhenReady()
+    {
+        while (isActiveAndEnabled)
+        {
+            ResolveReferences();
+            Subscribe();
+            Refresh();
+
+            if (runManager != null && (player != null || runManager.CurrentRunSnapshot != null))
+            {
+                bindRoutine = null;
+                yield break;
+            }
+
+            yield return null;
+        }
     }
 
     private void ResolveReferences()
@@ -31,9 +72,14 @@ public class RunHUD_Text : MonoBehaviour
         if (runManager == null)
         {
             runManager = RunManager.Instance;
+
+            if (runManager == null)
+            {
+                runManager = FindObjectOfType<RunManager>(true);
+            }
         }
 
-        if (player == null && runManager != null)
+        if (runManager != null && runManager.RegisteredPlayer != null)
         {
             player = runManager.RegisteredPlayer;
         }
@@ -46,31 +92,44 @@ public class RunHUD_Text : MonoBehaviour
             return;
         }
 
-        runManager.RunSnapshotChanged -= HandleRunSnapshotChanged;
-        runManager.RunSnapshotChanged += HandleRunSnapshotChanged;
-        runManager.MapStateChanged -= HandleMapStateChanged;
-        runManager.MapStateChanged += HandleMapStateChanged;
-    }
-
-    private void Unsubscribe()
-    {
-        if (runManager == null)
+        if (subscribedRunManager == runManager)
         {
             return;
         }
 
-        runManager.RunSnapshotChanged -= HandleRunSnapshotChanged;
-        runManager.MapStateChanged -= HandleMapStateChanged;
+        Unsubscribe();
+        subscribedRunManager = runManager;
+        subscribedRunManager.RunSnapshotChanged += HandleRunSnapshotChanged;
+        subscribedRunManager.MapStateChanged += HandleMapStateChanged;
+    }
+
+    private void Unsubscribe()
+    {
+        if (subscribedRunManager == null)
+        {
+            return;
+        }
+
+        subscribedRunManager.RunSnapshotChanged -= HandleRunSnapshotChanged;
+        subscribedRunManager.MapStateChanged -= HandleMapStateChanged;
+        subscribedRunManager = null;
     }
 
     private void HandleRunSnapshotChanged(PlayerRunSnapshot snapshot)
     {
-        RefreshFromSnapshot(snapshot);
+        if (snapshot != null)
+        {
+            RefreshFromSnapshot(snapshot);
+            return;
+        }
+
+        Refresh();
     }
 
     private void HandleMapStateChanged()
     {
         ResolveReferences();
+        Subscribe();
         Refresh();
     }
 

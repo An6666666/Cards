@@ -579,9 +579,7 @@ public class RunMapConnector
         if (nextCount <= 1)
             return nextCount;
 
-        int minTargets = activeSourceCount <= 1
-            ? Mathf.Min(nextCount, 2)
-            : Mathf.Min(nextCount, Mathf.Max(1, minDistinctTargetsPerFloor));
+        int minTargets = Mathf.Min(nextCount, Mathf.Max(1, minDistinctTargetsPerFloor));
 
         int lowerBound = Mathf.Min(nextCount, Mathf.Max(minTargets, activeSourceCount - 1));
         int upperBound = Mathf.Min(nextCount, Mathf.Max(lowerBound, activeSourceCount + Mathf.Max(1, Mathf.CeilToInt(connectionDensity - 1f))));

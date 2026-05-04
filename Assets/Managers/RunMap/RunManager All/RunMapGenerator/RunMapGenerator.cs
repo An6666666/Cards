@@ -63,16 +63,23 @@ public class RunMapGenerator
     {
         var map = new RunMap();
         int totalFloors = Mathf.Max(1, floorCount);
-        List<int> floorNodeCounts = BuildFloorNodeCounts(totalFloors, minNodes, maxNodes);
+        List<int> floorNodeCounts = BuildFloorNodeCounts(totalFloors, minNodes, maxNodes, null);
 
         for (int floor = 0; floor < totalFloors; floor++)
         {
             var floorNodes = new List<MapNodeData>(floorNodeCounts[floor]);
+            FixedFloorNodeRule? fixedRule = GetFixedFloorRule(null, floor);
             for (int i = 0; i < floorNodeCounts[floor]; i++)
             {
-                MapNodeType type = floor == totalFloors - 1 ? MapNodeType.Boss : MapNodeType.Battle;
+                MapNodeType type = fixedRule.HasValue
+                    ? fixedRule.Value.NodeType
+                    : floor == totalFloors - 1 ? MapNodeType.Boss : MapNodeType.Battle;
                 string nodeId = $"F{floor}_N{i}_{Guid.NewGuid():N}";
                 var node = new MapNodeData(nodeId, type, floor);
+                if (fixedRule.HasValue)
+                {
+                    node.SetIconOverride(fixedRule.Value.GetIconOverride(i));
+                }
 
                 floorNodes.Add(node);
             }
@@ -95,15 +102,35 @@ public class RunMapGenerator
         SlotAllocationSettings settings)
     {
         // 舊呼叫點可能會想直接帶入 slot 設定，這裡保持介面兼容，只回傳基礎地圖
-        return Generate(
-            floorCount,
-            minNodes,
-            maxNodes,
-            encounterPool,
-            elitePool,
-            bossEncounter,
-            defaultShop,
-            eventPool);
+        SlotAllocationSettings clamped = settings.GetClamped();
+        var map = new RunMap();
+        int totalFloors = Mathf.Max(1, floorCount);
+        IReadOnlyList<FixedFloorNodeRule> fixedFloorRules = clamped.FixedFloorRules;
+        List<int> floorNodeCounts = BuildFloorNodeCounts(totalFloors, minNodes, maxNodes, fixedFloorRules);
+
+        for (int floor = 0; floor < totalFloors; floor++)
+        {
+            var floorNodes = new List<MapNodeData>(floorNodeCounts[floor]);
+            FixedFloorNodeRule? fixedRule = GetFixedFloorRule(fixedFloorRules, floor);
+            for (int i = 0; i < floorNodeCounts[floor]; i++)
+            {
+                MapNodeType type = fixedRule.HasValue
+                    ? fixedRule.Value.NodeType
+                    : floor == totalFloors - 1 ? MapNodeType.Boss : MapNodeType.Battle;
+                string nodeId = $"F{floor}_N{i}_{Guid.NewGuid():N}";
+                var node = new MapNodeData(nodeId, type, floor);
+                if (fixedRule.HasValue)
+                {
+                    node.SetIconOverride(fixedRule.Value.GetIconOverride(i));
+                }
+
+                floorNodes.Add(node);
+            }
+
+            map.Floors.Add(floorNodes);
+        }
+
+        return map;
     }
 
     public void AllocateSlotsAcrossMapAfterConnections(
@@ -155,6 +182,7 @@ public class RunMapGenerator
         allocator.AllocateSlots(slotContext, shopSlots, eliteSlots, restSlots, eventSlots);
 
         ApplyNodePayloads(map, encounterPool, elitePool, bossEncounter, defaultShop, eventPool);
+        ApplyFixedFloorNodeOverrides(map, clamped.FixedFloorRules);
         ValidateFixedFloorRules(map, clamped.FixedFloorRules);
     }
 
@@ -302,6 +330,37 @@ public class RunMapGenerator
         return eventPool[index];
     }
 
+    private void ApplyFixedFloorNodeOverrides(RunMap map, IReadOnlyList<FixedFloorNodeRule> rules)
+    {
+        if (rules == null || rules.Count == 0 || map?.Floors == null)
+            return;
+
+        foreach (FixedFloorNodeRule rule in rules)
+        {
+            if (rule.FloorIndex < 0 || rule.FloorIndex >= map.Floors.Count)
+                continue;
+
+            List<MapNodeData> floorNodes = map.Floors[rule.FloorIndex];
+            if (floorNodes == null)
+                continue;
+
+            for (int nodeIndex = 0; nodeIndex < floorNodes.Count; nodeIndex++)
+            {
+                MapNodeData node = floorNodes[nodeIndex];
+                if (node == null || node.NodeType != rule.NodeType)
+                    continue;
+
+                node.SetIconOverride(rule.GetIconOverride(nodeIndex));
+
+                RunEncounterDefinition encounterOverride = rule.GetEncounterOverride(nodeIndex);
+                if (encounterOverride != null)
+                {
+                    node.SetEncounter(encounterOverride);
+                }
+            }
+        }
+    }
+
     private List<int> BuildFloorNodeCounts(int totalFloors, int minNodes, int maxNodes)
     {
         var counts = new List<int>(totalFloors);
@@ -314,6 +373,51 @@ public class RunMapGenerator
         }
 
         return counts;
+    }
+
+    private List<int> BuildFloorNodeCounts(
+        int totalFloors,
+        int minNodes,
+        int maxNodes,
+        IReadOnlyList<FixedFloorNodeRule> fixedFloorRules)
+    {
+        List<int> counts = BuildFloorNodeCounts(totalFloors, minNodes, maxNodes);
+        if (fixedFloorRules == null)
+        {
+            return counts;
+        }
+
+        for (int i = 0; i < fixedFloorRules.Count; i++)
+        {
+            FixedFloorNodeRule rule = fixedFloorRules[i];
+            if (rule.FloorIndex < 0 || rule.FloorIndex >= counts.Count || !rule.HasNodeCountOverride)
+            {
+                continue;
+            }
+
+            counts[rule.FloorIndex] = rule.NodeCount;
+        }
+
+        return counts;
+    }
+
+    private static FixedFloorNodeRule? GetFixedFloorRule(IReadOnlyList<FixedFloorNodeRule> fixedFloorRules, int floorIndex)
+    {
+        if (fixedFloorRules == null)
+        {
+            return null;
+        }
+
+        for (int i = 0; i < fixedFloorRules.Count; i++)
+        {
+            FixedFloorNodeRule rule = fixedFloorRules[i];
+            if (rule.FloorIndex == floorIndex)
+            {
+                return rule;
+            }
+        }
+
+        return null;
     }
 
     private int GetRandomNodeCountForFloor(

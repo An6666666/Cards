@@ -162,7 +162,15 @@ public class BattleHandUIController
                 CardDragHandler drag = cardUI.GetComponent<CardDragHandler>();
                 if (drag != null && drag.IsDragging) continue;
 
-                cardUI.OriginalAnchoredPosition = rt.anchoredPosition;
+                CardHoverEffect hover = cardUI.GetComponent<CardHoverEffect>();
+                if (hover != null && hover.IsHovering)
+                {
+                    cardUI.OriginalAnchoredPosition = Vector2.zero;
+                    continue;
+                }
+
+                rt.anchoredPosition = Vector2.zero;
+                cardUI.OriginalAnchoredPosition = Vector2.zero;
             }
         }
 

@@ -6,7 +6,7 @@ public class TutorialBattleController : MonoBehaviour
 {
     private static readonly Dictionary<string, string[]> LocalDialogueByKey = new Dictionary<string, string[]>
     {
-        { "UI", new[] { "這是戰鬥的畫面介紹" } },
+        { "UI", new[] { "滑鼠懸浮在圖示、按鈕上會有簡單的界上" } },
         { "FR", new[] { "接下來我會教導你所有的元素反應，開始吧", "這是急急如律令火和急急如律令木，試試吧，拖拽到妖怪身上使用" } },
         { "Burn", new[] { "滑鼠移至受到攻擊的妖怪上，可以看到妖怪的狀態", "火+木會產生燃燒的效果，會殘留火元素，燃燒持續5回合，每次造成3點傷害", "妖怪在燃燒狀態下，受到水元素或冰元素傷害，會因此被消除，試試吧" } },
         { "Burntwo", new[] { "滑鼠移至受到攻擊的妖怪上看看，燃燒已經被移除了，妖怪身上則會只保留水元素", "做的好，接下來是蒸發反應", "這是急急如律令火和急急如律令水，試試吧，拖拽到妖怪身上使用" } },

@@ -224,15 +224,65 @@ public struct FixedFloorNodeRule
 {
     [SerializeField] private int floorIndex;
     [SerializeField] private MapNodeType nodeType;
+    [SerializeField, Min(0)] private int nodeCount;
+    [SerializeField] private Sprite iconOverride;
+    [SerializeField] private List<FixedFloorNodeOverride> nodeOverrides;
 
     public int FloorIndex => floorIndex;
     public MapNodeType NodeType => nodeType;
+    public bool HasNodeCountOverride => nodeCount > 0 || (nodeOverrides != null && nodeOverrides.Count > 0);
+    public int NodeCount => Mathf.Max(Mathf.Max(1, nodeCount), nodeOverrides != null ? nodeOverrides.Count : 0);
+    public Sprite IconOverride => iconOverride;
+    public IReadOnlyList<FixedFloorNodeOverride> NodeOverrides => nodeOverrides != null
+        ? nodeOverrides
+        : Array.Empty<FixedFloorNodeOverride>();
 
     public FixedFloorNodeRule(int floorIndex, MapNodeType nodeType)
     {
         this.floorIndex = floorIndex;
         this.nodeType = nodeType;
+        nodeCount = 0;
+        iconOverride = null;
+        nodeOverrides = new List<FixedFloorNodeOverride>();
     }
+
+    public FixedFloorNodeRule(int floorIndex, MapNodeType nodeType, int nodeCount, Sprite iconOverride = null)
+    {
+        this.floorIndex = floorIndex;
+        this.nodeType = nodeType;
+        this.nodeCount = Mathf.Max(0, nodeCount);
+        this.iconOverride = iconOverride;
+        nodeOverrides = new List<FixedFloorNodeOverride>();
+    }
+
+    public Sprite GetIconOverride(int nodeIndex)
+    {
+        FixedFloorNodeOverride nodeOverride = GetNodeOverride(nodeIndex);
+        return nodeOverride.IconOverride != null ? nodeOverride.IconOverride : iconOverride;
+    }
+
+    public RunEncounterDefinition GetEncounterOverride(int nodeIndex)
+    {
+        return GetNodeOverride(nodeIndex).EncounterOverride;
+    }
+
+    private FixedFloorNodeOverride GetNodeOverride(int nodeIndex)
+    {
+        if (nodeOverrides == null || nodeIndex < 0 || nodeIndex >= nodeOverrides.Count)
+            return default;
+
+        return nodeOverrides[nodeIndex];
+    }
+}
+
+[Serializable]
+public struct FixedFloorNodeOverride
+{
+    [SerializeField] private Sprite iconOverride;
+    [SerializeField] private RunEncounterDefinition encounterOverride;
+
+    public Sprite IconOverride => iconOverride;
+    public RunEncounterDefinition EncounterOverride => encounterOverride;
 }
 
 [Serializable]

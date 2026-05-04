@@ -92,6 +92,11 @@ public static class RunProgressPersistence
                 return false;
             }
 
+            if (data.tutorialRun)
+            {
+                return false;
+            }
+
             data.selectedElements ??= new List<int>();
             data.guideFlags ??= new List<string>();
             data.nodes ??= new List<RunProgressNodeData>();
@@ -139,7 +144,7 @@ public static class RunProgressPersistence
 
     public static void Save(RunProgressSaveData data)
     {
-        if (data == null)
+        if (data == null || data.tutorialRun)
         {
             return;
         }

@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Skill_ZhiJiao
   m_EditorClassIdentifier: 
   cardName: "\u64F2\u7B4A"
-  cost: 1
+  cost: 0
   description: "\u96A8\u6A5F\u6D88\u8017\u4E00\u5F35\u624B\u724C\uFF0C\u62BD\u5169\u5F35\u724C\uFF0C\u6C92\u6709\u724C\u53EF\u4EE5\u6D88\u8017\u5247\u7121\u6CD5\u4F7F\u7528"
   cardImage: {fileID: 21300000, guid: 0426a44e50f1c9643a6efb86034ee57c, type: 3}
   exhaustOnUse: 0

@@ -145,10 +145,26 @@ public partial class RewardUI
         }
 
         PlayOpenBurstVisual();
-        yield return new WaitForSecondsRealtime(openBurstDuration + openToRevealDelay);
+        float baseOpenWaitDuration = Mathf.Max(0f, openBurstDuration + openToRevealDelay);
+        float openWaitDuration = Mathf.Max(baseOpenWaitDuration, packOpenAnimationWaitDuration);
+        if (waitForEffectBeforeBottom)
+        {
+            float effectWaitDuration = Mathf.Max(0f, GetVisualAnimatorDuration(effectRoot, effectAnimatorSpeed) + effectToBottomTimeOffset);
+            openWaitDuration = Mathf.Max(baseOpenWaitDuration, effectWaitDuration);
+        }
+
+        yield return new WaitForSecondsRealtime(openWaitDuration);
 
         PlayBottomRevealVisual();
         yield return new WaitForSecondsRealtime(bottomRevealDuration);
+
+        float cardGlowDelay = Mathf.Max(0f, cardGlowRevealDelayAfterBottom);
+        if (cardGlowDelay > 0f)
+        {
+            yield return new WaitForSecondsRealtime(cardGlowDelay);
+        }
+
+        yield return PlayCardGlowVisual();
 
         DisplayCardChoices(cardChoices);
         yield return new WaitForSecondsRealtime(cardRevealInterval);
@@ -222,7 +238,7 @@ public partial class RewardUI
         {
             cardbagBag.gameObject.SetActive(true);
             cardbagBag.localScale = bagDefaultScale;
-            RestartVisualAnimator(cardbagBag);
+            TriggerVisualAnimator(cardbagBag, packOpenTriggerName, packIdleStateName);
 
             DOTween.Sequence()
                 .SetLink(gameObject, LinkBehaviour.KillOnDisable)
@@ -243,7 +259,7 @@ public partial class RewardUI
         {
             effectRoot.gameObject.SetActive(true);
             effectRoot.localScale = effectDefaultScale;
-            RestartVisualAnimator(effectRoot);
+            RestartVisualAnimator(effectRoot, effectAnimatorSpeed);
         }
     }
 
@@ -261,7 +277,7 @@ public partial class RewardUI
 
         if (effectRoot != null)
         {
-            effectRoot.gameObject.SetActive(false);
+            ScheduleEffectHideAfterBottom();
         }
 
         if (cardParent != null)
@@ -277,6 +293,48 @@ public partial class RewardUI
         bottomRoot.gameObject.SetActive(true);
         bottomRoot.localScale = bottomDefaultScale;
         RestartVisualAnimator(bottomRoot);
+    }
+
+    private void ScheduleEffectHideAfterBottom()
+    {
+        StopEffectHideCoroutine();
+
+        if (effectRoot == null)
+        {
+            return;
+        }
+
+        float overlapDuration = Mathf.Max(0f, effectBottomOverlapDuration);
+        if (overlapDuration <= 0f)
+        {
+            effectRoot.gameObject.SetActive(false);
+            return;
+        }
+
+        effectHideCoroutine = StartCoroutine(HideEffectAfterBottomOverlap(overlapDuration));
+    }
+
+    private IEnumerator HideEffectAfterBottomOverlap(float overlapDuration)
+    {
+        yield return new WaitForSecondsRealtime(overlapDuration);
+
+        if (effectRoot != null)
+        {
+            effectRoot.gameObject.SetActive(false);
+        }
+
+        effectHideCoroutine = null;
+    }
+
+    private void StopEffectHideCoroutine()
+    {
+        if (effectHideCoroutine == null)
+        {
+            return;
+        }
+
+        StopCoroutine(effectHideCoroutine);
+        effectHideCoroutine = null;
     }
 
     private void DisplayCardChoices(List<CardBase> cardChoices)
@@ -373,19 +431,149 @@ public partial class RewardUI
                 .Join(visualRect.DOAnchorPos(ui.OriginalAnchoredPosition, cardRevealDuration).SetEase(Ease.OutCubic));
         }
 
-        PlayCardGlowVisual();
+        if (replayCardGlowOnEachCardReveal)
+        {
+            StartCoroutine(PlayCardGlowVisual());
+        }
     }
 
-    private void PlayCardGlowVisual()
+    private IEnumerator PlayCardGlowVisual()
+    {
+        if (cardGlowRoot == null)
+        {
+            yield break;
+        }
+
+        cardGlowRoot.gameObject.SetActive(true);
+        cardGlowRoot.localScale = glowDefaultScale;
+
+        if (restartCardGlowChildAnimators)
+        {
+            SetCardGlowAnimatorsEnabled(false);
+        }
+
+        yield return PlayCardGlowChildrenSpreadVisual();
+
+        RestartVisualAnimator(cardGlowRoot, restartCardGlowChildAnimators);
+    }
+
+    private IEnumerator PlayCardGlowChildrenSpreadVisual()
+    {
+        int childCount = cardGlowRoot.childCount;
+        if (childCount == 0)
+        {
+            yield break;
+        }
+
+        List<RectTransform> childRects = new List<RectTransform>(childCount);
+        List<Vector2> targetPositions = new List<Vector2>(childCount);
+        List<Vector3> targetScales = new List<Vector3>(childCount);
+        Vector2 startPosition = ResolveCardGlowStartPosition();
+
+        for (int i = 0; i < childCount; i++)
+        {
+            RectTransform childRect = cardGlowRoot.GetChild(i) as RectTransform;
+            if (childRect == null)
+            {
+                continue;
+            }
+
+            childRect.DOKill();
+            childRect.gameObject.SetActive(true);
+
+            CanvasGroup canvasGroup = GetOrAddCanvasGroup(childRect.gameObject);
+            if (canvasGroup != null)
+            {
+                canvasGroup.alpha = 0f;
+            }
+
+            childRects.Add(childRect);
+            targetPositions.Add(childRect.anchoredPosition);
+            targetScales.Add(childRect.localScale);
+
+            childRect.anchoredPosition = startPosition;
+            childRect.localScale = childRect.localScale * cardGlowStartScale;
+        }
+
+        if (childRects.Count == 0)
+        {
+            yield break;
+        }
+
+        float duration = Mathf.Max(0f, cardGlowSpreadDuration);
+        if (duration <= 0f)
+        {
+            for (int i = 0; i < childRects.Count; i++)
+            {
+                childRects[i].anchoredPosition = targetPositions[i];
+                childRects[i].localScale = targetScales[i];
+
+                CanvasGroup canvasGroup = GetOrAddCanvasGroup(childRects[i].gameObject);
+                if (canvasGroup != null)
+                {
+                    canvasGroup.alpha = 1f;
+                }
+            }
+
+            yield break;
+        }
+
+        Sequence sequence = DOTween.Sequence()
+            .SetLink(gameObject, LinkBehaviour.KillOnDisable)
+            .SetUpdate(true);
+
+        float stagger = Mathf.Max(0f, cardGlowChildStagger);
+        for (int i = 0; i < childRects.Count; i++)
+        {
+            RectTransform childRect = childRects[i];
+            CanvasGroup canvasGroup = GetOrAddCanvasGroup(childRect.gameObject);
+            float delay = stagger * i;
+
+            sequence.Join(childRect.DOAnchorPos(targetPositions[i], duration)
+                .SetDelay(delay)
+                .SetEase(cardGlowSpreadEase));
+            sequence.Join(childRect.DOScale(targetScales[i], duration)
+                .SetDelay(delay)
+                .SetEase(cardGlowSpreadEase));
+
+            if (canvasGroup != null)
+            {
+                sequence.Join(canvasGroup.DOFade(1f, Mathf.Min(0.12f, duration))
+                    .SetDelay(delay)
+                    .SetEase(Ease.OutQuad));
+            }
+        }
+
+        yield return sequence.WaitForCompletion();
+    }
+
+    private Vector2 ResolveCardGlowStartPosition()
+    {
+        if (cardGlowRoot == null)
+        {
+            return Vector2.zero;
+        }
+
+        Transform card2 = cardGlowRoot.Find("card2");
+        RectTransform card2Rect = card2 as RectTransform;
+        return card2Rect != null ? card2Rect.anchoredPosition : Vector2.zero;
+    }
+
+    private void SetCardGlowAnimatorsEnabled(bool enabled)
     {
         if (cardGlowRoot == null)
         {
             return;
         }
 
-        cardGlowRoot.gameObject.SetActive(true);
-        cardGlowRoot.localScale = glowDefaultScale;
-        RestartVisualAnimator(cardGlowRoot);
+        Animator[] animators = cardGlowRoot.GetComponentsInChildren<Animator>(true);
+        for (int i = 0; i < animators.Length; i++)
+        {
+            if (animators[i] != null)
+            {
+                animators[i].enabled = enabled;
+            }
+        }
     }
 
     private void SetRewardCardsInteractable(bool value)
@@ -432,6 +620,8 @@ public partial class RewardUI
 
     private void StopOpenPackFlow()
     {
+        StopEffectHideCoroutine();
+
         if (openPackCoroutine != null)
         {
             StopCoroutine(openPackCoroutine);

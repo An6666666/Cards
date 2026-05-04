@@ -8,6 +8,7 @@ public partial class RunMapUI : MonoBehaviour
     {
         nodeButtons.Clear();
         nodeRects.Clear();
+        nodeBaseScales.Clear();
         hasBuilt = false;
 
         if (mapContainer == null)
@@ -183,7 +184,7 @@ public partial class RunMapUI : MonoBehaviour
         if (iconImage == null)
             return;
 
-        iconImage.sprite = GetIcon(node.NodeType);
+        iconImage.sprite = node.IconOverride != null ? node.IconOverride : GetIcon(node.NodeType);
         iconImage.preserveAspect = true;
         iconImage.enabled = iconImage.sprite != null;
     }

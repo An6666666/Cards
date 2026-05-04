@@ -93,9 +93,11 @@ public partial class BattleManager : MonoBehaviour
     private readonly List<GameObject> spawnedRelicUiObjects = new List<GameObject>();
     private RunManager runManager;
     private Coroutine phaseHintCoroutine;
+    private Coroutine showVictoryRewardsCoroutine;
     private CanvasGroup phaseHintLegacyTextCanvasGroup;
     private CanvasGroup phaseHintTmpTextCanvasGroup;
     private CanvasGroup phaseHintImageCanvasGroup;
+    private int phaseHintInteractionLockCount;
 
     public bool BattleStarted => battleStarted;
     public float NormalBattleRelicRewardChance => Mathf.Clamp01(normalBattleRelicRewardChance);
@@ -105,7 +107,10 @@ public partial class BattleManager : MonoBehaviour
     public BattleStateMachine StateMachine => stateMachine;
     public TutorialBattleController TutorialController => tutorialController;
     public bool IsProcessingEnemyTurnStart => turnController != null && turnController.IsProcessingEnemyTurnStart;
-    public bool IsCardInteractionLocked => handUIController != null && handUIController.IsCardInteractionLocked;
+    public bool IsPhaseHintInteractionLocked => phaseHintInteractionLockCount > 0;
+    public bool IsPlayerInteractionLocked => IsPhaseHintInteractionLocked
+        || (handUIController != null && handUIController.IsCardInteractionLocked);
+    public bool IsCardInteractionLocked => IsPlayerInteractionLocked;
     public BattleRuntimeContext RuntimeContext => runtimeContext;
     public IEnemyQueryService EnemyQueryService => enemyQueryService;
 
@@ -142,9 +147,15 @@ public partial class BattleManager : MonoBehaviour
             return;
         }
 
-        UpdateMovementHoverFromPointer();
+        if (!IsPlayerInteractionLocked)
+        {
+            UpdateMovementHoverFromPointer();
+        }
 
-        if (Input.GetKeyDown(KeyCode.Space) && endTurnButton != null && endTurnButton.interactable)
+        if (!IsPlayerInteractionLocked
+            && Input.GetKeyDown(KeyCode.Space)
+            && endTurnButton != null
+            && endTurnButton.interactable)
         {
             EndPlayerTurn();
             return;
@@ -171,6 +182,11 @@ public partial class BattleManager : MonoBehaviour
 
     public void EndPlayerTurn()
     {
+        if (IsPlayerInteractionLocked)
+        {
+            return;
+        }
+
         turnController.EndPlayerTurn();
     }
 
@@ -181,11 +197,21 @@ public partial class BattleManager : MonoBehaviour
 
     public void UseMovementCard(CardBase movementCard)
     {
+        if (IsPlayerInteractionLocked)
+        {
+            return;
+        }
+
         movementSelectionController.UseMovementCard(movementCard);
     }
 
     public void UpdateMovementHover(Vector2 worldPosition)
     {
+        if (IsPlayerInteractionLocked)
+        {
+            return;
+        }
+
         movementSelectionController.UpdateMovementHover(worldPosition);
     }
 
@@ -213,6 +239,11 @@ public partial class BattleManager : MonoBehaviour
             return;
         }
 
+        if (IsPlayerInteractionLocked)
+        {
+            return;
+        }
+
         if (board == null || player == null)
         {
             return;
@@ -237,11 +268,21 @@ public partial class BattleManager : MonoBehaviour
 
     public bool OnTileClicked(BoardTile tile)
     {
+        if (IsPlayerInteractionLocked)
+        {
+            return false;
+        }
+
         return movementSelectionController.OnTileClicked(tile);
     }
 
     public void StartAttackSelect(CardBase attackCard)
     {
+        if (IsPlayerInteractionLocked)
+        {
+            return;
+        }
+
         if (!TryCreateAttackSelectionRequest(attackCard, out AttackSelectionRequest request))
         {
             return;
@@ -252,11 +293,21 @@ public partial class BattleManager : MonoBehaviour
 
     public void StartAttackSelect(AttackSelectionRequest request)
     {
+        if (IsPlayerInteractionLocked)
+        {
+            return;
+        }
+
         attackSelectionController.StartAttackSelect(request);
     }
 
     public bool OnEnemyClicked(Enemy enemy)
     {
+        if (IsPlayerInteractionLocked)
+        {
+            return false;
+        }
+
         if (movementSelectionController != null && movementSelectionController.OnEnemyClicked(enemy))
         {
             return true;
@@ -267,6 +318,11 @@ public partial class BattleManager : MonoBehaviour
 
     public void UpdateAttackHover(Vector2 worldPosition)
     {
+        if (IsPlayerInteractionLocked)
+        {
+            return;
+        }
+
         attackSelectionController.UpdateAttackHover(worldPosition);
     }
 
@@ -341,7 +397,60 @@ public partial class BattleManager : MonoBehaviour
 
     public void ShowVictoryRewards()
     {
+        if (showVictoryRewardsCoroutine != null)
+        {
+            return;
+        }
+
+        showVictoryRewardsCoroutine = StartCoroutine(ShowVictoryRewardsAfterDeathAnimations());
+    }
+
+    private IEnumerator ShowVictoryRewardsAfterDeathAnimations()
+    {
+        yield return WaitForDefeatedEnemiesToFinishDeathAnimations();
         rewardController.ShowVictoryRewards();
+        showVictoryRewardsCoroutine = null;
+    }
+
+    private IEnumerator WaitForDefeatedEnemiesToFinishDeathAnimations()
+    {
+        List<Enemy> defeatedEnemies = new List<Enemy>();
+        for (int i = 0; i < enemies.Count; i++)
+        {
+            Enemy enemy = enemies[i];
+            if (enemy != null && (enemy.IsDead || enemy.currentHP <= 0))
+            {
+                defeatedEnemies.Add(enemy);
+            }
+        }
+
+        if (defeatedEnemies.Count == 0)
+        {
+            yield break;
+        }
+
+        while (true)
+        {
+            bool hasPendingDeathVisual = false;
+            for (int i = defeatedEnemies.Count - 1; i >= 0; i--)
+            {
+                Enemy enemy = defeatedEnemies[i];
+                if (enemy == null)
+                {
+                    defeatedEnemies.RemoveAt(i);
+                    continue;
+                }
+
+                hasPendingDeathVisual = true;
+            }
+
+            if (!hasPendingDeathVisual)
+            {
+                yield break;
+            }
+
+            yield return null;
+        }
     }
 
     public void CaptureBattleEndSummary(bool isVictory)
@@ -361,6 +470,17 @@ public partial class BattleManager : MonoBehaviour
     internal void SetEndTurnButtonInteractable(bool value)
     {
         handUIController.SetEndTurnButtonInteractable(value);
+    }
+
+    internal void PushPhaseHintInteractionLock()
+    {
+        phaseHintInteractionLockCount++;
+        handUIController?.SetEndTurnButtonInteractable(false);
+    }
+
+    internal void PopPhaseHintInteractionLock()
+    {
+        phaseHintInteractionLockCount = Mathf.Max(0, phaseHintInteractionLockCount - 1);
     }
 
     public void RefreshEnemiesFromScene()

@@ -262,8 +262,56 @@ public partial class RewardUI
 
     private void RestartVisualAnimator(RectTransform rectTransform)
     {
+        RestartVisualAnimator(rectTransform, false);
+    }
+
+    private void RestartVisualAnimator(RectTransform rectTransform, float speed)
+    {
+        RestartVisualAnimator(rectTransform, false, speed);
+    }
+
+    private void RestartVisualAnimator(RectTransform rectTransform, bool includeChildren)
+    {
+        RestartVisualAnimator(rectTransform, includeChildren, 1f);
+    }
+
+    private void RestartVisualAnimator(RectTransform rectTransform, bool includeChildren, float speed)
+    {
         if (rectTransform == null)
         {
+            return;
+        }
+
+        if (includeChildren)
+        {
+            Animator[] animators = rectTransform.GetComponentsInChildren<Animator>(true);
+            for (int i = 0; i < animators.Length; i++)
+            {
+                RestartAnimator(animators[i], speed);
+            }
+
+            return;
+        }
+
+        Animator animator = rectTransform.GetComponent<Animator>();
+        if (animator == null)
+        {
+            animator = rectTransform.GetComponentInChildren<Animator>(true);
+        }
+
+        RestartAnimator(animator, speed);
+    }
+
+    private void TriggerVisualAnimator(RectTransform rectTransform, string triggerName)
+    {
+        TriggerVisualAnimator(rectTransform, triggerName, null);
+    }
+
+    private void TriggerVisualAnimator(RectTransform rectTransform, string triggerName, string resetStateName)
+    {
+        if (rectTransform == null || string.IsNullOrWhiteSpace(triggerName))
+        {
+            RestartVisualAnimator(rectTransform);
             return;
         }
 
@@ -281,6 +329,62 @@ public partial class RewardUI
         animator.enabled = true;
         animator.updateMode = AnimatorUpdateMode.UnscaledTime;
         animator.speed = 1f;
+
+        if (!string.IsNullOrWhiteSpace(resetStateName))
+        {
+            animator.Play(resetStateName, 0, 0f);
+            animator.Update(0f);
+        }
+
+        animator.ResetTrigger(triggerName);
+        animator.SetTrigger(triggerName);
+        animator.Update(0f);
+    }
+
+    private float GetVisualAnimatorDuration(RectTransform rectTransform, float speed = 1f)
+    {
+        Animator animator = ResolveAnimator(rectTransform);
+        if (animator == null || animator.runtimeAnimatorController == null)
+        {
+            return 0f;
+        }
+
+        AnimatorStateInfo stateInfo = animator.GetCurrentAnimatorStateInfo(0);
+        float duration = stateInfo.length;
+        if (duration <= 0f)
+        {
+            return 0f;
+        }
+
+        return duration / Mathf.Max(0.01f, speed);
+    }
+
+    private Animator ResolveAnimator(RectTransform rectTransform)
+    {
+        if (rectTransform == null)
+        {
+            return null;
+        }
+
+        Animator animator = rectTransform.GetComponent<Animator>();
+        if (animator == null)
+        {
+            animator = rectTransform.GetComponentInChildren<Animator>(true);
+        }
+
+        return animator;
+    }
+
+    private void RestartAnimator(Animator animator, float speed = 1f)
+    {
+        if (animator == null || animator.runtimeAnimatorController == null)
+        {
+            return;
+        }
+
+        animator.enabled = true;
+        animator.updateMode = AnimatorUpdateMode.UnscaledTime;
+        animator.speed = Mathf.Max(0.01f, speed);
         animator.Rebind();
         animator.Update(0f);
         animator.Play(0, 0, 0f);

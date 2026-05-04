@@ -47,6 +47,7 @@ public partial class RunManager
         eventResolver.CurrentRunSnapshot = currentRunSnapshot;
 
         Dictionary<string, MapNodeData> nodesById = RestoreMapNodes(data.nodes);
+        ApplyConfigNodeOverrides();
         currentNode = ResolveNodeById(nodesById, data.currentNodeId);
         activeNode = ResolveNodeById(nodesById, data.activeNodeId);
 
@@ -98,7 +99,7 @@ public partial class RunManager
 
     private void SaveCurrentProgress()
     {
-        if (suppressAutosave || runCompleted || mapFloors.Count == 0)
+        if (tutorialRun || suppressAutosave || runCompleted || mapFloors.Count == 0)
         {
             return;
         }

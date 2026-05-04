@@ -22,8 +22,8 @@ MonoBehaviour:
     shopMax: 3
     eliteMin: 3
     eliteMax: 4
-    restMin: 4
-    restMax: 6
+    restMin: 3
+    restMax: 4
     eventRatioMin: 0.2
     eventRatioMax: 0.25
     typeConstraints:

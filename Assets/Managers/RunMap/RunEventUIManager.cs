@@ -26,6 +26,7 @@ public class RunEventUIManager : MonoBehaviour
 
     private void Awake()
     {
+        ResolvePanelRoot();
         Hide();
     }
 
@@ -37,6 +38,13 @@ public class RunEventUIManager : MonoBehaviour
         {
             optionCallback?.Invoke(null);
             return;
+        }
+
+        ResolvePanelRoot();
+
+        if (!gameObject.activeSelf)
+        {
+            gameObject.SetActive(true);
         }
 
         if (panelRoot != null && !panelRoot.activeSelf)
@@ -72,9 +80,19 @@ public class RunEventUIManager : MonoBehaviour
 
     public void Hide()
     {
+        ResolvePanelRoot();
+
         if (panelRoot != null)
         {
             panelRoot.SetActive(false);
+        }
+    }
+
+    private void ResolvePanelRoot()
+    {
+        if (panelRoot == null)
+        {
+            panelRoot = gameObject;
         }
     }
 

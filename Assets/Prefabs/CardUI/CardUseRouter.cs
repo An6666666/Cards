@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 public class CardUseRouter : MonoBehaviour
@@ -78,7 +79,7 @@ public class CardUseRouter : MonoBehaviour
         bool used = false;
 
         if (cardData.cardType == CardType.Attack)
-            used = TryUseAttack(hit);
+            used = TryUseAttack(hit, worldPos);
         else if (cardData.cardType == CardType.Movement)
             used = TryUseMovement(hit, worldPos);
         else if (cardData.cardType == CardType.Skill)
@@ -105,23 +106,83 @@ public class CardUseRouter : MonoBehaviour
         return battleManager != null && battleManager.IsCardInteractionLocked;
     }
 
-    private bool TryUseAttack(Collider2D hit)
+    private bool TryUseAttack(Collider2D hit, Vector2 worldPos)
     {
-        if (hit != null)
+        Enemy enemy = ResolveAttackTarget(hit);
+        if (enemy == null)
         {
-            var enemy = hit.GetComponentInParent<Enemy>();
-            if (enemy != null)
+            Collider2D[] overlaps = Physics2D.OverlapPointAll(worldPos);
+            for (int i = 0; i < overlaps.Length; i++)
             {
-                if (battleManager.OnEnemyClicked(enemy))
-                    return true;
-            }
-            else
-            {
-                Debug.LogWarning($"[CardUseRouter] Attack drop hit {hit.name} but no Enemy found in parents.");
+                enemy = ResolveAttackTarget(overlaps[i]);
+                if (enemy != null)
+                    break;
             }
         }
+
+        if (enemy != null && battleManager.OnEnemyClicked(enemy))
+            return true;
+
         battleManager.EndAttackSelect();
         return false;
+    }
+
+    private Enemy ResolveAttackTarget(Collider2D hit)
+    {
+        if (hit == null)
+            return null;
+
+        Enemy enemy = hit.GetComponentInParent<Enemy>();
+        if (IsAliveEnemy(enemy))
+            return enemy;
+
+        BoardTile tile = ResolveBoardTile(hit);
+        return ResolveEnemyOnTile(tile);
+    }
+
+    private BoardTile ResolveBoardTile(Collider2D hit)
+    {
+        if (hit == null)
+            return null;
+
+        BoardTile tile;
+        if (hit.TryGetComponent(out tile))
+            return tile;
+
+        return hit.GetComponentInParent<BoardTile>();
+    }
+
+    private Enemy ResolveEnemyOnTile(BoardTile tile)
+    {
+        if (tile == null || battleManager == null)
+            return null;
+
+        IReadOnlyList<Enemy> enemies = battleManager.RuntimeContext != null
+            ? battleManager.RuntimeContext.Enemies
+            : battleManager.enemies;
+
+        if (enemies == null)
+            return null;
+
+        for (int i = 0; i < enemies.Count; i++)
+        {
+            Enemy enemy = enemies[i];
+            if (IsAliveEnemy(enemy) && enemy.gridPosition == tile.gridPosition)
+                return enemy;
+        }
+
+        return null;
+    }
+
+    private bool IsAliveEnemy(Enemy enemy)
+    {
+        if (enemy == null)
+            return false;
+
+        if (battleManager != null && battleManager.RuntimeContext != null)
+            return battleManager.RuntimeContext.IsAliveEnemy(enemy);
+
+        return enemy.currentHP > 0 && !enemy.IsDead;
     }
 
     private bool TryUseMovement(Collider2D hit, Vector2 worldPos)

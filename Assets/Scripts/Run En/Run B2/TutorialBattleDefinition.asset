@@ -18,9 +18,9 @@ MonoBehaviour:
   refreshEnemiesOnIncorrectOrder: 1
   clearExistingEnemiesBeforeSpawn: 1
   steps:
-  - stepId: "UI\u9801\u9762\u4ECB\u7D39"
+  - stepId: UI
     fixedHand: []
-    clearExistingEnemiesBeforeSpawn: 0
+    clearExistingEnemiesBeforeSpawn: 1
     enemySpawns:
     - enemyPrefab: {fileID: 4204690724760053818, guid: 92221844cb8800f4e91bad5ce4330371, type: 3}
       gridPosition: {x: -2, y: 0}
@@ -33,9 +33,9 @@ MonoBehaviour:
     lockEndTurnUntilComplete: 1
     clearTileEffectsBeforeSpawn: 1
     reactionDialogueKey: UI
-    reactionImage: {fileID: 21300000, guid: b55fe26d2ff16514b976235d0fe7069d, type: 3}
+    reactionImage: {fileID: 21300000, guid: d7962859eb8afd64e82daff65f268bd7, type: 3}
     reactionVideo: {fileID: 0}
-    reactionVisualMinimumDisplaySeconds: 5
+    reactionVisualMinimumDisplaySeconds: 4
   - stepId: "\u706B\u52A0\u6728"
     fixedHand:
     - {fileID: 11400000, guid: 11d3cc5377d2ef3459a4b4380becefff, type: 2}

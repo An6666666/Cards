@@ -56,7 +56,10 @@ public class CardDragHandler : MonoBehaviour, IBeginDragHandler, IDragHandler, I
         CreatePlaceholder();
         if (cardUI.LayoutElement != null) cardUI.LayoutElement.ignoreLayout = true;
         if (cardUI.VisualRect != null)
-            cardUI.OriginalAnchoredPosition = cardUI.VisualRect.anchoredPosition;
+        {
+            cardUI.VisualRect.anchoredPosition = Vector2.zero;
+            cardUI.OriginalAnchoredPosition = Vector2.zero;
+        }
 
         animationController?.FadeCardAlpha(draggingAlpha);
 

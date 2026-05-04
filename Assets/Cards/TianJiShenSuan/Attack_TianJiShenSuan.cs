@@ -27,14 +27,14 @@ public class Attack_TianJiShenSuan : AttackCardBase
     private void OnEnable()
     {
         cardType = CardType.Attack;
-        cost = 2;
+        cost = 1;
         exhaustOnUse = true;
         elementType = Element;
     }
 
     private void OnValidate()
     {
-        cost = 2;
+        cost = 1;
         elementType = Element;
     }
 

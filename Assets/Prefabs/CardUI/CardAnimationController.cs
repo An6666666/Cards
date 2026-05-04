@@ -113,9 +113,9 @@ public class CardAnimationController : MonoBehaviour
 
         var returnTween = TweenCardPosition(targetPosition, returnMoveDuration, returnMoveEase);
         if (returnTween != null)
-            returnTween.OnComplete(() => cardUI.OriginalAnchoredPosition = cardUI.VisualRect.anchoredPosition);
+            returnTween.OnComplete(() => cardUI.OriginalAnchoredPosition = targetPosition);
         else
-            cardUI.OriginalAnchoredPosition = cardUI.VisualRect.anchoredPosition;
+            cardUI.OriginalAnchoredPosition = targetPosition;
 
         if (cardUI.LayoutElement != null) cardUI.LayoutElement.ignoreLayout = false;
 
@@ -156,7 +156,7 @@ public class CardAnimationController : MonoBehaviour
         float startScale = startScaleOverride ?? drawStartScale;
         Ease ease = easeOverride ?? drawAnimationEase;
 
-        Vector2 targetAnchoredPosition = cardUI.VisualRect.anchoredPosition;
+        Vector2 targetAnchoredPosition = Vector2.zero;
         Vector3 targetScale = cardUI.OriginalLocalScale;
         Vector2 startingAnchoredPosition = targetAnchoredPosition;
 
@@ -325,7 +325,7 @@ public class CardAnimationController : MonoBehaviour
         drawAnimationTweenCount = 0;
 
         if (cardUI != null && cardUI.VisualRect != null)
-            cardUI.OriginalAnchoredPosition = cardUI.VisualRect.anchoredPosition;
+            cardUI.OriginalAnchoredPosition = Vector2.zero;
 
         if (dragHandler != null)
             dragHandler.AllowDragging = cardUI.CurrentDisplayContext == CardUI.DisplayContext.Hand && allowDraggingBeforeDraw;

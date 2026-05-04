@@ -160,7 +160,7 @@ public class BattleEncounterLoader
     /// </summary>
     private IEnumerator SelectPlayerStartTile()
     {
-        battleManager.ShowBattlePhaseHint("選擇落點回合", SelectStartTileHintDurationSeconds);
+        yield return battleManager.ShowBattlePhaseHintAndWait("選擇落點回合", SelectStartTileHintDurationSeconds);
         isSelectingStartTile = true;
 
         List<Vector2Int> positions = board.GetAllPositions();

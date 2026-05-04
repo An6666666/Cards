@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 public partial class RunMapUI : MonoBehaviour
@@ -40,9 +41,11 @@ public partial class RunMapUI : MonoBehaviour
 
                 ConfigureButtonVisuals(buttonInstance, node);
                 buttonInstance.onClick.AddListener(() => OnNodeClicked(node));
+                RegisterNodeHoverEvents(buttonInstance, node);
 
                 nodeButtons[node] = buttonInstance;
                 nodeRects[node] = buttonRect;
+                nodeBaseScales[node] = buttonRect.localScale;
             }
         }
 
@@ -903,5 +906,27 @@ public partial class RunMapUI : MonoBehaviour
             int swapIndex = Random.Range(0, i + 1);
             (items[i], items[swapIndex]) = (items[swapIndex], items[i]);
         }
+    }
+
+    private void RegisterNodeHoverEvents(Button button, MapNodeData node)
+    {
+        if (button == null || node == null)
+            return;
+
+        EventTrigger trigger = button.GetComponent<EventTrigger>();
+        if (trigger == null)
+            trigger = button.gameObject.AddComponent<EventTrigger>();
+
+        if (trigger.triggers == null)
+            trigger.triggers = new List<EventTrigger.Entry>();
+        AddNodeHoverCallback(trigger, EventTriggerType.PointerEnter, _ => OnNodePointerEnter(node));
+        AddNodeHoverCallback(trigger, EventTriggerType.PointerExit, _ => OnNodePointerExit(node));
+    }
+
+    private void AddNodeHoverCallback(EventTrigger trigger, EventTriggerType eventType, UnityEngine.Events.UnityAction<BaseEventData> callback)
+    {
+        var entry = new EventTrigger.Entry { eventID = eventType };
+        entry.callback.AddListener(callback);
+        trigger.triggers.Add(entry);
     }
 }

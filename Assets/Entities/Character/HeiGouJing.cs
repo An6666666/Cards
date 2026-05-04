@@ -267,6 +267,63 @@ public class HeiGouJing : Enemy
         spawnedClones.Remove(clone);
     }
 
+    protected internal override void Die()
+    {
+        if (!isClone)
+        {
+            PlaySpawnedCloneDeathAnimations();
+        }
+
+        base.Die();
+    }
+
+    private void PlaySpawnedCloneDeathAnimations()
+    {
+        for (int i = spawnedClones.Count - 1; i >= 0; i--)
+        {
+            HeiGouJing clone = spawnedClones[i];
+            if (clone == null)
+            {
+                spawnedClones.RemoveAt(i);
+                continue;
+            }
+
+            clone.originMain = null;
+            clone.DieAsLinkedClone();
+        }
+    }
+
+    private void DieAsLinkedClone()
+    {
+        if (IsDead)
+        {
+            return;
+        }
+
+        currentHP = 0;
+        MarkDead();
+        SetForceHideIntent(true);
+        Visual?.PlayDeadAnimation();
+        StartCoroutine(DestroyLinkedCloneAfterDeathAnimation());
+    }
+
+    private IEnumerator DestroyLinkedCloneAfterDeathAnimation()
+    {
+        if (Visual != null)
+        {
+            yield return Visual.WaitForDeathAnimationToFinish(DeathDestroyDelay);
+        }
+        else if (DeathDestroyDelay > 0f)
+        {
+            yield return new WaitForSeconds(DeathDestroyDelay);
+        }
+
+        if (this != null)
+        {
+            Destroy(gameObject);
+        }
+    }
+
     private void OnDestroy()
     {
         if (isClone)
@@ -281,7 +338,10 @@ public class HeiGouJing : Enemy
             if (clone != null)
             {
                 clone.originMain = null;
-                Destroy(clone.gameObject);
+                if (!IsDead)
+                {
+                    Destroy(clone.gameObject);
+                }
             }
         }
         spawnedClones.Clear();

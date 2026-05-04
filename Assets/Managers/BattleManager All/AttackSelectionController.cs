@@ -117,8 +117,7 @@ public class AttackSelectionController
             return;
         }
 
-        Collider2D hit = Physics2D.OverlapPoint(worldPosition);
-        Enemy targetEnemy = hit != null ? hit.GetComponentInParent<Enemy>() : null;
+        Enemy targetEnemy = ResolveAttackTargetAt(worldPosition);
 
         if (IsValidTarget(targetEnemy))
         {
@@ -128,6 +127,67 @@ public class AttackSelectionController
         {
             ClearCurrentEnemyHighlight();
         }
+    }
+
+    private Enemy ResolveAttackTargetAt(Vector2 worldPosition)
+    {
+        Collider2D[] overlaps = Physics2D.OverlapPointAll(worldPosition);
+
+        for (int i = 0; i < overlaps.Length; i++)
+        {
+            Enemy enemy = overlaps[i] != null ? overlaps[i].GetComponentInParent<Enemy>() : null;
+            if (IsValidTarget(enemy))
+            {
+                return enemy;
+            }
+        }
+
+        for (int i = 0; i < overlaps.Length; i++)
+        {
+            BoardTile tile = ResolveBoardTile(overlaps[i]);
+            Enemy enemy = ResolveValidEnemyOnTile(tile);
+            if (enemy != null)
+            {
+                return enemy;
+            }
+        }
+
+        return null;
+    }
+
+    private static BoardTile ResolveBoardTile(Collider2D hit)
+    {
+        if (hit == null)
+        {
+            return null;
+        }
+
+        BoardTile tile;
+        if (hit.TryGetComponent(out tile))
+        {
+            return tile;
+        }
+
+        return hit.GetComponentInParent<BoardTile>();
+    }
+
+    private Enemy ResolveValidEnemyOnTile(BoardTile tile)
+    {
+        if (tile == null)
+        {
+            return null;
+        }
+
+        for (int i = 0; i < validEnemies.Count; i++)
+        {
+            Enemy enemy = validEnemies[i];
+            if (IsValidTarget(enemy) && enemy.gridPosition == tile.gridPosition)
+            {
+                return enemy;
+            }
+        }
+
+        return null;
     }
 
     public void EndAttackSelect()

@@ -39,21 +39,36 @@ public partial class BattleManager
 
     public IEnumerator ShowBattlePhaseHintAndWait(string message, float duration = -1f, bool showCentralHint = true)
     {
-        ShowBattlePhaseHint(message, duration, showCentralHint);
-
-        if (!showCentralHint)
+        if (showCentralHint)
         {
-            yield break;
+            PushPhaseHintInteractionLock();
         }
 
-        float holdDuration = duration > 0f ? duration : phaseHintDuration;
-        float waitDuration = Mathf.Max(0f, holdDuration)
-            + Mathf.Max(0f, phaseHintFadeInDuration)
-            + Mathf.Max(0f, phaseHintFadeOutDuration);
-
-        if (waitDuration > 0f)
+        try
         {
-            yield return new WaitForSeconds(waitDuration);
+            ShowBattlePhaseHint(message, duration, showCentralHint);
+
+            if (!showCentralHint)
+            {
+                yield break;
+            }
+
+            float holdDuration = duration > 0f ? duration : phaseHintDuration;
+            float waitDuration = Mathf.Max(0f, holdDuration)
+                + Mathf.Max(0f, phaseHintFadeInDuration)
+                + Mathf.Max(0f, phaseHintFadeOutDuration);
+
+            if (waitDuration > 0f)
+            {
+                yield return new WaitForSeconds(waitDuration);
+            }
+        }
+        finally
+        {
+            if (showCentralHint)
+            {
+                PopPhaseHintInteractionLock();
+            }
         }
     }
 

@@ -18,12 +18,16 @@ public partial class RunMapUI : MonoBehaviour
 
             bool isSelectable = runManager.IsNodeSelectable(node);
             button.interactable = isSelectable;
+            if (!isSelectable)
+                SetNodeHoverScale(node, false);
 
             if (!(button.targetGraphic is Image image))
                 continue;
 
             if (runManager.CurrentNode == node)
                 image.color = currentColor;
+            else if (isSelectable && runManager.AllowAnyNodeEntry)
+                image.color = defaultColor;
             else if (node.IsCompleted)
                 image.color = completedColor;
             else if (isSelectable)
@@ -48,5 +52,32 @@ public partial class RunMapUI : MonoBehaviour
             return;
 
         runManager.TryEnterNode(node);
+    }
+
+    private void OnNodePointerEnter(MapNodeData node)
+    {
+        if (runManager == null || node == null || !runManager.IsNodeSelectable(node))
+            return;
+
+        SetNodeHoverScale(node, true);
+    }
+
+    private void OnNodePointerExit(MapNodeData node)
+    {
+        SetNodeHoverScale(node, false);
+    }
+
+    private void SetNodeHoverScale(MapNodeData node, bool hovered)
+    {
+        if (node == null || !nodeRects.TryGetValue(node, out RectTransform rect) || rect == null)
+            return;
+
+        Vector3 baseScale = nodeBaseScales.TryGetValue(node, out Vector3 storedScale)
+            ? storedScale
+            : Vector3.one;
+
+        rect.localScale = hovered
+            ? baseScale * selectableNodeHoverScale
+            : baseScale;
     }
 }

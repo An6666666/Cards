@@ -97,6 +97,13 @@ public partial class RewardUI : MonoBehaviour
     [SerializeField] private float idleLightMinAlpha = 0.45f;
     [SerializeField] private float openBurstDuration = 0.5f;
     [SerializeField] private float openToRevealDelay = 0.25f;
+    [SerializeField] private string packIdleStateName = "cardbag";
+    [SerializeField] private string packOpenTriggerName = "cardbag_open";
+    [SerializeField, Min(0f)] private float packOpenAnimationWaitDuration = 1.1f;
+    [SerializeField, Min(0.01f)] private float effectAnimatorSpeed = 1f;
+    [SerializeField] private bool waitForEffectBeforeBottom = true;
+    [SerializeField] private float effectToBottomTimeOffset = -0.15f;
+    [SerializeField, Min(0f)] private float effectBottomOverlapDuration = 0.3f;
     [SerializeField] private float bottomRevealDuration = 0.45f;
     [SerializeField] private float cardRevealDuration = 0.3f;
     [SerializeField] private float cardRevealInterval = 0.14f;
@@ -105,6 +112,15 @@ public partial class RewardUI : MonoBehaviour
     [SerializeField] private float packHoverScale = 1.04f;
     [SerializeField] private float packHoverDuration = 0.12f;
     [SerializeField] private float packHoverReturnDuration = 0.16f;
+
+    [Header("Card Glow Timing")]
+    [SerializeField, Min(0f)] private float cardGlowRevealDelayAfterBottom = 0f;
+    [SerializeField, Min(0f)] private float cardGlowSpreadDuration = 0.35f;
+    [SerializeField, Min(0f)] private float cardGlowChildStagger = 0.04f;
+    [SerializeField, Min(0.01f)] private float cardGlowStartScale = 0.85f;
+    [SerializeField] private Ease cardGlowSpreadEase = Ease.OutBack;
+    [SerializeField] private bool restartCardGlowChildAnimators = true;
+    [SerializeField] private bool replayCardGlowOnEachCardReveal = false;
 
     private RectTransform cardbagBag;
     private RectTransform cardbagLight;
@@ -118,6 +134,7 @@ public partial class RewardUI : MonoBehaviour
     private Vector3 bottomDefaultScale = Vector3.one;
     private Vector3 glowDefaultScale = Vector3.one;
     private Coroutine skipButtonRevealCoroutine;
+    private Coroutine effectHideCoroutine;
 
     private void Awake()
     {
