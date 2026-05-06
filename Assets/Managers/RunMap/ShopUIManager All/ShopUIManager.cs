@@ -69,13 +69,23 @@ public partial class ShopUIManager : MonoBehaviour
     [SerializeField] private Button btnRelics;
     [SerializeField] private Button btnRemoval;
 
+    [Header("Tab Button Images")]
+    [SerializeField] private Image btnCardsImage;
+    [SerializeField] private Image btnRelicsImage;
+    [SerializeField] private Image btnRemovalImage;
+
+    [Header("Tab Button Sprites")]
+    [SerializeField] private Sprite btnCardsNormalSprite;
+    [SerializeField] private Sprite btnCardsSelectedSprite;
+    [SerializeField] private Sprite btnRelicsNormalSprite;
+    [SerializeField] private Sprite btnRelicsSelectedSprite;
+    [SerializeField] private Sprite btnRemovalNormalSprite;
+    [SerializeField] private Sprite btnRemovalSelectedSprite;
+
     [Header("Lamps (Optional)")]
     [SerializeField] private Image lampCards;
     [SerializeField] private Image lampRelics;
     [SerializeField] private Image lampRemoval;
-
-    [SerializeField] private Sprite lampNormalSprite;
-    [SerializeField] private Sprite lampSelectedSprite;
 
     [SerializeField] private Color lampNormalColor = Color.white;
     [SerializeField] private Color lampSelectedColor = Color.white;

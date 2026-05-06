@@ -53,11 +53,11 @@ MonoBehaviour:
       nodeCount: 1
       iconOverride: {fileID: 0}
       nodeOverrides:
-      - iconOverride: {fileID: 21300000, guid: 611dec62d3135b044bc1f7c16128f047, type: 3}
+      - iconOverride: {fileID: 21300000, guid: 2f999590b65c0f840b2705d713974eef, type: 3}
         encounterOverride: {fileID: 11400000, guid: 6949f540bac6a344c8023491ebfc8da5, type: 2}
-      - iconOverride: {fileID: 21300000, guid: 7fdd54ab83066d247bb786524300b074, type: 3}
+      - iconOverride: {fileID: 21300000, guid: ce4a05e7442af3946bdd80a5fdbd179b, type: 3}
         encounterOverride: {fileID: 11400000, guid: 5ae84fe648db6a041a37b0302964b0d4, type: 2}
-      - iconOverride: {fileID: 21300000, guid: 41d39cdd5c343164fbd534eb86e42bc0, type: 3}
+      - iconOverride: {fileID: 21300000, guid: ee73dccb9f85e22449ecf912b1f61af8, type: 3}
         encounterOverride: {fileID: 11400000, guid: 547b4ec17e184734780983e8f2ca6f40, type: 2}
     - floorIndex: 2
       nodeType: 3

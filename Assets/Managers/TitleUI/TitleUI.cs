@@ -22,6 +22,7 @@ public class TitleUI : MonoBehaviour
 
     [Header("Panels")]
     [SerializeField] private IllustratedBookPanelController illustratedBookPanelController;
+    [SerializeField] private TitleTutorialPromptController tutorialPromptController;
 
     [Header("Selection Indicator")]
     [SerializeField] private RectTransform selectionArrow;
@@ -50,6 +51,7 @@ public class TitleUI : MonoBehaviour
         AudioManager.Instance?.RefreshSceneBGM();
 
         SetupTitleVisuals();
+        ResolvePanelReferences();
         ResolveButtonReferences();
         CacheMenuButtons();
         CacheStartButtonTitleReferences();
@@ -142,6 +144,19 @@ public class TitleUI : MonoBehaviour
         menuButtons[0] = continueNewButton;
         menuButtons[1] = startButton;
         menuButtons[4] = newButton;
+    }
+
+    private void ResolvePanelReferences()
+    {
+        if (tutorialPromptController == null)
+        {
+            tutorialPromptController = GetComponent<TitleTutorialPromptController>();
+        }
+
+        if (tutorialPromptController == null)
+        {
+            tutorialPromptController = GetComponentInChildren<TitleTutorialPromptController>(true);
+        }
     }
 
     private Button ResolveButtonByObjectName(Button current, string objectName)
@@ -348,6 +363,7 @@ public class TitleUI : MonoBehaviour
         }
 
         if ((illustratedBookPanelController != null && illustratedBookPanelController.IsOpen) ||
+            (tutorialPromptController != null && tutorialPromptController.IsOpen) ||
             (GlobalSettingsUI.Instance != null && GlobalSettingsUI.Instance.IsOpen))
         {
             SetSelectionArrowVisible(false);
@@ -451,10 +467,38 @@ public class TitleUI : MonoBehaviour
             return;
         }
 
+        if (!IsNewButtonOpen())
+        {
+            OpenNewGameTutorialOrStart();
+            return;
+        }
+
         SceneTransitionLoader.LoadScene(nextSceneName);
     }
 
     private void OnNewClicked()
+    {
+        OpenNewGameTutorialOrStart();
+    }
+
+    private bool IsNewButtonOpen()
+    {
+        return continueNewButton != null && continueNewButton.gameObject.activeInHierarchy;
+    }
+
+    private void OpenNewGameTutorialOrStart()
+    {
+        if (tutorialPromptController != null)
+        {
+            tutorialPromptController.Open(StartNewGame);
+            SetSelectionArrowVisible(false);
+            return;
+        }
+
+        StartNewGame();
+    }
+
+    private void StartNewGame()
     {
         RunProgressPersistence.ClearSavedProgress();
         StartingDeckSelection.ClearSelection();

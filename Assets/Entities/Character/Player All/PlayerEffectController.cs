@@ -19,6 +19,7 @@ public class PlayerEffectController : MonoBehaviour
     [SerializeField] private GameObject weakFxRoot;
     [SerializeField] private GameObject imprisonEnterFxRoot;
     [SerializeField] private GameObject imprisonIdleFxRoot;
+    [SerializeField] private GameObject huGuPoSkillFxRoot;
 
     private bool hasShieldParam;
     private bool hasShieldHitFxParam;
@@ -107,6 +108,12 @@ public class PlayerEffectController : MonoBehaviour
         wasImprisonActive = hasImprison;
     }
 
+    public void PlayHuGuPoSkillFX()
+    {
+        EnsureResolved();
+        ReplayFx(huGuPoSkillFxRoot);
+    }
+
     private void EnsureResolved()
     {
         ResolveAnimators();
@@ -135,6 +142,7 @@ public class PlayerEffectController : MonoBehaviour
 
         bleedFxRoot = ResolveFxRoot(bleedFxRoot, "BleedFXRoot", "BleedEffectRoot", "DebuffBleedFXRoot");
         weakFxRoot = ResolveFxRoot(weakFxRoot, "WeakFXRoot", "WeakEffectRoot", "DebuffWeakFXRoot");
+        huGuPoSkillFxRoot = ResolveFxRoot(huGuPoSkillFxRoot, "HuGuPoSkillFXRoot");
 
         Transform imprisonRoot = ResolveFxTransform(null, "ImprisonFXRoot", "DebuffImprisonFXRoot");
         imprisonEnterFxRoot = ResolveFxRoot(

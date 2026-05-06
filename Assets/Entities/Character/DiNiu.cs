@@ -40,6 +40,7 @@ public class DiNiu : Enemy
         }
 
         // 起床後：「全場傷害」技能
+        Visual?.PlaySkillStart();
         DealDamageToAllCombatants(player);
     }
 

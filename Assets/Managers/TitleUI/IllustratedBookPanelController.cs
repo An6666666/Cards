@@ -201,6 +201,7 @@ public class IllustratedBookPanelController : MonoBehaviour
         [SerializeField, InspectorName("Root")] private GameObject root;
         [SerializeField, InspectorName("Name Text")] private UITextBinding nameText;
         [SerializeField, InspectorName("Portrait Image")] private Image portraitImage;
+        [SerializeField, InspectorName("Animation Portrait Image")] private Image animationPortraitImage;
         [SerializeField, InspectorName("Animation Root")] private GameObject animationRoot;
         [SerializeField, InspectorName("Animation Parent")] private Transform animationParent;
         [SerializeField, InspectorName("Previous Preview Button")] private Button previousPreviewButton;
@@ -292,6 +293,11 @@ public class IllustratedBookPanelController : MonoBehaviour
             _lastBoundMonsterData = data;
             _availablePreviewEntries.Clear();
 
+            if (data != null && data.Illustration != null)
+            {
+                _availablePreviewEntries.Add(MonsterPreviewEntryData.CreateIllustrationFallback());
+            }
+
             if (data != null && data.PreviewEntries != null)
             {
                 for (int i = 0; i < data.PreviewEntries.Count; i++)
@@ -302,17 +308,17 @@ public class IllustratedBookPanelController : MonoBehaviour
                         continue;
                     }
 
+                    if (entry.EntryType == MonsterPreviewEntryType.Illustration)
+                    {
+                        continue;
+                    }
+
                     _availablePreviewEntries.Add(entry);
                 }
             }
 
             if (_availablePreviewEntries.Count == 0)
             {
-                if (data != null && data.Illustration != null)
-                {
-                    _availablePreviewEntries.Add(MonsterPreviewEntryData.CreateIllustrationFallback());
-                }
-
                 if (data != null && data.VisualPrefab != null)
                 {
                     _availablePreviewEntries.Add(MonsterPreviewEntryData.CreateAnimationFallback());
@@ -361,12 +367,19 @@ public class IllustratedBookPanelController : MonoBehaviour
                 && activeEntry.EntryType == MonsterPreviewEntryType.AnimationState
                 && resolvedData != null
                 && resolvedData.VisualPrefab != null;
-
             if (portraitImage != null)
             {
                 portraitImage.sprite = showIllustration ? resolvedData.Illustration : null;
                 portraitImage.enabled = showIllustration;
                 portraitImage.gameObject.SetActive(showIllustration);
+            }
+
+            Image animationPortraitTarget = animationPortraitImage != null ? animationPortraitImage : null;
+            if (animationPortraitTarget != null && animationPortraitTarget != portraitImage)
+            {
+                animationPortraitTarget.sprite = null;
+                animationPortraitTarget.enabled = false;
+                animationPortraitTarget.gameObject.SetActive(false);
             }
 
             if (animationRoot != null)

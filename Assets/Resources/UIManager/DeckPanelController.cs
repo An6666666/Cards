@@ -3,6 +3,22 @@ using UnityEngine.UI;
 
 public class DeckPanelController : MonoBehaviour
 {
+    private const string DeckPanelName = "Deck Panel";
+    private const string DiscardPanelName = "Discard Panel";
+    private const string AllDeckPanelName = "AllDeck Panel";
+
+    private static readonly string[] DeckCounterButtonNames =
+    {
+        "Deck Counter",
+        "Deck CounterButton"
+    };
+
+    private static readonly string[] DiscardCounterButtonNames =
+    {
+        "Discard Counter",
+        "Discard CounterButton"
+    };
+
     private static readonly string[] AllDeckCounterButtonNames =
     {
         "AllDeck Counter",
@@ -23,14 +39,20 @@ public class DeckPanelController : MonoBehaviour
     [SerializeField] private Button allDeckCounterButton;
     [SerializeField] private Button switchButton;
 
+    [Header("Close Buttons")]
+    [SerializeField] private Button allDeckCloseButton;
+
     private UIFxController _fx;
     private bool _showingDeck = true;
     private bool _allDeckCounterButtonWired;
+    private bool _allDeckCloseButtonWired;
+    private bool _initialized;
     private float _autoWireTimer;
 
     public void Initialize(UIFxController fx)
     {
         _fx = fx;
+        _initialized = true;
         WireButtons();
         HideAll();
         UpdateCounters();
@@ -42,13 +64,13 @@ public class DeckPanelController : MonoBehaviour
 
         if (deckCounterButton != null)
         {
-            deckCounterButton.onClick.RemoveAllListeners();
+            deckCounterButton.onClick.RemoveListener(OpenDeckPanel);
             deckCounterButton.onClick.AddListener(OpenDeckPanel);
         }
 
         if (discardCounterButton != null)
         {
-            discardCounterButton.onClick.RemoveAllListeners();
+            discardCounterButton.onClick.RemoveListener(OpenDiscardPanel);
             discardCounterButton.onClick.AddListener(OpenDiscardPanel);
         }
 
@@ -62,6 +84,11 @@ public class DeckPanelController : MonoBehaviour
             switchButton.onClick.RemoveAllListeners();
             switchButton.onClick.AddListener(SwitchPanel);
         }
+
+        if (allDeckCloseButton != null)
+        {
+            WireAllDeckCloseButton();
+        }
     }
 
     public void HideAll()
@@ -73,6 +100,11 @@ public class DeckPanelController : MonoBehaviour
 
     private void Update()
     {
+        if (!_initialized)
+        {
+            return;
+        }
+
         _autoWireTimer += Time.unscaledDeltaTime;
         if (_autoWireTimer < 0.5f)
         {
@@ -80,10 +112,12 @@ public class DeckPanelController : MonoBehaviour
         }
 
         _autoWireTimer = 0f;
-        if (allDeckCounterButton == null || !_allDeckCounterButtonWired)
+        if (NeedsAutoWire())
         {
             ResolveAutoReferences();
+            WireButtons();
             WireAllDeckCounterButton();
+            WireAllDeckCloseButton();
         }
     }
 
@@ -165,6 +199,21 @@ public class DeckPanelController : MonoBehaviour
 
     private void ResolveAutoReferences()
     {
+        if (deckPanel == null) deckPanel = FindSceneGameObject(DeckPanelName);
+        if (discardPanel == null) discardPanel = FindSceneGameObject(DiscardPanelName);
+        if (allDeckPanel == null) allDeckPanel = FindSceneGameObject(AllDeckPanelName);
+        if (allDeckCloseButton == null) allDeckCloseButton = FindDirectChildButton(allDeckPanel);
+
+        if (deckCounterButton == null)
+        {
+            deckCounterButton = FindButtonByNames(DeckCounterButtonNames);
+        }
+
+        if (discardCounterButton == null)
+        {
+            discardCounterButton = FindButtonByNames(DiscardCounterButtonNames);
+        }
+
         if (allDeckCounterButton == null)
         {
             allDeckCounterButton = FindButtonByNames(AllDeckCounterButtonNames);
@@ -190,9 +239,34 @@ public class DeckPanelController : MonoBehaviour
             return;
         }
 
-        allDeckCounterButton.onClick.RemoveListener(OpenAllDeckPanel);
+        allDeckCounterButton.onClick.RemoveAllListeners();
         allDeckCounterButton.onClick.AddListener(OpenAllDeckPanel);
         _allDeckCounterButtonWired = true;
+    }
+
+    private bool NeedsAutoWire()
+    {
+        return deckPanel == null
+            || discardPanel == null
+            || allDeckPanel == null
+            || deckCounterButton == null
+            || discardCounterButton == null
+            || allDeckCounterButton == null
+            || allDeckCloseButton == null
+            || !_allDeckCounterButtonWired
+            || !_allDeckCloseButtonWired;
+    }
+
+    private void WireAllDeckCloseButton()
+    {
+        if (allDeckCloseButton == null)
+        {
+            return;
+        }
+
+        allDeckCloseButton.onClick.RemoveListener(CloseAllDeckPanel);
+        allDeckCloseButton.onClick.AddListener(CloseAllDeckPanel);
+        _allDeckCloseButtonWired = true;
     }
 
     private static Button FindButtonByNames(string[] names)
@@ -217,6 +291,41 @@ public class DeckPanelController : MonoBehaviour
                 {
                     return button;
                 }
+            }
+        }
+
+        return null;
+    }
+
+    private static Button FindDirectChildButton(GameObject parent)
+    {
+        if (parent == null)
+        {
+            return null;
+        }
+
+        Transform parentTransform = parent.transform;
+        for (int i = 0; i < parentTransform.childCount; i++)
+        {
+            Button button = parentTransform.GetChild(i).GetComponent<Button>();
+            if (button != null)
+            {
+                return button;
+            }
+        }
+
+        return null;
+    }
+
+    private static GameObject FindSceneGameObject(string objectName)
+    {
+        Transform[] transforms = FindObjectsOfType<Transform>(true);
+        for (int i = 0; i < transforms.Length; i++)
+        {
+            Transform t = transforms[i];
+            if (t != null && t.name == objectName)
+            {
+                return t.gameObject;
             }
         }
 
