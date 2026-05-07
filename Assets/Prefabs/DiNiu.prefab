@@ -75,12 +75,12 @@ SpriteRenderer:
   m_SortingLayerID: 1754066667
   m_SortingLayer: 4
   m_SortingOrder: 1
-  m_Sprite: {fileID: 21300000, guid: 888e73ef296836643b0100092f331f49, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 8004ddcd844eb104280b1777aef2f248, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
-  m_Size: {x: 20, y: 20}
+  m_Size: {x: 10, y: 10}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
@@ -96,7 +96,7 @@ Animator:
   m_GameObject: {fileID: 2026800559802484356}
   m_Enabled: 1
   m_Avatar: {fileID: 0}
-  m_Controller: {fileID: 9100000, guid: a2458d6790d12e846b6388e2736a2f37, type: 2}
+  m_Controller: {fileID: 9100000, guid: 3d33317e49520194f8a38b9860fc378f, type: 2}
   m_CullingMode: 0
   m_UpdateMode: 0
   m_ApplyRootMotion: 0
@@ -249,12 +249,12 @@ SpriteRenderer:
   m_SortingLayerID: 632128979
   m_SortingLayer: 5
   m_SortingOrder: 2
-  m_Sprite: {fileID: 21300000, guid: c9f44864f08b3d048992a636cd693556, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 8d254edbaac53f2408c84ac930533e43, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
-  m_Size: {x: 5, y: 5}
+  m_Size: {x: 10, y: 10}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
@@ -369,7 +369,7 @@ MonoBehaviour:
   attackRangeOffsets: []
   isBoss: 0
   spriteRoot: {fileID: 8275633406451967337}
-  useAppearAnimation: 0
+  useAppearAnimation: 1
   deathDestroyDelay: 0.6
   idleWhiteObj: {fileID: 8257399858107619659}
   idleRedObj: {fileID: 2026800559802484356}
@@ -630,12 +630,12 @@ SpriteRenderer:
   m_SortingLayerID: -19661165
   m_SortingLayer: 3
   m_SortingOrder: 0
-  m_Sprite: {fileID: 21300000, guid: 9ef3f90e35263b44196034b273657aae, type: 3}
+  m_Sprite: {fileID: 21300000, guid: d6d42f1134167d14397590572dd529f7, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
-  m_Size: {x: 20, y: 20}
+  m_Size: {x: 10, y: 10}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
@@ -651,7 +651,7 @@ Animator:
   m_GameObject: {fileID: 8257399858107619659}
   m_Enabled: 1
   m_Avatar: {fileID: 0}
-  m_Controller: {fileID: 22100000, guid: 859f271bda25d324b840e4c2e295f547, type: 2}
+  m_Controller: {fileID: 9100000, guid: 4bbe44fe57c5896458f39d74b06d301b, type: 2}
   m_CullingMode: 0
   m_UpdateMode: 0
   m_ApplyRootMotion: 0

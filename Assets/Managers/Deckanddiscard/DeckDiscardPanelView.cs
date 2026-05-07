@@ -76,6 +76,7 @@ public class DeckDiscardPanelView : MonoBehaviour
 
     private void OnEnable()
     {
+        ResolveAutoReferences();
         DeckUIBus.Register(this);
     }
 
@@ -138,6 +139,41 @@ public class DeckDiscardPanelView : MonoBehaviour
         discardContent = null;
         allDeckContent = null;
         cardItemPrefab = null;
+    }
+
+    private void ResolveAutoReferences()
+    {
+        if (allDeckContent != null)
+        {
+            return;
+        }
+
+        GameObject allDeckPanel = FindSceneGameObject("AllDeck Panel");
+        if (allDeckPanel == null)
+        {
+            return;
+        }
+
+        ScrollRect scrollRect = allDeckPanel.GetComponentInChildren<ScrollRect>(true);
+        if (scrollRect != null && scrollRect.content != null)
+        {
+            allDeckContent = scrollRect.content;
+        }
+    }
+
+    private static GameObject FindSceneGameObject(string objectName)
+    {
+        Transform[] transforms = FindObjectsOfType<Transform>(true);
+        for (int i = 0; i < transforms.Length; i++)
+        {
+            Transform t = transforms[i];
+            if (t != null && t.name == objectName)
+            {
+                return t.gameObject;
+            }
+        }
+
+        return null;
     }
 
 }

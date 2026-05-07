@@ -80,6 +80,7 @@ public partial class ShopUIManager
         UpdateLamp(lampCards, tab == ShopTab.Cards);
         UpdateLamp(lampRelics, tab == ShopTab.Relics);
         UpdateLamp(lampRemoval, tab == ShopTab.Removal);
+        UpdateTabButtonSprites(tab);
 
         RefreshCurrentTabPage();
         RefreshTutorialInteractionState();
@@ -119,9 +120,6 @@ public partial class ShopUIManager
         lamp.DOKill();
         lamp.transform.DOKill();
 
-        if (lampNormalSprite != null && lampSelectedSprite != null)
-            lamp.sprite = selected ? lampSelectedSprite : lampNormalSprite;
-
         lamp.color = selected ? lampSelectedColor : lampNormalColor;
 
         if (!selected)
@@ -135,6 +133,45 @@ public partial class ShopUIManager
             .DOScale(1.08f, 0.12f)
             .SetEase(Ease.OutQuad)
             .OnComplete(() => lamp.transform.DOScale(1f, 0.12f).SetEase(Ease.InQuad));
+    }
+
+    private void UpdateTabButtonSprites(ShopTab selectedTab)
+    {
+        UpdateTabButtonSprite(btnCards, btnCardsImage, btnCardsNormalSprite, btnCardsSelectedSprite, selectedTab == ShopTab.Cards);
+        UpdateTabButtonSprite(btnRelics, btnRelicsImage, btnRelicsNormalSprite, btnRelicsSelectedSprite, selectedTab == ShopTab.Relics);
+        UpdateTabButtonSprite(btnRemoval, btnRemovalImage, btnRemovalNormalSprite, btnRemovalSelectedSprite, selectedTab == ShopTab.Removal);
+    }
+
+    private void UpdateTabButtonSprite(Button button, Image explicitImage, Sprite normalSprite, Sprite selectedSprite, bool selected)
+    {
+        Image buttonImage = ResolveTabButtonImage(button, explicitImage);
+        if (buttonImage == null)
+            return;
+
+        Sprite targetSprite = selected ? selectedSprite : normalSprite;
+        if (targetSprite != null)
+        {
+            buttonImage.sprite = targetSprite;
+            buttonImage.color = Color.white;
+        }
+    }
+
+    private Image ResolveTabButtonImage(Button button, Image explicitImage)
+    {
+        if (explicitImage != null)
+            return explicitImage;
+
+        if (button == null)
+            return null;
+
+        if (button.targetGraphic is Image targetImage)
+            return targetImage;
+
+        Image buttonImage = button.GetComponent<Image>();
+        if (buttonImage != null)
+            return buttonImage;
+
+        return button.GetComponentInChildren<Image>(true);
     }
 
     private void ChangePage(int delta)

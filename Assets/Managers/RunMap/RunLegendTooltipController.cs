@@ -33,17 +33,20 @@ public class RunLegendTooltipController : MonoBehaviour
     private void Reset()
     {
         EnsureDefaultEntries();
+        EnsureAllDeckCounterEntry();
     }
 
     private void OnValidate()
     {
         EnsureDefaultEntries();
+        EnsureAllDeckCounterEntry();
         BuildLookup();
     }
 
     private void Awake()
     {
         EnsureDefaultEntries();
+        EnsureAllDeckCounterEntry();
         BuildLookup();
         ResolveTooltipReferences();
         RegisterChildren();
@@ -104,22 +107,26 @@ public class RunLegendTooltipController : MonoBehaviour
 
     private void RegisterChildren()
     {
-        for (int i = 0; i < transform.childCount; i++)
+        CacheCanvasReferences();
+        Transform searchRoot = canvasRect != null ? canvasRect : transform;
+        RectTransform[] targets = searchRoot.GetComponentsInChildren<RectTransform>(true);
+        for (int i = 0; i < targets.Length; i++)
         {
-            Transform child = transform.GetChild(i);
-            if (child == null || child == tooltipRoot)
+            RectTransform childRect = targets[i];
+            if (childRect == null || childRect == tooltipRoot)
                 continue;
 
-            RectTransform childRect = child as RectTransform;
-            if (childRect == null)
+            if (ResolveEntry(childRect.name) == null)
                 continue;
 
-            if (ResolveEntry(child.name) == null)
-                continue;
+            if (string.Equals(NormalizeName(childRect.name), "AllDeck CounterButton", StringComparison.OrdinalIgnoreCase))
+            {
+                RunAllDeckCounterButton.Attach(childRect);
+            }
 
-            RunLegendTooltipTarget target = child.GetComponent<RunLegendTooltipTarget>();
+            RunLegendTooltipTarget target = childRect.GetComponent<RunLegendTooltipTarget>();
             if (target == null)
-                target = child.gameObject.AddComponent<RunLegendTooltipTarget>();
+                target = childRect.gameObject.AddComponent<RunLegendTooltipTarget>();
 
             target.Bind(this, childRect);
         }
@@ -163,6 +170,11 @@ public class RunLegendTooltipController : MonoBehaviour
         AddDefaultEntry("Rest", "休息", "進入休息節點，恢復生命值並整理狀態。");
         AddDefaultEntry("Event", "事件", "進入事件節點，可能獲得獎勵、觸發選擇或遭遇特殊狀況。");
         AddDefaultEntry("Boss", "首領", "進入本輪路線的首領戰。");
+    }
+
+    private void EnsureAllDeckCounterEntry()
+    {
+        AddDefaultEntry("AllDeck CounterButton", "總牌庫", "查看目前擁有的所有卡牌。");
     }
 
     private void AddDefaultEntry(string targetName, string title, string description)

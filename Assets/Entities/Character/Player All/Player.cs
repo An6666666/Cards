@@ -41,6 +41,7 @@ public class Player : MonoBehaviour
     public void PlayShieldHitFX() => effectCtrl?.PlayShieldHitFX();
     public void PlayShieldBreakFX() => effectCtrl?.PlayShieldBreakFX();
     public void PlayMoveStarFX() => effectCtrl?.PlayMoveStarFX();
+    public void PlayHuGuPoSkillFX() => effectCtrl?.PlayHuGuPoSkillFX();
     public void PlayTeleportDisappearAnim() => animCtrl?.PlayTeleportDisappear();
     public void PlayTeleportLeaveFX() => effectCtrl?.PlayTeleportLeaveFX();
     public void PlayTeleportAppearAnim() => animCtrl?.PlayTeleportAppear();
