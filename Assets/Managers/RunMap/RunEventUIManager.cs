@@ -12,6 +12,7 @@ public class RunEventUIManager : MonoBehaviour
     [SerializeField] private GameObject relicPrefab;
     [SerializeField, Min(0.01f)] private float cardRewardScale = 0.24f;
     [SerializeField, Min(0.01f)] private float relicRewardScale = 7.2f;
+    [SerializeField, Range(0.1f, 1f)] private float disabledOptionAlpha = 0.45f;
     [SerializeField] private List<EventOptionView> optionViews = new();
 
     private static Font fallbackFont;
@@ -98,8 +99,49 @@ public class RunEventUIManager : MonoBehaviour
 
     private void HandleOptionClicked(RunEventOption option)
     {
+        if (!CanAffordOption(option))
+        {
+            return;
+        }
+
         Hide();
         onOptionSelected?.Invoke(option);
+    }
+
+    private bool CanAffordOption(RunEventOption option)
+    {
+        if (option == null || option.goldDelta >= 0)
+        {
+            return true;
+        }
+
+        if (!TryGetCurrentGold(out int currentGold))
+        {
+            return true;
+        }
+
+        int goldCost = Mathf.Abs(option.goldDelta);
+        return currentGold >= goldCost;
+    }
+
+    private bool TryGetCurrentGold(out int currentGold)
+    {
+        RunManager runManager = RunManager.Instance;
+        if (runManager != null && runManager.CurrentRunSnapshot != null)
+        {
+            currentGold = runManager.CurrentRunSnapshot.gold;
+            return true;
+        }
+
+        Player player = FindObjectOfType<Player>();
+        if (player != null)
+        {
+            currentGold = player.gold;
+            return true;
+        }
+
+        currentGold = 0;
+        return false;
     }
 
     private bool HasRewardContent(RunEventOption option)
@@ -325,6 +367,7 @@ public class RunEventUIManager : MonoBehaviour
 
         private readonly List<GameObject> spawnedRewardEntries = new();
         private RectTransform rewardRoot;
+        private CanvasGroup canvasGroup;
 
         public Font LabelFont => label != null ? label.font : null;
 
@@ -343,12 +386,15 @@ public class RunEventUIManager : MonoBehaviour
                 button.onClick.AddListener(() => onClick?.Invoke(option));
             }
 
+            bool canSelect = owner == null || owner.CanAffordOption(option);
+            ApplyInteractableState(canSelect, owner);
             RebuildRewards(option, owner);
         }
 
         public void Reset()
         {
             ClearRewards();
+            ApplyInteractableState(true, null);
             SetActive(false);
         }
 
@@ -357,6 +403,38 @@ public class RunEventUIManager : MonoBehaviour
             if (root != null)
             {
                 root.SetActive(active);
+            }
+        }
+
+        private void ApplyInteractableState(bool canSelect, RunEventUIManager owner)
+        {
+            if (button != null)
+            {
+                button.interactable = canSelect;
+            }
+
+            EnsureCanvasGroup();
+            if (canvasGroup == null)
+            {
+                return;
+            }
+
+            canvasGroup.alpha = canSelect || owner == null ? 1f : owner.disabledOptionAlpha;
+            canvasGroup.interactable = canSelect;
+            canvasGroup.blocksRaycasts = canSelect;
+        }
+
+        private void EnsureCanvasGroup()
+        {
+            if (canvasGroup != null || root == null)
+            {
+                return;
+            }
+
+            canvasGroup = root.GetComponent<CanvasGroup>();
+            if (canvasGroup == null)
+            {
+                canvasGroup = root.AddComponent<CanvasGroup>();
             }
         }
 

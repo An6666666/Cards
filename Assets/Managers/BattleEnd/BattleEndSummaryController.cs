@@ -16,7 +16,7 @@ public class BattleEndSummaryController : MonoBehaviour
 
         public void Set(string value)
         {
-            if (legacyText != null)
+
             {
                 legacyText.text = value ?? string.Empty;
             }

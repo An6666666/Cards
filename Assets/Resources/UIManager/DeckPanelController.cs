@@ -176,25 +176,9 @@ public class DeckPanelController : MonoBehaviour
 
     private void UpdateCounters()
     {
-        if (deckCounterButton != null) deckCounterButton.gameObject.SetActive(_showingDeck);
-        if (discardCounterButton != null) discardCounterButton.gameObject.SetActive(!_showingDeck);
-
-        var deckGroup = deckCounterButton ? (deckCounterButton.GetComponent<CanvasGroup>() ?? deckCounterButton.gameObject.AddComponent<CanvasGroup>()) : null;
-        var discardGroup = discardCounterButton ? (discardCounterButton.GetComponent<CanvasGroup>() ?? discardCounterButton.gameObject.AddComponent<CanvasGroup>()) : null;
-
-        if (deckGroup != null)
-        {
-            deckGroup.alpha = _showingDeck ? 1f : 0f;
-            deckGroup.blocksRaycasts = _showingDeck;
-            deckGroup.interactable = _showingDeck;
-        }
-
-        if (discardGroup != null)
-        {
-            discardGroup.alpha = _showingDeck ? 0f : 1f;
-            discardGroup.blocksRaycasts = !_showingDeck;
-            discardGroup.interactable = !_showingDeck;
-        }
+        // Counter visibility is owned by PileVisibilityToggle. Keeping this method
+        // as a no-op prevents initialization order differences between Editor and
+        // Player builds from hiding Discard Counter permanently.
     }
 
     private void ResolveAutoReferences()

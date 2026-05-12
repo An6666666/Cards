@@ -1,0 +1,35 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 47b75dc1d5fb1d747aa52eced8878d12, type: 3}
+  m_Name: RunEvent 3
+  m_EditorClassIdentifier: 
+  eventId: A_3
+  title: "\u8DEF\u908A\u5546\u4EBA"
+  description: "\u8DEF\u904E\u7684\u7B26\u7C59\u5546\u4EBA"
+  options:
+  - optionLabel: "\u8CB7\u4FBF\u5B9C\u7B26\u5492(\u7372\u5F97\u8B77\u6211\u771F\u8EAB\uFF0C\u62632\u91D1\u5E63)"
+    goldDelta: -2
+    hpDelta: 0
+    rewardCards:
+    - {fileID: 11400000, guid: 4b17aca886ce6ff488b11e95c1291b15, type: 2}
+    rewardRelics: []
+  - optionLabel: "\u9AD8\u7D1A\u7B26\u5492(\u7372\u5F97\u5947\u9580\u9041\u7532\uFF0C\u62634\u91D1\u5E63)"
+    goldDelta: -4
+    hpDelta: 0
+    rewardCards:
+    - {fileID: 11400000, guid: fa7d2466b0cbae34487de46fbf1a86da, type: 2}
+    rewardRelics: []
+  - optionLabel: "\u96E2\u958B"
+    goldDelta: 0
+    hpDelta: 0
+    rewardCards: []
+    rewardRelics: []

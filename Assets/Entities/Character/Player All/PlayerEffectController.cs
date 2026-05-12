@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -14,6 +15,11 @@ public class PlayerEffectController : MonoBehaviour
     [SerializeField] private Animator shieldFxAnimator;
     [SerializeField] private Animator actionFxAnimator;
 
+    [Header("Element Attack FX")]
+    [SerializeField] private List<ElementAttackFx> elementAttackFx = new List<ElementAttackFx>();
+    [SerializeField] private int bottomFxSortingOffset = -1;
+    [SerializeField] private int topFxSortingOffset = 1;
+
     [Header("Debuff FX")]
     [SerializeField] private GameObject bleedFxRoot;
     [SerializeField] private GameObject weakFxRoot;
@@ -28,6 +34,15 @@ public class PlayerEffectController : MonoBehaviour
     private bool hasTeleportLeaveFxParam;
     private bool hasTeleportAppearFxParam;
     private bool wasImprisonActive;
+    private readonly Dictionary<GameObject, Coroutine> temporaryFxDisableRoutines = new Dictionary<GameObject, Coroutine>();
+
+    [System.Serializable]
+    private class ElementAttackFx
+    {
+        public ElementType elementType;
+        public GameObject bottomFxRoot;
+        public GameObject topFxRoot;
+    }
 
     private void Awake()
     {
@@ -88,6 +103,21 @@ public class PlayerEffectController : MonoBehaviour
         TrySetActionTrigger(HashPlayTeleportAppearFX, hasTeleportAppearFxParam);
     }
 
+    public void PlayElementAttackFX(ElementType elementType)
+    {
+        EnsureResolved();
+
+        ElementAttackFx fx = FindElementAttackFx(elementType);
+        if (fx == null)
+        {
+            return;
+        }
+
+        ApplyElementAttackFxSorting(fx);
+        ReplayTemporaryFx(fx.bottomFxRoot);
+        ReplayTemporaryFx(fx.topFxRoot);
+    }
+
     public void SetDebuffFxState(bool hasBleed, bool hasWeak, bool hasImprison)
     {
         EnsureResolved();
@@ -143,6 +173,7 @@ public class PlayerEffectController : MonoBehaviour
         bleedFxRoot = ResolveFxRoot(bleedFxRoot, "BleedFXRoot", "BleedEffectRoot", "DebuffBleedFXRoot");
         weakFxRoot = ResolveFxRoot(weakFxRoot, "WeakFXRoot", "WeakEffectRoot", "DebuffWeakFXRoot");
         huGuPoSkillFxRoot = ResolveFxRoot(huGuPoSkillFxRoot, "HuGuPoSkillFXRoot");
+        ResolveElementAttackFxRoots();
 
         Transform imprisonRoot = ResolveFxTransform(null, "ImprisonFXRoot", "DebuffImprisonFXRoot");
         imprisonEnterFxRoot = ResolveFxRoot(
@@ -181,6 +212,43 @@ public class PlayerEffectController : MonoBehaviour
         }
     }
 
+    private void ResolveElementAttackFxRoots()
+    {
+        if (elementAttackFx == null)
+        {
+            elementAttackFx = new List<ElementAttackFx>();
+        }
+
+        EnsureElementAttackFxEntry(ElementType.Fire);
+        EnsureElementAttackFxEntry(ElementType.Water);
+        EnsureElementAttackFxEntry(ElementType.Thunder);
+        EnsureElementAttackFxEntry(ElementType.Ice);
+        EnsureElementAttackFxEntry(ElementType.Wood);
+    }
+
+    private void EnsureElementAttackFxEntry(ElementType elementType)
+    {
+        ElementAttackFx fx = FindElementAttackFx(elementType);
+        if (fx == null)
+        {
+            fx = new ElementAttackFx { elementType = elementType };
+            elementAttackFx.Add(fx);
+        }
+
+        string elementName = elementType.ToString();
+        fx.bottomFxRoot = ResolveFxRoot(
+            fx.bottomFxRoot,
+            elementName + "AttackBottomFXRoot",
+            elementName + "BottomFXRoot",
+            elementName + "ElementBottomFXRoot",
+            elementName + "MagicCircleFXRoot");
+        fx.topFxRoot = ResolveFxRoot(
+            fx.topFxRoot,
+            elementName + "AttackTopFXRoot",
+            elementName + "TopFXRoot",
+            elementName + "ElementTopFXRoot");
+    }
+
     private void CacheParameterFlags()
     {
         hasShieldParam = HasParameter(shieldFxAnimator, HashHasShield, AnimatorControllerParameterType.Bool);
@@ -189,6 +257,63 @@ public class PlayerEffectController : MonoBehaviour
         hasMoveStarFxParam = HasParameter(actionFxAnimator, HashPlayMoveStarFX, AnimatorControllerParameterType.Trigger);
         hasTeleportLeaveFxParam = HasParameter(actionFxAnimator, HashPlayTeleportLeaveFX, AnimatorControllerParameterType.Trigger);
         hasTeleportAppearFxParam = HasParameter(actionFxAnimator, HashPlayTeleportAppearFX, AnimatorControllerParameterType.Trigger);
+    }
+
+    private ElementAttackFx FindElementAttackFx(ElementType elementType)
+    {
+        if (elementAttackFx == null)
+        {
+            return null;
+        }
+
+        for (int i = 0; i < elementAttackFx.Count; i++)
+        {
+            ElementAttackFx fx = elementAttackFx[i];
+            if (fx != null && fx.elementType == elementType)
+            {
+                return fx;
+            }
+        }
+
+        return null;
+    }
+
+    private void ApplyElementAttackFxSorting(ElementAttackFx fx)
+    {
+        SpriteRenderer playerRenderer = GetComponent<SpriteRenderer>();
+        if (playerRenderer == null)
+        {
+            playerRenderer = GetComponentInParent<SpriteRenderer>();
+        }
+
+        if (playerRenderer == null)
+        {
+            return;
+        }
+
+        ApplySorting(fx.bottomFxRoot, playerRenderer, bottomFxSortingOffset);
+        ApplySorting(fx.topFxRoot, playerRenderer, topFxSortingOffset);
+    }
+
+    private static void ApplySorting(GameObject fxRoot, SpriteRenderer referenceRenderer, int orderOffset)
+    {
+        if (fxRoot == null || referenceRenderer == null)
+        {
+            return;
+        }
+
+        SpriteRenderer[] renderers = fxRoot.GetComponentsInChildren<SpriteRenderer>(true);
+        for (int i = 0; i < renderers.Length; i++)
+        {
+            SpriteRenderer renderer = renderers[i];
+            if (renderer == null)
+            {
+                continue;
+            }
+
+            renderer.sortingLayerID = referenceRenderer.sortingLayerID;
+            renderer.sortingOrder = referenceRenderer.sortingOrder + orderOffset;
+        }
     }
 
     private void TrySetActionTrigger(int hash, bool hasParameter)
@@ -235,6 +360,72 @@ public class PlayerEffectController : MonoBehaviour
             animator.Rebind();
             animator.Update(0f);
         }
+    }
+
+    private void ReplayTemporaryFx(GameObject fxRoot)
+    {
+        if (fxRoot == null)
+        {
+            return;
+        }
+
+        if (temporaryFxDisableRoutines.TryGetValue(fxRoot, out Coroutine routine) && routine != null)
+        {
+            StopCoroutine(routine);
+        }
+
+        ReplayFx(fxRoot);
+
+        float duration = GetFxDuration(fxRoot);
+        temporaryFxDisableRoutines[fxRoot] = StartCoroutine(DisableFxAfterDelay(fxRoot, duration));
+    }
+
+    private System.Collections.IEnumerator DisableFxAfterDelay(GameObject fxRoot, float delay)
+    {
+        yield return new WaitForSeconds(Mathf.Max(0.01f, delay));
+
+        if (fxRoot != null)
+        {
+            fxRoot.SetActive(false);
+            temporaryFxDisableRoutines.Remove(fxRoot);
+        }
+    }
+
+    private static float GetFxDuration(GameObject fxRoot)
+    {
+        Animator animator = fxRoot.GetComponent<Animator>();
+        if (animator == null)
+        {
+            animator = fxRoot.GetComponentInChildren<Animator>(true);
+        }
+
+        if (animator == null)
+        {
+            return 1f;
+        }
+
+        AnimatorStateInfo stateInfo = animator.GetCurrentAnimatorStateInfo(0);
+        float duration = stateInfo.length;
+
+        RuntimeAnimatorController controller = animator.runtimeAnimatorController;
+        if ((duration <= 0f || float.IsInfinity(duration)) && controller != null)
+        {
+            AnimationClip[] clips = controller.animationClips;
+            for (int i = 0; i < clips.Length; i++)
+            {
+                if (clips[i] != null)
+                {
+                    duration = Mathf.Max(duration, clips[i].length);
+                }
+            }
+        }
+
+        if (animator.speed > 0f)
+        {
+            duration /= animator.speed;
+        }
+
+        return duration > 0f && !float.IsInfinity(duration) ? duration : 1f;
     }
 
     private GameObject ResolveFxRoot(GameObject current, params string[] names)

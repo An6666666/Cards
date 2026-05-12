@@ -216,7 +216,7 @@ public class BattleHandUIController
             return;
         }
 
-        Text text = root.GetComponentInChildren<Text>();
+        Text text = root.GetComponentInChildren<Text>(true);
         if (text != null)
         {
             text.text = $"{value}";

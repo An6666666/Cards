@@ -208,6 +208,11 @@ public class AttackSelectionController
         }
 
         player.PlayAttackAnim();
+        if (execution.Card.TryGetElementType(out ElementType attackElement))
+        {
+            player.PlayElementAttackFX(attackElement);
+        }
+
         yield return new WaitForSeconds(hitDelay);
 
         Enemy target = execution.Target;
