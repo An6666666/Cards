@@ -14,5 +14,5 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   cardName: "\u4E94\u96F7\u4EE4\u724C"
   description: "\u4F7F\u7528\u6280\u80FD\u724C\u6642\uFF0C\u96A8\u6A5F\u79FB\u9664\u81EA\u8EAB1\u500B\u300C\u865B\u5F31\u300D\u300C\u6D41\u8840\u300D\u300C\u7981\u932E\u300D\u3002"
-  cardImage: {fileID: 21300000, guid: 5f5e867f1068170468e39f172692c094, type: 3}
+  cardImage: {fileID: 21300000, guid: 6e76a67ba8114fc439e354f11c485e2d, type: 3}
   shopPrice: 50

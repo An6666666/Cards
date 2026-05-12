@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   cardName: "\u9ED1\u72D7\u8840"
   description: "\u5C0D\u71C3\u71D2\u4E2D\u7684\u5996\u602A\u4F7F\u7528\u653B\u64CA\u724C\u653B\u64CA\u6642\uFF0C\u7ACB\u5373\u89F8\u767C1\u6B21\u71C3\u71D2\u50B7\u5BB3\uFF0C\u4E26\u6D88\u80171\u56DE\u5408\u71C3\u71D2\u3002"
-  cardImage: {fileID: 21300000, guid: 0150c70fe2b05e043ac6d4eb2ee14255, type: 3}
+  cardImage: {fileID: 21300000, guid: 86f2eed40370d21499f555aafe42ad81, type: 3}
   shopPrice: 50
   immediateBurningDamage: 3
   burningTurnsConsumed: 1

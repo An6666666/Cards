@@ -35,15 +35,22 @@ public class TitleTutorialPromptController : MonoBehaviour
     private Text pageLabel;
     [SerializeField, Tooltip("Optional TMP page label, for example 1/5.")]
     private TMP_Text pageTmpLabel;
+    [SerializeField, Tooltip("Intro text shown under TutorialRoot. If left empty, the controller tries to find a child named testText.")]
+    private Text testText;
+    [SerializeField, Tooltip("Optional TMP intro text shown under TutorialRoot. If left empty, the controller tries to find a child named testText.")]
+    private TMP_Text testTmpText;
+    [SerializeField, TextArea(2, 5), Tooltip("One intro text per tutorial page. Size should stay at 7.")]
+    private string[] testTextContents = new string[TotalPageCount];
 
     [Header("Tutorial Assets")]
-    [SerializeField, Tooltip("Assign exactly four tutorial videos here. Empty entries are skipped visually but still count as pages.")]
-    private VideoClip[] tutorialVideos = new VideoClip[4];
-    [SerializeField, Tooltip("Final page image that introduces the tutorial interface.")]
-    private Sprite tutorialInterfaceSprite;
+    [SerializeField, Tooltip("Assign exactly five tutorial videos here. Empty entries are skipped visually but still count as pages.")]
+    private VideoClip[] tutorialVideos = new VideoClip[VideoPageCount];
+    [SerializeField, Tooltip("Final page images that introduce the tutorial interface. Size should stay at 2.")]
+    private Sprite[] tutorialInterfaceSprites = new Sprite[InterfaceImagePageCount];
 
-    private const int VideoPageCount = 4;
-    private const int TotalPageCount = VideoPageCount + 1;
+    private const int VideoPageCount = 5;
+    private const int InterfaceImagePageCount = 3;
+    private const int TotalPageCount = VideoPageCount + InterfaceImagePageCount;
 
     private Action onTutorialFinished;
     private RenderTexture videoTexture;
@@ -55,8 +62,15 @@ public class TitleTutorialPromptController : MonoBehaviour
 
     private void Awake()
     {
+        EnsureTestTextContentCount();
+        ResolveTestText();
         BindButtons();
         HideAll();
+    }
+
+    private void OnValidate()
+    {
+        EnsureTestTextContentCount();
     }
 
     private void OnDisable()
@@ -168,7 +182,9 @@ public class TitleTutorialPromptController : MonoBehaviour
     private void ShowPage(int targetIndex)
     {
         pageIndex = Mathf.Clamp(targetIndex, 0, TotalPageCount - 1);
-        bool isImagePage = pageIndex == TotalPageCount - 1;
+        bool isImagePage = pageIndex >= VideoPageCount;
+
+        ApplyTestText();
 
         if (videoSurface != null)
         {
@@ -178,8 +194,9 @@ public class TitleTutorialPromptController : MonoBehaviour
         if (guideImage != null)
         {
             guideImage.gameObject.SetActive(isImagePage);
-            guideImage.sprite = tutorialInterfaceSprite;
-            guideImage.enabled = tutorialInterfaceSprite != null;
+            Sprite interfaceSprite = GetInterfaceSprite(pageIndex - VideoPageCount);
+            guideImage.sprite = interfaceSprite;
+            guideImage.enabled = interfaceSprite != null;
         }
 
         if (previousButton != null)
@@ -189,13 +206,13 @@ public class TitleTutorialPromptController : MonoBehaviour
 
         if (nextButton != null)
         {
-            nextButton.gameObject.SetActive(!isImagePage);
+            nextButton.gameObject.SetActive(pageIndex < TotalPageCount - 1);
             nextButton.interactable = pageIndex < TotalPageCount - 1;
         }
 
         if (finishButton != null)
         {
-            finishButton.gameObject.SetActive(isImagePage);
+            finishButton.gameObject.SetActive(pageIndex == TotalPageCount - 1);
         }
 
         SetPageLabel($"{pageIndex + 1}/{TotalPageCount}");
@@ -250,6 +267,15 @@ public class TitleTutorialPromptController : MonoBehaviour
         videoPlayer.Play();
     }
 
+    private Sprite GetInterfaceSprite(int imageIndex)
+    {
+        return tutorialInterfaceSprites != null &&
+            imageIndex >= 0 &&
+            imageIndex < tutorialInterfaceSprites.Length
+                ? tutorialInterfaceSprites[imageIndex]
+                : null;
+    }
+
     private void EnsureVideoTexture()
     {
         if (videoTexture != null)
@@ -283,6 +309,85 @@ public class TitleTutorialPromptController : MonoBehaviour
         if (pageTmpLabel != null)
         {
             pageTmpLabel.text = value;
+        }
+    }
+
+    private void ResolveTestText()
+    {
+        if (tutorialRoot == null || (testText != null && testTmpText != null))
+        {
+            return;
+        }
+
+        Transform textTransform = tutorialRoot.transform.Find("testText");
+        if (textTransform == null)
+        {
+            return;
+        }
+
+        if (testText == null)
+        {
+            testText = textTransform.GetComponent<Text>();
+        }
+
+        if (testTmpText == null)
+        {
+            testTmpText = textTransform.GetComponent<TMP_Text>();
+        }
+    }
+
+    private void EnsureTestTextContentCount()
+    {
+        EnsureInterfaceSpriteCount();
+
+        if (testTextContents != null && testTextContents.Length == TotalPageCount)
+        {
+            return;
+        }
+
+        string[] resizedContents = new string[TotalPageCount];
+        if (testTextContents != null)
+        {
+            int copyCount = Mathf.Min(testTextContents.Length, resizedContents.Length);
+            Array.Copy(testTextContents, resizedContents, copyCount);
+        }
+
+        testTextContents = resizedContents;
+    }
+
+    private void EnsureInterfaceSpriteCount()
+    {
+        if (tutorialInterfaceSprites != null && tutorialInterfaceSprites.Length == InterfaceImagePageCount)
+        {
+            return;
+        }
+
+        Sprite[] resizedSprites = new Sprite[InterfaceImagePageCount];
+        if (tutorialInterfaceSprites != null)
+        {
+            int copyCount = Mathf.Min(tutorialInterfaceSprites.Length, resizedSprites.Length);
+            Array.Copy(tutorialInterfaceSprites, resizedSprites, copyCount);
+        }
+
+        tutorialInterfaceSprites = resizedSprites;
+    }
+
+    private void ApplyTestText()
+    {
+        string value = testTextContents != null &&
+            pageIndex >= 0 &&
+            pageIndex < testTextContents.Length
+                ? testTextContents[pageIndex]
+                : string.Empty;
+
+        if (testText != null)
+        {
+            testText.text = value ?? string.Empty;
+        }
+
+        if (testTmpText != null)
+        {
+            testTmpText.text = value ?? string.Empty;
         }
     }
 
