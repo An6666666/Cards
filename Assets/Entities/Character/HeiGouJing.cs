@@ -154,6 +154,8 @@ public class HeiGouJing : Enemy
                 .DOMove(tile.transform.position, 0.25f)
                 .SetEase(Ease.OutQuad);
         }
+
+        RefreshIntentAfterSplit(battleManager != null ? battleManager.player : FindObjectOfType<Player>());
     }
 
     private void InitializeClone(HeiGouJing clone, Vector2Int clonePos, BattleManager battleManager)
@@ -195,6 +197,17 @@ public class HeiGouJing : Enemy
 
         // 讓分身在 Start 的下一幀強制播一次受擊（蓋掉通用出場動畫）
         clone.needPostSpawnHit = true;
+    }
+
+    private void RefreshIntentAfterSplit(Player player)
+    {
+        if (player == null)
+        {
+            player = FindObjectOfType<Player>();
+        }
+
+        DecideNextIntent(player);
+        RaiseStatusChanged();
     }
 
     private IEnumerator PostSpawnForceFirstHit()

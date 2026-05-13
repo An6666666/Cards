@@ -54,11 +54,11 @@ MonoBehaviour:
       iconOverride: {fileID: 0}
       nodeOverrides:
       - iconOverride: {fileID: 21300000, guid: 2f999590b65c0f840b2705d713974eef, type: 3}
-        encounterOverride: {fileID: 11400000, guid: 6949f540bac6a344c8023491ebfc8da5, type: 2}
+        encounterOverride: {fileID: 11400000, guid: 68d454f2c94b58b45baf5062d8232dbc, type: 2}
       - iconOverride: {fileID: 21300000, guid: ce4a05e7442af3946bdd80a5fdbd179b, type: 3}
-        encounterOverride: {fileID: 11400000, guid: 5ae84fe648db6a041a37b0302964b0d4, type: 2}
+        encounterOverride: {fileID: 11400000, guid: 087afcb6e9998d54c9252821d87ef99a, type: 2}
       - iconOverride: {fileID: 21300000, guid: ee73dccb9f85e22449ecf912b1f61af8, type: 3}
-        encounterOverride: {fileID: 11400000, guid: 547b4ec17e184734780983e8f2ca6f40, type: 2}
+        encounterOverride: {fileID: 11400000, guid: a57095f96a3b91f46bc16bb345f32340, type: 2}
     - floorIndex: 2
       nodeType: 3
       nodeCount: 1
@@ -78,7 +78,9 @@ MonoBehaviour:
       nodeType: 5
       nodeCount: 1
       iconOverride: {fileID: 0}
-      nodeOverrides: []
+      nodeOverrides:
+      - iconOverride: {fileID: 0}
+        encounterOverride: {fileID: 11400000, guid: aff795c95d3c974499abd8f9c35a3897, type: 2}
   connectionSettings:
     connectionNeighborWindow: 1
     maxOutgoingPerNode: 4

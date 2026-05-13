@@ -525,14 +525,11 @@ namespace DeckUI
                 }
             }
 
-            CardUI sceneCardUi = FindObjectOfType<CardUI>(true);
-            if (sceneCardUi != null)
+            GameObject template = ResolveCardUiTemplate(tooltipTemplatePath);
+            if (template != null)
             {
-                Transform sceneTooltip = sceneCardUi.transform.Find(tooltipTemplatePath);
-                if (sceneTooltip != null)
-                {
-                    return sceneTooltip.gameObject;
-                }
+                tooltipTemplate = template;
+                return tooltipTemplate;
             }
 
             return null;
@@ -559,13 +556,36 @@ namespace DeckUI
                 }
             }
 
-            CardUI sceneCardUi = FindObjectOfType<CardUI>(true);
-            if (sceneCardUi != null)
+            GameObject template = ResolveCardUiTemplate(scopeTemplatePath);
+            if (template != null)
             {
-                Transform sceneScope = sceneCardUi.transform.Find(scopeTemplatePath);
-                if (sceneScope != null)
+                scopeTemplate = template;
+                return scopeTemplate;
+            }
+
+            return null;
+        }
+
+        private static GameObject ResolveCardUiTemplate(string path)
+        {
+            if (string.IsNullOrEmpty(path))
+            {
+                return null;
+            }
+
+            CardUI[] cardUis = Resources.FindObjectsOfTypeAll<CardUI>();
+            for (int i = 0; i < cardUis.Length; i++)
+            {
+                CardUI cardUi = cardUis[i];
+                if (cardUi == null)
                 {
-                    return sceneScope.gameObject;
+                    continue;
+                }
+
+                Transform template = cardUi.transform.Find(path);
+                if (template != null)
+                {
+                    return template.gameObject;
                 }
             }
 

@@ -3,6 +3,8 @@ using UnityEngine.UI;
 
 public partial class ShopUIManager
 {
+    private const int ConfirmPanelSortingOrder = 10000;
+
     private void ResolveConfirmPanelReferences()
     {
         if (confirmPanel == null)
@@ -153,14 +155,20 @@ public partial class ShopUIManager
             return;
         }
 
+        SetShopRelicTooltipsSuppressed(true);
+
         if (confirmTitleText != null)
             confirmTitleText.text = title;
 
+        EnsureConfirmPanelTopSorting();
+        confirmPanel.transform.SetAsLastSibling();
         confirmPanel.SetActive(true);
     }
 
     private void HideConfirmPanel()
     {
+        SetShopRelicTooltipsSuppressed(false);
+
         if (confirmPanel != null)
             confirmPanel.SetActive(false);
     }
@@ -206,5 +214,70 @@ public partial class ShopUIManager
         pendingRelic = null;
         pendingCardIndex = -1;
         pendingPrice = 0;
+    }
+
+    private void SetShopRelicTooltipsSuppressed(bool suppressed)
+    {
+        BattleRelicUIItem[] relicItems = Resources.FindObjectsOfTypeAll<BattleRelicUIItem>();
+        for (int i = 0; i < relicItems.Length; i++)
+        {
+            BattleRelicUIItem relicItem = relicItems[i];
+            if (relicItem == null || !relicItem.gameObject.scene.IsValid())
+            {
+                continue;
+            }
+
+            relicItem.SetTooltipSuppressed(suppressed);
+        }
+    }
+
+    private void EnsureConfirmPanelTopSorting()
+    {
+        if (confirmPanel == null)
+        {
+            return;
+        }
+
+        Canvas confirmCanvas = confirmPanel.GetComponent<Canvas>();
+        if (confirmCanvas == null)
+        {
+            confirmCanvas = confirmPanel.AddComponent<Canvas>();
+        }
+
+        Canvas parentCanvas = ResolveParentCanvas(confirmPanel.transform, confirmCanvas);
+        if (parentCanvas != null)
+        {
+            confirmCanvas.renderMode = parentCanvas.renderMode;
+            confirmCanvas.worldCamera = parentCanvas.worldCamera;
+            confirmCanvas.sortingLayerID = parentCanvas.sortingLayerID;
+        }
+
+        confirmCanvas.overrideSorting = true;
+        confirmCanvas.sortingOrder = ConfirmPanelSortingOrder;
+
+        if (confirmPanel.GetComponent<GraphicRaycaster>() == null)
+        {
+            confirmPanel.AddComponent<GraphicRaycaster>();
+        }
+    }
+
+    private static Canvas ResolveParentCanvas(Transform target, Canvas excludedCanvas)
+    {
+        if (target == null)
+        {
+            return null;
+        }
+
+        Canvas[] canvases = target.GetComponentsInParent<Canvas>(true);
+        for (int i = 0; i < canvases.Length; i++)
+        {
+            Canvas canvas = canvases[i];
+            if (canvas != null && canvas != excludedCanvas)
+            {
+                return canvas;
+            }
+        }
+
+        return null;
     }
 }

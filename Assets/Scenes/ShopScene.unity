@@ -3548,7 +3548,7 @@ MonoBehaviour:
   lampNormalColor: {r: 1, g: 1, b: 1, a: 1}
   lampSelectedColor: {r: 1, g: 1, b: 1, a: 1}
   cardsPerPage: 3
-  relicsPerPage: 4
+  relicsPerPage: 3
   removalPerPage: 5
   btnPrev: {fileID: 1976164631}
   btnNext: {fileID: 563193844}

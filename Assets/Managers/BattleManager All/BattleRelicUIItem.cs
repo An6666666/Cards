@@ -39,6 +39,7 @@ public class BattleRelicUIItem : MonoBehaviour, IPointerEnterHandler, IPointerEx
     private Vector3 tooltipLocalScaleOverride = Vector3.one;
     private RectTransform relicRect;
     private bool isPointerHoveringRelic;
+    private bool tooltipSuppressed;
 
     private void Awake()
     {
@@ -99,6 +100,20 @@ public class BattleRelicUIItem : MonoBehaviour, IPointerEnterHandler, IPointerEx
     {
         isPointerHoveringRelic = false;
         HideTooltip();
+    }
+
+    public void SetTooltipSuppressed(bool suppressed)
+    {
+        tooltipSuppressed = suppressed;
+        if (tooltipSuppressed)
+        {
+            isPointerHoveringRelic = false;
+            HideTooltip();
+        }
+        else
+        {
+            RefreshTooltipHoverState();
+        }
     }
 
     private void ResolveIconImage()
@@ -207,7 +222,7 @@ public class BattleRelicUIItem : MonoBehaviour, IPointerEnterHandler, IPointerEx
 
     private void ShowTooltip()
     {
-        if (tooltipRoot == null)
+        if (tooltipSuppressed || tooltipRoot == null)
             return;
 
         ApplyHoveredSorting(true);
@@ -377,7 +392,7 @@ public class BattleRelicUIItem : MonoBehaviour, IPointerEnterHandler, IPointerEx
 
     private void RefreshTooltipHoverState()
     {
-        if (tooltipRoot == null || !isActiveAndEnabled)
+        if (tooltipSuppressed || tooltipRoot == null || !isActiveAndEnabled)
             return;
 
         bool shouldHover = IsPointerHoveringRelic();

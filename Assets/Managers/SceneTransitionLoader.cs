@@ -6,6 +6,7 @@ public sealed class SceneTransitionLoader : MonoBehaviour
 {
     private const string LoadingOverlayResourcePath = "LoadingOverlay";
     private const float DefaultMinimumDisplayDuration = 0.75f;
+    private const int LoadingOverlaySortingOrder = short.MaxValue;
 
     private static SceneTransitionLoader instance;
 
@@ -112,6 +113,7 @@ public sealed class SceneTransitionLoader : MonoBehaviour
 
         overlayInstance = Instantiate(overlayPrefab, transform);
         overlayInstance.name = overlayPrefab.name;
+        ConfigureOverlayCanvas();
         DontDestroyOnLoad(overlayInstance);
         SetOverlayVisible(false);
     }
@@ -129,5 +131,29 @@ public sealed class SceneTransitionLoader : MonoBehaviour
         {
             overlayInstance.SetActive(visible);
         }
+
+        if (visible)
+        {
+            ConfigureOverlayCanvas();
+            overlayInstance.transform.SetAsLastSibling();
+        }
+    }
+
+    private void ConfigureOverlayCanvas()
+    {
+        if (overlayInstance == null)
+        {
+            return;
+        }
+
+        Canvas overlayCanvas = overlayInstance.GetComponent<Canvas>();
+        if (overlayCanvas == null)
+        {
+            return;
+        }
+
+        overlayCanvas.renderMode = RenderMode.ScreenSpaceOverlay;
+        overlayCanvas.overrideSorting = true;
+        overlayCanvas.sortingOrder = LoadingOverlaySortingOrder;
     }
 }

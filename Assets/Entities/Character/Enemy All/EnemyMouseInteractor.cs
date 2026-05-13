@@ -5,6 +5,7 @@ public class EnemyMouseInteractor : MonoBehaviour
 {
     private Enemy enemy;
     private bool isMouseOver;
+    private bool isTileMouseOver;
     private readonly List<BoardTile> hoverRangeTiles = new List<BoardTile>();
 
     public void Init(Enemy owner)
@@ -20,6 +21,7 @@ public class EnemyMouseInteractor : MonoBehaviour
     public void HandleOnDisable()
     {
         isMouseOver = false;
+        isTileMouseOver = false;
         RefreshHoverIndicator();
     }
 
@@ -47,9 +49,20 @@ public class EnemyMouseInteractor : MonoBehaviour
         RefreshHoverIndicator();
     }
 
+    public void SetTileMouseOver(bool value)
+    {
+        if (isTileMouseOver == value)
+        {
+            return;
+        }
+
+        isTileMouseOver = value;
+        RefreshHoverIndicator();
+    }
+
     public void RefreshHoverIndicator()
     {
-        bool shouldShow = isMouseOver &&
+        bool shouldShow = (isMouseOver || isTileMouseOver) &&
             !CardDragHandler.IsAnyCardDragging &&
             !PointerUiBlocker.IsPointerBlockedByUi();
 
@@ -65,7 +78,7 @@ public class EnemyMouseInteractor : MonoBehaviour
     public bool ShouldRefreshHover()
     {
         bool hasActiveEffect = hoverRangeTiles.Count > 0;
-        return isMouseOver || hasActiveEffect || (CardDragHandler.IsAnyCardDragging && hasActiveEffect);
+        return isMouseOver || isTileMouseOver || hasActiveEffect || (CardDragHandler.IsAnyCardDragging && hasActiveEffect);
     }
 
     private void ShowHoverEffects()

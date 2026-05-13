@@ -146,6 +146,10 @@ public partial class RunManager : MonoBehaviour
 
     [Header("Tutorial")]
     [SerializeField] private bool tutorialRun;
+    [SerializeField, Tooltip("Deck asset used only when this run is marked as a tutorial run.")]
+    private TutorialStartingDeckDefinition tutorialStartingDeckDefinition;
+    [SerializeField, Tooltip("Fallback cards used only when this run is marked as a tutorial run and no tutorial deck asset is assigned.")]
+    private List<CardBase> tutorialStartingDeck = new List<CardBase>();
 
     [Header("Starting Player Snapshot")]
     [SerializeField, Min(1)] private int defaultPlayerMaxHP = 80;
@@ -294,7 +298,9 @@ public partial class RunManager : MonoBehaviour
 
         if (initialPlayerSnapshot == null)
         {
-            initialPlayerSnapshot = PlayerRunSnapshot.Capture(newPlayer);
+            initialPlayerSnapshot = HasTutorialStartingDeck()
+                ? BuildDefaultStartingSnapshot()
+                : PlayerRunSnapshot.Capture(newPlayer);
             if (currentRunSnapshot == null)
             {
                 currentRunSnapshot = initialPlayerSnapshot.Clone();
@@ -406,10 +412,13 @@ public partial class RunManager : MonoBehaviour
     {
         if (player != null)
         {
-            initialPlayerSnapshot = PlayerRunSnapshot.Capture(player);
+            initialPlayerSnapshot = HasTutorialStartingDeck()
+                ? BuildDefaultStartingSnapshot()
+                : PlayerRunSnapshot.Capture(player);
             currentRunSnapshot = initialPlayerSnapshot.Clone();
             eventResolver.InitialPlayerSnapshot = initialPlayerSnapshot;
             eventResolver.CurrentRunSnapshot = currentRunSnapshot;
+            ApplySnapshotToPlayer(player, currentRunSnapshot);
             return;
         }
 
@@ -440,6 +449,11 @@ public partial class RunManager : MonoBehaviour
 
     private List<CardBase> BuildDefaultStartingDeck()
     {
+        if (HasTutorialStartingDeck())
+        {
+            return BuildTutorialStartingDeck();
+        }
+
         StartingDeckDefinition definition = defaultStartingDeckDefinition;
         if (definition == null)
         {
@@ -457,6 +471,37 @@ public partial class RunManager : MonoBehaviour
         }
 
         return new List<CardBase>();
+    }
+
+    private bool HasTutorialStartingDeck()
+    {
+        if (!tutorialRun)
+        {
+            return false;
+        }
+
+        if (tutorialStartingDeckDefinition != null && tutorialStartingDeckDefinition.HasCards)
+        {
+            return true;
+        }
+
+        return tutorialStartingDeck != null && tutorialStartingDeck.Any(PlayerRunSnapshot.ShouldPersistCard);
+    }
+
+    private List<CardBase> BuildTutorialStartingDeck()
+    {
+        if (tutorialStartingDeckDefinition != null)
+        {
+            List<CardBase> assetDeck = tutorialStartingDeckDefinition.BuildDeck();
+            if (assetDeck.Count > 0)
+            {
+                return assetDeck;
+            }
+        }
+
+        return tutorialStartingDeck != null
+            ? new List<CardBase>(tutorialStartingDeck.Where(PlayerRunSnapshot.ShouldPersistCard))
+            : new List<CardBase>();
     }
 
     private void ApplyConfigNodeOverrides()

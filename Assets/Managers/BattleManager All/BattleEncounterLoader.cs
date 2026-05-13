@@ -139,6 +139,8 @@ public class BattleEncounterLoader
             {
                 yield return battleManager.StartCoroutine(SelectPlayerStartTile());
             }
+
+            EnsureBoardTileHoverHighlights();
         }
 
         player?.NotifyBattleStarted();
@@ -173,6 +175,11 @@ public class BattleEncounterLoader
             }
 
             // 已被妖怪佔據的格子不能選。
+            if (tile.GetComponent<BoardTileHoverHighlight>() == null)
+            {
+                tile.gameObject.AddComponent<BoardTileHoverHighlight>();
+            }
+
             if (board.IsTileOccupied(pos))
             {
                 tile.SetSelectable(false);
@@ -185,10 +192,6 @@ public class BattleEncounterLoader
                 tile.gameObject.AddComponent<BoardTileSelectable>();
             }
 
-            if (tile.GetComponent<BoardTileHoverHighlight>() == null)
-            {
-                tile.gameObject.AddComponent<BoardTileHoverHighlight>();
-            }
         }
 
         while (isSelectingStartTile)
@@ -203,12 +206,6 @@ public class BattleEncounterLoader
             if (tile == null)
             {
                 continue;
-            }
-
-            BoardTileHoverHighlight hover = tile.GetComponent<BoardTileHoverHighlight>();
-            if (hover)
-            {
-                Object.Destroy(hover);
             }
 
             tile.SetHighlight(false);
@@ -232,6 +229,26 @@ public class BattleEncounterLoader
         if (tile != null)
         {
             player.MoveToPosition(battleManager.playerStartPos);
+        }
+    }
+
+    private void EnsureBoardTileHoverHighlights()
+    {
+        if (board == null)
+        {
+            return;
+        }
+
+        List<Vector2Int> positions = board.GetAllPositions();
+        for (int i = 0; i < positions.Count; i++)
+        {
+            BoardTile tile = board.GetTileAt(positions[i]);
+            if (tile == null || tile.GetComponent<BoardTileHoverHighlight>() != null)
+            {
+                continue;
+            }
+
+            tile.gameObject.AddComponent<BoardTileHoverHighlight>();
         }
     }
 

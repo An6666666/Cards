@@ -799,11 +799,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7624660405547271767, guid: 43d13ad7b4ac78c48bac71a10c0daaf9, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -1.8
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 7624660405547271767, guid: 43d13ad7b4ac78c48bac71a10c0daaf9, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 3.44
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 7624660405547271767, guid: 43d13ad7b4ac78c48bac71a10c0daaf9, type: 3}
       propertyPath: m_LocalPosition.z
@@ -842,8 +842,8 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 43d13ad7b4ac78c48bac71a10c0daaf9, type: 3}
---- !u!4 &5735981882059830249 stripped
-Transform:
+--- !u!224 &5735981882059830249 stripped
+RectTransform:
   m_CorrespondingSourceObject: {fileID: 7624660405547271767, guid: 43d13ad7b4ac78c48bac71a10c0daaf9, type: 3}
   m_PrefabInstance: {fileID: 2759142088063923646}
   m_PrefabAsset: {fileID: 0}
@@ -946,6 +946,10 @@ PrefabInstance:
     - target: {fileID: 2955211467787434944, guid: aa327d458a92acc48ba8ff8e60ec1976, type: 3}
       propertyPath: skillEntries.Array.data[3].showIfCooldownSlotUnavailable
       value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4602201457639984102, guid: aa327d458a92acc48ba8ff8e60ec1976, type: 3}
+      propertyPath: m_Enabled
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 5326906986136368407, guid: aa327d458a92acc48ba8ff8e60ec1976, type: 3}
       propertyPath: m_SortingLayer

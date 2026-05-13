@@ -963,6 +963,12 @@ public class GouShe : Enemy, IEnemyCooldownProvider               // ?ï¿½ï¿½??ï¿
         {
             if (renderer != null)
             {
+                if (renderer.gameObject.name == "AreaDamagePreviewIcon")
+                {
+                    renderer.enabled = false;
+                    continue;
+                }
+
                 renderer.enabled = !hidden;
             }
         }

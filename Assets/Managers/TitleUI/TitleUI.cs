@@ -8,6 +8,8 @@ using UnityEngine.Video;
 
 public class TitleUI : MonoBehaviour
 {
+    private const float SelectionArrowTextGap = 12f;
+
     [Header("Scene")]
     [SerializeField] private string nextSceneName = "ElementSelectScene";
     [SerializeField] private string newSceneName = "ElementSelectScene 1";
@@ -405,7 +407,7 @@ public class TitleUI : MonoBehaviour
         }
 
         Camera eventCamera = rootCanvas.renderMode == RenderMode.ScreenSpaceOverlay ? null : rootCanvas.worldCamera;
-        Vector3 worldPoint = target.TransformPoint(target.rect.center);
+        Vector3 worldPoint = ResolveSelectionAnchorWorldPoint(target);
         Vector2 screenPoint = RectTransformUtility.WorldToScreenPoint(eventCamera, worldPoint);
 
         if (!RectTransformUtility.ScreenPointToLocalPointInRectangle(canvasRect, screenPoint, eventCamera, out Vector2 localPoint))
@@ -414,10 +416,96 @@ public class TitleUI : MonoBehaviour
             return;
         }
 
+        Vector2 resolvedOffset = arrowOffset;
+        if (TryGetTextLeftEdgeScreenPoint(target, eventCamera, out Vector2 textLeftScreenPoint) &&
+            RectTransformUtility.ScreenPointToLocalPointInRectangle(canvasRect, textLeftScreenPoint, eventCamera, out Vector2 textLeftLocalPoint))
+        {
+            float arrowHalfWidth = selectionArrow.rect.width * 0.5f;
+            localPoint.x = textLeftLocalPoint.x - arrowHalfWidth - SelectionArrowTextGap;
+            resolvedOffset.x = 0f;
+        }
+
         selectionArrow.SetParent(canvasRect, false);
         selectionArrow.SetAsLastSibling();
-        selectionArrow.anchoredPosition = localPoint + arrowOffset;
+        selectionArrow.anchoredPosition = localPoint + resolvedOffset;
         SetSelectionArrowVisible(true);
+    }
+
+    private static Vector3 ResolveSelectionAnchorWorldPoint(RectTransform target)
+    {
+        return target.TransformPoint(target.rect.center);
+    }
+
+    private bool TryGetTextLeftEdgeScreenPoint(RectTransform target, Camera eventCamera, out Vector2 screenPoint)
+    {
+        screenPoint = default;
+
+        RectTransform textRect = ResolveTargetTextRect(target, out float preferredWidth, out int horizontalAlignment);
+        if (textRect == null || !textRect.gameObject.activeInHierarchy)
+        {
+            return false;
+        }
+
+        Rect rect = textRect.rect;
+        float renderedWidth = preferredWidth > 0f ? Mathf.Min(preferredWidth, rect.width) : rect.width;
+        float localLeft = horizontalAlignment switch
+        {
+            1 => rect.center.x - renderedWidth * 0.5f,
+            2 => rect.xMax - renderedWidth,
+            _ => rect.xMin
+        };
+
+        Vector3 worldPoint = textRect.TransformPoint(new Vector3(localLeft, rect.center.y, 0f));
+        screenPoint = RectTransformUtility.WorldToScreenPoint(eventCamera, worldPoint);
+        return true;
+    }
+
+    private static RectTransform ResolveTargetTextRect(RectTransform target, out float preferredWidth, out int horizontalAlignment)
+    {
+        preferredWidth = 0f;
+        horizontalAlignment = 0;
+
+        if (target == null)
+        {
+            return null;
+        }
+
+        TMP_Text tmpText = target.GetComponentInChildren<TMP_Text>(true);
+        if (tmpText != null && !string.IsNullOrWhiteSpace(tmpText.text))
+        {
+            preferredWidth = tmpText.preferredWidth;
+            horizontalAlignment = ResolveTmpHorizontalAlignment(tmpText.alignment);
+            return tmpText.rectTransform;
+        }
+
+        Text text = target.GetComponentInChildren<Text>(true);
+        if (text != null && !string.IsNullOrWhiteSpace(text.text))
+        {
+            preferredWidth = text.preferredWidth;
+            horizontalAlignment = ((int)text.alignment) % 3;
+            return text.rectTransform;
+        }
+
+        return null;
+    }
+
+    private static int ResolveTmpHorizontalAlignment(TextAlignmentOptions alignment)
+    {
+        if ((alignment & TextAlignmentOptions.Right) == TextAlignmentOptions.Right ||
+            (alignment & TextAlignmentOptions.TopRight) == TextAlignmentOptions.TopRight ||
+            (alignment & TextAlignmentOptions.BottomRight) == TextAlignmentOptions.BottomRight)
+        {
+            return 2;
+        }
+
+        if ((alignment & TextAlignmentOptions.Center) == TextAlignmentOptions.Center ||
+            (alignment & TextAlignmentOptions.Top) == TextAlignmentOptions.Top ||
+            (alignment & TextAlignmentOptions.Bottom) == TextAlignmentOptions.Bottom)
+        {
+            return 1;
+        }
+
+        return 0;
     }
 
     private void SetSelectionArrowVisible(bool visible)

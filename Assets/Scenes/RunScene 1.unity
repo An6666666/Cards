@@ -770,7 +770,7 @@ MonoBehaviour:
   m_ChildAlignment: 1
   m_StartCorner: 0
   m_StartAxis: 0
-  m_CellSize: {x: 25.73, y: 134}
+  m_CellSize: {x: 28.02, y: 124.9}
   m_Spacing: {x: 10.93, y: 6.26}
   m_Constraint: 1
   m_ConstraintCount: 4
@@ -2215,9 +2215,11 @@ MonoBehaviour:
   allowAnyNodeEntry: 1
   eventUIManager: {fileID: 1731840768}
   tutorialRun: 1
+  tutorialStartingDeckDefinition: {fileID: 11400000, guid: c5f352405764b9c408ec9df316c81fe6, type: 2}
+  tutorialStartingDeck: []
   defaultPlayerMaxHP: 80
   defaultPlayerCurrentHP: 80
-  defaultPlayerGold: 40
+  defaultPlayerGold: 999
   defaultStartingDeckDefinition: {fileID: 11400000, guid: 1ce8022936a74184fb5e02c6c0afbb04, type: 2}
   floorCount: 6
   minNodesPerFloor: 1
@@ -2236,7 +2238,7 @@ MonoBehaviour:
   encounterPool: {fileID: 11400000, guid: cd2ab4f5ba916e549ba93474a40ebdbc, type: 2}
   eliteEncounterPool: {fileID: 0}
   bossEncounter: {fileID: 11400000, guid: 940ae4f7d3f68bc4ca414a7e0c870945, type: 2}
-  defaultShopInventory: {fileID: 11400000, guid: ccc2e199ec64b5242bff3f0f57551a60, type: 2}
+  defaultShopInventory: {fileID: 11400000, guid: cac50767242e0044db61bd7017b2e425, type: 2}
   eventPool:
   - {fileID: 11400000, guid: 6839a1818d2963e4a80b5028db4dea5f, type: 2}
   - {fileID: 11400000, guid: c6a80d82fbac77a43ad8b61481f582a9, type: 2}
@@ -4106,6 +4108,9 @@ MonoBehaviour:
   contentRoot: {fileID: 194240096}
   closeButton: {fileID: 415340727}
   cardItemPrefab: {fileID: 8599590451376640417, guid: 9a34f8b649df81049bc71deaf4cb859e, type: 3}
+  cardCellSize: {x: 25.73, y: 134}
+  cardCellSpacing: {x: 10.93, y: 6.26}
+  cardColumnCount: 4
 --- !u!114 &1505377835
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -238,7 +238,7 @@ public class CardUseRouter : MonoBehaviour
         if (!IsCardPlayableFromHand())
             return false;
 
-        if (IsPlayerSkillTarget(hit))
+        if (ResolvePlayerSkillTarget(hit) != null)
         {
             return battleManager.PlayCard(cardUI.cardData);
         }
@@ -246,7 +246,7 @@ public class CardUseRouter : MonoBehaviour
         Collider2D[] overlaps = Physics2D.OverlapPointAll(worldPos);
         for (int i = 0; i < overlaps.Length; i++)
         {
-            if (IsPlayerSkillTarget(overlaps[i]))
+            if (ResolvePlayerSkillTarget(overlaps[i]) != null)
             {
                 return battleManager.PlayCard(cardUI.cardData);
             }
@@ -255,15 +255,26 @@ public class CardUseRouter : MonoBehaviour
         return false;
     }
 
-    private bool IsPlayerSkillTarget(Collider2D hit)
+    private Player ResolvePlayerSkillTarget(Collider2D hit)
     {
         if (hit == null || battleManager == null)
         {
-            return false;
+            return null;
         }
 
         Player playerTarget = hit.GetComponentInParent<Player>();
-        return playerTarget != null && playerTarget == battleManager.player;
+        if (playerTarget != null && playerTarget == battleManager.player)
+        {
+            return playerTarget;
+        }
+
+        BoardTile tile = ResolveBoardTile(hit);
+        if (tile != null && battleManager.player != null && tile.gridPosition == battleManager.player.position)
+        {
+            return battleManager.player;
+        }
+
+        return null;
     }
 
     private void UpdateSkillTargetHighlight(Vector2 worldPosition)
@@ -283,8 +294,8 @@ public class CardUseRouter : MonoBehaviour
             Collider2D overlap = overlaps[i];
             if (overlap == null) continue;
 
-            Player candidate = overlap.GetComponentInParent<Player>();
-            if (candidate != null && candidate == battleManager.player)
+            Player candidate = ResolvePlayerSkillTarget(overlap);
+            if (candidate != null)
             {
                 target = candidate;
                 break;

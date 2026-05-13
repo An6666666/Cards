@@ -9675,8 +9675,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   tooltipController: {fileID: 0}
-  title: "\u724C\u5EAB/\u68C4\u724C\u5EAB\u8F49\u63DB"
-  description: "\u9EDE\u64CA\u5F8C\u53EF\u4EE5\u8F49\u63DB\u724C\u5EAB\u548C\u68C4\u724C\u5EAB"
+  title: "\u8F49\u63DB"
+  description: "\u9EDE\u64CA\u5F8C\u53EF\u4EE5\u8F49\u63DB\u724C\u5EAB\u3001\u68C4\u724C\u5EAB\u3001\u7E3D\u724C\u5EAB"
   positionOffset: {x: 150, y: 60}
 --- !u!1 &1461684467
 GameObject:
@@ -12916,7 +12916,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5361295244187457011, guid: 6ee8a7298f7c9954d85e9639a13c03db, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 8333607065587245697, guid: 6ee8a7298f7c9954d85e9639a13c03db, type: 3}
       propertyPath: m_Pivot.x
@@ -13464,13 +13464,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   startingDeck: []
-  debugStartingDeck:
-  - {fileID: 11400000, guid: 11d3cc5377d2ef3459a4b4380becefff, type: 2}
-  - {fileID: 11400000, guid: 9a5a37cfe6c1216448cd26bb8d654d24, type: 2}
-  - {fileID: 11400000, guid: a58c41531431ead4ebb45b0f3f038cbc, type: 2}
-  - {fileID: 11400000, guid: 4fd70894f3d5cb54388922c21a1e3c60, type: 2}
-  - {fileID: 11400000, guid: 9aaf3c9fe05acb3468a4b7d995117dd5, type: 2}
-  useDebugDeck: 0
+  debugStartingDeck: []
+  useDebugDeck: 1
   startingDeckDefinition: {fileID: 11400000, guid: 1ce8022936a74184fb5e02c6c0afbb04, type: 2}
   exhaustCountThisTurn: 0
 --- !u!114 &1848671832

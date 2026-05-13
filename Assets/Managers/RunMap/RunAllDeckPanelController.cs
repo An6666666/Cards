@@ -11,6 +11,11 @@ public class RunAllDeckPanelController : MonoBehaviour
     [SerializeField] private Button closeButton;
     [SerializeField] private CardIconItem cardItemPrefab;
 
+    [Header("Layout")]
+    [SerializeField] private Vector2 cardCellSize = new Vector2(25.73f, 134f);
+    [SerializeField] private Vector2 cardCellSpacing = new Vector2(10.93f, 6.26f);
+    [SerializeField] private int cardColumnCount = 4;
+
     private readonly List<CardIconItem> spawnedItems = new List<CardIconItem>(64);
 
     private void Awake()
@@ -90,6 +95,11 @@ public class RunAllDeckPanelController : MonoBehaviour
 
     private void ResolveReferences()
     {
+        if (cardItemPrefab == null)
+        {
+            cardItemPrefab = ResolveCardItemPrefab();
+        }
+
         if (scrollRect == null)
         {
             scrollRect = GetComponentInChildren<ScrollRect>(true);
@@ -148,10 +158,10 @@ public class RunAllDeckPanelController : MonoBehaviour
         gridLayout.childAlignment = TextAnchor.UpperCenter;
         gridLayout.startCorner = GridLayoutGroup.Corner.UpperLeft;
         gridLayout.startAxis = GridLayoutGroup.Axis.Horizontal;
-        gridLayout.cellSize = new Vector2(25.73f, 134f);
-        gridLayout.spacing = new Vector2(10.93f, 6.26f);
+        gridLayout.cellSize = cardCellSize;
+        gridLayout.spacing = cardCellSpacing;
         gridLayout.constraint = GridLayoutGroup.Constraint.FixedColumnCount;
-        gridLayout.constraintCount = 4;
+        gridLayout.constraintCount = Mathf.Max(1, cardColumnCount);
 
         ContentSizeFitter fitter = contentRoot.GetComponent<ContentSizeFitter>();
         if (fitter == null)
@@ -264,4 +274,23 @@ public class RunAllDeckPanelController : MonoBehaviour
 
         return null;
     }
+
+    private static CardIconItem ResolveCardItemPrefab()
+    {
+        CardIconItem[] candidates = Resources.FindObjectsOfTypeAll<CardIconItem>();
+        for (int i = 0; i < candidates.Length; i++)
+        {
+            CardIconItem candidate = candidates[i];
+            if (candidate == null || candidate.gameObject.scene.IsValid())
+            {
+                continue;
+            }
+
+            return candidate;
+        }
+
+        CardIconItem sceneCandidate = FindObjectOfType<CardIconItem>(true);
+        return sceneCandidate;
+    }
+
 }
