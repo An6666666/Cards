@@ -16,7 +16,7 @@ public class BattleEndSummaryController : MonoBehaviour
 
         public void Set(string value)
         {
-
+            if (legacyText != null)
             {
                 legacyText.text = value ?? string.Empty;
             }
@@ -69,6 +69,14 @@ public class BattleEndSummaryController : MonoBehaviour
         RefreshFromStoredSummary();
     }
 
+    private void LateUpdate()
+    {
+        if (panelRoot != null && panelRoot.activeInHierarchy)
+        {
+            transform.SetAsLastSibling();
+        }
+    }
+
     public void RefreshFromStoredSummary()
     {
         if (!BattleEndSummaryStore.TryGetLastSummary(out BattleEndSummaryData summary))
@@ -102,6 +110,8 @@ public class BattleEndSummaryController : MonoBehaviour
         {
             panelRoot.SetActive(true);
         }
+
+        transform.SetAsLastSibling();
 
         if (resultImage != null)
         {

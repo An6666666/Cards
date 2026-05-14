@@ -14,6 +14,7 @@ public class BoardTileHoverHighlight : MonoBehaviour
     private GameObject currentStatusTarget;
     private EnemyMouseInteractor currentEnemyHoverTarget;
     private bool hovering = false;
+    private bool showingHoverHighlight;
 
     private void Awake()
     {
@@ -35,7 +36,7 @@ public class BoardTileHoverHighlight : MonoBehaviour
     {
         hovering = false;
         hoverTimer = 0f;
-        if (tile) tile.SetHighlight(false);
+        SetHoverHighlight(false);
         ClearStatusPanelTarget();
     }
 
@@ -47,7 +48,7 @@ public class BoardTileHoverHighlight : MonoBehaviour
         {
             hovering = false;
             hoverTimer = 0f;
-            if (tile) tile.SetHighlight(false);
+            SetHoverHighlight(false);
             ClearStatusPanelTarget();
             return;
         }
@@ -57,13 +58,13 @@ public class BoardTileHoverHighlight : MonoBehaviour
         hoverTimer += Time.deltaTime;
         if (hoverTimer >= hoverDelay && ShouldShowEmptyTileHoverHighlight())
         {
-            if (tile) tile.SetHighlight(!hasStatusTarget);
+            SetHoverHighlight(!hasStatusTarget);
         }
     }
 
     private void OnDisable()
     {
-        if (tile) tile.SetHighlight(false);
+        SetHoverHighlight(false);
         ClearStatusPanelTarget();
     }
 
@@ -93,7 +94,7 @@ public class BoardTileHoverHighlight : MonoBehaviour
                 statusPanel.SetTarget(currentStatusTarget);
             }
 
-            if (tile) tile.SetHighlight(false);
+            SetHoverHighlight(false);
             UpdateEnemyTileHover(currentStatusTarget.GetComponent<Enemy>());
         }
         else
@@ -223,6 +224,23 @@ public class BoardTileHoverHighlight : MonoBehaviour
         }
 
         return tile.GetComponent<BoardTileSelectable>() != null;
+    }
+
+    private void SetHoverHighlight(bool show)
+    {
+        if (tile == null)
+        {
+            showingHoverHighlight = false;
+            return;
+        }
+
+        if (showingHoverHighlight == show)
+        {
+            return;
+        }
+
+        showingHoverHighlight = show;
+        tile.SetHighlight(show);
     }
 
     private void UpdateEnemyTileHover(Enemy enemy)

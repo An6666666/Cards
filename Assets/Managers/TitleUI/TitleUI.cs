@@ -426,9 +426,21 @@ public class TitleUI : MonoBehaviour
         }
 
         selectionArrow.SetParent(canvasRect, false);
-        selectionArrow.SetAsLastSibling();
+        PlaceSelectionArrowBelowBattleEndRoot(canvasRect);
         selectionArrow.anchoredPosition = localPoint + resolvedOffset;
         SetSelectionArrowVisible(true);
+    }
+
+    private void PlaceSelectionArrowBelowBattleEndRoot(RectTransform canvasRect)
+    {
+        Transform endRoot = canvasRect.Find("ENDroot");
+        if (endRoot != null && endRoot.gameObject.activeInHierarchy)
+        {
+            selectionArrow.SetSiblingIndex(Mathf.Max(0, endRoot.GetSiblingIndex()));
+            return;
+        }
+
+        selectionArrow.SetAsLastSibling();
     }
 
     private static Vector3 ResolveSelectionAnchorWorldPoint(RectTransform target)

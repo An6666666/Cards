@@ -63,6 +63,7 @@ public partial class RewardUI : MonoBehaviour
     [SerializeField] private Text goldText;
     [SerializeField] private Button packButton;
     [SerializeField] private Button skipButton;
+    [SerializeField] private Button allDeckCounterButton;
     [SerializeField] private Transform cardParent;
 
     [Header("Reward Card Display")]
@@ -138,6 +139,8 @@ public partial class RewardUI : MonoBehaviour
 
     private void Awake()
     {
+        ResolveAllDeckCounterButton();
+        WireAllDeckCounterButton();
         ResolvePackVisualReferences();
         CacheDefaultVisualState();
         CacheGoldTextStyle();
@@ -155,6 +158,14 @@ public partial class RewardUI : MonoBehaviour
         HideSkipButton();
         SetSkipHoverVisible(false);
         SetSkipButtonUseConfirmSprite(false);
+    }
+
+    private void OnDestroy()
+    {
+        if (allDeckCounterButton != null)
+        {
+            allDeckCounterButton.onClick.RemoveListener(OnRewardAllDeckCounterClicked);
+        }
     }
 
     public void Show(BattleManager bm, int goldReward, List<CardBase> cardChoices)
@@ -177,6 +188,8 @@ public partial class RewardUI : MonoBehaviour
         stageSelectionCommitted = false;
         closeRequested = false;
 
+        ResolveAllDeckCounterButton();
+        WireAllDeckCounterButton();
         ResolvePackVisualReferences();
         CacheDefaultVisualState();
         RestoreGoldTextStyle();
@@ -317,6 +330,49 @@ public partial class RewardUI : MonoBehaviour
 
         ClearRewardEntries();
         gameObject.SetActive(false);
+    }
+
+    private void ResolveAllDeckCounterButton()
+    {
+        if (allDeckCounterButton != null)
+        {
+            return;
+        }
+
+        Button[] buttons = GetComponentsInChildren<Button>(true);
+        for (int i = 0; i < buttons.Length; i++)
+        {
+            Button button = buttons[i];
+            if (button != null && button.name == "AllDeck CounterButton")
+            {
+                allDeckCounterButton = button;
+                return;
+            }
+        }
+    }
+
+    private void WireAllDeckCounterButton()
+    {
+        if (allDeckCounterButton == null)
+        {
+            return;
+        }
+
+        allDeckCounterButton.onClick.RemoveListener(OnRewardAllDeckCounterClicked);
+        allDeckCounterButton.onClick.AddListener(OnRewardAllDeckCounterClicked);
+    }
+
+    private void OnRewardAllDeckCounterClicked()
+    {
+        UIManager uiManager = FindObjectOfType<UIManager>(true);
+        if (uiManager != null)
+        {
+            uiManager.OnAllDeckCounterClicked();
+            return;
+        }
+
+        DeckPanelController deckPanelController = FindObjectOfType<DeckPanelController>(true);
+        deckPanelController?.OpenAllDeckPanel();
     }
 
 }
