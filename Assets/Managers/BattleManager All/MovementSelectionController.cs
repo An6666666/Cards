@@ -13,6 +13,7 @@ public class MovementSelectionController
     private CardBase currentMovementCard;
     private readonly List<BoardTile> highlightedTiles = new List<BoardTile>();
     private BoardTile currentMovementTargetPreviewTile;
+    private bool movementRangeHighlightsVisible;
     private const float MovementHoverScreenRadiusPixels = 90f;
 
     public bool IsSelectingMovementTile => isSelectingMovementTile;
@@ -105,11 +106,7 @@ public class MovementSelectionController
         currentMovementCard = null;
         ClearMovementTargetPreview();
 
-        for (int i = 0; i < highlightedTiles.Count; i++)
-        {
-            highlightedTiles[i].SetSelectable(false);
-        }
-
+        SetMovementRangeHighlightsVisible(false);
         highlightedTiles.Clear();
         board.ResetAllTilesSelectable();
     }
@@ -182,11 +179,7 @@ public class MovementSelectionController
         isSelectingMovementTile = false;
         currentMovementCard = null;
 
-        for (int i = 0; i < highlightedTiles.Count; i++)
-        {
-            highlightedTiles[i].SetSelectable(false);
-        }
-
+        SetMovementRangeHighlightsVisible(false);
         highlightedTiles.Clear();
         board.ResetAllTilesSelectable();
         handUIController.UpdateHandMetaUI();
@@ -284,6 +277,27 @@ public class MovementSelectionController
             tile.SetSelectable(true);
             highlightedTiles.Add(tile);
         }
+
+        movementRangeHighlightsVisible = highlightedTiles.Count > 0;
+    }
+
+    private void SetMovementRangeHighlightsVisible(bool visible)
+    {
+        if (movementRangeHighlightsVisible == visible)
+        {
+            return;
+        }
+
+        for (int i = 0; i < highlightedTiles.Count; i++)
+        {
+            BoardTile tile = highlightedTiles[i];
+            if (tile != null)
+            {
+                tile.SetSelectable(visible);
+            }
+        }
+
+        movementRangeHighlightsVisible = visible;
     }
 
     private BoardTile FindMovementTileAt(Vector2 worldPosition)

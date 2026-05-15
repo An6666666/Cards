@@ -118,7 +118,6 @@ public class AttackSelectionController
         }
 
         Enemy targetEnemy = ResolveAttackTargetAt(worldPosition);
-
         if (IsValidTarget(targetEnemy))
         {
             SetCurrentEnemyHighlight(targetEnemy);

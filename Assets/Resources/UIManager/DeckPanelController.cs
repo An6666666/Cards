@@ -156,7 +156,11 @@ public class DeckPanelController : MonoBehaviour
         RefreshAllDeckData();
         if (deckPanel) _fx?.HidePanel(deckPanel);
         if (discardPanel) _fx?.HidePanel(discardPanel);
-        if (allDeckPanel) _fx?.ShowPanel(allDeckPanel);
+        if (allDeckPanel)
+        {
+            _fx?.ShowPanel(allDeckPanel);
+            allDeckPanel.transform.SetAsLastSibling();
+        }
     }
 
     public void CloseDeckPanel()

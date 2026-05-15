@@ -315,6 +315,8 @@ public class CardUseRouter : MonoBehaviour
             return;
         }
 
+        battleManager.SetSkillTargetTileHighlight(true);
+
         if (highlightedSkillTarget != null && highlightedSkillTarget != nextHighlight)
         {
             highlightedSkillTarget.SetHighlighted(false);
