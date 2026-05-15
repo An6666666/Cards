@@ -251,7 +251,26 @@ public partial class RewardUI : MonoBehaviour
         ClearRewardEntries();
         PrepareRelicStage();
         ConfigureSkipButtonForRelicStage();
+
+        openPackCoroutine = StartCoroutine(ShowRelicChoicesAfterBottomReveal());
+    }
+
+    private System.Collections.IEnumerator ShowRelicChoicesAfterBottomReveal()
+    {
+        float waitDuration = Mathf.Max(bottomRevealDuration, GetVisualAnimatorDuration(bottomRoot));
+        if (waitDuration > 0f)
+        {
+            yield return new WaitForSecondsRealtime(waitDuration);
+        }
+
+        if (closeRequested || rewardStage != RewardStage.RelicReward)
+        {
+            openPackCoroutine = null;
+            yield break;
+        }
+
         DisplayRelicChoices(pendingRelicChoices);
+        openPackCoroutine = null;
     }
 
     private void ConfigureSkipButtonForCardStage()
@@ -276,7 +295,7 @@ public partial class RewardUI : MonoBehaviour
         skipButton.onClick.RemoveAllListeners();
         skipButton.onClick.AddListener(ConfirmSelectedRelic);
         SetSkipButtonUseConfirmSprite(true);
-        ScheduleSkipButtonReveal(false);
+        HideSkipButton();
     }
 
     private void AdvanceAfterCardStage()

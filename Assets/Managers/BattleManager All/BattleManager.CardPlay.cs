@@ -122,6 +122,16 @@ public partial class BattleManager
         handUIController.HandleCardUsedUI(usedUI);
     }
 
+    public void MarkCardPendingConsumeUI(CardUI pendingUI)
+    {
+        handUIController?.MarkCardPendingConsume(pendingUI);
+    }
+
+    public void ClearCardPendingConsumeUI(CardUI pendingUI)
+    {
+        handUIController?.ClearCardPendingConsume(pendingUI);
+    }
+
     public void RefreshHandUI(bool playDrawAnimation = false)
     {
         handUIController.RefreshHandUI(playDrawAnimation);

@@ -4398,7 +4398,7 @@ MonoBehaviour:
   descriptionText: {fileID: 1672691251}
   cardPrefab: {fileID: 4596475076482105628, guid: 100c1a32f1664694b821ff0756181848, type: 3}
   relicPrefab: {fileID: 1783318111576351439, guid: 08c15e7ff11ec82489c2496245076eb5, type: 3}
-  cardRewardScale: 0.45
+  cardRewardScale: 0.65
   relicRewardScale: 7.2
   disabledOptionAlpha: 0.45
   optionViews:

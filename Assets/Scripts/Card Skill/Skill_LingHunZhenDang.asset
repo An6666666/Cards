@@ -19,5 +19,5 @@ MonoBehaviour:
   exhaustOnUse: 0
   shopPrice: 12
   cardType: 1
-  energyGain: 3
+  energyGain: 2
   selfDamage: 6

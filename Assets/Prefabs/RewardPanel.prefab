@@ -365,6 +365,7 @@ MonoBehaviour:
   goldText: {fileID: 2994313271398882649}
   packButton: {fileID: 4503365198021094340}
   skipButton: {fileID: 3059196997462547697}
+  allDeckCounterButton: {fileID: 0}
   cardParent: {fileID: 8361913479290666556}
   useRewardCardScale: 1
   rewardCardScale: {x: 0.8, y: 0.8, z: 1}

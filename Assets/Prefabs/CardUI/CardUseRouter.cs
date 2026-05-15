@@ -240,7 +240,7 @@ public class CardUseRouter : MonoBehaviour
 
         if (ResolvePlayerSkillTarget(hit) != null)
         {
-            return battleManager.PlayCard(cardUI.cardData);
+            return TryPlaySkillCard();
         }
 
         Collider2D[] overlaps = Physics2D.OverlapPointAll(worldPos);
@@ -248,11 +248,23 @@ public class CardUseRouter : MonoBehaviour
         {
             if (ResolvePlayerSkillTarget(overlaps[i]) != null)
             {
-                return battleManager.PlayCard(cardUI.cardData);
+                return TryPlaySkillCard();
             }
         }
 
         return false;
+    }
+
+    private bool TryPlaySkillCard()
+    {
+        battleManager.MarkCardPendingConsumeUI(cardUI);
+        bool played = battleManager.PlayCard(cardUI.cardData);
+        if (!played)
+        {
+            battleManager.ClearCardPendingConsumeUI(cardUI);
+        }
+
+        return played;
     }
 
     private Player ResolvePlayerSkillTarget(Collider2D hit)

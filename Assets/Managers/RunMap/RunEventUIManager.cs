@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 public class RunEventUIManager : MonoBehaviour
@@ -10,7 +11,7 @@ public class RunEventUIManager : MonoBehaviour
     [SerializeField] private Text descriptionText;
     [SerializeField] private GameObject cardPrefab;
     [SerializeField] private GameObject relicPrefab;
-    [SerializeField, Min(0.01f)] private float cardRewardScale = 0.24f;
+    [SerializeField, Min(0.01f)] private float cardRewardScale = 0.65f;
     [SerializeField, Min(0.01f)] private float relicRewardScale = 7.2f;
     [SerializeField, Range(0.1f, 1f)] private float disabledOptionAlpha = 0.45f;
     [SerializeField] private List<EventOptionView> optionViews = new();
@@ -19,9 +20,9 @@ public class RunEventUIManager : MonoBehaviour
     private Action<RunEventOption> onOptionSelected;
 
     private const float RewardRootOffsetX = -640f;
-    private const float RewardRootWidth = 210f;
+    private const float RewardRootWidth = 260f;
     private const float RewardSpacing = 8f;
-    private static readonly Vector2 CardRewardSlotSize = new Vector2(92f, 128f);
+    private static readonly Vector2 CardRewardSlotSize = new Vector2(188f, 260f);
     private static readonly Vector2 RelicRewardSlotSize = new Vector2(76f, 76f);
     private static readonly Color RewardFallbackTextColor = new Color(0.24f, 0.10f, 0.08f, 1f);
 
@@ -110,18 +111,30 @@ public class RunEventUIManager : MonoBehaviour
 
     private bool CanAffordOption(RunEventOption option)
     {
-        if (option == null || option.goldDelta >= 0)
+        if (option == null)
         {
             return true;
         }
 
-        if (!TryGetCurrentGold(out int currentGold))
+        if (option.goldDelta < 0 && TryGetCurrentGold(out int currentGold))
         {
-            return true;
+            int goldCost = Mathf.Abs(option.goldDelta);
+            if (currentGold < goldCost)
+            {
+                return false;
+            }
         }
 
-        int goldCost = Mathf.Abs(option.goldDelta);
-        return currentGold >= goldCost;
+        if (option.hpDelta < 0 && TryGetCurrentHP(out int currentHP))
+        {
+            int hpCost = Mathf.Abs(option.hpDelta);
+            if (currentHP < hpCost)
+            {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     private bool TryGetCurrentGold(out int currentGold)
@@ -141,6 +154,26 @@ public class RunEventUIManager : MonoBehaviour
         }
 
         currentGold = 0;
+        return false;
+    }
+
+    private bool TryGetCurrentHP(out int currentHP)
+    {
+        RunManager runManager = RunManager.Instance;
+        if (runManager != null && runManager.CurrentRunSnapshot != null)
+        {
+            currentHP = runManager.CurrentRunSnapshot.currentHP;
+            return true;
+        }
+
+        Player player = FindObjectOfType<Player>();
+        if (player != null)
+        {
+            currentHP = player.currentHP;
+            return true;
+        }
+
+        currentHP = 0;
         return false;
     }
 
@@ -368,6 +401,8 @@ public class RunEventUIManager : MonoBehaviour
         private readonly List<GameObject> spawnedRewardEntries = new();
         private RectTransform rewardRoot;
         private CanvasGroup canvasGroup;
+        private bool hoverHandlersConfigured;
+        private bool hasRewardContent;
 
         public Font LabelFont => label != null ? label.font : null;
 
@@ -389,6 +424,8 @@ public class RunEventUIManager : MonoBehaviour
             bool canSelect = owner == null || owner.CanAffordOption(option);
             ApplyInteractableState(canSelect, owner);
             RebuildRewards(option, owner);
+            ConfigureHoverHandlers();
+            SetRewardVisible(false);
         }
 
         public void Reset()
@@ -482,8 +519,8 @@ public class RunEventUIManager : MonoBehaviour
                 return;
             }
 
-            bool hasRewardContent = owner != null && owner.HasRewardContent(option);
-            rewardRoot.gameObject.SetActive(hasRewardContent);
+            hasRewardContent = owner != null && owner.HasRewardContent(option);
+            rewardRoot.gameObject.SetActive(false);
             if (!hasRewardContent || owner == null || option == null)
             {
                 return;
@@ -510,6 +547,109 @@ public class RunEventUIManager : MonoBehaviour
             LayoutRebuilder.ForceRebuildLayoutImmediate(rewardRoot);
         }
 
+        private void ConfigureHoverHandlers()
+        {
+            if (hoverHandlersConfigured || root == null)
+            {
+                return;
+            }
+
+            AddHoverHandlers(root, true);
+            if (button != null && button.gameObject != root)
+            {
+                AddHoverHandlers(button.gameObject, false);
+            }
+
+            hoverHandlersConfigured = true;
+        }
+
+        private void AddHoverHandlers(GameObject target, bool hideOnExit)
+        {
+            if (target == null)
+            {
+                return;
+            }
+
+            EventTrigger trigger = target.GetComponent<EventTrigger>();
+            if (trigger == null)
+            {
+                trigger = target.AddComponent<EventTrigger>();
+            }
+
+            AddHoverEntry(trigger, EventTriggerType.PointerEnter, _ => SetRewardVisible(true));
+            if (hideOnExit)
+            {
+                AddHoverEntry(trigger, EventTriggerType.PointerExit, _ => SetRewardVisible(false));
+            }
+        }
+
+        private void AddHoverEntry(EventTrigger trigger, EventTriggerType eventType, UnityEngine.Events.UnityAction<BaseEventData> action)
+        {
+            EventTrigger.Entry entry = new EventTrigger.Entry { eventID = eventType };
+            entry.callback.AddListener(action);
+            trigger.triggers.Add(entry);
+        }
+
+        private void SetRewardVisible(bool visible)
+        {
+            if (rewardRoot == null)
+            {
+                return;
+            }
+
+            rewardRoot.gameObject.SetActive(visible && hasRewardContent);
+            if (visible)
+            {
+                ShowCardRewardDetails();
+            }
+            else
+            {
+                HideCardRewardDetails();
+            }
+        }
+
+        private void ShowCardRewardDetails()
+        {
+            for (int i = 0; i < spawnedRewardEntries.Count; i++)
+            {
+                GameObject rewardObject = spawnedRewardEntries[i];
+                if (rewardObject == null)
+                {
+                    continue;
+                }
+
+                CardUI cardUI = rewardObject.GetComponentInChildren<CardUI>(true);
+                if (cardUI == null)
+                {
+                    continue;
+                }
+
+                cardUI.InfoTooltip?.Show();
+                cardUI.ScopeDisplay?.Show();
+            }
+        }
+
+        private void HideCardRewardDetails()
+        {
+            for (int i = 0; i < spawnedRewardEntries.Count; i++)
+            {
+                GameObject rewardObject = spawnedRewardEntries[i];
+                if (rewardObject == null)
+                {
+                    continue;
+                }
+
+                CardUI cardUI = rewardObject.GetComponentInChildren<CardUI>(true);
+                if (cardUI == null)
+                {
+                    continue;
+                }
+
+                cardUI.InfoTooltip?.Hide();
+                cardUI.ScopeDisplay?.Hide();
+            }
+        }
+
         private void TrackReward(GameObject rewardObject)
         {
             if (rewardObject != null)
@@ -530,6 +670,7 @@ public class RunEventUIManager : MonoBehaviour
             }
 
             spawnedRewardEntries.Clear();
+            hasRewardContent = false;
         }
     }
 }

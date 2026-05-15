@@ -159,6 +159,7 @@ public partial class RewardUI
 
         if (skipButton != null)
         {
+            skipButton.gameObject.SetActive(true);
             skipButton.interactable = true;
         }
 

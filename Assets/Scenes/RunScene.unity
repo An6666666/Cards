@@ -559,6 +559,9 @@ MonoBehaviour:
   contentRoot: {fileID: 1274123946}
   closeButton: {fileID: 274848250}
   cardItemPrefab: {fileID: 8599590451376640417, guid: 9a34f8b649df81049bc71deaf4cb859e, type: 3}
+  cardCellSize: {x: 25.73, y: 134}
+  cardCellSpacing: {x: 10.93, y: 6.26}
+  cardColumnCount: 4
 --- !u!114 &270814944
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1649,6 +1652,8 @@ MonoBehaviour:
   allowAnyNodeEntry: 0
   eventUIManager: {fileID: 1731840768}
   tutorialRun: 0
+  tutorialStartingDeckDefinition: {fileID: 0}
+  tutorialStartingDeck: []
   defaultPlayerMaxHP: 80
   defaultPlayerCurrentHP: 80
   defaultPlayerGold: 40
@@ -3769,7 +3774,7 @@ MonoBehaviour:
   descriptionText: {fileID: 1672691251}
   cardPrefab: {fileID: 4596475076482105628, guid: 100c1a32f1664694b821ff0756181848, type: 3}
   relicPrefab: {fileID: 1783318111576351439, guid: 08c15e7ff11ec82489c2496245076eb5, type: 3}
-  cardRewardScale: 0.45
+  cardRewardScale: 0.65
   relicRewardScale: 7.2
   disabledOptionAlpha: 0.45
   optionViews:

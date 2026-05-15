@@ -71,8 +71,20 @@ public partial class RunManager
     {
         yield return null;
 
+        while (SceneTransitionLoader.IsLoading)
+        {
+            yield return null;
+        }
+
         if (!string.IsNullOrWhiteSpace(sceneName))
         {
+            string activeSceneName = UnityEngine.SceneManagement.SceneManager.GetActiveScene().name;
+            if (string.Equals(activeSceneName, sceneName, StringComparison.Ordinal))
+            {
+                TryResumePendingNodeTransitionInCurrentScene();
+                yield break;
+            }
+
             SceneTransitionLoader.LoadScene(sceneName);
         }
     }
@@ -81,6 +93,22 @@ public partial class RunManager
     {
         if (activeNode == null)
         {
+            return;
+        }
+
+        if (activeNode.NodeType == MapNodeType.Battle ||
+            activeNode.NodeType == MapNodeType.EliteBattle ||
+            activeNode.NodeType == MapNodeType.Boss ||
+            activeNode.NodeType == MapNodeType.Shop)
+        {
+            string resumeScene = ResolveSceneNameForActiveNode();
+            string activeSceneName = UnityEngine.SceneManagement.SceneManager.GetActiveScene().name;
+            if (!string.IsNullOrWhiteSpace(resumeScene) &&
+                !string.Equals(activeSceneName, resumeScene, StringComparison.Ordinal))
+            {
+                StartCoroutine(ResumeSavedSceneNextFrame(resumeScene));
+            }
+
             return;
         }
 
@@ -118,7 +146,7 @@ public partial class RunManager
             bootstrapRunSceneName = string.IsNullOrWhiteSpace(runSceneName)
                 ? UnityEngine.SceneManagement.SceneManager.GetActiveScene().name
                 : runSceneName,
-            resumeSceneName = UnityEngine.SceneManagement.SceneManager.GetActiveScene().name,
+            resumeSceneName = DetermineSceneNameToSaveForResume(),
             runSequenceId = runSequenceId,
             tutorialRun = tutorialRun,
             runCompleted = runCompleted,
@@ -242,11 +270,40 @@ public partial class RunManager
             ? data.resumeSceneName
             : runSceneName;
 
-        if (!string.Equals(resumeScene, runSceneName, StringComparison.Ordinal))
+        if (IsGameplayResumeScene(resumeScene) &&
+            !string.Equals(resumeScene, runSceneName, StringComparison.Ordinal))
         {
             return resumeScene;
         }
 
+        return ResolveSceneNameForActiveNode();
+    }
+
+    private string DetermineSceneNameToSaveForResume()
+    {
+        string activeSceneName = UnityEngine.SceneManagement.SceneManager.GetActiveScene().name;
+        if (IsGameplayResumeScene(activeSceneName))
+        {
+            return activeSceneName;
+        }
+
+        return ResolveSceneNameForActiveNode();
+    }
+
+    private bool IsGameplayResumeScene(string sceneName)
+    {
+        if (string.IsNullOrWhiteSpace(sceneName))
+        {
+            return false;
+        }
+
+        return string.Equals(sceneName, runSceneName, StringComparison.Ordinal)
+            || string.Equals(sceneName, battleSceneName, StringComparison.Ordinal)
+            || string.Equals(sceneName, shopSceneName, StringComparison.Ordinal);
+    }
+
+    private string ResolveSceneNameForActiveNode()
+    {
         if (activeNode == null)
         {
             return runSceneName;

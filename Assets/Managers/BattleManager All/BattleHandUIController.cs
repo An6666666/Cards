@@ -15,6 +15,7 @@ public class BattleHandUIController
     private readonly Text energyText;
     private readonly Button endTurnButton;
     private readonly float cardUseDelay;
+    private readonly HashSet<CardUI> pendingConsumedCardUIs = new HashSet<CardUI>();
 
     private bool cardInteractionLocked;
 
@@ -68,6 +69,7 @@ public class BattleHandUIController
     public void HandleCardUsedUI(CardUI usedUI)
     {
         if (usedUI == null || handPanel == null) return;
+        pendingConsumedCardUIs.Remove(usedUI);
         Object.Destroy(usedUI.gameObject);
 
         if (handPanel is RectTransform handRect)
@@ -88,6 +90,12 @@ public class BattleHandUIController
             Transform child = handPanel.GetChild(i);
             CardUI cardUI = child.GetComponent<CardUI>();
             if (cardUI == null) continue;
+
+            if (pendingConsumedCardUIs.Contains(cardUI))
+            {
+                DetachCardUI(cardUI);
+                continue;
+            }
 
             if (cardUI.cardData == null)
             {
@@ -181,6 +189,22 @@ public class BattleHandUIController
             {
                 createdCards[i].PlayDrawAnimation(deckRect);
             }
+        }
+    }
+
+    public void MarkCardPendingConsume(CardUI cardUI)
+    {
+        if (cardUI != null)
+        {
+            pendingConsumedCardUIs.Add(cardUI);
+        }
+    }
+
+    public void ClearCardPendingConsume(CardUI cardUI)
+    {
+        if (cardUI != null)
+        {
+            pendingConsumedCardUIs.Remove(cardUI);
         }
     }
 
